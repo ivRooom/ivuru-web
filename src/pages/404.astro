@@ -1,0 +1,87 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getDictionary } from '@/i18n/dictionaries';
+const locale = Astro.url.pathname.startsWith('/en')
+  ? 'en'
+  : Astro.url.pathname.startsWith('/ko')
+    ? 'ko'
+    : 'ja';
+const d = getDictionary(locale);
+---
+
+<BaseLayout
+  title={`404 — ${d.notFound.title}`}
+  description={d.notFound.body}
+  locale={locale}
+  noindex
+>
+  <section class="not-found">
+    <div class="not-found-orbit" aria-hidden="true"><i></i></div><p class="eyebrow">
+      ERROR / 404
+    </p><h1>404</h1><h2>{d.notFound.title}</h2><p>{d.notFound.body}</p><a
+      class="primary-button"
+      href={locale === 'ja' ? '/' : `/${locale}`}>{d.notFound.action}</a
+    >
+  </section>
+</BaseLayout>
+<style>
+  .not-found {
+    position: relative;
+    min-height: 100svh;
+    padding: 150px 24px 80px;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    text-align: center;
+    background:
+      radial-gradient(
+        circle at 50%,
+        color-mix(in srgb, var(--purple) 20%, transparent),
+        transparent 35%
+      ),
+      var(--bg);
+  }
+  .not-found h1 {
+    margin: 0;
+    font-size: clamp(120px, 26vw, 360px);
+    line-height: 0.72;
+    letter-spacing: -0.1em;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--line);
+  }
+  .not-found h2 {
+    margin: 38px 0 10px;
+    font-size: clamp(30px, 5vw, 68px);
+    letter-spacing: -0.055em;
+  }
+  .not-found > p:not(.eyebrow) {
+    max-width: 600px;
+    margin: 0 0 28px;
+    color: var(--muted);
+  }
+  .not-found-orbit {
+    position: absolute;
+    width: min(70vw, 700px);
+    aspect-ratio: 1;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+  }
+  .not-found-orbit:before,
+  .not-found-orbit i {
+    content: '';
+    position: absolute;
+    inset: 16%;
+    border: 1px dashed var(--purple);
+    border-radius: 50%;
+  }
+  .not-found-orbit i {
+    inset: 48%;
+    background: var(--cyan);
+    box-shadow: 0 0 50px var(--cyan);
+  }
+  .not-found > *:not(.not-found-orbit) {
+    position: relative;
+    z-index: 2;
+  }
+</style>

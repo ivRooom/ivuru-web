@@ -1,0 +1,30 @@
+---
+import { activities } from '@/data/activities';
+import type { Locale } from '@/data/site-config';
+import { getDictionary } from '@/i18n/dictionaries';
+const { locale } = Astro.props as { locale: Locale };
+const d = getDictionary(locale);
+---
+
+<section class="activity section">
+  <div class="section-inner">
+    <div class="section-heading" data-reveal>
+      <div><p class="section-kicker">LIVE STATUS</p><h2>{d.sections.activity}</h2></div><span
+        class="live-indicator"><i></i>Updated manually</span
+      >
+    </div><div class="activity-list">
+      {
+        activities.map((activity, index) => (
+          <article data-reveal>
+            <>
+              <span>0{index + 1}</span>
+              <h3>{activity.type}</h3>
+              <p>{activity[locale]}</p>
+              <i aria-hidden="true" />
+            </>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>

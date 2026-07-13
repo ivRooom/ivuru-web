@@ -1,0 +1,72 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { render } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import TableOfContents from '@/components/blog/TableOfContents';
+import ShareButtons from '@/components/blog/ShareButtons';
+import { localePath, type Locale } from '@/data/site-config';
+import { getDictionary } from '@/i18n/dictionaries';
+const { locale, post, allPosts } = Astro.props as {
+  locale: Locale;
+  post: CollectionEntry<'blog'>;
+  allPosts: CollectionEntry<'blog'>[];
+};
+const d = getDictionary(locale);
+const { Content, headings } = await render(post);
+const words = (post.body ?? '').split(/\s+/).length;
+const reading = Math.max(1, Math.ceil(words / (locale === 'en' ? 220 : 500)));
+const sorted = allPosts.sort((a, b) => a.data.publishedAt.valueOf() - b.data.publishedAt.valueOf());
+const index = sorted.findIndex((item) => item.id === post.id);
+const makeSlug = (entry: CollectionEntry<'blog'>) =>
+  entry.id.replace(/^(ja|en|ko)\//, '').replace(/\.(md|mdx)$/, '');
+const previous = sorted[index - 1],
+  next = sorted[index + 1];
+---
+
+<BaseLayout
+  title={`${post.data.title} — ivuruGG`}
+  description={post.data.description}
+  locale={locale}
+  type="article"
+  image={post.data.thumbnail}
+>
+  <header class="article-hero">
+    <div>
+      <a href={localePath(locale, '/blog')}>← {d.blog.title}</a><p class="eyebrow">
+        {post.data.category}
+      </p><h1>{post.data.title}</h1><p>{post.data.description}</p><div class="article-meta">
+        <time datetime={post.data.publishedAt.toISOString()}
+          >{post.data.publishedAt.toLocaleDateString(locale)}</time
+        ><span>{reading} {d.blog.reading}</span>{post.data.sample && <span>{d.common.sample}</span>}
+      </div>
+    </div>
+  </header>
+  <article class="article-layout section">
+    <TableOfContents client:load label={d.blog.toc} /><div class="article-body">
+      <Content /><ShareButtons client:load title={post.data.title} />
+    </div><aside class="article-info">
+      <p>ARTICLE DATA</p><span>{post.data.category}</span>{
+        post.data.tags.map((tag) => <span>#{tag}</span>)
+      }<small>{headings.length} sections</small>
+    </aside>
+  </article>
+  <nav class="article-navigation">
+    {
+      previous ? (
+        <a href={localePath(locale, `/blog/${makeSlug(previous)}`)}>
+          <small>PREVIOUS</small>
+          {previous.data.title}
+        </a>
+      ) : (
+        <span />
+      )
+    }{
+      next && (
+        <a href={localePath(locale, `/blog/${makeSlug(next)}`)}>
+          <small>NEXT</small>
+          {next.data.title}
+        </a>
+      )
+    }
+  </nav>
+</BaseLayout>

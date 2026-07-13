@@ -1,0 +1,50 @@
+---
+import { projects } from '@/data/projects';
+import { localePath, type Locale } from '@/data/site-config';
+import { getDictionary } from '@/i18n/dictionaries';
+const { locale } = Astro.props as { locale: Locale };
+const d = getDictionary(locale);
+const featured = projects.filter((project) => project.featured);
+---
+
+<section class="featured section" id="works">
+  <div class="section-heading section-inner" data-reveal>
+    <div><p class="section-kicker">SELECTED / 2026</p><h2>{d.sections.works}</h2></div><a
+      class="text-link"
+      href={localePath(locale, '/works')}>{d.common.viewAll}</a
+    >
+  </div>
+  <div class="works-track">
+    {
+      featured.map((project, index) => (
+        <article class:list={['feature-project', `accent-${project.accent}`]} data-reveal>
+          <div class="project-visual" aria-hidden="true">
+            <>
+              <span class="project-index">0{index + 1}</span>
+              <div class="project-orbit" />
+              <div class="project-grid" />
+            </>
+          </div>
+          <div class="project-copy">
+            <>
+              <div class="project-meta">
+                <span>{project.year}</span>
+                {project.sample && <span>{d.common.sample}</span>}
+              </div>
+              <h3>{project.title}</h3>
+              <p>{project.description[locale]}</p>
+              <div class="project-tech">
+                {project.technologies.map((tech) => (
+                  <span class="chip">{tech}</span>
+                ))}
+              </div>
+              <a class="text-link" href={localePath(locale, `/works/${project.slug}`)}>
+                {d.common.details}
+              </a>
+            </>
+          </div>
+        </article>
+      ))
+    }
+  </div>
+</section>

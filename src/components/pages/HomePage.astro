@@ -1,0 +1,69 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import HeroWorld from '@/components/home/HeroWorld';
+import ScrollEffects from '@/components/effects/ScrollEffects';
+import IdentitySection from '@/components/home/IdentitySection.astro';
+import FeaturedWorks from '@/components/home/FeaturedWorks.astro';
+import CommunitySection from '@/components/home/CommunitySection.astro';
+import ActivitySection from '@/components/home/ActivitySection.astro';
+import MediaReel from '@/components/home/MediaReel';
+import LatestPosts from '@/components/blog/LatestPosts.astro';
+import ContactCTA from '@/components/home/ContactCTA.astro';
+import IntroLoader from '@/components/common/IntroLoader';
+import CustomCursor from '@/components/common/CustomCursor';
+import { localePath, siteConfig, type Locale } from '@/data/site-config';
+import { getDictionary } from '@/i18n/dictionaries';
+const { locale } = Astro.props as { locale: Locale };
+const d = getDictionary(locale);
+const descriptions = {
+  ja: 'DeveloperとGamer、2つの世界をつなぐivuruGG公式サイト。個人開発、ゲーム、ivRmコミュニティ、創作活動を発信します。',
+  en: 'The official ivuruGG site connecting Developer and Gamer worlds through projects, games, the ivRm community, and creative work.',
+  ko: 'Developer와 Gamer의 두 세계를 연결하는 ivuruGG 공식 사이트입니다. 개인 개발, 게임, ivRm 커뮤니티, 창작 활동을 소개합니다.',
+};
+---
+
+<BaseLayout title={siteConfig.title} description={descriptions[locale]} locale={locale}>
+  <IntroLoader client:load />
+  <CustomCursor client:load />
+  <section class="hero" data-hero>
+    <div class="hero-art" data-hero-art></div><HeroWorld client:visible /><div
+      class="hero-vignette"
+    >
+    </div><div class="hero-grid" aria-hidden="true"></div>
+    <div class="hero-copy" data-hero-copy>
+      <p class="eyebrow">{d.hero.eyebrow}</p><h1 class="hero-title">ivuru<span>GG</span></h1><p
+        class="hero-role"
+      >
+        {d.hero.role}
+      </p><p class="hero-tagline">BUILD. PLAY. CREATE. — {d.hero.tagline}</p><div
+        class="hero-actions"
+      >
+        <a class="primary-button" href={localePath(locale, '/works')}>{d.hero.works}</a><a
+          class="secondary-button"
+          href={localePath(locale, '/profile')}>{d.hero.profile}</a
+        ><a
+          class="secondary-button"
+          href={siteConfig.xUrl}
+          target="_blank"
+          rel="noopener noreferrer">X ↗</a
+        >
+      </div>
+    </div>
+    <div class="hero-coordinates" aria-hidden="true">
+      WORLD NODE / IVR-001<br />DEVELOPER ↔ GAMER<br />PORTAL STATUS: ONLINE
+    </div><div class="hero-scroll" aria-hidden="true">{d.hero.scroll}</div>
+  </section>
+  <IdentitySection locale={locale} /><FeaturedWorks locale={locale} /><CommunitySection
+    locale={locale}
+  /><ActivitySection locale={locale} />
+  <section class="media-section section">
+    <div class="section-heading section-inner" data-reveal>
+      <div><p class="section-kicker">VISUAL LOG</p><h2>{d.sections.media}</h2></div><p
+        class="section-intro"
+      >
+        Development / Gaming / Community / Creative
+      </p>
+    </div><MediaReel client:visible />
+  </section>
+  <LatestPosts locale={locale} /><ContactCTA locale={locale} /><ScrollEffects client:idle />
+</BaseLayout>

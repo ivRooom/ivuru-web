@@ -1,0 +1,10 @@
+{
+  "name": "ivuruGG Official Website",
+  "short_name": "ivuruGG",
+  "description": "Developer / Gamer — BUILD. PLAY. CREATE.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#060817",
+  "theme_color": "#060817",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

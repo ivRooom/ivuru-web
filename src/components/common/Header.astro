@@ -1,0 +1,54 @@
+---
+import Logo from './Logo.astro';
+import ThemeSwitcher from './ThemeSwitcher';
+import LanguageSwitcher from './LanguageSwitcher';
+import MobileMenu from './MobileMenu';
+import { navigation } from '@/data/navigation';
+import { siteConfig, type Locale } from '@/data/site-config';
+import { getDictionary } from '@/i18n/dictionaries';
+
+const { locale = 'ja' } = Astro.props as { locale: Locale };
+const dict = getDictionary(locale);
+const items = navigation(locale).map((item) => ({
+  ...item,
+  label: dict.nav[item.key as keyof typeof dict.nav],
+}));
+const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
+---
+
+<header class="site-header" data-site-header>
+  <a class="logo-link" href={items[0].href} aria-label="ivuruGG Home"><Logo /></a>
+  <nav class="desktop-nav" aria-label="Primary navigation">
+    {
+      items.map((item) => (
+        <a class:list={{ active: currentPath === item.href.replace(/\/$/, '') }} href={item.href}>
+          {item.label}
+        </a>
+      ))
+    }
+  </nav>
+  <div class="header-actions">
+    <a
+      class="x-link"
+      href={siteConfig.xUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="ivuruGG on X">X</a
+    >
+    <LanguageSwitcher client:load current={locale} />
+    <ThemeSwitcher client:load />
+    <MobileMenu client:load items={items} xUrl={siteConfig.xUrl} />
+  </div>
+</header>
+<script>
+  const header = document.querySelector('[data-site-header]');
+  let last = window.scrollY;
+  const updateHeader = () => {
+    const now = window.scrollY;
+    header?.classList.toggle('scrolled', now > 24);
+    header?.classList.toggle('hidden', now > last && now > 160);
+    last = now;
+  };
+  document.addEventListener('scroll', updateHeader, { passive: true });
+  document.addEventListener('astro:page-load', updateHeader);
+</script>

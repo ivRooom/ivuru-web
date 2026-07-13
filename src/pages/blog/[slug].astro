@@ -1,0 +1,14 @@
+---
+import { getCollection } from 'astro:content';
+import BlogDetailPage from '@/components/pages/BlogDetailPage.astro';
+export async function getStaticPaths() {
+  const all = await getCollection('blog', ({ data }) => !data.draft && data.locale === 'ja');
+  return all.map((post) => ({
+    params: { slug: post.id.replace(/^ja\//, '').replace(/\.(md|mdx)$/, '') },
+    props: { post, allPosts: all },
+  }));
+}
+const { post, allPosts } = Astro.props;
+---
+
+<BlogDetailPage locale="ja" post={post} allPosts={allPosts} />

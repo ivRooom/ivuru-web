@@ -1,0 +1,45 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import BlogCard from '@/components/blog/BlogCard.astro';
+import BlogSearch from '@/components/blog/BlogSearch';
+import { type Locale } from '@/data/site-config';
+import { getDictionary } from '@/i18n/dictionaries';
+const { locale } = Astro.props as { locale: Locale };
+const d = getDictionary(locale);
+const posts = (
+  await getCollection('blog', ({ data }) => !data.draft && data.locale === locale)
+).sort((a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf());
+const years = [...new Set(posts.map((post) => post.data.publishedAt.getFullYear()))];
+---
+
+<BaseLayout title={`${d.blog.title} — ivuruGG`} description={d.blog.intro} locale={locale}>
+  <header class="page-hero blog-hero page-grid-bg">
+    <div class="page-hero-inner">
+      <p class="eyebrow">FIELD NOTES / {posts.length.toString().padStart(2, '0')}</p><h1
+        class="page-title"
+      >
+        {d.blog.title}
+      </h1><p>{d.blog.intro}</p>
+    </div>
+  </header>
+  <section class="blog-page section">
+    <div class="section-inner">
+      <BlogSearch client:load placeholder={d.blog.search} noResults={d.common.noResults} /><div
+        class="blog-layout"
+      >
+        <div class="blog-grid blog-index">
+          {posts.map((post) => <BlogCard post={post} locale={locale} />)}
+        </div><aside>
+          <p>ARCHIVE</p>{years.map((year) => <a href={`#year-${year}`}>{year}</a>)}<p>
+            CATEGORIES
+          </p>{
+            [...new Set(posts.map((post) => post.data.category))].map((category) => (
+              <span>{category}</span>
+            ))
+          }
+        </aside>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

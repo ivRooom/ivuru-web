@@ -1,0 +1,56 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import WorkFilter from '@/components/works/WorkFilter';
+import { projects } from '@/data/projects';
+import { localePath, type Locale } from '@/data/site-config';
+import { getDictionary } from '@/i18n/dictionaries';
+const { locale } = Astro.props as { locale: Locale };
+const d = getDictionary(locale);
+---
+
+<BaseLayout title={`${d.works.title} — ivuruGG`} description={d.works.intro} locale={locale}>
+  <header class="page-hero page-grid-bg">
+    <div class="page-hero-inner">
+      <p class="eyebrow">WORLD ARCHIVE / {projects.length.toString().padStart(2, '0')}</p><h1
+        class="page-title"
+      >
+        {d.works.title}
+      </h1><p>{d.works.intro}</p>
+    </div>
+  </header>
+  <section class="works-page section">
+    <div class="section-inner">
+      <WorkFilter client:load noResults={d.common.noResults} /><div class="works-grid">
+        {
+          projects.map((project, index) => (
+            <article
+              class={`work-card accent-${project.accent}`}
+              data-work-card
+              data-category={project.category}
+              data-reveal
+            >
+              <a href={localePath(locale, `/works/${project.slug}`)}>
+                <>
+                  <div class="work-card-visual">
+                    <>
+                      <span>0{index + 1}</span>
+                      <i />
+                    </>
+                  </div>
+                  <div class="work-card-copy">
+                    <div class="project-tech">
+                      {project.technologies.map((tech) => (
+                        <span class="chip">{tech}</span>
+                      ))}
+                    </div>
+                    {project.sample && <small class="sample-label">{d.common.sample}</small>}
+                  </div>
+                </>
+              </a>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</BaseLayout>

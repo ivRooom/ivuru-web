@@ -1,0 +1,92 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { projects, type Project } from '@/data/projects';
+import { localePath, type Locale } from '@/data/site-config';
+import { getDictionary } from '@/i18n/dictionaries';
+const { locale, project } = Astro.props as { locale: Locale; project: Project };
+const d = getDictionary(locale);
+const sectionKeys = [
+  'overview',
+  'background',
+  'role',
+  'technology',
+  'features',
+  'design',
+  'challenges',
+  'status',
+  'gallery',
+  'links',
+] as const;
+const index = projects.findIndex((item) => item.slug === project.slug);
+const prev = projects[(index - 1 + projects.length) % projects.length];
+const next = projects[(index + 1) % projects.length];
+const placeholder = {
+  ja: 'この項目は実際のプロジェクト情報を確認後に更新します。架空の成果・数値は掲載していません。',
+  en: 'This section will be updated after the real project details are confirmed. No fictional outcomes or metrics are presented.',
+  ko: '실제 프로젝트 정보를 확인한 후 업데이트합니다. 허구의 성과나 수치는 게시하지 않습니다.',
+}[locale];
+---
+
+<BaseLayout
+  title={`${project.title} — ivuruGG Works`}
+  description={project.description[locale]}
+  locale={locale}
+>
+  <header class={`work-detail-hero accent-${project.accent}`}>
+    <div>
+      <a href={localePath(locale, '/works')}>← {d.works.title}</a><p class="eyebrow">
+        {project.category} / {project.year}
+      </p><h1>{project.title}</h1><p>{project.description[locale]}</p><div class="project-tech">
+        {project.technologies.map((tech) => <span class="chip">{tech}</span>)}
+      </div>
+    </div><div class="work-detail-orbit" aria-hidden="true"><i></i><i></i></div>
+  </header>
+  <article class="work-detail section">
+    <div class="work-toc">
+      <span>INDEX</span>{
+        sectionKeys.map((key, index) => (
+          <a href={`#${key}`}>
+            0{index + 1} / {d.works[key]}
+          </a>
+        ))
+      }
+    </div><div class="work-content">
+      {
+        sectionKeys.map((key) => (
+          <section id={key} data-reveal>
+            <h2>{d.works[key]}</h2>
+            {key === 'overview' ? (
+              <p>{project.description[locale]}</p>
+            ) : key === 'technology' ? (
+              <div class="project-tech">
+                {project.technologies.map((tech) => (
+                  <span class="chip">{tech}</span>
+                ))}
+              </div>
+            ) : key === 'status' ? (
+              <p>{project.status}</p>
+            ) : key === 'links' && project.externalUrl ? (
+              <a
+                class="text-link"
+                href={project.externalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                External site
+              </a>
+            ) : (
+              <p>{placeholder}</p>
+            )}
+          </section>
+        ))
+      }
+    </div>
+  </article>
+  <nav class="work-navigation" aria-label="Project navigation">
+    <a href={localePath(locale, `/works/${prev.slug}`)}
+      ><small>PREVIOUS</small><span>← {prev.title}</span></a
+    ><a href={localePath(locale, `/works/${next.slug}`)}
+      ><small>NEXT</small><span>{next.title} →</span></a
+    >
+  </nav>
+</BaseLayout>
