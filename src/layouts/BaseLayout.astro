@@ -5,6 +5,7 @@ import IntroLoader from '@/components/common/IntroLoader';
 import ChapterCut from '@/components/common/ChapterCut';
 import WorldState from '@/components/common/WorldState';
 import ScrollProgress from '@/components/common/ScrollProgress';
+import AnalyticsBridge from '@/components/common/AnalyticsBridge.astro';
 import { siteConfig, localePath, type Locale } from '@/data/site-config';
 import { ClientRouter } from 'astro:transitions';
 import '@/styles/global.css';
@@ -14,6 +15,7 @@ import '@/styles/world-system.css';
 import '@/styles/profile-hub.css';
 import '@/styles/contact-terminal.css';
 import '@/styles/layout-fixes.css';
+import '@/styles/activity-command-center.css';
 
 type Chapter = {
   code: string;
@@ -125,6 +127,7 @@ const pageWorld = chapter.world.toLowerCase().replaceAll(/[^a-z0-9]+/g, '-').rep
     <IntroLoader client:load transition:persist="intro-loader" />
     <ChapterCut client:load transition:persist="chapter-cut" />
     <WorldState client:load transition:persist="world-state" />
+    <AnalyticsBridge />
     <div class="world-atmosphere" aria-hidden="true"><i></i><i></i><i></i></div>
     <ScrollProgress client:load />
     <Header locale={locale} />
