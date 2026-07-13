@@ -193,15 +193,15 @@ Light / Dark / Systemに対応し、選択は`ivuru-theme`として`localStorage
 
 ### Git連携設定
 
-| Setting | Value |
-| --- | --- |
-| Production branch | `main` |
-| Build command | `npm run build` |
-| Deploy command | `npx wrangler deploy` |
+| Setting                       | Value                          |
+| ----------------------------- | ------------------------------ |
+| Production branch             | `main`                         |
+| Build command                 | `npm run build`                |
+| Deploy command                | `npx wrangler deploy`          |
 | Non-production branch command | `npx wrangler versions upload` |
-| Root directory | `/` |
-| Node.js | `22.22.3` |
-| Static Assets directory | `./dist` |
+| Root directory                | `/`                            |
+| Node.js                       | `22.22.3`                      |
+| Static Assets directory       | `./dist`                       |
 
 `wrangler.jsonc`では次を管理します。
 

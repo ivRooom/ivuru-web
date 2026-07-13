@@ -5,10 +5,7 @@ export default defineConfig({
   fullyParallel: true,
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI
-    ? [
-        ['line'],
-        ['html', { outputFolder: 'playwright-report', open: 'never' }],
-      ]
+    ? [['line'], ['html', { outputFolder: 'playwright-report', open: 'never' }]]
     : 'list',
   outputDir: 'test-results',
   use: {

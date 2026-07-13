@@ -5,36 +5,36 @@ updates:
     schedule:
       interval: weekly
       day: monday
-      time: "09:00"
+      time: '09:00'
       timezone: Asia/Tokyo
     open-pull-requests-limit: 10
     groups:
       astro:
         patterns:
           - astro
-          - "@astrojs/*"
+          - '@astrojs/*'
       react:
         patterns:
           - react
           - react-dom
-          - "@types/react*"
-          - "@react-three/*"
+          - '@types/react*'
+          - '@react-three/*'
       styling:
         patterns:
           - tailwindcss
-          - "@tailwindcss/*"
+          - '@tailwindcss/*'
           - prettier
-          - "prettier-*"
+          - 'prettier-*'
       testing:
         patterns:
           - vitest
-          - "@playwright/test"
+          - '@playwright/test'
           - eslint
-          - "eslint-*"
+          - 'eslint-*'
           - typescript
-          - "typescript-*"
+          - 'typescript-*'
       cloudflare:
         patterns:
           - wrangler
     commit-message:
-      prefix: "依存関係"
+      prefix: '依存関係'
