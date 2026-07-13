@@ -1,5 +1,6 @@
 export const profile = {
-  name: 'ivuruGG',
+  name: 'いゔる。',
+  id: 'ivuru',
   roles: ['Developer', 'Gamer', 'ivRm Owner / Community Operator', 'Creator'],
   interests: ['Web Development', 'Gaming', 'Cloud', 'Automation', 'Community', 'Music', 'Travel'],
   stack: {
