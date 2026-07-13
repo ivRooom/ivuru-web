@@ -62,6 +62,8 @@ test('contact confirmation configures Turnstile action', async ({ page }) => {
   await page.getByLabel('04 / 件名').fill('テスト問い合わせ');
   await page.getByLabel('05 / お問い合わせ内容').fill('これはお問い合わせ送信確認用の十分な長さを持つテスト本文です。');
   await page.getByRole('button', { name: '送信内容を確認' }).click();
-  const action = await page.evaluate(() => (window as unknown as { turnstileAction?: string }).turnstileAction ?? '');
-  expect(action).toBe('contact_submit');
+  const turnstileAction = await page.evaluate(() =>
+    (window as unknown as { turnstileAction?: string }).turnstileAction ?? '',
+  );
+  expect(turnstileAction).toBe('contact_submit');
 });
