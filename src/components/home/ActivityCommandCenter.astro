@@ -1,0 +1,129 @@
+---
+import { activities } from '@/data/activities';
+import { gameClips } from '@/data/game-clips';
+import { projects } from '@/data/projects';
+import { localePath, type Locale } from '@/data/site-config';
+
+const { locale } = Astro.props as { locale: Locale };
+const activeProject = projects.find((project) => project.status === 'In Development') ?? projects.find((project) => project.status === 'Active');
+const featuredClip = gameClips.find((clip) => clip.featured) ?? gameClips[0];
+const latestSignal = activities[0];
+
+const copy = {
+  ja: {
+    eyebrow: 'ACTIVITY COMMAND CENTER',
+    title: '現在の活動を、ひとつの管制画面に。',
+    intro: '開発、ゲーム、コミュニティ、発信の現在地へ接続します。公開済みの実データだけを表示しています。',
+    building: 'NOW BUILDING',
+    playing: 'NOW PLAYING',
+    community: 'COMMUNITY',
+    signal: 'LATEST SIGNAL',
+    works: 'Worksを確認',
+    profile: 'Profileへ',
+    room: 'ivRmへ接続',
+    blog: '活動記録を見る',
+    preparing: '公開できるゲームクリップを準備中です。',
+  },
+  en: {
+    eyebrow: 'ACTIVITY COMMAND CENTER',
+    title: 'One control surface for every active world.',
+    intro: 'Connect to current development, gaming, community, and publishing activity. Only real published data is shown.',
+    building: 'NOW BUILDING',
+    playing: 'NOW PLAYING',
+    community: 'COMMUNITY',
+    signal: 'LATEST SIGNAL',
+    works: 'Open Works',
+    profile: 'Open Profile',
+    room: 'Enter ivRm',
+    blog: 'Open Activity Log',
+    preparing: 'Public game clips are being prepared.',
+  },
+  ko: {
+    eyebrow: 'ACTIVITY COMMAND CENTER',
+    title: '현재 활동을 하나의 관제 화면으로.',
+    intro: '개발, 게임, 커뮤니티, 기록의 현재 위치로 연결합니다. 공개된 실제 데이터만 표시합니다.',
+    building: 'NOW BUILDING',
+    playing: 'NOW PLAYING',
+    community: 'COMMUNITY',
+    signal: 'LATEST SIGNAL',
+    works: 'Works 보기',
+    profile: 'Profile 보기',
+    room: 'ivRm 입장',
+    blog: '활동 기록 보기',
+    preparing: '공개 가능한 게임 클립을 준비 중입니다.',
+  },
+}[locale];
+---
+
+<section class="activity-command-center section" data-world-zone="signal" aria-labelledby="activity-command-title">
+  <div class="section-inner command-center-shell">
+    <header class="command-center-header" data-reveal>
+      <div>
+        <p class="section-kicker">{copy.eyebrow}</p>
+        <h2 id="activity-command-title">{copy.title}</h2>
+      </div>
+      <p>{copy.intro}</p>
+      <span aria-hidden="true">LIVE / SYNCHRONIZED</span>
+    </header>
+
+    <div class="command-center-grid">
+      <article class="command-node command-node-building" data-reveal>
+        <small>NODE / 01 · {copy.building}</small>
+        <strong>{activeProject?.title ?? 'ivuru Official World'}</strong>
+        <p>{activeProject?.description[locale] ?? 'Astro / React / Cloudflare'}</p>
+        <div>{activeProject?.technologies.slice(0, 4).map((technology) => <span>{technology}</span>)}</div>
+        <a
+          href={localePath(locale, '/works')}
+          data-analytics-event="command_center_open"
+          data-analytics-target="works"
+          data-analytics-surface="activity_command_center"
+          data-analytics-position="1"
+        >{copy.works} →</a>
+      </article>
+
+      <article class="command-node command-node-playing" data-reveal>
+        <small>NODE / 02 · {copy.playing}</small>
+        <strong>{featuredClip?.game ?? 'GAMER WORLD'}</strong>
+        <p>{featuredClip?.title ?? copy.preparing}</p>
+        <div>{featuredClip?.tags?.slice(0, 4).map((tag) => <span>#{tag}</span>)}</div>
+        <a
+          href={localePath(locale, '/profile') + '#game-clips'}
+          data-analytics-event="command_center_open"
+          data-analytics-target="game_clips"
+          data-analytics-surface="activity_command_center"
+          data-analytics-position="2"
+        >{copy.profile} →</a>
+      </article>
+
+      <article class="command-node command-node-community" data-reveal>
+        <small>NODE / 03 · {copy.community}</small>
+        <strong>いゔる。－む / ivRm</strong>
+        <p>{activities.find((item) => item.type === 'Managing')?.[locale]}</p>
+        <div><span>Discord</span><span>Minecraft</span><span>Community</span></div>
+        <a
+          href="https://ivrm.jp"
+          target="_blank"
+          rel="noopener noreferrer"
+          data-analytics-event="command_center_open"
+          data-analytics-target="ivrm"
+          data-analytics-surface="activity_command_center"
+          data-analytics-position="3"
+        >{copy.room} ↗</a>
+      </article>
+
+      <article class="command-node command-node-signal" data-reveal>
+        <small>NODE / 04 · {copy.signal}</small>
+        <strong>{latestSignal?.type ?? 'Activity'}</strong>
+        <p>{latestSignal?.[locale]}</p>
+        <div><span>Development</span><span>Gaming</span><span>Community</span></div>
+        <a
+          href={localePath(locale, '/blog')}
+          data-analytics-event="command_center_open"
+          data-analytics-target="blog"
+          data-analytics-surface="activity_command_center"
+          data-analytics-position="4"
+        >{copy.blog} →</a>
+      </article>
+    </div>
+  </div>
+</section>
