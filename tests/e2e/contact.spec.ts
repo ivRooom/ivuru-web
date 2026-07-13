@@ -49,9 +49,9 @@ test('turnstile initializes after the confirmation panel mounts', async ({ page 
   await expect(page.getByRole('button', { name: '送信する' })).toBeEnabled();
 });
 
-test('footer exposes Contact without adding it to the main navigation', async ({ page }) => {
+test('header and footer expose Contact', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
-  await expect(page.locator('.desktop-nav a[href="/contact"]')).toHaveCount(0);
+  await expect(page.locator('.desktop-nav a[href="/contact"]')).toBeVisible();
   await expect(page.locator('footer a[href="/contact"]').first()).toBeVisible();
 });
