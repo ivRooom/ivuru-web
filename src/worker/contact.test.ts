@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { buildDiscordMessage, escapeHtml, validateContactPayload } from './contact';
+import { buildDiscordMessage, escapeHtml, validateContactPayload, type ContactPayload } from './contact';
 
-const valid = {
+const valid: ContactPayload = {
   name: 'ivuru',
   email: 'test@example.com',
   category: 'project',
