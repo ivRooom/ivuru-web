@@ -1,10 +1,31 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "ivrm-ivurugg",
+  "main": "./src/worker.ts",
   "compatibility_date": "2026-07-13",
+
+  "vars": {
+    "CONTACT_TO_EMAIL": "contact@ivrm.jp",
+    "CONTACT_FROM_EMAIL": "ivuru Contact <contact@ivrm.jp>",
+    "ALLOWED_ORIGINS": "https://ivurugg.ivrm.jp",
+    "TURNSTILE_SITE_KEY": ""
+  },
+
+  "ratelimits": [
+    {
+      "name": "CONTACT_RATE_LIMITER",
+      "namespace_id": "1661",
+      "simple": {
+        "limit": 3,
+        "period": 60
+      }
+    }
+  ],
 
   "assets": {
     "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"],
     "not_found_handling": "404-page",
     "html_handling": "auto-trailing-slash"
   }
