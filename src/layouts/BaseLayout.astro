@@ -40,6 +40,9 @@ const resolvedTitle = title.replaceAll('ivuruGG', `${siteConfig.name} / ${siteCo
 const canonical = new URL(Astro.url.pathname, siteConfig.siteUrl);
 const normalized = Astro.url.pathname.replace(/^\/(en|ko)(?=\/|$)/, '') || '/';
 const ogImage = new URL(image, siteConfig.siteUrl);
+const fallbackOgImage = new URL(siteConfig.fallbackOgImage, siteConfig.siteUrl);
+const ogImageType = image.endsWith('.svg') ? 'image/svg+xml' : image.endsWith('.webp') ? 'image/webp' : 'image/png';
+const twitterImage = image.endsWith('.svg') ? fallbackOgImage : ogImage;
 const sameAs = [siteConfig.xUrl, siteConfig.instagramUrl].filter(Boolean);
 const pageWorld = chapter.world.toLowerCase().replaceAll(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 ---
@@ -81,10 +84,22 @@ const pageWorld = chapter.world.toLowerCase().replaceAll(/[^a-z0-9]+/g, '-').rep
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
     <meta property="og:image:secure_url" content={ogImage} />
-    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:type" content={ogImageType} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content={`${siteConfig.name} / ${siteConfig.idName} — Developer World × Gamer World`} />
+    {
+      ogImage.href !== fallbackOgImage.href && (
+        <>
+          <meta property="og:image" content={fallbackOgImage} />
+          <meta property="og:image:secure_url" content={fallbackOgImage} />
+          <meta property="og:image:type" content="image/png" />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+          <meta property="og:image:alt" content={`${siteConfig.name} / ${siteConfig.idName} official site`} />
+        </>
+      )
+    }
     <meta property="og:site_name" content={`${siteConfig.name} / ${siteConfig.idName}`} />
     <meta
       property="og:locale"
@@ -94,7 +109,7 @@ const pageWorld = chapter.world.toLowerCase().replaceAll(/[^a-z0-9]+/g, '-').rep
     <meta name="twitter:site" content={siteConfig.xHandle} />
     <meta name="twitter:title" content={resolvedTitle} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image" content={twitterImage} />
     <meta name="twitter:image:alt" content={`${siteConfig.name} / ${siteConfig.idName} official world portal`} />
     {noindex && <meta name="robots" content="noindex,follow" />}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
