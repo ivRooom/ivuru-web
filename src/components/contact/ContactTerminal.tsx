@@ -89,7 +89,7 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
   }, []);
 
   useEffect(() => {
-    if (!config?.turnstileSiteKey || !widget.current) return;
+    if (!config?.turnstileSiteKey || !widget.current || !['confirm', 'sending', 'error'].includes(phase)) return;
     const render = () => {
       if (!window.turnstile || !widget.current || widgetId.current) return;
       widgetId.current = window.turnstile.render(widget.current, {
@@ -119,7 +119,7 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
       if (widgetId.current && window.turnstile) window.turnstile.remove(widgetId.current);
       widgetId.current = undefined;
     };
-  }, [config]);
+  }, [config, phase]);
 
   const canConfirm = useMemo(() => (
     form.name.trim().length > 0 && /[^\s@]+@[^\s@]+\.[^\s@]+/.test(form.email) &&
