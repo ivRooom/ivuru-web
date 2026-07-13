@@ -2,12 +2,21 @@
 import Header from '@/components/common/Header.astro';
 import Footer from '@/components/common/Footer.astro';
 import IntroLoader from '@/components/common/IntroLoader';
+import ChapterCut from '@/components/common/ChapterCut';
+import WorldState from '@/components/common/WorldState';
 import ScrollProgress from '@/components/common/ScrollProgress';
 import { siteConfig, localePath, type Locale } from '@/data/site-config';
 import { ClientRouter } from 'astro:transitions';
 import '@/styles/global.css';
 import '@/styles/experience.css';
 import '@/styles/navigation-fix.css';
+import '@/styles/world-system.css';
+
+type Chapter = {
+  code: string;
+  title: string;
+  world: string;
+};
 
 type Props = {
   title: string;
@@ -16,23 +25,34 @@ type Props = {
   image?: string;
   type?: 'website' | 'article';
   noindex?: boolean;
+  chapter?: Chapter;
 };
 const {
   title,
   description,
   locale = 'ja',
-  image = '/assets/og/og-background.png',
+  image = siteConfig.defaultOgImage,
   type = 'website',
   noindex = false,
+  chapter = { code: '00', title: 'WORLD GATE', world: 'NEXUS' },
 } = Astro.props;
 const resolvedTitle = title.replaceAll('ivuruGG', `${siteConfig.name} / ${siteConfig.idName}`);
 const canonical = new URL(Astro.url.pathname, siteConfig.siteUrl);
 const normalized = Astro.url.pathname.replace(/^\/(en|ko)(?=\/|$)/, '') || '/';
 const ogImage = new URL(image, siteConfig.siteUrl);
+const sameAs = [siteConfig.xUrl, siteConfig.instagramUrl].filter(Boolean);
+const pageWorld = chapter.world.toLowerCase().replaceAll(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 ---
 
 <!doctype html>
-<html lang={locale} data-theme="dark" data-theme-mode="system">
+<html
+  lang={locale}
+  data-theme="dark"
+  data-theme-mode="system"
+  data-chapter={chapter.code}
+  data-world={pageWorld}
+  data-world-time="dawn"
+>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -60,6 +80,11 @@ const ogImage = new URL(image, siteConfig.siteUrl);
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
+    <meta property="og:image:secure_url" content={ogImage} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${siteConfig.name} / ${siteConfig.idName} — Developer World × Gamer World`} />
     <meta property="og:site_name" content={`${siteConfig.name} / ${siteConfig.idName}`} />
     <meta
       property="og:locale"
@@ -67,6 +92,10 @@ const ogImage = new URL(image, siteConfig.siteUrl);
     />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content={siteConfig.xHandle} />
+    <meta name="twitter:title" content={resolvedTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={`${siteConfig.name} / ${siteConfig.idName} official world portal`} />
     {noindex && <meta name="robots" content="noindex,follow" />}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="manifest" href="/site.webmanifest" />
@@ -115,16 +144,19 @@ const ogImage = new URL(image, siteConfig.siteUrl);
         name: siteConfig.name,
         alternateName: siteConfig.idName,
         url: siteConfig.siteUrl,
-        sameAs: [siteConfig.xUrl],
+        sameAs,
+        image: ogImage.toString(),
         jobTitle: 'Developer / Gamer',
         description,
       })}
     />
     <ClientRouter />
   </head>
-  <body>
+  <body data-page-world={pageWorld}>
     <a class="skip-link" href="#main-content">Skip to content</a>
-    <IntroLoader client:load />
+    <IntroLoader client:load transition:persist="intro-loader" />
+    <ChapterCut client:load transition:persist="chapter-cut" />
+    <WorldState client:load transition:persist="world-state" />
     <div class="world-atmosphere" aria-hidden="true"><i></i><i></i><i></i></div>
     <ScrollProgress client:load />
     <Header locale={locale} />
