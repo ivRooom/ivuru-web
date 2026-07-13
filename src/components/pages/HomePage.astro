@@ -9,31 +9,43 @@ import ActivitySection from '@/components/home/ActivitySection.astro';
 import MediaReel from '@/components/home/MediaReel';
 import LatestPosts from '@/components/blog/LatestPosts.astro';
 import ContactCTA from '@/components/home/ContactCTA.astro';
-import IntroLoader from '@/components/common/IntroLoader';
 import CustomCursor from '@/components/common/CustomCursor';
 import { localePath, siteConfig, type Locale } from '@/data/site-config';
 import { getDictionary } from '@/i18n/dictionaries';
 const { locale } = Astro.props as { locale: Locale };
 const d = getDictionary(locale);
 const descriptions = {
-  ja: 'DeveloperとGamer、2つの世界をつなぐivuruGG公式サイト。個人開発、ゲーム、ivRmコミュニティ、創作活動を発信します。',
-  en: 'The official ivuruGG site connecting Developer and Gamer worlds through projects, games, the ivRm community, and creative work.',
-  ko: 'Developer와 Gamer의 두 세계를 연결하는 ivuruGG 공식 사이트입니다. 개인 개발, 게임, ivRm 커뮤니티, 창작 활동을 소개합니다.',
+  ja: 'DeveloperとGamer、2つの世界をつなぐ「いゔる。」の公式サイト。個人開発、ゲーム、ivRmコミュニティ、創作活動を発信します。',
+  en: 'The official site of ivuru, connecting Developer and Gamer worlds through projects, games, the ivRm community, and creative work.',
+  ko: 'Developer와 Gamer의 두 세계를 연결하는 ivuru 공식 사이트입니다. 개인 개발, 게임, ivRm 커뮤니티, 창작 활동을 소개합니다.',
 };
 ---
 
 <BaseLayout title={siteConfig.title} description={descriptions[locale]} locale={locale}>
-  <IntroLoader client:load />
   <CustomCursor client:load />
-  <section class="hero" data-hero>
+  <section class="hero anime-world-hero" data-hero>
     <div class="hero-art" data-hero-art></div><HeroWorld client:visible /><div
       class="hero-vignette"
     >
     </div><div class="hero-grid" aria-hidden="true"></div>
+    <div class="hero-light-ribbons" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="hero-scene-frame" aria-hidden="true">
+      <span class="scene-number">SCENE / 01</span>
+      <span class="scene-caption">BETWEEN TWO WORLDS</span>
+      <i class="scene-corner top-left"></i><i class="scene-corner top-right"></i><i
+        class="scene-corner bottom-left"></i><i class="scene-corner bottom-right"></i>
+    </div>
+    <div class="hero-world-label developer" aria-hidden="true">
+      <small>WORLD 01</small><span>DEVELOPER</span>
+    </div>
+    <div class="hero-world-label gamer" aria-hidden="true">
+      <small>WORLD 02</small><span>GAMER</span>
+    </div>
     <div class="hero-copy" data-hero-copy>
-      <p class="eyebrow">{d.hero.eyebrow}</p><h1 class="hero-title">ivuru<span>GG</span></h1><p
-        class="hero-role"
-      >
+      <p class="eyebrow">{d.hero.eyebrow}</p><h1 class="hero-title">
+        <span class="hero-display-name">いゔる。</span>
+        <span class="hero-id-name">ivuru</span>
+      </h1><p class="hero-role">
         {d.hero.role}
       </p><p class="hero-tagline">BUILD. PLAY. CREATE. — {d.hero.tagline}</p><div
         class="hero-actions"
@@ -50,7 +62,7 @@ const descriptions = {
       </div>
     </div>
     <div class="hero-coordinates" aria-hidden="true">
-      WORLD NODE / IVR-001<br />DEVELOPER ↔ GAMER<br />PORTAL STATUS: ONLINE
+      ID / IVURU<br />DEVELOPER ↔ GAMER<br />WORLD GATE: SYNCHRONIZED
     </div><div class="hero-scroll" aria-hidden="true">{d.hero.scroll}</div>
   </section>
   <IdentitySection locale={locale} /><FeaturedWorks locale={locale} /><CommunitySection

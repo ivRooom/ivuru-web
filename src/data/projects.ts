@@ -24,9 +24,9 @@ export const projects: Project[] = [
     featured: true,
     sample: false,
     description: {
-      ja: 'ゲーム・雑談・配信・創作・勉強会・Minecraftが交差するデジタルルーム。オーナー兼運営として、場と仕組みを育てています。',
-      en: 'A digital room where games, conversation, streaming, art, study sessions, and Minecraft meet—owned and operated by ivuruGG.',
-      ko: '게임, 대화, 방송, 창작, 스터디, Minecraft가 만나는 디지털 룸입니다. ivuruGG가 오너이자 운영자로 함께 키워갑니다.',
+      ja: 'ゲーム・雑談・配信・創作・勉強会・Minecraftが交差するデジタルルーム。「いゔる。」がオーナー兼運営として、場と仕組みを育てています。',
+      en: 'A digital room where games, conversation, streaming, art, study sessions, and Minecraft meet—owned and operated by ivuru.',
+      ko: '게임, 대화, 방송, 창작, 스터디, Minecraft가 만나는 디지털 룸입니다. ivuru가 오너이자 운영자로 함께 키워갑니다.',
     },
     technologies: ['Discord', 'Minecraft', 'Web', 'Community Operations'],
     accent: 'cyan',

@@ -1,12 +1,33 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { localePath, type Locale } from '@/data/site-config';
 import { getDictionary } from '@/i18n/dictionaries';
-const locale = Astro.url.pathname.startsWith('/en')
+const locale: Locale = Astro.url.pathname.startsWith('/en')
   ? 'en'
   : Astro.url.pathname.startsWith('/ko')
     ? 'ko'
     : 'ja';
 const d = getDictionary(locale);
+const copy = {
+  ja: {
+    signal: 'ワールド接続が失われました',
+    route: '指定されたルートは存在しないか、別の世界線へ移動しました。',
+    works: '作品を見る',
+    status: 'ROUTE SIGNAL / LOST',
+  },
+  en: {
+    signal: 'The world connection was lost',
+    route: 'This route does not exist, or it has moved to another world line.',
+    works: 'View works',
+    status: 'ROUTE SIGNAL / LOST',
+  },
+  ko: {
+    signal: '월드 연결이 끊어졌습니다',
+    route: '요청한 경로가 없거나 다른 월드 라인으로 이동했습니다.',
+    works: '작품 보기',
+    status: 'ROUTE SIGNAL / LOST',
+  },
+}[locale];
 ---
 
 <BaseLayout
@@ -15,73 +36,38 @@ const d = getDictionary(locale);
   locale={locale}
   noindex
 >
-  <section class="not-found">
-    <div class="not-found-orbit" aria-hidden="true"><i></i></div><p class="eyebrow">
-      ERROR / 404
-    </p><h1>404</h1><h2>{d.notFound.title}</h2><p>{d.notFound.body}</p><a
-      class="primary-button"
-      href={locale === 'ja' ? '/' : `/${locale}`}>{d.notFound.action}</a
-    >
+  <section class="error-world" aria-labelledby="error-title">
+    <div class="error-world-sky" aria-hidden="true">
+      <i class="error-star star-a"></i><i class="error-star star-b"></i><i
+        class="error-star star-c"></i><i class="error-star star-d"></i>
+      <div class="error-scanline"></div>
+      <div class="error-shard shard-a"></div><div class="error-shard shard-b"></div><div
+        class="error-shard shard-c"></div>
+    </div>
+
+    <div class="error-portal" aria-hidden="true">
+      <i></i><i></i><i></i><span></span>
+    </div>
+
+    <div class="error-content">
+      <p class="error-route-signal"><span></span>{copy.status}</p>
+      <div class="error-code" aria-label="404">
+        <span data-ghost="4">4</span><span class="error-zero" data-ghost="0">0<i></i></span><span
+          data-ghost="4">4</span
+        >
+      </div>
+      <p class="error-world-id">WORLD NODE / UNKNOWN · ID / IVURU</p>
+      <h1 id="error-title">{copy.signal}</h1>
+      <p class="error-description">{copy.route}</p>
+      <div class="error-actions">
+        <a class="primary-button" href={localePath(locale, '/')}>{d.notFound.action}</a>
+        <a class="secondary-button" href={localePath(locale, '/works')}>{copy.works}</a>
+      </div>
+      <div class="error-system-log" aria-hidden="true">
+        <span>GATE STATUS: OFFLINE</span><span>RETRY PATH: AVAILABLE</span><span
+          >MEMORY FRAGMENT: 04</span
+        >
+      </div>
+    </div>
   </section>
 </BaseLayout>
-<style>
-  .not-found {
-    position: relative;
-    min-height: 100svh;
-    padding: 150px 24px 80px;
-    overflow: hidden;
-    display: grid;
-    place-items: center;
-    align-content: center;
-    text-align: center;
-    background:
-      radial-gradient(
-        circle at 50%,
-        color-mix(in srgb, var(--purple) 20%, transparent),
-        transparent 35%
-      ),
-      var(--bg);
-  }
-  .not-found h1 {
-    margin: 0;
-    font-size: clamp(120px, 26vw, 360px);
-    line-height: 0.72;
-    letter-spacing: -0.1em;
-    color: transparent;
-    -webkit-text-stroke: 1px var(--line);
-  }
-  .not-found h2 {
-    margin: 38px 0 10px;
-    font-size: clamp(30px, 5vw, 68px);
-    letter-spacing: -0.055em;
-  }
-  .not-found > p:not(.eyebrow) {
-    max-width: 600px;
-    margin: 0 0 28px;
-    color: var(--muted);
-  }
-  .not-found-orbit {
-    position: absolute;
-    width: min(70vw, 700px);
-    aspect-ratio: 1;
-    border: 1px solid var(--line);
-    border-radius: 50%;
-  }
-  .not-found-orbit:before,
-  .not-found-orbit i {
-    content: '';
-    position: absolute;
-    inset: 16%;
-    border: 1px dashed var(--purple);
-    border-radius: 50%;
-  }
-  .not-found-orbit i {
-    inset: 48%;
-    background: var(--cyan);
-    box-shadow: 0 0 50px var(--cyan);
-  }
-  .not-found > *:not(.not-found-orbit) {
-    position: relative;
-    z-index: 2;
-  }
-</style>

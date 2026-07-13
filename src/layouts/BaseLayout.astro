@@ -1,10 +1,12 @@
 ---
 import Header from '@/components/common/Header.astro';
 import Footer from '@/components/common/Footer.astro';
+import IntroLoader from '@/components/common/IntroLoader';
 import ScrollProgress from '@/components/common/ScrollProgress';
 import { siteConfig, localePath, type Locale } from '@/data/site-config';
 import { ClientRouter } from 'astro:transitions';
 import '@/styles/global.css';
+import '@/styles/experience.css';
 
 type Props = {
   title: string;
@@ -22,6 +24,7 @@ const {
   type = 'website',
   noindex = false,
 } = Astro.props;
+const resolvedTitle = title.replaceAll('ivuruGG', `${siteConfig.name} / ${siteConfig.idName}`);
 const canonical = new URL(Astro.url.pathname, siteConfig.siteUrl);
 const normalized = Astro.url.pathname.replace(/^\/(en|ko)(?=\/|$)/, '') || '/';
 const ogImage = new URL(image, siteConfig.siteUrl);
@@ -33,7 +36,8 @@ const ogImage = new URL(image, siteConfig.siteUrl);
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
-    <title>{title}</title>
+    <meta name="theme-color" content="#060817" />
+    <title>{resolvedTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     {
@@ -51,21 +55,26 @@ const ogImage = new URL(image, siteConfig.siteUrl);
       href={new URL(localePath('ja', normalized), siteConfig.siteUrl)}
     />
     <meta property="og:type" content={type} />
-    <meta property="og:title" content={title} />
+    <meta property="og:title" content={resolvedTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
-    <meta property="og:site_name" content="ivuruGG" />
+    <meta property="og:site_name" content={`${siteConfig.name} / ${siteConfig.idName}`} />
     <meta
       property="og:locale"
       content={locale === 'ja' ? 'ja_JP' : locale === 'en' ? 'en_US' : 'ko_KR'}
     />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@ivuruGG" />
+    <meta name="twitter:site" content={siteConfig.xHandle} />
     {noindex && <meta name="robots" content="noindex,follow" />}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="manifest" href="/site.webmanifest" />
-    <link rel="alternate" type="application/rss+xml" title="ivuruGG Blog" href="/rss.xml" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={`${siteConfig.name} Blog`}
+      href="/rss.xml"
+    />
     <script is:inline>
       (() => {
         const stored = localStorage.getItem('ivuru-theme') || 'system';
@@ -102,7 +111,8 @@ const ogImage = new URL(image, siteConfig.siteUrl);
       set:html={JSON.stringify({
         '@context': 'https://schema.org',
         '@type': 'Person',
-        name: 'ivuruGG',
+        name: siteConfig.name,
+        alternateName: siteConfig.idName,
         url: siteConfig.siteUrl,
         sameAs: [siteConfig.xUrl],
         jobTitle: 'Developer / Gamer',
@@ -113,6 +123,8 @@ const ogImage = new URL(image, siteConfig.siteUrl);
   </head>
   <body>
     <a class="skip-link" href="#main-content">Skip to content</a>
+    <IntroLoader client:load />
+    <div class="world-atmosphere" aria-hidden="true"><i></i><i></i><i></i></div>
     <ScrollProgress client:load />
     <Header locale={locale} />
     <main id="main-content"><slot /></main>

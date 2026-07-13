@@ -1,76 +1,114 @@
 import { useEffect, useRef, useState } from 'react';
-import { Code2, Gamepad2, Menu, X } from 'lucide-react';
+import { Code2, Gamepad2, Menu, Radio, Sparkles, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { createPortal } from 'react-dom';
 
-type Item = { label: string; href: string };
+type Item = { label: string; href: string; active?: boolean };
+type Props = {
+  items: Item[];
+  xUrl: string;
+  xHandle: string;
+  displayName: string;
+  idName: string;
+};
 
-export default function MobileMenu({ items, xUrl }: { items: Item[]; xUrl: string }) {
+export default function MobileMenu({ items, xUrl, xHandle, displayName, idName }: Props) {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const panel = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => setMounted(true), []);
+
   useEffect(() => {
-    document.body.classList.toggle('menu-open', open);
     if (!open) return;
+
+    const triggerElement = trigger.current;
+    const previousGap = document.body.style.getPropertyValue('--menu-scrollbar-gap');
+    const scrollbarGap = Math.max(0, window.innerWidth - document.documentElement.clientWidth);
+    document.body.style.setProperty('--menu-scrollbar-gap', `${scrollbarGap}px`);
+    document.body.classList.add('menu-open');
+    document.dispatchEvent(new CustomEvent('ivuru:menu-state', { detail: { open: true } }));
+
+    const focusFrame = window.requestAnimationFrame(() => {
+      panel.current?.querySelector<HTMLElement>('.menu-close')?.focus();
+    });
+
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpen(false);
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setOpen(false);
+        return;
+      }
       if (event.key !== 'Tab' || !panel.current) return;
-      const focusable = Array.from(panel.current.querySelectorAll<HTMLElement>('a,button'));
+
+      const focusable = Array.from(
+        panel.current.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'),
+      ).filter((element) => !element.hasAttribute('hidden'));
       if (!focusable.length) return;
+
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
       if (event.shiftKey && document.activeElement === first) {
         event.preventDefault();
         last.focus();
-      }
-      if (!event.shiftKey && document.activeElement === last) {
+      } else if (!event.shiftKey && document.activeElement === last) {
         event.preventDefault();
         first.focus();
       }
     };
+
     document.addEventListener('keydown', onKey);
-    panel.current?.querySelector<HTMLElement>('a')?.focus();
-    return () => document.removeEventListener('keydown', onKey);
+    return () => {
+      window.cancelAnimationFrame(focusFrame);
+      document.removeEventListener('keydown', onKey);
+      document.body.classList.remove('menu-open');
+      if (previousGap) document.body.style.setProperty('--menu-scrollbar-gap', previousGap);
+      else document.body.style.removeProperty('--menu-scrollbar-gap');
+      document.dispatchEvent(new CustomEvent('ivuru:menu-state', { detail: { open: false } }));
+      window.requestAnimationFrame(() => triggerElement?.focus());
+    };
   }, [open]);
 
-  return (
-    <>
-      <button
-        className="menu-trigger"
-        type="button"
-        onClick={() => setOpen(true)}
-        aria-expanded={open}
-        aria-controls="mobile-menu"
-        aria-label="Open menu"
-      >
-        <Menu />
-      </button>
-      <AnimatePresence>
-        {open && (
+  useEffect(
+    () => () => {
+      document.body.classList.remove('menu-open');
+      document.body.style.removeProperty('--menu-scrollbar-gap');
+    },
+    [],
+  );
+
+  const overlay = (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          className="mobile-menu-layer"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.22 }}
+          onPointerDown={(event) => event.target === event.currentTarget && setOpen(false)}
+        >
           <motion.div
-            className="mobile-menu-layer"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onMouseDown={(e) => e.target === e.currentTarget && setOpen(false)}
+            id="mobile-menu"
+            ref={panel}
+            className="mobile-menu-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Navigation"
+            initial={{ opacity: 0, y: -18, scale: 0.985, clipPath: 'inset(0 0 100% 0 round 30px)' }}
+            animate={{ opacity: 1, y: 0, scale: 1, clipPath: 'inset(0 0 0% 0 round 30px)' }}
+            exit={{ opacity: 0, y: -12, scale: 0.99, clipPath: 'inset(0 0 100% 0 round 30px)' }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           >
-            <motion.div
-              id="mobile-menu"
-              ref={panel}
-              className="mobile-menu-panel"
-              role="dialog"
-              aria-modal="true"
-              aria-label="Navigation"
-              initial={{ clipPath: 'inset(0 0 100% 0)' }}
-              animate={{ clipPath: 'inset(0 0 0% 0)' }}
-              exit={{ clipPath: 'inset(0 0 100% 0)' }}
-              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <div className="mobile-world developer-world">
-                <Code2 />
-                <span>Developer World</span>
-              </div>
-              <div className="mobile-world gamer-world">
-                <Gamepad2 />
-                <span>Gamer World</span>
+            <div className="menu-atmosphere" aria-hidden="true">
+              <i></i><i></i><i></i>
+            </div>
+
+            <header className="mobile-menu-topbar">
+              <div className="mobile-menu-brand">
+                <strong>{displayName}</strong>
+                <span>{idName} / WORLD NAVIGATOR</span>
               </div>
               <button
                 className="menu-close"
@@ -78,30 +116,69 @@ export default function MobileMenu({ items, xUrl }: { items: Item[]; xUrl: strin
                 onClick={() => setOpen(false)}
                 aria-label="Close menu"
               >
-                <X />
+                <X aria-hidden="true" />
               </button>
-              <nav>
-                {items.map((item, index) => (
-                  <motion.a
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setOpen(false)}
-                    initial={{ opacity: 0, y: 24 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 + index * 0.05 }}
-                  >
-                    <small>0{index + 1}</small>
-                    {item.label}
-                  </motion.a>
-                ))}
-              </nav>
-              <a className="menu-x" href={xUrl} target="_blank" rel="noopener noreferrer">
-                X / @ivuruGG
+            </header>
+
+            <div className="mobile-menu-worlds" aria-hidden="true">
+              <div className="menu-world-card developer">
+                <Code2 />
+                <span>Developer World</span>
+                <small>BUILD / 01</small>
+              </div>
+              <div className="menu-world-signal"><Radio /></div>
+              <div className="menu-world-card gamer">
+                <Gamepad2 />
+                <span>Gamer World</span>
+                <small>PLAY / 02</small>
+              </div>
+            </div>
+
+            <nav aria-label="Mobile navigation">
+              {items.map((item, index) => (
+                <motion.a
+                  key={item.href}
+                  href={item.href}
+                  className={item.active ? 'active' : undefined}
+                  aria-current={item.active ? 'page' : undefined}
+                  onClick={() => setOpen(false)}
+                  initial={{ opacity: 0, x: -24 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.12 + index * 0.045, duration: 0.36 }}
+                >
+                  <small>{String(index + 1).padStart(2, '0')}</small>
+                  <span>{item.label}</span>
+                  <Sparkles aria-hidden="true" />
+                </motion.a>
+              ))}
+            </nav>
+
+            <footer className="mobile-menu-footer">
+              <span>BUILD. PLAY. CREATE.</span>
+              <a href={xUrl} target="_blank" rel="noopener noreferrer">
+                X / {xHandle} ↗
               </a>
-            </motion.div>
+            </footer>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+
+  return (
+    <>
+      <button
+        ref={trigger}
+        className="menu-trigger"
+        type="button"
+        onClick={() => setOpen((value) => !value)}
+        aria-expanded={open}
+        aria-controls="mobile-menu"
+        aria-label={open ? 'Close menu' : 'Open menu'}
+      >
+        {open ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
+      </button>
+      {mounted ? createPortal(overlay, document.body) : null}
     </>
   );
 }
