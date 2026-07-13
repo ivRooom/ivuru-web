@@ -1,0 +1,20 @@
+name: PR12 final diagnostics
+
+on:
+  pull_request:
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 失敗テストだけを出力
+        run: |
+          git clone -q --depth 1 --branch fix/profile-header-portfolio-layout https://github.com/ivRooom/ivuru-web.git repo
+          cd repo
+          npm ci --silent >/dev/null
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+          set +e
+          npm run test:e2e -- tests/e2e/portfolio-wide.spec.ts --project=chromium --reporter=line > /tmp/final-e2e.log 2>&1
+          status=$?
+          grep -E "failed|passed|Error:|Expected:|Received:|portfolio-wide.spec.ts:|Timeout|locator\(" /tmp/final-e2e.log | tail -n 120 || true
+          exit $status
