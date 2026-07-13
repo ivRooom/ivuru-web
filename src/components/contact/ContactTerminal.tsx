@@ -19,6 +19,8 @@ type Config = {
   turnstileSiteKey: string | null;
   recipient: string;
   discordEnabled: boolean;
+  queueEnabled?: boolean;
+  statusEnabled?: boolean;
 };
 
 declare global {
@@ -58,9 +60,11 @@ const copy = {
     send: '送信する',
     sending: '送信中...',
     success: '送信を受け付けました',
-    successBody: '受付番号を控えてください。必要に応じてご連絡します。',
+    successBody: '受付番号と照会キーを控えてください。必要に応じてご連絡します。',
+    lookupKey: '照会キー',
+    status: 'お問い合わせ状況を確認',
     unavailable: '現在フォーム送信の初期設定中です。メールからお問い合わせください。',
-    retry: 'もう一度試す',
+    retry: 'もう一度送信する',
     direct: 'メールを開く',
     security: 'Cloudflare Turnstileで保護されています。',
   },
@@ -81,9 +85,11 @@ const copy = {
     send: 'Send',
     sending: 'Sending...',
     success: 'Message received',
-    successBody: 'Keep the request ID. We will contact you when necessary.',
+    successBody: 'Keep the request ID and lookup key. We will contact you when necessary.',
+    lookupKey: 'Lookup key',
+    status: 'Check contact status',
     unavailable: 'The form is being configured. Please use email for now.',
-    retry: 'Try again',
+    retry: 'Send another message',
     direct: 'Open email',
     security: 'Protected by Cloudflare Turnstile.',
   },
@@ -104,13 +110,18 @@ const copy = {
     send: '보내기',
     sending: '전송 중...',
     success: '문의가 접수되었습니다',
-    successBody: '접수 번호를 보관해 주세요. 필요한 경우 연락드리겠습니다.',
+    successBody: '접수 번호와 조회 키를 보관해 주세요. 필요한 경우 연락드리겠습니다.',
+    lookupKey: '조회 키',
+    status: '문의 상태 확인',
     unavailable: '현재 폼을 설정 중입니다. 이메일로 문의해 주세요.',
-    retry: '다시 시도',
+    retry: '다른 문의 보내기',
     direct: '이메일 열기',
     security: 'Cloudflare Turnstile로 보호됩니다.',
   },
 };
+
+const statusPath = (locale: Locale) =>
+  locale === 'ja' ? '/contact/status/' : `/${locale}/contact/status/`;
 
 export default function ContactTerminal({ locale }: { locale: Locale }) {
   const t = copy[locale];
@@ -119,6 +130,8 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
   const [config, setConfig] = useState<Config | null>(null);
   const [token, setToken] = useState('');
   const [requestId, setRequestId] = useState('');
+  const [statusToken, setStatusToken] = useState('');
+  const [statusEnabled, setStatusEnabled] = useState(false);
   const [error, setError] = useState('');
   const widget = useRef<HTMLDivElement>(null);
   const widgetId = useRef<string | undefined>(undefined);
@@ -138,6 +151,8 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
             turnstileSiteKey: null,
             recipient: 'contact@ivrm.jp',
             discordEnabled: false,
+            queueEnabled: false,
+            statusEnabled: false,
           });
       });
     return () => {
@@ -163,7 +178,6 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
         'error-callback': () => setToken(''),
       });
     };
-
     if (window.turnstile) render();
     else {
       const existing = document.getElementById('turnstile-script');
@@ -218,10 +232,27 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
         headers: { 'content-type': 'application/json', accept: 'application/json' },
         body: JSON.stringify({ ...form, locale, turnstileToken: token }),
       });
-      const result = (await response.json()) as { ok?: boolean; requestId?: string; code?: string };
+      const result = (await response.json()) as {
+        ok?: boolean;
+        requestId?: string;
+        statusToken?: string;
+        statusEnabled?: boolean;
+        code?: string;
+      };
       if (!response.ok || !result.ok) throw new Error(result.code || 'request_failed');
+      const nextRequestId = result.requestId || 'ACCEPTED';
+      const nextStatusToken = result.statusToken || '';
+      const nextStatusEnabled = Boolean(result.statusEnabled && nextStatusToken);
+      if (nextStatusEnabled) {
+        sessionStorage.setItem(
+          'ivuru-contact-status',
+          JSON.stringify({ requestId: nextRequestId, token: nextStatusToken }),
+        );
+      }
       emitAnalyticsEvent('contact_success', { category: form.category, status: 'accepted' });
-      setRequestId(result.requestId || 'ACCEPTED');
+      setRequestId(nextRequestId);
+      setStatusToken(nextStatusToken);
+      setStatusEnabled(nextStatusEnabled);
       setPhase('success');
       setForm(initialState);
       started.current = false;
@@ -238,23 +269,16 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
   return (
     <section className="contact-terminal" data-phase={phase}>
       <header className="contact-terminal-bar">
-        <span>
-          <i /> SECURE CHANNEL
-        </span>
+        <span><i /> SECURE CHANNEL</span>
         <code>contact@ivrm.jp</code>
-        <small>{config?.discordEnabled ? 'MAIL + DISCORD' : 'MAIL ROUTE'}</small>
+        <small>{config?.queueEnabled ? 'QUEUE + MAIL + DISCORD' : config?.discordEnabled ? 'MAIL + DISCORD' : 'MAIL ROUTE'}</small>
       </header>
 
       {!config?.ready && config !== null ? (
         <div className="contact-terminal-unavailable">
           <strong>CHANNEL / STANDBY</strong>
           <p>{t.unavailable}</p>
-          <a
-            href="mailto:contact@ivrm.jp"
-            data-analytics-event="social_open"
-            data-analytics-target="email"
-            data-analytics-surface="contact_fallback"
-          >
+          <a href="mailto:contact@ivrm.jp" data-analytics-event="social_open" data-analytics-target="email" data-analytics-surface="contact_fallback">
             {t.direct} ↗
           </a>
         </div>
@@ -264,13 +288,19 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
           <h2>{t.success}</h2>
           <p>{t.successBody}</p>
           <code>{requestId}</code>
-          <button
-            type="button"
-            onClick={() => {
-              setPhase('input');
-              setRequestId('');
-            }}
-          >
+          {statusEnabled && (
+            <>
+              <p><strong>{t.lookupKey}</strong></p>
+              <code>{statusToken}</code>
+              <a className="button-primary" href={statusPath(locale)}>{t.status} →</a>
+            </>
+          )}
+          <button type="button" onClick={() => {
+            setPhase('input');
+            setRequestId('');
+            setStatusToken('');
+            setStatusEnabled(false);
+          }}>
             {t.retry}
           </button>
         </div>
@@ -281,133 +311,33 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
             <h2>{t.title}</h2>
             <p>{t.intro}</p>
           </div>
-
           {phase === 'confirm' || phase === 'sending' || phase === 'error' ? (
             <div className="contact-confirm-panel">
               <p className="terminal-prompt">&gt; REVIEW_PAYLOAD</p>
               <dl>
-                <div>
-                  <dt>{t.name}</dt>
-                  <dd>{form.name}</dd>
-                </div>
-                <div>
-                  <dt>{t.email}</dt>
-                  <dd>{form.email}</dd>
-                </div>
-                <div>
-                  <dt>{t.category}</dt>
-                  <dd>{t[form.category]}</dd>
-                </div>
-                <div>
-                  <dt>{t.subject}</dt>
-                  <dd>{form.subject}</dd>
-                </div>
-                <div>
-                  <dt>{t.message}</dt>
-                  <dd>{form.message}</dd>
-                </div>
+                <div><dt>{t.name}</dt><dd>{form.name}</dd></div>
+                <div><dt>{t.email}</dt><dd>{form.email}</dd></div>
+                <div><dt>{t.category}</dt><dd>{t[form.category]}</dd></div>
+                <div><dt>{t.subject}</dt><dd>{form.subject}</dd></div>
+                <div><dt>{t.message}</dt><dd>{form.message}</dd></div>
               </dl>
-              {phase === 'error' && (
-                <p className="contact-error" role="alert">
-                  ERROR / {error}
-                </p>
-              )}
+              {phase === 'error' && <p className="contact-error" role="alert">ERROR / {error}</p>}
               <div ref={widget} className="turnstile-slot" />
               <small>{t.security}</small>
               <div className="contact-actions">
-                <button
-                  type="button"
-                  className="button-ghost"
-                  onClick={() => setPhase('input')}
-                  disabled={phase === 'sending'}
-                >
-                  {t.edit}
-                </button>
-                <button
-                  type="button"
-                  className="button-primary"
-                  onClick={submit}
-                  disabled={!token || phase === 'sending'}
-                >
-                  {phase === 'sending' ? t.sending : t.send}
-                </button>
+                <button type="button" className="button-ghost" onClick={() => setPhase('input')} disabled={phase === 'sending'}>{t.edit}</button>
+                <button type="button" className="button-primary" onClick={submit} disabled={!token || phase === 'sending'}>{phase === 'sending' ? t.sending : t.send}</button>
               </div>
             </div>
           ) : (
-            <form
-              onSubmit={(event) => {
-                event.preventDefault();
-                confirm();
-              }}
-            >
-              <label>
-                <span>01 / {t.name}</span>
-                <input
-                  value={form.name}
-                  onChange={(e) => update('name', e.target.value)}
-                  maxLength={80}
-                  required
-                  autoComplete="name"
-                />
-              </label>
-              <label>
-                <span>02 / {t.email}</span>
-                <input
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => update('email', e.target.value)}
-                  maxLength={254}
-                  required
-                  autoComplete="email"
-                />
-              </label>
-              <label>
-                <span>03 / {t.category}</span>
-                <select value={form.category} onChange={(e) => update('category', e.target.value)}>
-                  <option value="project">{t.project}</option>
-                  <option value="community">{t.community}</option>
-                  <option value="media">{t.media}</option>
-                  <option value="other">{t.other}</option>
-                </select>
-              </label>
-              <label>
-                <span>04 / {t.subject}</span>
-                <input
-                  value={form.subject}
-                  onChange={(e) => update('subject', e.target.value)}
-                  minLength={2}
-                  maxLength={120}
-                  required
-                />
-              </label>
-              <label className="contact-message">
-                <span>05 / {t.message}</span>
-                <textarea
-                  value={form.message}
-                  onChange={(e) => update('message', e.target.value)}
-                  minLength={20}
-                  maxLength={5000}
-                  rows={10}
-                  required
-                />
-                <small>{form.message.length} / 5000</small>
-              </label>
-              <label className="contact-honeypot" aria-hidden="true">
-                <span>Website</span>
-                <input
-                  tabIndex={-1}
-                  autoComplete="off"
-                  value={form.website}
-                  onChange={(e) => update('website', e.target.value)}
-                />
-              </label>
-              <button
-                type="submit"
-                className="button-primary contact-confirm"
-                disabled={!canConfirm || config === null}
-              >
-                {t.confirm} →
-              </button>
+            <form onSubmit={(event) => { event.preventDefault(); confirm(); }}>
+              <label><span>01 / {t.name}</span><input value={form.name} onChange={(e) => update('name', e.target.value)} maxLength={80} required autoComplete="name" /></label>
+              <label><span>02 / {t.email}</span><input type="email" value={form.email} onChange={(e) => update('email', e.target.value)} maxLength={254} required autoComplete="email" /></label>
+              <label><span>03 / {t.category}</span><select value={form.category} onChange={(e) => update('category', e.target.value)}><option value="project">{t.project}</option><option value="community">{t.community}</option><option value="media">{t.media}</option><option value="other">{t.other}</option></select></label>
+              <label><span>04 / {t.subject}</span><input value={form.subject} onChange={(e) => update('subject', e.target.value)} minLength={2} maxLength={120} required /></label>
+              <label className="contact-message"><span>05 / {t.message}</span><textarea value={form.message} onChange={(e) => update('message', e.target.value)} minLength={20} maxLength={5000} rows={10} required /><small>{form.message.length} / 5000</small></label>
+              <label className="contact-honeypot" aria-hidden="true"><span>Website</span><input tabIndex={-1} autoComplete="off" value={form.website} onChange={(e) => update('website', e.target.value)} /></label>
+              <button type="submit" className="button-primary contact-confirm" disabled={!canConfirm || config === null}>{t.confirm} →</button>
             </form>
           )}
         </>
