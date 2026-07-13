@@ -6,4 +6,5 @@ export const navigation = (locale: Locale) => [
   { key: 'profile', href: localePath(locale, '/profile') },
   { key: 'works', href: localePath(locale, '/works') },
   { key: 'blog', href: localePath(locale, '/blog') },
+  { key: 'contact', href: localePath(locale, '/contact') },
 ];
