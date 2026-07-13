@@ -2,14 +2,30 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import WorkFilter from '@/components/works/WorkFilter';
 import { projects } from '@/data/projects';
+import { profile } from '@/data/profile';
 import { localePath, siteConfig, type Locale } from '@/data/site-config';
 import { getDictionary } from '@/i18n/dictionaries';
 const { locale } = Astro.props as { locale: Locale };
 const d = getDictionary(locale);
 const copy = {
-  ja: { select: 'ミッションを選択', active: '稼働中', route: 'ルートを開く', archive: '全ワールド記録', briefing: '制作・ゲーム・コミュニティ・創作の活動を、ミッションデータとして記録しています。' },
-  en: { select: 'Select a mission', active: 'Live', route: 'Open route', archive: 'All world records', briefing: 'Development, gaming, community, and creative activity recorded as mission data.' },
-  ko: { select: '미션 선택', active: '가동 중', route: '루트 열기', archive: '전체 월드 기록', briefing: '개발, 게임, 커뮤니티, 창작 활동을 미션 데이터로 기록합니다.' },
+  ja: {
+    select: 'ミッションを選択', active: '稼働中', route: 'ルートを開く', archive: '全ワールド記録',
+    briefing: '制作・ゲーム・コミュニティ・創作の活動を、ミッションデータとして記録しています。',
+    stack: 'Developer技術スタック', stackIntro: '実務・個人開発・学習中を分け、現在の技術領域をCapability Matrixとして表示します。',
+    portfolio: '設計思想・技術構成・開発プロセスを詳しく見る', openPortfolio: 'Developer Consoleを開く',
+  },
+  en: {
+    select: 'Select a mission', active: 'Live', route: 'Open route', archive: 'All world records',
+    briefing: 'Development, gaming, community, and creative activity recorded as mission data.',
+    stack: 'Developer Technology Stack', stackIntro: 'Current capabilities shown by production, project, and learning status.',
+    portfolio: 'Explore design decisions, architecture, and development process.', openPortfolio: 'Open Developer Console',
+  },
+  ko: {
+    select: '미션 선택', active: '가동 중', route: '루트 열기', archive: '전체 월드 기록',
+    briefing: '개발, 게임, 커뮤니티, 창작 활동을 미션 데이터로 기록합니다.',
+    stack: 'Developer 기술 스택', stackIntro: '실무, 개인 프로젝트, 학습 상태로 현재 기술 영역을 표시합니다.',
+    portfolio: '설계 사상, 기술 구성, 개발 프로세스를 자세히 확인합니다.', openPortfolio: 'Developer Console 열기',
+  },
 }[locale];
 ---
 
@@ -82,6 +98,31 @@ const copy = {
           ))}
         </div>
       </div>
+    </div>
+  </section>
+
+  <section class="developer-capability-hub section" data-world-zone="developer">
+    <div class="section-inner">
+      <div class="section-heading" data-reveal>
+        <div><p class="section-kicker">CAPABILITY MATRIX</p><h2>{copy.stack}</h2></div>
+        <p class="section-intro">{copy.stackIntro}</p>
+      </div>
+      <div class="developer-stack-matrix">
+        {Object.entries(profile.stack).map(([group, items], index) => (
+          <article data-reveal>
+            <header><small>STACK / {String(index + 1).padStart(2, '0')}</small><h3>{group}</h3></header>
+            <div>{items.map((item) => <span data-status={item.status}><b>{item.name}</b><small>{d.profile.statuses[item.status]}</small></span>)}</div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="portfolio-gateway section" data-world-zone="developer">
+    <div class="section-inner portfolio-gateway-panel" data-reveal>
+      <div><small>DEVELOPER CONSOLE / ACCESS POINT</small><h2>Portfolio</h2><p>{copy.portfolio}</p></div>
+      <a class="button-primary" href={localePath(locale, '/portfolio')}>{copy.openPortfolio} →</a>
+      <div class="gateway-lines" aria-hidden="true"><i></i><i></i><i></i></div>
     </div>
   </section>
 </BaseLayout>
