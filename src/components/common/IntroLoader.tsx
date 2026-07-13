@@ -15,13 +15,15 @@ export default function IntroLoader() {
     const play = (forceCompact = false) => {
       clearTimers();
       const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      let seen = false;
-      try {
-        seen = sessionStorage.getItem('ivuru-intro-seen') === '1';
-        sessionStorage.setItem('ivuru-intro-seen', '1');
-      } catch {
-        seen = true;
-      }
+      const seen = (() => {
+        try {
+          const hasSeen = sessionStorage.getItem('ivuru-intro-seen') === '1';
+          sessionStorage.setItem('ivuru-intro-seen', '1');
+          return hasSeen;
+        } catch {
+          return true;
+        }
+      })();
 
       const short = forceCompact || seen;
       const duration = reduced ? 180 : short ? 680 : 1120;
