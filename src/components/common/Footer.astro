@@ -18,15 +18,15 @@ const dict = getDictionary(locale);
       }
     </nav>
     <div class="footer-worlds">
-      <span>01 / Developer World</span><span>02 / Gamer World</span><a
+      <span>01 / Developer World</span><span>02 / Gamer World</span><span>ID / {siteConfig.idName}</span><a
         href={siteConfig.xUrl}
         target="_blank"
-        rel="noopener noreferrer">X @ivuruGG ↗</a
+        rel="noopener noreferrer">X {siteConfig.xHandle} ↗</a
       >
     </div>
   </div>
   <div class="footer-bottom">
-    <span>© {new Date().getFullYear()} ivuruGG. {dict.footer.rights}</span><span
+    <span>© {new Date().getFullYear()} {siteConfig.name} / {siteConfig.idName}. {dict.footer.rights}</span><span
       >DESIGNED BETWEEN TWO WORLDS</span
     >
   </div>
