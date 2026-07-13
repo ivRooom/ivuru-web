@@ -1,0 +1,85 @@
+name: Visual Regression
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: visual-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: PRブランチを取得
+        uses: actions/checkout@v4
+        with:
+          path: current-site
+
+      - name: mainを比較元として取得
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: baseline-site
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: current-site/.nvmrc
+          cache: npm
+          cache-dependency-path: |
+            current-site/package-lock.json
+            baseline-site/package-lock.json
+
+      - name: 依存関係をインストール
+        run: |
+          npm ci --prefix current-site
+          npm ci --prefix baseline-site
+          npx --prefix current-site playwright install --with-deps chromium
+
+      - name: 両バージョンをビルド
+        env:
+          ASTRO_TELEMETRY_DISABLED: '1'
+          SITE_URL: https://ivurugg.ivrm.jp
+        run: |
+          npm run build --prefix current-site
+          npm run build --prefix baseline-site
+
+      - name: Previewサーバーを起動
+        run: |
+          nohup npm run preview --prefix baseline-site -- --host 127.0.0.1 --port 4321 > /tmp/baseline.log 2>&1 &
+          nohup npm run preview --prefix current-site -- --host 127.0.0.1 --port 4322 > /tmp/current.log 2>&1 &
+          for url in http://127.0.0.1:4321 http://127.0.0.1:4322; do
+            for attempt in {1..30}; do
+              curl --fail --silent "$url" >/dev/null && break
+              sleep 1
+            done
+            curl --fail --silent "$url" >/dev/null
+          done
+
+      - name: スクリーンショットを取得
+        run: |
+          node current-site/scripts/capture-visuals.mjs http://127.0.0.1:4321 visual-baseline
+          node current-site/scripts/capture-visuals.mjs http://127.0.0.1:4322 visual-current
+
+      - name: 画像差分を検査
+        run: |
+          python -m pip install --disable-pip-version-check --quiet Pillow==11.3.0
+          python current-site/scripts/compare-visuals.py visual-baseline visual-current visual-diff --threshold 0.03 | tee visual-report.md
+          cat visual-report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Visual Regression成果物を保存
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-regression-${{ github.event.pull_request.number }}
+          path: |
+            visual-baseline
+            visual-current
+            visual-diff
+            visual-report.md
+          retention-days: 14

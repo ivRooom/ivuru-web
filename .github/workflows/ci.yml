@@ -5,20 +5,47 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - name: 本番依存関係の脆弱性を監査
+        run: npm audit --omit=dev --audit-level=high
       - run: npm run check
         env:
           ASTRO_TELEMETRY_DISABLED: '1'
       - run: npm run lint
+      - name: 変更ファイルのFormatを確認
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            base="${{ github.event.pull_request.base.sha }}"
+          else
+            base="${{ github.event.before }}"
+          fi
+          mapfile -d '' files < <(git diff --name-only -z "$base" HEAD -- '*.astro' '*.css' '*.js' '*.json' '*.jsonc' '*.md' '*.mjs' '*.ts' '*.tsx' '*.yml' '*.yaml')
+          if (( ${#files[@]} == 0 )); then
+            echo "整形対象の変更ファイルはありません。"
+          else
+            printf 'Format check: %s\n' "${files[@]}"
+            npx prettier --check "${files[@]}"
+          fi
       - run: npm test
       - run: npm run build
         env:
@@ -35,11 +62,14 @@ jobs:
           test -f dist/robots.txt
           test -f dist/en/index.html
           test -f dist/ko/index.html
+      - name: Performance Budgetを確認
+        run: npm run performance:check
       - name: Wrangler設定をdry-runで検証
         run: npx wrangler deploy --dry-run --outdir .wrangler/dry-run
 
   e2e:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

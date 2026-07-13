@@ -19,9 +19,24 @@ export type ContactError = {
 };
 
 const categoryLabels: Record<ContactLocale, Record<ContactCategory, string>> = {
-  ja: { project: '開発・制作の相談', community: 'ivRm・コミュニティ', media: '配信・メディア', other: 'その他' },
-  en: { project: 'Development / Creative', community: 'ivRm / Community', media: 'Streaming / Media', other: 'Other' },
-  ko: { project: '개발·제작 문의', community: 'ivRm·커뮤니티', media: '방송·미디어', other: '기타' },
+  ja: {
+    project: '開発・制作の相談',
+    community: 'ivRm・コミュニティ',
+    media: '配信・メディア',
+    other: 'その他',
+  },
+  en: {
+    project: 'Development / Creative',
+    community: 'ivRm / Community',
+    media: 'Streaming / Media',
+    other: 'Other',
+  },
+  ko: {
+    project: '개발·제작 문의',
+    community: 'ivRm·커뮤니티',
+    media: '방송·미디어',
+    other: '기타',
+  },
 };
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -29,8 +44,16 @@ const categories = new Set<ContactCategory>(['project', 'community', 'media', 'o
 const locales = new Set<ContactLocale>(['ja', 'en', 'ko']);
 
 const normalizedText = (value: unknown) => (typeof value === 'string' ? value.trim() : '');
+export const sanitizeHeaderValue = (value: string) =>
+  value
+    .replace(/[\r\n]+/g, ' ')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
 
-export function validateContactPayload(input: unknown): { value?: ContactPayload; errors: ContactError[] } {
+export function validateContactPayload(input: unknown): {
+  value?: ContactPayload;
+  errors: ContactError[];
+} {
   if (!input || typeof input !== 'object') {
     return { errors: [{ code: 'invalid_payload', message: 'Invalid request payload.' }] };
   }
@@ -46,26 +69,56 @@ export function validateContactPayload(input: unknown): { value?: ContactPayload
   const locale = normalizedText(raw.locale) as ContactLocale;
   const errors: ContactError[] = [];
 
-  if (name.length < 1 || name.length > 80) errors.push({ field: 'name', code: 'invalid_name', message: 'Name must be 1–80 characters.' });
-  if (!emailPattern.test(email) || email.length > 254) errors.push({ field: 'email', code: 'invalid_email', message: 'Enter a valid email address.' });
-  if (!categories.has(category)) errors.push({ field: 'category', code: 'invalid_category', message: 'Select a valid category.' });
-  if (subject.length < 2 || subject.length > 120) errors.push({ field: 'subject', code: 'invalid_subject', message: 'Subject must be 2–120 characters.' });
-  if (message.length < 20 || message.length > 5000) errors.push({ field: 'message', code: 'invalid_message', message: 'Message must be 20–5000 characters.' });
-  if (!locales.has(locale)) errors.push({ field: 'locale', code: 'invalid_locale', message: 'Unsupported locale.' });
-  if (!turnstileToken) errors.push({ field: 'turnstileToken', code: 'turnstile_required', message: 'Security verification is required.' });
+  if (name.length < 1 || name.length > 80)
+    errors.push({ field: 'name', code: 'invalid_name', message: 'Name must be 1–80 characters.' });
+  if (!emailPattern.test(email) || email.length > 254)
+    errors.push({ field: 'email', code: 'invalid_email', message: 'Enter a valid email address.' });
+  if (!categories.has(category))
+    errors.push({
+      field: 'category',
+      code: 'invalid_category',
+      message: 'Select a valid category.',
+    });
+  if (subject.length < 2 || subject.length > 120)
+    errors.push({
+      field: 'subject',
+      code: 'invalid_subject',
+      message: 'Subject must be 2–120 characters.',
+    });
+  if (message.length < 20 || message.length > 5000)
+    errors.push({
+      field: 'message',
+      code: 'invalid_message',
+      message: 'Message must be 20–5000 characters.',
+    });
+  if (!locales.has(locale))
+    errors.push({ field: 'locale', code: 'invalid_locale', message: 'Unsupported locale.' });
+  if (!turnstileToken)
+    errors.push({
+      field: 'turnstileToken',
+      code: 'turnstile_required',
+      message: 'Security verification is required.',
+    });
 
   if (errors.length) return { errors };
-  return { value: { name, email, category, subject, message, locale, turnstileToken, website }, errors };
+  return {
+    value: { name, email, category, subject, message, locale, turnstileToken, website },
+    errors,
+  };
 }
 
 export function escapeHtml(value: string) {
-  return value.replace(/[&<>'"]/g, (char) => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    "'": '&#39;',
-    '"': '&quot;',
-  })[char] ?? char);
+  return value.replace(
+    /[&<>'"]/g,
+    (char) =>
+      ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        "'": '&#39;',
+        '"': '&quot;',
+      })[char] ?? char,
+  );
 }
 
 export function buildAdminEmail(payload: ContactPayload, requestId: string) {
@@ -76,7 +129,7 @@ export function buildAdminEmail(payload: ContactPayload, requestId: string) {
   const category = categoryLabels[payload.locale][payload.category];
 
   return {
-    subject: `[ivuru Contact] ${payload.subject}`,
+    subject: `[ivuru Contact] ${sanitizeHeaderValue(payload.subject)}`,
     html: `
       <h1>New contact request</h1>
       <p><strong>Request ID:</strong> ${requestId}</p>
@@ -126,7 +179,8 @@ export function buildReceiptEmail(payload: ContactPayload, requestId: string) {
 }
 
 export function buildDiscordMessage(payload: ContactPayload, requestId: string) {
-  const trimmedMessage = payload.message.length > 1500 ? `${payload.message.slice(0, 1497)}...` : payload.message;
+  const trimmedMessage =
+    payload.message.length > 1500 ? `${payload.message.slice(0, 1497)}...` : payload.message;
   return {
     username: 'ivuru Contact Terminal',
     allowed_mentions: { parse: [] },
@@ -137,7 +191,11 @@ export function buildDiscordMessage(payload: ContactPayload, requestId: string) 
         color: 0x55e6ff,
         fields: [
           { name: 'Request ID', value: requestId, inline: true },
-          { name: 'Category', value: categoryLabels[payload.locale][payload.category], inline: true },
+          {
+            name: 'Category',
+            value: categoryLabels[payload.locale][payload.category],
+            inline: true,
+          },
           { name: 'Locale', value: payload.locale, inline: true },
           { name: 'Name', value: payload.name.slice(0, 256), inline: true },
           { name: 'Email', value: payload.email.slice(0, 256), inline: true },
