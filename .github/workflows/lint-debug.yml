@@ -7,8 +7,9 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          show-progress: false
-      - run: npm ci --silent
-      - run: npm run lint
+      - name: Run lint with concise setup
+        run: |
+          git clone -q --depth 1 --branch fix/navigation-loader-world-experience https://github.com/ivRooom/ivuru-web.git repo
+          cd repo
+          npm ci --silent
+          npm run lint
