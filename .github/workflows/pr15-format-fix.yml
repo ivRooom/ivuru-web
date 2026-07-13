@@ -1,0 +1,31 @@
+name: PR15 format fix
+
+on:
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 変更ファイルをPrettierで整形
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git clone -q --depth 1 --branch fix/contact-delivery-resilience https://x-access-token:${GH_TOKEN}@github.com/ivRooom/ivuru-web.git repo
+          cd repo
+          npm ci --silent >/dev/null
+          npx prettier --write \
+            CONTACT_DELIVERY.md \
+            src/worker.ts \
+            src/worker/delivery.ts \
+            src/worker/delivery.test.ts
+          if git diff --quiet; then exit 0; fi
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add .
+          git commit -m "PR15の変更ファイルを整形"
+          git push origin HEAD:fix/contact-delivery-resilience
