@@ -1,9 +1,7 @@
 name: PR9 check diagnostics
 
 on:
-  push:
-    branches:
-      - feat/world-chapter-social-policy
+  pull_request:
 
 jobs:
   diagnose:
