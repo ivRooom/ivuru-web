@@ -39,7 +39,7 @@ jobs:
           else
             base="${{ github.event.before }}"
           fi
-          mapfile -d '' files < <(git diff --name-only -z "$base" HEAD -- '*.astro' '*.css' '*.js' '*.json' '*.jsonc' '*.md' '*.mjs' '*.ts' '*.tsx' '*.yml' '*.yaml')
+          mapfile -d '' files < <(git diff --diff-filter=ACMR --name-only -z "$base" HEAD -- '*.astro' '*.css' '*.js' '*.json' '*.jsonc' '*.md' '*.mjs' '*.ts' '*.tsx' '*.yml' '*.yaml')
           if (( ${#files[@]} == 0 )); then
             echo "整形対象の変更ファイルはありません。"
           else
