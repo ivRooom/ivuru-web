@@ -10,16 +10,13 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-      - run: npm ci --silent
       - name: ESLint指摘だけを表示
         run: |
+          git clone -q --depth 1 --branch feat/quality-command-center-analytics https://github.com/ivRooom/ivuru-web.git repo
+          cd repo
+          npm ci --silent >/dev/null
           set +e
           npm run lint > /tmp/lint.log 2>&1
           status=$?
-          tail -n 80 /tmp/lint.log
+          tail -n 24 /tmp/lint.log
           exit $status
