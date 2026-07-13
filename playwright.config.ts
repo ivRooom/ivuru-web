@@ -3,6 +3,7 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
+  workers: process.env.CI ? 2 : undefined,
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI
     ? [['line'], ['html', { outputFolder: 'playwright-report', open: 'never' }]]
@@ -10,9 +11,9 @@ export default defineConfig({
   outputDir: 'test-results',
   use: {
     baseURL: 'http://127.0.0.1:4321',
-    trace: 'retain-on-failure',
+    trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    video: 'on-first-retry',
     locale: 'ja-JP',
   },
   webServer: {
