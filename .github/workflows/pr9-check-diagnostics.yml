@@ -1,0 +1,24 @@
+name: PR9 check diagnostics
+
+on:
+  push:
+    branches:
+      - feat/world-chapter-social-policy
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.16.0
+          cache: npm
+      - run: npm ci --silent
+      - name: 型チェックの失敗箇所を出力
+        run: |
+          set +e
+          npm run check > /tmp/check.log 2>&1
+          status=$?
+          tail -n 160 /tmp/check.log
+          exit $status
