@@ -1,9 +1,7 @@
 name: PR8 E2E diagnostics
 
 on:
-  push:
-    branches:
-      - fix/workers-navigation-finalize
+  pull_request:
 
 jobs:
   diagnose:
