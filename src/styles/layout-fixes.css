@@ -12,6 +12,7 @@ html,body{overflow-x:clip}
 .profile-passport .character-about,.profile-passport dd,.profile-passport .passport-status-grid span,.profile-passport .identity-switch span{overflow-wrap:anywhere}
 .profile-passport .character-core-stats{width:100%}
 .developer-console-hero .page-title{max-width:12ch;font-size:clamp(54px,9vw,126px);line-height:.88;overflow-wrap:anywhere}
+.developer-console-hero .page-title span{display:block}
 .console-window,.console-command-output,.console-module-grid,.console-module-grid article,.console-process li,.console-principles article{min-width:0}
 .console-window-bar{grid-template-columns:auto minmax(0,1fr) auto}
 .console-window-bar code{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center}
