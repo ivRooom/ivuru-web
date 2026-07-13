@@ -1,0 +1,15 @@
+name: PR11 contact diagnostics
+on:
+  pull_request:
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.16.0
+          cache: npm
+      - run: npm ci --silent
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e -- tests/e2e/contact.spec.ts --project=chromium --reporter=line
