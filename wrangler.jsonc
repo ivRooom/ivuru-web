@@ -3,12 +3,12 @@
   "name": "ivrm-ivurugg",
   "main": "./src/worker.ts",
   "compatibility_date": "2026-07-13",
+  "keep_vars": true,
 
   "vars": {
     "CONTACT_TO_EMAIL": "contact@ivrm.jp",
     "CONTACT_FROM_EMAIL": "ivuru Contact <contact@ivrm.jp>",
-    "ALLOWED_ORIGINS": "https://ivurugg.ivrm.jp",
-    "TURNSTILE_SITE_KEY": ""
+    "ALLOWED_ORIGINS": "https://ivurugg.ivrm.jp"
   },
 
   "ratelimits": [
