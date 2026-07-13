@@ -25,6 +25,8 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - name: 本番依存関係の脆弱性を監査
+        run: npm audit --omit=dev --audit-level=high
       - run: npm run check
         env:
           ASTRO_TELEMETRY_DISABLED: '1'
