@@ -1,0 +1,4 @@
+# Domain canonicalization must be enabled after the production apex domain is confirmed.
+# Example: https://www.example.com/* https://example.com/:splat 301
+
+/ja/* /:splat 301
