@@ -1,0 +1,45 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ContactTerminal from '@/components/contact/ContactTerminal';
+import { siteConfig, type Locale } from '@/data/site-config';
+
+const { locale } = Astro.props as { locale: Locale };
+const copy = {
+  ja: {
+    title: 'お問い合わせ',
+    description: '開発・制作、ivRm、配信・メディアなどのお問い合わせを受け付けています。',
+    intro: '安全な通信チャンネルから、いゔる。 / ivuruへメッセージを送信します。送信前に内容を確認できます。',
+  },
+  en: {
+    title: 'Contact',
+    description: 'Contact ivuru about development, creative work, ivRm, streaming, or media.',
+    intro: 'Send a message to ivuru through a secure communication channel. You can review the payload before transmission.',
+  },
+  ko: {
+    title: '문의하기',
+    description: '개발·제작, ivRm, 방송·미디어 관련 문의를 접수합니다.',
+    intro: '안전한 통신 채널을 통해 ivuru에게 메시지를 보냅니다. 전송 전에 내용을 확인할 수 있습니다.',
+  },
+}[locale];
+---
+
+<BaseLayout
+  title={`${copy.title} — ${siteConfig.name} / ${siteConfig.idName}`}
+  description={copy.description}
+  locale={locale}
+  chapter={{ code: '05', title: 'CONTACT TERMINAL', world: 'COMMUNICATION GATE' }}
+>
+  <header class="page-hero contact-hero page-grid-bg" data-page-intro>
+    <div class="page-hero-inner">
+      <p class="eyebrow">COMMUNICATION GATE / CHANNEL-005</p>
+      <h1 class="page-title">{copy.title}</h1>
+      <p>{copy.intro}</p>
+      <div class="contact-signal" aria-hidden="true"><i></i><i></i><i></i><span>ENCRYPTED ROUTE / READY</span></div>
+    </div>
+  </header>
+  <section class="section contact-section" data-world-zone="communication">
+    <div class="section-inner">
+      <ContactTerminal client:load locale={locale} />
+    </div>
+  </section>
+</BaseLayout>

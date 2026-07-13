@@ -7,9 +7,9 @@ import { getDictionary } from '@/i18n/dictionaries';
 const { locale = 'ja' } = Astro.props as { locale: Locale };
 const dict = getDictionary(locale);
 const legal = {
-  ja: { privacy: 'プライバシーポリシー', terms: '利用規約', harassment: 'カスタマーハラスメント対応方針', portfolio: 'Portfolio' },
-  en: { privacy: 'Privacy Policy', terms: 'Terms of Use', harassment: 'Abusive Conduct Policy', portfolio: 'Portfolio' },
-  ko: { privacy: '개인정보 처리방침', terms: '이용약관', harassment: '고객 괴롭힘 대응 방침', portfolio: 'Portfolio' },
+  ja: { privacy: 'プライバシーポリシー', terms: '利用規約', harassment: 'カスタマーハラスメント対応方針', portfolio: 'Portfolio', contact: 'お問い合わせ' },
+  en: { privacy: 'Privacy Policy', terms: 'Terms of Use', harassment: 'Abusive Conduct Policy', portfolio: 'Portfolio', contact: 'Contact' },
+  ko: { privacy: '개인정보 처리방침', terms: '이용약관', harassment: '고객 괴롭힘 대응 방침', portfolio: 'Portfolio', contact: '문의하기' },
 }[locale];
 ---
 
@@ -21,6 +21,7 @@ const legal = {
       <small>つくる。遊ぶ。つなげる。</small>
       <div class="footer-legal">
         <a href={localePath(locale, '/portfolio')}>{legal.portfolio}</a>
+        <a href={localePath(locale, '/contact')}>{legal.contact}</a>
         <a href={localePath(locale, '/privacy')}>{legal.privacy}</a>
         <a href={localePath(locale, '/terms')}>{legal.terms}</a>
         <a href={localePath(locale, '/customer-harassment')}>{legal.harassment}</a>
@@ -31,6 +32,7 @@ const legal = {
         <a href={item.href}>{dict.nav[item.key as keyof typeof dict.nav]}</a>
       ))}
       <a href={localePath(locale, '/portfolio')}>Portfolio</a>
+      <a href={localePath(locale, '/contact')}>{legal.contact}</a>
     </nav>
     <div class="footer-worlds">
       <span>01 / Developer World</span><span>02 / Gamer World</span><span>ID / {siteConfig.idName}</span>

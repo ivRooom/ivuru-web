@@ -12,6 +12,7 @@ const routes: Array<[RegExp, ChapterMeta]> = [
   [/^\/works/, { code: '02', title: 'MISSION ARCHIVE', world: 'CREATIVE WORLD' }],
   [/^\/portfolio/, { code: '03', title: 'SYSTEM CONSOLE', world: 'DEVELOPER WORLD' }],
   [/^\/blog/, { code: '04', title: 'DIGITAL ARCHIVE', world: 'ARCHIVE WORLD' }],
+  [/^\/contact/, { code: '05', title: 'CONTACT TERMINAL', world: 'COMMUNICATION GATE' }],
   [/^\/customer-harassment/, { code: '90', title: 'POLICY FILE', world: 'LEGAL ARCHIVE' }],
   [/^\/privacy/, { code: '91', title: 'PRIVACY FILE', world: 'LEGAL ARCHIVE' }],
   [/^\/terms/, { code: '92', title: 'TERMS FILE', world: 'LEGAL ARCHIVE' }],
