@@ -1,0 +1,16 @@
+name: Lint diagnostics
+
+on:
+  push:
+    branches:
+      - fix/navigation-loader-world-experience
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          show-progress: false
+      - run: npm ci --silent
+      - run: npm run lint
