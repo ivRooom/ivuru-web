@@ -1,7 +1,8 @@
 import { readdir, stat } from 'node:fs/promises';
 import { extname, join, relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const root = new URL('../dist/', import.meta.url);
+const root = fileURLToPath(new URL('../dist/', import.meta.url));
 const limits = {
   total: 20 * 1024 * 1024,
   javascript: 3 * 1024 * 1024,
@@ -26,8 +27,9 @@ const format = (bytes) => `${(bytes / 1024).toFixed(1)} KiB`;
 
 try {
   await walk(root);
-} catch {
-  console.error('dist/ が見つかりません。先に npm run build を実行してください。');
+} catch (error) {
+  console.error('dist/ を走査できません。先に npm run build を実行してください。');
+  console.error(error instanceof Error ? error.message : String(error));
   process.exit(1);
 }
 
@@ -45,7 +47,7 @@ const rows = [
   ['JavaScript total', javascript, limits.javascript],
   ['CSS total', css, limits.css],
   [
-    `largest asset (${largest ? relative(root.pathname, largest.path) : 'none'})`,
+    `largest asset (${largest ? relative(root, largest.path) : 'none'})`,
     largest?.size ?? 0,
     limits.largestAsset,
   ],
