@@ -24,6 +24,7 @@ const {
   type = 'website',
   noindex = false,
 } = Astro.props;
+const resolvedTitle = title.replaceAll('ivuruGG', `${siteConfig.name} / ${siteConfig.idName}`);
 const canonical = new URL(Astro.url.pathname, siteConfig.siteUrl);
 const normalized = Astro.url.pathname.replace(/^\/(en|ko)(?=\/|$)/, '') || '/';
 const ogImage = new URL(image, siteConfig.siteUrl);
@@ -36,7 +37,7 @@ const ogImage = new URL(image, siteConfig.siteUrl);
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
     <meta name="theme-color" content="#060817" />
-    <title>{title}</title>
+    <title>{resolvedTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     {
@@ -54,7 +55,7 @@ const ogImage = new URL(image, siteConfig.siteUrl);
       href={new URL(localePath('ja', normalized), siteConfig.siteUrl)}
     />
     <meta property="og:type" content={type} />
-    <meta property="og:title" content={title} />
+    <meta property="og:title" content={resolvedTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
