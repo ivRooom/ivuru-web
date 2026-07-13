@@ -24,7 +24,7 @@ const descriptions = {
 <BaseLayout title={siteConfig.title} description={descriptions[locale]} locale={locale}>
   <CustomCursor client:load />
   <section class="hero anime-world-hero" data-hero>
-    <div class="hero-art" data-hero-art></div><HeroWorld client:visible /><div
+    <div class="hero-art" data-hero-art></div><HeroWorld client:only="react" /><div
       class="hero-vignette"
     >
     </div><div class="hero-grid" aria-hidden="true"></div>

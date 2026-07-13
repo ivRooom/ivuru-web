@@ -1,0 +1,192 @@
+/*
+ * Mobile navigation stability layer
+ *
+ * The menu is rendered into document.body through a React portal. These
+ * overrides deliberately avoid inherited header transforms and keep every
+ * navigation item reachable on short and medium-sized viewports.
+ */
+
+body.menu-open {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+.mobile-menu-layer {
+  position: fixed !important;
+  z-index: 9000 !important;
+  inset: 0 !important;
+  width: 100vw;
+  height: 100dvh;
+  min-height: 100svh;
+  padding:
+    max(8px, env(safe-area-inset-top))
+    max(8px, env(safe-area-inset-right))
+    max(8px, env(safe-area-inset-bottom))
+    max(8px, env(safe-area-inset-left));
+  display: flex !important;
+  align-items: stretch;
+  justify-content: center;
+  overflow: hidden;
+  isolation: isolate;
+  overscroll-behavior: contain;
+  background: rgb(2 4 14 / 92%);
+  backdrop-filter: blur(22px) saturate(145%);
+}
+
+.mobile-menu-panel {
+  position: relative;
+  isolation: isolate;
+  flex: 1 1 auto;
+  width: min(100%, 1120px);
+  height: auto !important;
+  min-height: 0;
+  max-height: 100% !important;
+  padding: clamp(18px, 3vw, 42px);
+  display: grid !important;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  align-content: stretch;
+  gap: clamp(12px, 2.2vh, 26px);
+  overflow: hidden !important;
+  border-radius: clamp(20px, 2.6vw, 34px);
+}
+
+.mobile-menu-topbar,
+.mobile-menu-worlds,
+.mobile-menu-footer {
+  min-width: 0;
+}
+
+.mobile-menu-panel nav {
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  align-self: stretch !important;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(85 230 255 / 45%) transparent;
+  touch-action: pan-y;
+}
+
+.mobile-menu-panel nav::-webkit-scrollbar {
+  width: 5px;
+}
+
+.mobile-menu-panel nav::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgb(85 230 255 / 42%);
+}
+
+.mobile-menu-panel nav a {
+  min-height: 0;
+  padding: clamp(8px, 1.25vh, 14px) 4px;
+  grid-template-columns: 42px minmax(0, 1fr) 26px;
+  font-size: clamp(27px, 4.6vmin, 56px);
+  line-height: 0.98;
+}
+
+.mobile-menu-panel nav a span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.menu-atmosphere {
+  z-index: -1;
+}
+
+.menu-close {
+  z-index: 3;
+}
+
+@media (max-width: 720px) {
+  .mobile-menu-layer {
+    padding:
+      max(6px, env(safe-area-inset-top))
+      max(6px, env(safe-area-inset-right))
+      max(6px, env(safe-area-inset-bottom))
+      max(6px, env(safe-area-inset-left));
+  }
+
+  .mobile-menu-panel {
+    padding: 18px;
+    gap: 12px;
+    border-radius: 22px;
+  }
+
+  .mobile-menu-brand strong {
+    font-size: clamp(21px, 7vw, 29px);
+  }
+
+  .mobile-menu-worlds {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .menu-world-card {
+    min-height: 54px;
+    padding: 10px;
+  }
+
+  .mobile-menu-panel nav a {
+    grid-template-columns: 30px minmax(0, 1fr) 18px;
+    gap: 9px;
+    padding-block: 9px;
+    font-size: clamp(27px, 8vw, 40px);
+  }
+
+  .mobile-menu-panel nav a:hover,
+  .mobile-menu-panel nav a.active {
+    padding-left: 10px;
+  }
+
+  .mobile-menu-footer {
+    gap: 6px;
+  }
+}
+
+@media (max-height: 760px) and (max-width: 1180px) {
+  .mobile-menu-panel {
+    padding-block: 14px;
+    gap: 9px;
+  }
+
+  .mobile-menu-worlds {
+    display: none;
+  }
+
+  .mobile-menu-panel nav a {
+    padding-block: 7px;
+    font-size: clamp(25px, 5.5vh, 38px);
+  }
+
+  .mobile-menu-footer {
+    font-size: 8px;
+  }
+}
+
+@media (max-height: 560px) and (max-width: 1180px) {
+  .mobile-menu-brand span,
+  .mobile-menu-footer > span {
+    display: none;
+  }
+
+  .mobile-menu-panel nav a {
+    padding-block: 5px;
+    font-size: clamp(23px, 6.2vh, 32px);
+  }
+}
+
+@supports not (height: 100dvh) {
+  .mobile-menu-layer {
+    height: 100vh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-menu-layer,
+  .mobile-menu-panel,
+  .mobile-menu-panel nav a {
+    scroll-behavior: auto;
+  }
+}

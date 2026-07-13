@@ -23,6 +23,20 @@ jobs:
       - run: npm run build
         env:
           ASTRO_TELEMETRY_DISABLED: '1'
+          SITE_URL: https://ivurugg.ivrm.jp
+      - name: 静的成果物を確認
+        run: |
+          test -f dist/index.html
+          test -f dist/404.html
+          test -f dist/_headers
+          test -f dist/_redirects
+          test -f dist/sitemap-index.xml -o -f dist/sitemap.xml
+          test -f dist/rss.xml
+          test -f dist/robots.txt
+          test -f dist/en/index.html
+          test -f dist/ko/index.html
+      - name: Wrangler設定をdry-runで検証
+        run: npx wrangler deploy --dry-run --outdir .wrangler/dry-run
 
   e2e:
     runs-on: ubuntu-latest
@@ -34,4 +48,4 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e -- --project=chromium
+      - run: npm run test:e2e -- --project=chromium --reporter=line

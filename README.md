@@ -1,6 +1,6 @@
-# ivuruGG Official Website
+# いゔる。 / ivuru Official Website
 
-DeveloperとGamerを主軸に、個人開発、ゲーム活動、ivRmコミュニティ、クリエイター活動、ブログを一つの世界観へ統合したivuruGG公式サイトです。
+DeveloperとGamerを主軸に、個人開発、ゲーム活動、ivRmコミュニティ、クリエイター活動、ブログを一つの世界観へ統合した「いゔる。」の公式サイトです。ID・英語表記は`ivuru`です。
 
 > BUILD. PLAY. CREATE.  
 > つくる。遊ぶ。つなげる。
@@ -8,8 +8,9 @@ DeveloperとGamerを主軸に、個人開発、ゲーム活動、ivRmコミュ�
 ## Status
 
 - 初期リリースは完全な静的サイトです。
+- Cloudflare Workers Builds + Static Assetsで公開します。
 - 架空の顧客、案件、数値、問い合わせ先は掲載していません。
-- `sample: true` の作品・記事は、実データに差し替えるための編集用サンプルです。
+- `sample: true`の作品・記事は、実データに差し替えるための編集用サンプルです。
 - Privacy / Termsは法務確認前の草案で、未確定箇所を`TODO`または`要確認`としています。
 
 ## Technology
@@ -18,8 +19,9 @@ DeveloperとGamerを主軸に、個人開発、ゲーム活動、ivRmコミュ�
 - Tailwind CSS 4
 - Astro Content Collections / MDX
 - GSAP / ScrollTrigger
-- Motion (Framer Motion)
+- Motion（Framer Motion）
 - Three.js / React Three Fiber / Drei
+- Cloudflare Workers Static Assets / Wrangler
 - Lucide Icons
 - ESLint / Prettier / Vitest / Playwright
 
@@ -38,14 +40,18 @@ npm run dev
 ## Commands
 
 ```bash
-npm run dev          # 開発サーバー
-npm run check        # Astro / TypeScript型チェック
-npm run lint         # ESLint
-npm run format       # Prettierで整形
-npm test             # Vitest
-npm run test:e2e     # Playwright
-npm run build        # 静的ビルド（dist/）
-npm run preview      # ビルド結果をローカル確認
+npm run dev             # Astro開発サーバー
+npm run check           # Astro / TypeScript型チェック
+npm run lint            # ESLint
+npm run format          # Prettierで整形
+npm run format:check    # 整形差分の確認
+npm test                # Vitest
+npm run test:e2e        # Playwright
+npm run build           # 静的ビルド（dist/）
+npm run preview         # Astroでビルド結果を確認
+npm run deploy:check    # ビルド + Wrangler dry-run
+npm run deploy          # Cloudflareへ本番デプロイ
+npm run deploy:preview  # デプロイせず新しいWorker Versionをアップロード
 ```
 
 ## Main routes
@@ -121,40 +127,72 @@ Light / Dark / Systemに対応し、選択は`ivuru-theme`として`localStorage
 - Data Saverでは自動再生しない
 - 著作権上使用できないゲーム・アニメ・キャラクター素材は追加しない
 
-## Cloudflare Pages
+## Cloudflare Workers Builds
 
-Cloudflare PagesでGitHubリポジトリを接続します。
+このプロジェクトはCloudflare Pagesではなく、Cloudflare Workers BuildsとStatic Assetsを使用します。Astroは`output: 'static'`のまま運用し、`@astrojs/cloudflare`サーバーアダプターは使用しません。
 
-| Setting                | Value           |
-| ---------------------- | --------------- |
-| Production branch      | `main`          |
-| Build command          | `npm run build` |
-| Build output directory | `dist`          |
-| Node.js                | `22.22.3`       |
+### Git連携設定
 
-環境変数:
+| Setting | Value |
+| --- | --- |
+| Production branch | `main` |
+| Build command | `npm run build` |
+| Deploy command | `npx wrangler deploy` |
+| Non-production branch command | `npx wrangler versions upload` |
+| Root directory | `/` |
+| Node.js | `22.22.3` |
+| Static Assets directory | `./dist` |
+
+`wrangler.jsonc`では次を管理します。
+
+- Worker名: `ivrm-ivurugg`
+- `assets.directory`: `./dist`
+- `assets.not_found_handling`: `404-page`
+- `assets.html_handling`: `auto-trailing-slash`
+
+Workerスクリプトの`main`は設定せず、静的成果物だけを配信します。
+
+### Build variables
+
+CloudflareのBuild variablesへ次を設定します。
 
 ```text
-SITE_URL=https://your-production-domain.example
+SITE_URL=https://ivurugg.ivrm.jp
 PUBLIC_ANALYTICS_ID=
 PUBLIC_CONTACT_URL=
 ```
 
-`public/_headers`にCSP、HSTS、Referrer-Policy、Permissions-Policy、キャッシュ制御を定義し、`public/_redirects`に静的リダイレクトを定義しています。Cloudflare Pagesでは`public/`の`_headers`と`_redirects`が`dist/`へコピーされます。
+`SITE_URL`はcanonical、OGP、JSON-LD、sitemap、robots.txt、RSSのURL生成に使用します。コード側にも`https://ivurugg.ivrm.jp`のフォールバックがありますが、本番ではBuild variableを明示してください。
 
-本番ドメイン確定後に実施:
+### Headers and redirects
 
-1. `SITE_URL`を本番URLに設定
-2. `site-config.ts`の既定URLを必要に応じて更新（`robots.txt`とsitemapは`SITE_URL`へ追従）
-3. `www`からapex、またはapexから`www`の301をCloudflare Bulk Redirectsまたは`_redirects`で有効化
-4. Custom DomainsでDNS検証
-5. CSPへ実際に利用するAnalytics・動画・フォームのドメインだけを追加
+`public/_headers`と`public/_redirects`はビルド時に`dist/`へコピーされ、Workers Static Assetsが読み込みます。
 
-SPA用の`/* /index.html 200`は使用していません。プルリクエストごとのPreview DeploymentはCloudflare PagesのGit integrationで有効になります。
+- CSP
+- HSTS
+- Referrer-Policy
+- Permissions-Policy
+- 静的アセットの長期キャッシュ
+- HTMLの再検証
+- 言語・旧URLリダイレクト
+
+SPA用の`/* /index.html 200`は使用しません。存在しないURLは最寄りの`404.html`をHTTP 404で返します。
+
+### Deploy and rollback
+
+```bash
+npm run deploy:check     # 認証不要のdry-run
+npm run deploy           # 本番デプロイ
+npm run deploy:preview   # Versionをアップロード
+npx wrangler versions list
+npx wrangler rollback
+```
+
+Workers Buildsでは`main`を本番デプロイし、その他のブランチはVersionアップロードとして扱います。公開後はCloudflare Dashboardで対象コミットSHA、Preview URL、Custom Domain、SSLを確認してください。
 
 ## Future contact form
 
-現在は受付先未設定のため送信フォームを有効化していません。将来はPages Functions、Turnstile、メール送信API、サーバー側バリデーション、レート制限を追加できるよう、CTAと設定値を分離しています。
+現在は受付先未設定のため送信フォームを有効化していません。次フェーズではCloudflare Worker API、Turnstile、サーバー側バリデーション、レート制限、メール送信APIを追加します。送信後の自動受付メールと、管理側Discord通知を拡張できる構成にします。
 
 ## Performance and accessibility
 
@@ -164,6 +202,7 @@ SPA用の`/* /index.html 200`は使用していません。プルリクエスト
 - semantic HTML、Skip Link、フォーカス表示、Escape、フォーカストラップ
 - View Transitions対応環境ではAstro ClientRouter、非対応時は通常遷移
 - JavaScriptなしでも主要本文・リンクはHTMLとして表示
+- モバイルナビは`document.body`へPortal描画し、viewport全体を覆います
 
 ## Deployment checklist
 
@@ -171,8 +210,10 @@ SPA用の`/* /index.html 200`は使用していません。プルリクエスト
 npm ci
 npm run check
 npm run lint
+npm run format:check
 npm test
 npm run build
+npm run deploy:check
 npm run test:e2e -- --project=chromium
 ```
 

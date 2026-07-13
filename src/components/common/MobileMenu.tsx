@@ -21,6 +21,21 @@ export default function MobileMenu({ items, xUrl, xHandle, displayName, idName }
   useEffect(() => setMounted(true), []);
 
   useEffect(() => {
+    const closeForNavigation = () => setOpen(false);
+    const closeForDesktop = () => {
+      if (window.matchMedia('(min-width: 1181px)').matches) setOpen(false);
+    };
+
+    document.addEventListener('astro:before-preparation', closeForNavigation);
+    window.addEventListener('resize', closeForDesktop, { passive: true });
+
+    return () => {
+      document.removeEventListener('astro:before-preparation', closeForNavigation);
+      window.removeEventListener('resize', closeForDesktop);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!open) return;
 
     const triggerElement = trigger.current;
@@ -86,7 +101,7 @@ export default function MobileMenu({ items, xUrl, xHandle, displayName, idName }
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.22 }}
+          transition={{ duration: 0.2 }}
           onPointerDown={(event) => event.target === event.currentTarget && setOpen(false)}
         >
           <motion.div
@@ -96,10 +111,10 @@ export default function MobileMenu({ items, xUrl, xHandle, displayName, idName }
             role="dialog"
             aria-modal="true"
             aria-label="Navigation"
-            initial={{ opacity: 0, y: -18, scale: 0.985, clipPath: 'inset(0 0 100% 0 round 30px)' }}
-            animate={{ opacity: 1, y: 0, scale: 1, clipPath: 'inset(0 0 0% 0 round 30px)' }}
-            exit={{ opacity: 0, y: -12, scale: 0.99, clipPath: 'inset(0 0 100% 0 round 30px)' }}
-            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ opacity: 0, y: -20, scale: 0.99 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 0.995 }}
+            transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
           >
             <div className="menu-atmosphere" aria-hidden="true">
               <i></i><i></i><i></i>
@@ -142,9 +157,9 @@ export default function MobileMenu({ items, xUrl, xHandle, displayName, idName }
                   className={item.active ? 'active' : undefined}
                   aria-current={item.active ? 'page' : undefined}
                   onClick={() => setOpen(false)}
-                  initial={{ opacity: 0, x: -24 }}
+                  initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.12 + index * 0.045, duration: 0.36 }}
+                  transition={{ delay: 0.08 + index * 0.035, duration: 0.3 }}
                 >
                   <small>{String(index + 1).padStart(2, '0')}</small>
                   <span>{item.label}</span>
