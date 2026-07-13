@@ -5,6 +5,12 @@ import {
   validateContactPayload,
   type ContactPayload,
 } from './worker/contact';
+import {
+  isRetryableStatus,
+  parseRetryAfterMs,
+  RetryableDeliveryError,
+  withRetry,
+} from './worker/delivery';
 
 interface AssetsBinding {
   fetch(request: Request): Promise<Response>;
@@ -82,6 +88,28 @@ const fetchWithTimeout = (input: RequestInfo | URL, init: RequestInit, timeoutMs
   return fetch(input, { ...init, signal: controller.signal }).finally(() => clearTimeout(timer));
 };
 
+const fetchDelivery = (input: RequestInfo | URL, init: RequestInit) =>
+  withRetry(
+    async () => {
+      let response: Response;
+      try {
+        response = await fetchWithTimeout(input, init);
+      } catch {
+        throw new RetryableDeliveryError('Delivery request failed before a response was received.');
+      }
+
+      if (isRetryableStatus(response.status)) {
+        throw new RetryableDeliveryError(
+          `Delivery provider returned ${response.status}.`,
+          parseRetryAfterMs(response.headers.get('retry-after')),
+        );
+      }
+
+      return response;
+    },
+    { attempts: 3, baseDelayMs: 250, maxDelayMs: 2_000 },
+  );
+
 const verifyTurnstile = async (token: string, request: Request, env: Env) => {
   if (!env.TURNSTILE_SECRET_KEY) return false;
 
@@ -116,16 +144,23 @@ const verifyTurnstile = async (token: string, request: Request, env: Env) => {
 
 const sendResendEmail = async (
   env: Env,
-  options: { to: string; subject: string; html: string; replyTo?: string },
+  options: {
+    to: string;
+    subject: string;
+    html: string;
+    replyTo?: string;
+    idempotencyKey: string;
+  },
 ) => {
   if (!env.RESEND_API_KEY || !env.CONTACT_FROM_EMAIL)
     throw new Error('Email provider is not configured.');
 
-  const response = await fetchWithTimeout('https://api.resend.com/emails', {
+  const response = await fetchDelivery('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
       authorization: `Bearer ${env.RESEND_API_KEY}`,
       'content-type': 'application/json',
+      'idempotency-key': options.idempotencyKey,
     },
     body: JSON.stringify({
       from: env.CONTACT_FROM_EMAIL,
@@ -144,7 +179,7 @@ const sendResendEmail = async (
 
 const sendDiscord = async (env: Env, payload: ContactPayload, requestId: string) => {
   if (!env.DISCORD_WEBHOOK_URL) return;
-  const response = await fetchWithTimeout(env.DISCORD_WEBHOOK_URL, {
+  const response = await fetchDelivery(env.DISCORD_WEBHOOK_URL, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(buildDiscordMessage(payload, requestId)),
@@ -250,6 +285,7 @@ const handleContact = async (request: Request, env: Env, ctx: WorkerExecutionCon
       subject: adminEmail.subject,
       html: adminEmail.html,
       replyTo: payload.email,
+      idempotencyKey: `${requestId}:admin`,
     });
   } catch {
     logContact('error', 'admin_delivery_failed', {
@@ -271,7 +307,12 @@ const handleContact = async (request: Request, env: Env, ctx: WorkerExecutionCon
 
   ctx.waitUntil(
     Promise.allSettled([
-      sendResendEmail(env, { to: payload.email, subject: receipt.subject, html: receipt.html }),
+      sendResendEmail(env, {
+        to: payload.email,
+        subject: receipt.subject,
+        html: receipt.html,
+        idempotencyKey: `${requestId}:receipt`,
+      }),
       sendDiscord(env, payload, requestId),
     ]).then((results) => {
       const names = ['receipt_email', 'discord'] as const;
