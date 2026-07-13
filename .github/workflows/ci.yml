@@ -90,3 +90,51 @@ jobs:
             test-results/
           if-no-files-found: ignore
           retention-days: 14
+
+  format-artifact:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: PR19の変更ファイルを整形
+        run: |
+          npx prettier --write \
+            CONTACT_QUEUE_D1.md \
+            migrations/0001_contact_requests.sql \
+            src/components/contact/ContactStatusTerminal.tsx \
+            src/components/contact/ContactTerminal.tsx \
+            src/components/pages/ContactStatusPage.astro \
+            src/components/pages/LegalPage.astro \
+            src/pages/contact/status.astro \
+            src/pages/en/contact/status.astro \
+            src/pages/ko/contact/status.astro \
+            src/worker.ts \
+            src/worker/contact-storage.test.ts \
+            src/worker/contact-storage.ts \
+            wrangler.contact.example.jsonc \
+            wrangler.jsonc
+      - name: 整形済みファイルを保存
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr19-formatted
+          path: |
+            CONTACT_QUEUE_D1.md
+            migrations/0001_contact_requests.sql
+            src/components/contact/ContactStatusTerminal.tsx
+            src/components/contact/ContactTerminal.tsx
+            src/components/pages/ContactStatusPage.astro
+            src/components/pages/LegalPage.astro
+            src/pages/contact/status.astro
+            src/pages/en/contact/status.astro
+            src/pages/ko/contact/status.astro
+            src/worker.ts
+            src/worker/contact-storage.test.ts
+            src/worker/contact-storage.ts
+            wrangler.contact.example.jsonc
+            wrangler.jsonc
+          retention-days: 1
