@@ -6,6 +6,7 @@ import IdentitySection from '@/components/home/IdentitySection.astro';
 import FeaturedWorks from '@/components/home/FeaturedWorks.astro';
 import CommunitySection from '@/components/home/CommunitySection.astro';
 import ActivitySection from '@/components/home/ActivitySection.astro';
+import ActivityCommandCenter from '@/components/home/ActivityCommandCenter.astro';
 import MediaReel from '@/components/home/MediaReel';
 import LatestPosts from '@/components/blog/LatestPosts.astro';
 import ContactCTA from '@/components/home/ContactCTA.astro';
@@ -71,6 +72,7 @@ const descriptions = {
       ID / IVURU<br />DEVELOPER ↔ GAMER<br />WORLD GATE: SYNCHRONIZED
     </div><div class="hero-scroll" aria-hidden="true">{d.hero.scroll}</div>
   </section>
+  <ActivityCommandCenter locale={locale} />
   <IdentitySection locale={locale} /><FeaturedWorks locale={locale} /><CommunitySection
     locale={locale}
   /><ActivitySection locale={locale} />
