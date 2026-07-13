@@ -36,16 +36,21 @@ export default function ChapterCut() {
     world: 'NEXUS',
   }));
   const timer = useRef<number | undefined>(undefined);
+  const pendingPath = useRef<string | null>(null);
+  const activeRef = useRef(false);
 
   useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const clearTimer = () => {
       if (timer.current !== undefined) window.clearTimeout(timer.current);
+      timer.current = undefined;
     };
 
     const show = (pathname: string) => {
       clearTimer();
+      pendingPath.current = pathname;
+      activeRef.current = true;
       setMeta(getMeta(pathname));
       setActive(true);
       document.documentElement.dataset.chapterCut = 'active';
@@ -55,6 +60,8 @@ export default function ChapterCut() {
       clearTimer();
       timer.current = window.setTimeout(
         () => {
+          activeRef.current = false;
+          pendingPath.current = null;
           setActive(false);
           delete document.documentElement.dataset.chapterCut;
         },
@@ -74,7 +81,9 @@ export default function ChapterCut() {
       show(destination.pathname);
     };
 
-    const onBeforePreparation = () => show(window.location.pathname);
+    const onBeforePreparation = () => {
+      if (!activeRef.current) show(pendingPath.current ?? window.location.pathname);
+    };
     const onPageLoad = () => hide();
 
     document.addEventListener('click', onClick, true);
