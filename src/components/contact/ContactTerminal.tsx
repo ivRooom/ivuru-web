@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { emitAnalyticsEvent } from '@/lib/analytics';
 
 type Locale = 'ja' | 'en' | 'ko';
 type Phase = 'input' | 'confirm' | 'sending' | 'success' | 'error';
@@ -78,6 +79,7 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
   const [error, setError] = useState('');
   const widget = useRef<HTMLDivElement>(null);
   const widgetId = useRef<string | undefined>(undefined);
+  const started = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -94,6 +96,7 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
       if (!window.turnstile || !widget.current || widgetId.current) return;
       widgetId.current = window.turnstile.render(widget.current, {
         sitekey: config.turnstileSiteKey,
+        action: 'contact_submit',
         theme: 'dark',
         callback: (value: unknown) => setToken(String(value)),
         'expired-callback': () => setToken(''),
@@ -126,12 +129,25 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
     form.subject.trim().length >= 2 && form.message.trim().length >= 20
   ), [form]);
 
-  const update = (key: keyof FormState, value: string) => setForm((current) => ({ ...current, [key]: value }));
+  const update = (key: keyof FormState, value: string) => {
+    if (!started.current && key !== 'website' && value.trim()) {
+      started.current = true;
+      emitAnalyticsEvent('contact_start', { surface: 'contact_terminal' });
+    }
+    setForm((current) => ({ ...current, [key]: value }));
+  };
+
+  const confirm = () => {
+    if (!canConfirm) return;
+    emitAnalyticsEvent('contact_confirm', { category: form.category, surface: 'contact_terminal' });
+    setPhase('confirm');
+  };
 
   const submit = async () => {
     if (!config?.ready || !token) return;
     setPhase('sending');
     setError('');
+    emitAnalyticsEvent('contact_submit', { category: form.category, surface: 'contact_terminal' });
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
@@ -140,11 +156,15 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
       });
       const result = await response.json() as { ok?: boolean; requestId?: string; code?: string };
       if (!response.ok || !result.ok) throw new Error(result.code || 'request_failed');
+      emitAnalyticsEvent('contact_success', { category: form.category, status: 'accepted' });
       setRequestId(result.requestId || 'ACCEPTED');
       setPhase('success');
       setForm(initialState);
+      started.current = false;
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'request_failed');
+      const code = reason instanceof Error ? reason.message : 'request_failed';
+      emitAnalyticsEvent('contact_error', { category: form.category, status: code });
+      setError(code);
       setPhase('error');
       setToken('');
       if (window.turnstile) window.turnstile.reset(widgetId.current);
@@ -163,7 +183,7 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
         <div className="contact-terminal-unavailable">
           <strong>CHANNEL / STANDBY</strong>
           <p>{t.unavailable}</p>
-          <a href="mailto:contact@ivrm.jp">{t.direct} ↗</a>
+          <a href="mailto:contact@ivrm.jp" data-analytics-event="social_open" data-analytics-target="email" data-analytics-surface="contact_fallback">{t.direct} ↗</a>
         </div>
       ) : phase === 'success' ? (
         <div className="contact-terminal-result" role="status">
@@ -200,7 +220,7 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
               </div>
             </div>
           ) : (
-            <form onSubmit={(event) => { event.preventDefault(); if (canConfirm) setPhase('confirm'); }}>
+            <form onSubmit={(event) => { event.preventDefault(); confirm(); }}>
               <label><span>01 / {t.name}</span><input value={form.name} onChange={(e) => update('name', e.target.value)} maxLength={80} required autoComplete="name" /></label>
               <label><span>02 / {t.email}</span><input type="email" value={form.email} onChange={(e) => update('email', e.target.value)} maxLength={254} required autoComplete="email" /></label>
               <label><span>03 / {t.category}</span><select value={form.category} onChange={(e) => update('category', e.target.value)}><option value="project">{t.project}</option><option value="community">{t.community}</option><option value="media">{t.media}</option><option value="other">{t.other}</option></select></label>
