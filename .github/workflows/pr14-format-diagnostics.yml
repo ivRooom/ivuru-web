@@ -1,0 +1,22 @@
+name: PR14 format diagnostics
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prettier指摘だけを表示
+        run: |
+          git clone -q --depth 1 --branch feat/quality-command-center-analytics https://github.com/ivRooom/ivuru-web.git repo
+          cd repo
+          npm ci --silent >/dev/null
+          set +e
+          npm run format:check > /tmp/format.log 2>&1
+          status=$?
+          grep -E '^\[warn\]|Code style issues' /tmp/format.log | tail -n 100
+          exit $status
