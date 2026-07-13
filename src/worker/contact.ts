@@ -29,6 +29,7 @@ const categories = new Set<ContactCategory>(['project', 'community', 'media', 'o
 const locales = new Set<ContactLocale>(['ja', 'en', 'ko']);
 
 const normalizedText = (value: unknown) => (typeof value === 'string' ? value.trim() : '');
+export const sanitizeHeaderValue = (value: string) => value.replace(/[\r\n]+/g, ' ').replace(/\s{2,}/g, ' ').trim();
 
 export function validateContactPayload(input: unknown): { value?: ContactPayload; errors: ContactError[] } {
   if (!input || typeof input !== 'object') {
@@ -76,7 +77,7 @@ export function buildAdminEmail(payload: ContactPayload, requestId: string) {
   const category = categoryLabels[payload.locale][payload.category];
 
   return {
-    subject: `[ivuru Contact] ${payload.subject}`,
+    subject: `[ivuru Contact] ${sanitizeHeaderValue(payload.subject)}`,
     html: `
       <h1>New contact request</h1>
       <p><strong>Request ID:</strong> ${requestId}</p>
