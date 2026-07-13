@@ -17,4 +17,9 @@ jobs:
           cache: npm
       - run: npm ci --silent
       - name: ESLint指摘だけを表示
-        run: npm run lint -- --format compact
+        run: |
+          set +e
+          npm run lint > /tmp/lint.log 2>&1
+          status=$?
+          tail -n 80 /tmp/lint.log
+          exit $status
