@@ -23,6 +23,7 @@ export default function MobileMenu({ items, xUrl, xHandle, displayName, idName }
   useEffect(() => {
     if (!open) return;
 
+    const triggerElement = trigger.current;
     const previousGap = document.body.style.getPropertyValue('--menu-scrollbar-gap');
     const scrollbarGap = Math.max(0, window.innerWidth - document.documentElement.clientWidth);
     document.body.style.setProperty('--menu-scrollbar-gap', `${scrollbarGap}px`);
@@ -65,7 +66,7 @@ export default function MobileMenu({ items, xUrl, xHandle, displayName, idName }
       if (previousGap) document.body.style.setProperty('--menu-scrollbar-gap', previousGap);
       else document.body.style.removeProperty('--menu-scrollbar-gap');
       document.dispatchEvent(new CustomEvent('ivuru:menu-state', { detail: { open: false } }));
-      window.requestAnimationFrame(() => trigger.current?.focus());
+      window.requestAnimationFrame(() => triggerElement?.focus());
     };
   }, [open]);
 
