@@ -48,26 +48,59 @@ test('theme selection persists', async ({ page }) => {
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
 });
 
-test('mobile menu covers viewport, traps navigation and closes with Escape', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
+test('mobile menu remains viewport-bound and reachable at mobile and tablet widths', async ({
+  page,
+}) => {
+  for (const viewport of [
+    { width: 390, height: 844 },
+    { width: 768, height: 720 },
+    { width: 1024, height: 768 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.goto('/works');
+    await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
+
+    const trigger = page.getByRole('button', { name: 'Open menu' });
+    await trigger.click();
+
+    const dialog = page.getByRole('dialog', { name: 'Navigation' });
+    const layer = page.locator('.mobile-menu-layer');
+    const panel = page.locator('.mobile-menu-panel');
+    const links = panel.locator('nav a');
+
+    await expect(dialog).toBeVisible();
+    await expect(page.locator('body')).toHaveClass(/menu-open/);
+    await expect(layer).toHaveCSS('position', 'fixed');
+    await expect(links).toHaveCount(5);
+
+    const layerBox = await layer.boundingBox();
+    const panelBox = await panel.boundingBox();
+    expect(layerBox?.width).toBeGreaterThanOrEqual(viewport.width - 1);
+    expect(layerBox?.height).toBeGreaterThanOrEqual(viewport.height - 1);
+    expect(panelBox?.height).toBeGreaterThanOrEqual(viewport.height - 24);
+    expect((panelBox?.y ?? -1) >= 0).toBeTruthy();
+    expect((panelBox?.y ?? 0) + (panelBox?.height ?? 0)).toBeLessThanOrEqual(viewport.height + 1);
+
+    await links.last().scrollIntoViewIfNeeded();
+    await expect(links.last()).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Close menu' })).toBeVisible();
+
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+    await expect(trigger).toBeFocused();
+    await expect(page.locator('body')).not.toHaveClass(/menu-open/);
+  }
+});
+
+test('menu closes when viewport switches to desktop navigation', async ({ page }) => {
+  await page.setViewportSize({ width: 1024, height: 768 });
   await page.goto('/');
   await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
-  const trigger = page.getByRole('button', { name: 'Open menu' });
-  await trigger.click();
+  await page.getByRole('button', { name: 'Open menu' }).click();
+  await expect(page.getByRole('dialog', { name: 'Navigation' })).toBeVisible();
 
-  const dialog = page.getByRole('dialog', { name: 'Navigation' });
-  const layer = page.locator('.mobile-menu-layer');
-  await expect(dialog).toBeVisible();
-  await expect(page.locator('body')).toHaveClass(/menu-open/);
-  await expect(layer).toHaveCSS('position', 'fixed');
-
-  const box = await layer.boundingBox();
-  expect(box?.width).toBeGreaterThanOrEqual(389);
-  expect(box?.height).toBeGreaterThanOrEqual(843);
-
-  await page.keyboard.press('Escape');
-  await expect(dialog).toBeHidden();
-  await expect(trigger).toBeFocused();
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await expect(page.getByRole('dialog', { name: 'Navigation' })).toBeHidden();
   await expect(page.locator('body')).not.toHaveClass(/menu-open/);
 });
 
