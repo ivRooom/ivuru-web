@@ -36,7 +36,6 @@ test('world loader appears on access and clears safely', async ({ page }) => {
 test('chapter cut shows the destination chapter without replaying the intro loader', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
-
   const chapterCut = page.locator('.chapter-cut');
   await page.locator('.desktop-nav a[href="/profile"]').click();
   await expect(chapterCut).toHaveAttribute('data-active', 'true');
@@ -65,9 +64,7 @@ test('theme selection persists', async ({ page }) => {
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
 });
 
-test('mobile menu remains viewport-bound and reachable at mobile and tablet widths', async ({
-  page,
-}) => {
+test('mobile menu remains viewport-bound and reachable at mobile and tablet widths', async ({ page }) => {
   for (const viewport of [
     { width: 390, height: 844 },
     { width: 768, height: 720 },
@@ -76,20 +73,16 @@ test('mobile menu remains viewport-bound and reachable at mobile and tablet widt
     await page.setViewportSize(viewport);
     await page.goto('/works');
     await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
-
     const trigger = page.getByRole('button', { name: 'Open menu' });
     await trigger.click();
-
     const dialog = page.getByRole('dialog', { name: 'Navigation' });
     const layer = page.locator('.mobile-menu-layer');
     const panel = page.locator('.mobile-menu-panel');
     const links = panel.locator('nav a');
-
     await expect(dialog).toBeVisible();
     await expect(page.locator('body')).toHaveClass(/menu-open/);
     await expect(layer).toHaveCSS('position', 'fixed');
-    await expect(links).toHaveCount(5);
-
+    await expect(links).toHaveCount(4);
     const layerBox = await layer.boundingBox();
     const panelBox = await panel.boundingBox();
     expect(layerBox?.width).toBeGreaterThanOrEqual(viewport.width - 1);
@@ -97,11 +90,9 @@ test('mobile menu remains viewport-bound and reachable at mobile and tablet widt
     expect(panelBox?.height).toBeGreaterThanOrEqual(viewport.height - 24);
     expect((panelBox?.y ?? -1) >= 0).toBeTruthy();
     expect((panelBox?.y ?? 0) + (panelBox?.height ?? 0)).toBeLessThanOrEqual(viewport.height + 1);
-
     await links.last().scrollIntoViewIfNeeded();
     await expect(links.last()).toBeVisible();
     await expect(dialog.getByRole('button', { name: 'Close menu' })).toBeVisible();
-
     await page.keyboard.press('Escape');
     await expect(dialog).toBeHidden();
     await expect(trigger).toBeFocused();
@@ -115,7 +106,6 @@ test('menu closes when viewport switches to desktop navigation', async ({ page }
   await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
   await page.getByRole('button', { name: 'Open menu' }).click();
   await expect(page.getByRole('dialog', { name: 'Navigation' })).toBeVisible();
-
   await page.setViewportSize({ width: 1280, height: 800 });
   await expect(page.getByRole('dialog', { name: 'Navigation' })).toBeHidden();
   await expect(page.locator('body')).not.toHaveClass(/menu-open/);
@@ -124,9 +114,6 @@ test('menu closes when viewport switches to desktop navigation', async ({ page }
 test('detail routes keep their parent navigation active and shared transition names', async ({ page }) => {
   await page.goto('/works/ivrm-community');
   await expect(page.locator('.desktop-nav a[href="/works"]')).toHaveAttribute('aria-current', 'page');
-  await expect(page.locator('[style*="view-transition-name"], [data-astro-transition-scope]')).toHaveCount(
-    await page.locator('[style*="view-transition-name"], [data-astro-transition-scope]').count(),
-  );
   await expect(page.locator('.mission-briefing-hero')).toBeVisible();
 });
 
@@ -139,17 +126,32 @@ test('works filter and blog search work', async ({ page }) => {
   await expect(page.getByText('一致する項目がありません。')).toBeVisible();
 });
 
+test('portfolio is removed from main navigation but reachable from works and footer', async ({ page }) => {
+  await page.goto('/works');
+  await expect(page.locator('.desktop-nav a[href="/portfolio"]')).toHaveCount(0);
+  await expect(page.getByRole('link', { name: /Developer Consoleを開く/ })).toHaveAttribute('href', '/portfolio');
+  await expect(page.locator('footer a[href="/portfolio"]').first()).toBeVisible();
+  await expect(page.locator('.developer-stack-matrix')).toBeVisible();
+});
+
+test('profile renders X avatar, social nodes, contact email, and game clip archive', async ({ page }) => {
+  await page.goto('/profile');
+  await expect(page.locator('.profile-avatar-frame img')).toHaveAttribute('src', /unavatar\.io\/x\/ivuruGG/);
+  await expect(page.locator('.social-node-grid a[href="https://x.com/ivuruGG"]')).toBeVisible();
+  await expect(page.locator('.social-node-grid a[href="mailto:contact@ivrm.jp"]')).toBeVisible();
+  await expect(page.locator('.game-clip-archive')).toBeVisible();
+  await expect(page.getByText('NO REPLAY DATA')).toBeVisible();
+});
+
 test('social embeds require an explicit action before third-party scripts load', async ({ page }) => {
   await page.route('https://platform.x.com/**', (route) => route.abort());
   await page.route('https://platform.twitter.com/**', (route) => route.abort());
   await page.goto('/');
   await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
-
   const socialDock = page.locator('.social-dock');
   await socialDock.scrollIntoViewIfNeeded();
   await expect(page.locator('#x-widgets-script')).toHaveCount(0);
   await expect(page.locator('#instagram-embed-script')).toHaveCount(0);
-
   const loadX = page.getByRole('button', { name: 'Xタイムラインを読み込む' });
   await expect(loadX).toBeVisible();
   await loadX.click();
@@ -160,14 +162,8 @@ test('social embeds require an explicit action before third-party scripts load',
 test('brand OGP and Twitter fallback metadata are present', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute('content', 'いゔる。 / ivuru');
-  await expect(page.locator('meta[property="og:image"]').first()).toHaveAttribute(
-    'content',
-    /\/assets\/og\/ivuru-brand-og\.svg$/,
-  );
-  await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
-    'content',
-    /\/assets\/og\/og-background\.png$/,
-  );
+  await expect(page.locator('meta[property="og:image"]').first()).toHaveAttribute('content', /\/assets\/og\/ivuru-brand-og\.svg$/);
+  await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute('content', /\/assets\/og\/og-background\.png$/);
   await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute('content', /いゔる。 \/ ivuru/);
 });
 
