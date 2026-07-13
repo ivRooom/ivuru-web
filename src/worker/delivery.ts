@@ -32,7 +32,10 @@ export const parseRetryAfterMs = (value: string | null, now = Date.now()) => {
 const defaultSleep = (milliseconds: number) =>
   new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
 
-export async function withRetry<T>(operation: (attempt: number) => Promise<T>, options: RetryOptions = {}) {
+export async function withRetry<T>(
+  operation: (attempt: number) => Promise<T>,
+  options: RetryOptions = {},
+) {
   const attempts = Math.max(1, options.attempts ?? 3);
   const baseDelayMs = Math.max(0, options.baseDelayMs ?? 250);
   const maxDelayMs = Math.max(baseDelayMs, options.maxDelayMs ?? 2_000);
