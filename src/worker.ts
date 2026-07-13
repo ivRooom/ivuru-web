@@ -14,6 +14,10 @@ interface RateLimitBinding {
   limit(options: { key: string }): Promise<{ success: boolean }>;
 }
 
+interface WorkerExecutionContext {
+  waitUntil(promise: Promise<unknown>): void;
+}
+
 interface Env {
   ASSETS: AssetsBinding;
   CONTACT_RATE_LIMITER?: RateLimitBinding;
@@ -115,7 +119,7 @@ const getConfig = (env: Env) =>
     discordEnabled: Boolean(env.DISCORD_WEBHOOK_URL),
   });
 
-const handleContact = async (request: Request, env: Env, ctx: ExecutionContext) => {
+const handleContact = async (request: Request, env: Env, ctx: WorkerExecutionContext) => {
   if (!isAllowedOrigin(request, env)) return json({ ok: false, code: 'origin_not_allowed' }, 403);
   if (request.method === 'GET') return getConfig(env);
   if (request.method !== 'POST') return json({ ok: false, code: 'method_not_allowed' }, 405);
@@ -185,7 +189,7 @@ const handleContact = async (request: Request, env: Env, ctx: ExecutionContext) 
 };
 
 export default {
-  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: WorkerExecutionContext): Promise<Response> {
     const url = new URL(request.url);
     if (url.pathname === '/api/contact') return handleContact(request, env, ctx);
     if (url.pathname.startsWith('/api/')) return json({ ok: false, code: 'not_found' }, 404);
