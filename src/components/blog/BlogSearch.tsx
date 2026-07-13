@@ -28,7 +28,10 @@ export default function BlogSearch({
       const matchesQuery = !query || item.dataset.search?.includes(query.toLowerCase());
       const matchesCategory = category === 'All' || item.dataset.category === category;
       const show = Boolean(matchesQuery && matchesCategory);
-      item.hidden = !show;
+      const displayTarget = item.closest<HTMLElement>('.archive-record') ?? item;
+
+      item.hidden = false;
+      displayTarget.hidden = !show;
       if (show) visible++;
     });
     setCount(visible);
