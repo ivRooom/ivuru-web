@@ -1,0 +1,110 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { Picture } from 'astro:assets';
+import profileVisual from '@/assets/profile-silhouette.webp';
+import { profile } from '@/data/profile';
+import { type Locale } from '@/data/site-config';
+import { getDictionary } from '@/i18n/dictionaries';
+const { locale } = Astro.props as { locale: Locale };
+const d = getDictionary(locale);
+const about = {
+  ja: 'Web開発を軸に、ゲーム、クラウド、コミュニティ運営を横断して活動しています。ivRmのオーナー兼運営として、Discord・Minecraft・Webをつなぐ仕組みづくりにも取り組んでいます。',
+  en: 'Working across web development, gaming, cloud, and community operations. As the owner and operator of ivRm, I also build connections between Discord, Minecraft, and the web.',
+  ko: '웹 개발을 중심으로 게임, 클라우드, 커뮤니티 운영을 넘나들며 활동합니다. ivRm 오너이자 운영자로 Discord, Minecraft, Web을 연결하는 시스템도 만들고 있습니다.',
+}[locale];
+---
+
+<BaseLayout title={`${d.profile.title} — ivuruGG`} description={d.profile.intro} locale={locale}>
+  <header class="page-hero profile-hero page-grid-bg">
+    <div class="page-hero-inner">
+      <p class="eyebrow">IDENTITY FILE / 001</p><h1 class="page-title">{d.profile.title}</h1><p>
+        {d.profile.intro}
+      </p>
+    </div>
+  </header>
+  <section class="profile-intro section">
+    <div class="profile-media" data-reveal>
+      <Picture
+        src={profileVisual}
+        widths={[480, 768, 960, 1200]}
+        sizes="(max-width: 960px) 90vw, 42vw"
+        formats={['avif']}
+        fallbackFormat="webp"
+        alt={locale === 'ja'
+          ? 'デジタルルームのポータルに向かう人物の後ろ姿'
+          : locale === 'en'
+            ? 'Back-view silhouette facing a portal in a digital room'
+            : '디지털 룸의 포털을 바라보는 인물의 뒷모습'}
+        loading="eager"
+      /><div class="profile-media-label"><span>ivuruGG</span><small>DEVELOPER / GAMER</small></div>
+    </div><div class="profile-copy" data-reveal>
+      <p class="section-kicker">ABOUT</p><h2>{profile.name}</h2><p>{about}</p><div
+        class="role-list"
+      >
+        {
+          profile.roles.map((role, index) => (
+            <span>
+              <small>0{index + 1}</small>
+              {role}
+            </span>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+  <section class="profile-stack section">
+    <div class="section-inner">
+      <div class="section-heading" data-reveal>
+        <div>
+          <p class="section-kicker">CAPABILITIES / INTERESTS</p><h2>{d.profile.stack}</h2>
+        </div><p class="section-intro">
+          {
+            locale === 'ja'
+              ? 'パーセンテージではなく、現在の使用・学習状況で示しています。'
+              : locale === 'en'
+                ? 'Shown by current practice and learning status—not arbitrary percentages.'
+                : '임의의 퍼센트 대신 현재 사용 및 학습 상태로 표시합니다.'
+          }
+        </p>
+      </div><div class="stack-groups">
+        {
+          Object.entries(profile.stack).map(([group, items]) => (
+            <article data-reveal>
+              <>
+                <h3>{group}</h3>
+                <ul>
+                  {items.map((item) => (
+                    <li>
+                      <span>{item.name}</span>
+                      <small data-status={item.status}>{d.profile.statuses[item.status]}</small>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+  <section class="timeline section">
+    <div class="section-inner">
+      <div class="section-heading" data-reveal>
+        <div><p class="section-kicker">PATH / NOW → NEXT</p><h2>{d.profile.timeline}</h2></div>
+      </div><div class="timeline-list">
+        {
+          profile.timeline.map((item, index) => (
+            <article data-reveal>
+              <>
+                <span>{item.year}</span>
+                <i />
+                <p>{d.profile.timelineItems[item.key]}</p>
+                <small>0{index + 1}</small>
+              </>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</BaseLayout>

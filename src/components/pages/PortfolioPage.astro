@@ -1,0 +1,133 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { Code2, Cloud, Database, LayoutTemplate, Network, Workflow } from 'lucide-react';
+import { siteConfig, type Locale } from '@/data/site-config';
+import { getDictionary } from '@/i18n/dictionaries';
+const { locale } = Astro.props as { locale: Locale };
+const d = getDictionary(locale);
+const areas = [
+  [LayoutTemplate, 'Frontend Development', 'HTML / CSS / JavaScript / React / TypeScript'],
+  [Code2, 'UI Implementation', 'Responsive / Accessibility / Animation'],
+  [Network, 'API Integration', 'REST API / Data fetching / Error handling'],
+  [Database, 'Backend & Database', 'Node.js / PostgreSQL — learning & building'],
+  [Cloud, 'Cloud & Infrastructure', 'OCI / AWS / Cloudflare — learning & practice'],
+  [Workflow, 'Automation', 'GitHub Actions / Operational tools'],
+] as const;
+const process = {
+  ja: ['目的と利用者を整理', '情報設計と画面構成', 'UI実装とデータ連携', '検証・改善・公開'],
+  en: [
+    'Clarify goals and users',
+    'Structure content and screens',
+    'Implement UI and data flows',
+    'Test, refine, and release',
+  ],
+  ko: ['목표와 사용자 정리', '정보 구조와 화면 구성', 'UI 구현과 데이터 연동', '검증, 개선, 공개'],
+}[locale];
+---
+
+<BaseLayout
+  title={`${d.portfolio.title} — ivuruGG`}
+  description={d.portfolio.intro}
+  locale={locale}
+>
+  <header class="page-hero portfolio-hero page-grid-bg">
+    <div class="page-hero-inner">
+      <p class="eyebrow">DEVELOPER WORLD / CAPABILITY FILE</p><h1 class="page-title">
+        Developer<br />Portfolio
+      </h1><p>{d.portfolio.intro}</p>
+    </div>
+  </header>
+  <section class="portfolio-areas section">
+    <div class="section-inner">
+      <div class="section-heading" data-reveal>
+        <div><p class="section-kicker">WHAT I BUILD</p><h2>{d.portfolio.areas}</h2></div>
+      </div><div class="area-list">
+        {
+          areas.map(([Icon, title, body], index) => (
+            <article data-reveal>
+              <>
+                <span>0{index + 1}</span>
+                <Icon aria-hidden="true" />
+                <h3>{title}</h3>
+                <p>{body}</p>
+              </>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+  <section class="process section">
+    <div class="section-inner">
+      <div class="section-heading" data-reveal>
+        <div><p class="section-kicker">FROM IDEA TO RELEASE</p><h2>{d.portfolio.process}</h2></div>
+      </div><ol>
+        {
+          process.map((item, index) => (
+            <li data-reveal>
+              <>
+                <span>0{index + 1}</span>
+                <h3>{item}</h3>
+                <i aria-hidden="true" />
+              </>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+  <section class="portfolio-principles section">
+    <div class="section-inner">
+      <div class="section-heading" data-reveal>
+        <div><p class="section-kicker">HOW I WORK</p><h2>{d.portfolio.principles}</h2></div>
+      </div><div class="principles">
+        <article>
+          <h3>Clarity</h3><p>
+            {
+              locale === 'ja'
+                ? '情報階層と視線の流れを整え、迷わず使える画面をつくります。'
+                : locale === 'en'
+                  ? 'Clear hierarchy and flow help people move without friction.'
+                  : '명확한 정보 구조와 흐름으로 망설임 없이 사용할 수 있게 합니다.'
+            }
+          </p>
+        </article><article>
+          <h3>Maintainability</h3><p>
+            {
+              locale === 'ja'
+                ? 'データとUIを分離し、更新・拡張しやすい実装を目指します。'
+                : locale === 'en'
+                  ? 'Separating data from UI keeps the product easy to update and extend.'
+                  : '데이터와 UI를 분리해 업데이트와 확장이 쉬운 구현을 지향합니다.'
+            }
+          </p>
+        </article><article>
+          <h3>Performance</h3><p>
+            {
+              locale === 'ja'
+                ? '演出と表示速度を両立し、端末特性に合わせて段階的に体験を調整します。'
+                : locale === 'en'
+                  ? 'Motion and speed are balanced with progressive experiences for each device.'
+                  : '연출과 속도를 균형 있게 설계하고 기기에 맞게 경험을 조정합니다.'
+            }
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+  <section class="contact-cta section">
+    <div class="cta-orbit" aria-hidden="true"></div><p class="section-kicker">
+      {d.portfolio.inquiries}
+    </p><h2>{d.common.comingSoon}</h2><p>
+      {
+        locale === 'ja'
+          ? '受付開始時に、対応範囲と連絡先をこのページで案内します。'
+          : locale === 'en'
+            ? 'Scope and contact details will appear here when inquiries open.'
+            : '문의 접수 시작 시 대응 범위와 연락처를 안내합니다.'
+      }
+    </p><a class="secondary-button" href={siteConfig.xUrl} target="_blank" rel="noopener noreferrer"
+      >X @ivuruGG ↗</a
+    >
+  </section>
+</BaseLayout>

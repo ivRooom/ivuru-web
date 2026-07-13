@@ -1,0 +1,122 @@
+---
+import Header from '@/components/common/Header.astro';
+import Footer from '@/components/common/Footer.astro';
+import ScrollProgress from '@/components/common/ScrollProgress';
+import { siteConfig, localePath, type Locale } from '@/data/site-config';
+import { ClientRouter } from 'astro:transitions';
+import '@/styles/global.css';
+
+type Props = {
+  title: string;
+  description: string;
+  locale?: Locale;
+  image?: string;
+  type?: 'website' | 'article';
+  noindex?: boolean;
+};
+const {
+  title,
+  description,
+  locale = 'ja',
+  image = '/assets/og/og-background.png',
+  type = 'website',
+  noindex = false,
+} = Astro.props;
+const canonical = new URL(Astro.url.pathname, siteConfig.siteUrl);
+const normalized = Astro.url.pathname.replace(/^\/(en|ko)(?=\/|$)/, '') || '/';
+const ogImage = new URL(image, siteConfig.siteUrl);
+---
+
+<!doctype html>
+<html lang={locale} data-theme="dark" data-theme-mode="system">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {
+      siteConfig.locales.map((lang) => (
+        <link
+          rel="alternate"
+          hreflang={lang === 'ja' ? 'ja-JP' : lang === 'en' ? 'en-US' : 'ko-KR'}
+          href={new URL(localePath(lang, normalized), siteConfig.siteUrl)}
+        />
+      ))
+    }
+    <link
+      rel="alternate"
+      hreflang="x-default"
+      href={new URL(localePath('ja', normalized), siteConfig.siteUrl)}
+    />
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:site_name" content="ivuruGG" />
+    <meta
+      property="og:locale"
+      content={locale === 'ja' ? 'ja_JP' : locale === 'en' ? 'en_US' : 'ko_KR'}
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@ivuruGG" />
+    {noindex && <meta name="robots" content="noindex,follow" />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="alternate" type="application/rss+xml" title="ivuruGG Blog" href="/rss.xml" />
+    <script is:inline>
+      (() => {
+        const stored = localStorage.getItem('ivuru-theme') || 'system';
+        const resolved =
+          stored === 'system'
+            ? matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light'
+            : stored;
+        document.documentElement.dataset.theme = resolved;
+        document.documentElement.dataset.themeMode = stored;
+      })();
+    </script>
+    <script is:inline define:vars={{ currentLocale: locale }}>
+      (() => {
+        if (localStorage.getItem('ivuru-locale')) return;
+        if (currentLocale !== 'ja') {
+          localStorage.setItem('ivuru-locale', currentLocale);
+          return;
+        }
+        const detected = navigator.language.toLowerCase().startsWith('ko')
+          ? 'ko'
+          : navigator.language.toLowerCase().startsWith('en')
+            ? 'en'
+            : 'ja';
+        localStorage.setItem('ivuru-locale', detected);
+        if (detected !== 'ja')
+          location.replace(`/${detected}${location.pathname === '/' ? '' : location.pathname}`);
+      })();
+    </script>
+    <script
+      is:inline
+      type="application/ld+json"
+      set:html={JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Person',
+        name: 'ivuruGG',
+        url: siteConfig.siteUrl,
+        sameAs: [siteConfig.xUrl],
+        jobTitle: 'Developer / Gamer',
+        description,
+      })}
+    />
+    <ClientRouter />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <ScrollProgress client:load />
+    <Header locale={locale} />
+    <main id="main-content"><slot /></main>
+    <Footer locale={locale} />
+    <div class="noise" aria-hidden="true"></div>
+  </body>
+</html>

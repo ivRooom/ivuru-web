@@ -1,0 +1,29 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { localePath, type Locale } from '@/data/site-config';
+import { getDictionary } from '@/i18n/dictionaries';
+const { post, locale } = Astro.props as { post: CollectionEntry<'blog'>; locale: Locale };
+const d = getDictionary(locale);
+const slug = post.id.replace(/^(ja|en|ko)\//, '').replace(/\.(md|mdx)$/, '');
+---
+
+<article
+  class="blog-card"
+  data-blog-item
+  data-search={`${post.data.title} ${post.data.description} ${post.data.tags.join(' ')}`.toLowerCase()}
+  data-category={post.data.category}
+  data-reveal
+>
+  <a href={localePath(locale, `/blog/${slug}`)}>
+    <div class="blog-visual"><span>{post.data.category}</span><i aria-hidden="true"></i></div>
+    <div class="blog-card-copy">
+      <div>
+        <time datetime={post.data.publishedAt.toISOString()}
+          >{post.data.publishedAt.toLocaleDateString(locale)}</time
+        >{post.data.sample && <span class="sample-label">{d.common.sample}</span>}
+      </div><h2>{post.data.title}</h2><p>{post.data.description}</p><div class="blog-tags">
+        {post.data.tags.map((tag) => <span>#{tag}</span>)}
+      </div>
+    </div>
+  </a>
+</article>

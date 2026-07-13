@@ -1,0 +1,155 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { type Locale } from '@/data/site-config';
+import { getDictionary } from '@/i18n/dictionaries';
+const { locale, kind } = Astro.props as { locale: Locale; kind: 'privacy' | 'terms' };
+const d = getDictionary(locale);
+const title = d.legal[kind];
+const legalCopy = {
+  ja: {
+    privacy: [
+      [
+        '基本方針',
+        '本ページは公開前の草案です。個人情報の取扱主体、連絡先、適用範囲は要確認です。',
+      ],
+      [
+        '取得する情報',
+        'TODO：アクセス解析、Cookie、ログイン機能、Discord・Minecraft連携を実装する場合の取得項目を確定してください。',
+      ],
+      [
+        '利用目的',
+        'TODO：問い合わせ対応、サービス提供、本人確認、品質改善など、実際に行う利用目的のみ記載してください。',
+      ],
+      [
+        '第三者提供・外部サービス',
+        '要確認：Cloudflare、GitHub、アクセス解析等、実際に利用する事業者と国外移転の有無を確認してください。',
+      ],
+      [
+        '保存期間・安全管理',
+        'TODO：保存期間、削除基準、アクセス権限、事故時の対応を確定してください。',
+      ],
+      [
+        '開示・削除等の請求',
+        'TODO：受付方法と本人確認方法が未確定です。架空のメールアドレスは掲載しません。',
+      ],
+    ],
+    terms: [
+      [
+        '適用範囲',
+        '本ページは公開前の草案です。サイトおよび関連サービスに適用する範囲は要確認です。',
+      ],
+      [
+        '禁止事項',
+        'TODO：不正アクセス、権利侵害、迷惑行為等、実際の運用方針に合わせて確定してください。',
+      ],
+      ['知的財産権', '掲載コンテンツの権利帰属と利用許諾範囲を、素材ごとに確認してください。'],
+      [
+        '免責事項',
+        '要確認：掲載情報、外部リンク、サービス停止等に関する条項は専門家の確認を受けてください。',
+      ],
+      ['変更・準拠法', 'TODO：改定通知方法、準拠法、管轄裁判所は未確定です。'],
+    ],
+  },
+  en: {
+    privacy: [
+      [
+        'Status',
+        'This is a pre-publication draft. The data controller, contact method, and scope require confirmation.',
+      ],
+      [
+        'Information collected',
+        'TODO: Confirm analytics, cookies, authentication, and Discord / Minecraft integration data actually used.',
+      ],
+      [
+        'Purpose',
+        'TODO: State only real purposes such as service operation, support, verification, and improvement.',
+      ],
+      [
+        'Third parties',
+        'Review required: Confirm actual providers, international transfers, and disclosure practices.',
+      ],
+      [
+        'Retention and security',
+        'TODO: Define retention, deletion, access control, and incident response.',
+      ],
+      [
+        'Requests',
+        'TODO: The request channel and identity verification process are not yet confirmed.',
+      ],
+    ],
+    terms: [
+      ['Scope', 'This is a pre-publication draft. Confirm which services these terms cover.'],
+      [
+        'Prohibited conduct',
+        'TODO: Confirm rules for unauthorized access, infringement, and harmful behavior.',
+      ],
+      ['Intellectual property', 'Confirm ownership and permitted use for each published asset.'],
+      [
+        'Disclaimers',
+        'Review required: Obtain appropriate legal review for external links, interruption, and liability.',
+      ],
+      [
+        'Changes and law',
+        'TODO: Amendment notice, governing law, and jurisdiction are not confirmed.',
+      ],
+    ],
+  },
+  ko: {
+    privacy: [
+      ['상태', '공개 전 초안입니다. 개인정보 처리 주체, 연락 방법, 적용 범위를 확인해야 합니다.'],
+      [
+        '수집 정보',
+        'TODO: 분석, 쿠키, 로그인, Discord / Minecraft 연동에서 실제 수집하는 항목을 확정하세요.',
+      ],
+      [
+        '이용 목적',
+        'TODO: 서비스 제공, 문의 대응, 본인 확인, 품질 개선 등 실제 목적만 기재하세요.',
+      ],
+      ['외부 서비스', '확인 필요: 실제 사업자, 국외 이전, 제3자 제공 여부를 확인하세요.'],
+      ['보관 및 보안', 'TODO: 보관 기간, 삭제 기준, 접근 권한, 사고 대응을 확정하세요.'],
+      ['권리 요청', 'TODO: 요청 접수 방법과 본인 확인 절차가 미정입니다.'],
+    ],
+    terms: [
+      ['적용 범위', '공개 전 초안입니다. 사이트와 관련 서비스의 적용 범위를 확인해야 합니다.'],
+      ['금지 행위', 'TODO: 무단 접근, 권리 침해, 방해 행위 등에 관한 운영 방침을 확정하세요.'],
+      ['지식재산권', '각 콘텐츠의 권리 귀속과 사용 허용 범위를 확인하세요.'],
+      ['면책', '확인 필요: 외부 링크, 서비스 중단, 책임 관련 조항은 법률 검토를 받으세요.'],
+      ['변경 및 준거법', 'TODO: 변경 통지, 준거법, 관할 법원이 미정입니다.'],
+    ],
+  },
+} as const;
+const copy = legalCopy[locale][kind];
+---
+
+<BaseLayout title={`${title} — ivuruGG`} description={d.legal.note} locale={locale}>
+  <header class="page-hero legal-hero">
+    <div class="page-hero-inner">
+      <p class="eyebrow">LEGAL DOCUMENT / DRAFT</p><h1 class="page-title">{title}</h1><p>
+        {d.legal.note}
+      </p><span>{d.common.updated}: 2026-07-13 / DRAFT</span>
+    </div>
+  </header>
+  <article class="legal-layout section">
+    <nav aria-label={d.blog.toc}>
+      <p>{d.blog.toc}</p>{
+        copy.map(([heading], index) => (
+          <a href={`#section-${index + 1}`}>
+            0{index + 1} / {heading}
+          </a>
+        ))
+      }
+    </nav><div class="legal-body">
+      {
+        copy.map(([heading, body], index) => (
+          <section id={`section-${index + 1}`}>
+            <>
+              <span>0{index + 1}</span>
+              <h2>{heading}</h2>
+              <p>{body}</p>
+            </>
+          </section>
+        ))
+      }
+    </div>
+  </article>
+</BaseLayout>

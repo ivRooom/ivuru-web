@@ -1,0 +1,36 @@
+---
+import { Code2, Gamepad2 } from 'lucide-react';
+import { type Locale } from '@/data/site-config';
+import { getDictionary } from '@/i18n/dictionaries';
+const { locale } = Astro.props as { locale: Locale };
+const d = getDictionary(locale);
+---
+
+<section class="identity section">
+  <div class="identity-world developer" data-reveal>
+    <div class="world-number">01</div><Code2 aria-hidden="true" />
+    <p class="section-kicker">Developer World</p><h2>Build<br />the system.</h2><p>
+      {d.identity.developer}
+    </p>
+    <div class="world-tags">
+      <span>Frontend</span><span>Backend</span><span>Cloud</span><span>UI / UX</span><span
+        >Automation</span
+      >
+    </div>
+  </div>
+  <div class="identity-axis" aria-hidden="true"><i data-line></i><span>ivuruGG</span><b></b></div>
+  <div class="identity-world gamer" data-reveal>
+    <div class="world-number">02</div><Gamepad2 aria-hidden="true" />
+    <p class="section-kicker">Gamer World</p><h2>Explore<br />the world.</h2><p>
+      {d.identity.gamer}
+    </p>
+    <div class="world-tags">
+      <span>Gaming</span><span>Multiplayer</span><span>Events</span><span>Culture</span><span
+        >Creative</span
+      >
+    </div>
+  </div>
+  <div class="identity-statement" data-reveal>
+    <p>{d.identity.kicker}</p><h3>{d.identity.title}</h3><span>{d.identity.body}</span>
+  </div>
+</section>

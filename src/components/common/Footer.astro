@@ -1,0 +1,33 @@
+---
+import Logo from './Logo.astro';
+import { navigation } from '@/data/navigation';
+import { siteConfig, type Locale } from '@/data/site-config';
+import { getDictionary } from '@/i18n/dictionaries';
+const { locale = 'ja' } = Astro.props as { locale: Locale };
+const dict = getDictionary(locale);
+---
+
+<footer class="site-footer">
+  <div class="footer-main">
+    <div><Logo /><p>{dict.footer.statement}</p><small>つくる。遊ぶ。つなげる。</small></div>
+    <nav aria-label="Footer navigation">
+      {
+        navigation(locale).map((item) => (
+          <a href={item.href}>{dict.nav[item.key as keyof typeof dict.nav]}</a>
+        ))
+      }
+    </nav>
+    <div class="footer-worlds">
+      <span>01 / Developer World</span><span>02 / Gamer World</span><a
+        href={siteConfig.xUrl}
+        target="_blank"
+        rel="noopener noreferrer">X @ivuruGG ↗</a
+      >
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© {new Date().getFullYear()} ivuruGG. {dict.footer.rights}</span><span
+      >DESIGNED BETWEEN TWO WORLDS</span
+    >
+  </div>
+</footer>

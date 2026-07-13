@@ -1,0 +1,23 @@
+---
+import { ArrowUpRight } from 'lucide-react';
+import { siteConfig, type Locale } from '@/data/site-config';
+import { getDictionary } from '@/i18n/dictionaries';
+const { locale } = Astro.props as { locale: Locale };
+const d = getDictionary(locale);
+---
+
+<section class="contact-cta section">
+  <div class="cta-orbit" aria-hidden="true"></div><p class="section-kicker">NEXT WORLD</p><h2>
+    {d.sections.contact}
+  </h2><p>{d.common.comingSoon}</p>{
+    siteConfig.contactUrl ? (
+      <a class="primary-button" href={siteConfig.contactUrl}>
+        Contact <ArrowUpRight />
+      </a>
+    ) : (
+      <a class="secondary-button" href={siteConfig.xUrl} target="_blank" rel="noopener noreferrer">
+        X @ivuruGG <ArrowUpRight />
+      </a>
+    )
+  }
+</section>
