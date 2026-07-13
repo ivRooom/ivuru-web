@@ -83,7 +83,7 @@ test('mobile menu remains viewport-bound and reachable at mobile and tablet widt
 
     await links.last().scrollIntoViewIfNeeded();
     await expect(links.last()).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Close menu' })).toBeVisible();
+    await expect(dialog.getByRole('button', { name: 'Close menu' })).toBeVisible();
 
     await page.keyboard.press('Escape');
     await expect(dialog).toBeHidden();
