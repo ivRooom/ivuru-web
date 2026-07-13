@@ -1,0 +1,44 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ContactStatusTerminal from '@/components/contact/ContactStatusTerminal';
+import { siteConfig, type Locale } from '@/data/site-config';
+
+const { locale } = Astro.props as { locale: Locale };
+const copy = {
+  ja: {
+    title: 'お問い合わせ状況',
+    description: '受付番号と照会キーを使用して、お問い合わせの処理状況を確認します。',
+    intro: '個人情報やお問い合わせ本文を表示せず、受付・通知処理の状態だけを安全に確認できます。',
+  },
+  en: {
+    title: 'Contact Status',
+    description: 'Check the processing status of a contact request using its request ID and lookup key.',
+    intro: 'This page only returns a privacy-safe processing state. It never displays the submitted message or personal details.',
+  },
+  ko: {
+    title: '문의 상태',
+    description: '접수 번호와 조회 키를 사용해 문의 처리 상태를 확인합니다.',
+    intro: '개인정보와 문의 내용은 표시하지 않고 접수 및 알림 처리 상태만 안전하게 확인합니다.',
+  },
+}[locale];
+---
+
+<BaseLayout
+  title={`${copy.title} — ${siteConfig.name} / ${siteConfig.idName}`}
+  description={copy.description}
+  locale={locale}
+  chapter={{ code: '05-S', title: 'CONTACT STATUS', world: 'COMMUNICATION GATE' }}
+>
+  <header class="page-hero contact-hero page-grid-bg" data-page-intro>
+    <div class="page-hero-inner">
+      <p class="eyebrow">COMMUNICATION GATE / STATUS CHANNEL</p>
+      <h1 class="page-title">{copy.title}</h1>
+      <p>{copy.intro}</p>
+    </div>
+  </header>
+  <section class="section contact-section" data-world-zone="communication">
+    <div class="section-inner">
+      <ContactStatusTerminal client:load locale={locale} />
+    </div>
+  </section>
+</BaseLayout>
