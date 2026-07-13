@@ -57,10 +57,9 @@ const items = navigation(locale).map((item) => {
   const updateCurrentHeader = () => {
     const header = document.querySelector<HTMLElement>('[data-site-header]');
     if (!header) return;
-    const now = window.scrollY;
     const menuOpen = document.body.classList.contains('menu-open');
-    header.classList.toggle('scrolled', now > 24 || menuOpen);
-    if (menuOpen) header.classList.remove('hidden');
+    header.classList.toggle('scrolled', window.scrollY > 24 || menuOpen);
+    header.classList.remove('hidden');
   };
 
   updateCurrentHeader();
@@ -68,35 +67,19 @@ const items = navigation(locale).map((item) => {
   const root = document.documentElement;
   if (root.dataset.ivuruHeaderBound !== 'true') {
     root.dataset.ivuruHeaderBound = 'true';
-    let last = window.scrollY;
     let ticking = false;
-
-    const updateHeader = () => {
-      const header = document.querySelector<HTMLElement>('[data-site-header]');
-      if (!header) {
-        ticking = false;
-        return;
-      }
-      const now = window.scrollY;
-      const menuOpen = document.body.classList.contains('menu-open');
-      header.classList.toggle('scrolled', now > 24 || menuOpen);
-      header.classList.toggle('hidden', !menuOpen && now > last && now > 160);
-      if (menuOpen) header.classList.remove('hidden');
-      last = now;
-      ticking = false;
-    };
 
     const queueUpdate = () => {
       if (ticking) return;
       ticking = true;
-      requestAnimationFrame(updateHeader);
+      requestAnimationFrame(() => {
+        updateCurrentHeader();
+        ticking = false;
+      });
     };
 
     document.addEventListener('scroll', queueUpdate, { passive: true });
-    document.addEventListener('astro:page-load', () => {
-      last = window.scrollY;
-      queueUpdate();
-    });
+    document.addEventListener('astro:page-load', queueUpdate);
     document.addEventListener('ivuru:menu-state', queueUpdate);
   }
 </script>
