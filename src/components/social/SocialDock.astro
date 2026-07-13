@@ -1,0 +1,43 @@
+---
+import SocialEmbeds from './SocialEmbeds';
+import { siteConfig, type Locale } from '@/data/site-config';
+
+const { locale } = Astro.props as { locale: Locale };
+const copy = {
+  ja: {
+    kicker: 'LIVE SIGNAL / SOCIAL CHANNELS',
+    title: '外の世界とつながる、リアルタイム通信ログ。',
+    body: 'Xの投稿と、選択したInstagramコンテンツを表示します。外部サービスは同意後にだけ読み込みます。',
+  },
+  en: {
+    kicker: 'LIVE SIGNAL / SOCIAL CHANNELS',
+    title: 'Real-time signals from the worlds beyond this site.',
+    body: 'View X posts and selected Instagram content. External services load only after consent.',
+  },
+  ko: {
+    kicker: 'LIVE SIGNAL / SOCIAL CHANNELS',
+    title: '사이트 밖의 세계와 연결되는 실시간 통신 로그.',
+    body: 'X 게시물과 선택한 Instagram 콘텐츠를 표시합니다. 외부 서비스는 동의 후에만 불러옵니다.',
+  },
+}[locale];
+---
+
+<section class="social-dock section" data-world-zone="community">
+  <div class="section-inner">
+    <div class="section-heading social-dock-heading" data-reveal>
+      <div>
+        <p class="section-kicker">{copy.kicker}</p>
+        <h2>{copy.title}</h2>
+      </div>
+      <p class="section-intro">{copy.body}</p>
+    </div>
+    <SocialEmbeds
+      client:visible
+      locale={locale}
+      xUrl={siteConfig.xUrl}
+      xHandle={siteConfig.xHandle}
+      instagramUrl={siteConfig.instagramUrl}
+      instagramPosts={siteConfig.instagramPostUrls}
+    />
+  </div>
+</section>

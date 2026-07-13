@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import BlogCard from '@/components/blog/BlogCard.astro';
 import BlogSearch from '@/components/blog/BlogSearch';
-import { type Locale } from '@/data/site-config';
+import { siteConfig, type Locale } from '@/data/site-config';
 import { getDictionary } from '@/i18n/dictionaries';
 const { locale } = Astro.props as { locale: Locale };
 const d = getDictionary(locale);
@@ -11,33 +11,57 @@ const posts = (
   await getCollection('blog', ({ data }) => !data.draft && data.locale === locale)
 ).sort((a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf());
 const years = [...new Set(posts.map((post) => post.data.publishedAt.getFullYear()))];
+const categories = [...new Set(posts.map((post) => post.data.category))];
+const copy = {
+  ja: { online: 'ARCHIVE ONLINE', query: '記録を検索', records: '保存済みレコード', terminal: '記録端末', description: '開発、ゲーム、ivRm、創作のログを、世界間アーカイブとして保存しています。' },
+  en: { online: 'ARCHIVE ONLINE', query: 'Search records', records: 'Stored records', terminal: 'Record terminal', description: 'Development, gaming, ivRm, and creative logs stored in the inter-world archive.' },
+  ko: { online: 'ARCHIVE ONLINE', query: '기록 검색', records: '저장된 레코드', terminal: '기록 터미널', description: '개발, 게임, ivRm, 창작 로그를 월드 간 아카이브에 저장합니다.' },
+}[locale];
 ---
 
-<BaseLayout title={`${d.blog.title} — ivuruGG`} description={d.blog.intro} locale={locale}>
-  <header class="page-hero blog-hero page-grid-bg">
+<BaseLayout
+  title={`${d.blog.title} — ${siteConfig.name} / ${siteConfig.idName}`}
+  description={d.blog.intro}
+  locale={locale}
+  chapter={{ code: '04', title: 'DIGITAL ARCHIVE', world: 'ARCHIVE WORLD' }}
+>
+  <header class="page-hero blog-hero archive-world page-grid-bg" data-page-intro>
     <div class="page-hero-inner">
-      <p class="eyebrow">FIELD NOTES / {posts.length.toString().padStart(2, '0')}</p><h1
-        class="page-title"
-      >
-        {d.blog.title}
-      </h1><p>{d.blog.intro}</p>
+      <p class="eyebrow">DIGITAL ARCHIVE / {posts.length.toString().padStart(2, '0')}</p>
+      <h1 class="page-title">{d.blog.title}</h1>
+      <p>{copy.description}</p>
+      <div class="archive-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
     </div>
   </header>
-  <section class="blog-page section">
-    <div class="section-inner">
-      <BlogSearch client:load placeholder={d.blog.search} noResults={d.common.noResults} /><div
-        class="blog-layout"
-      >
-        <div class="blog-grid blog-index">
-          {posts.map((post) => <BlogCard post={post} locale={locale} />)}
-        </div><aside>
-          <p>ARCHIVE</p>{years.map((year) => <a href={`#year-${year}`}>{year}</a>)}<p>
-            CATEGORIES
-          </p>{
-            [...new Set(posts.map((post) => post.data.category))].map((category) => (
-              <span>{category}</span>
-            ))
-          }
+
+  <section class="blog-page archive-terminal section" data-world-zone="archive">
+    <div class="section-inner archive-window">
+      <header class="archive-window-bar" data-reveal>
+        <div><span></span><span></span><span></span></div>
+        <code>ivuru@archive:~/records</code>
+        <b><i></i>{copy.online}</b>
+      </header>
+
+      <div class="archive-command" data-reveal>
+        <code>$ archive.query --all --locale={locale}</code>
+        <div><small>{copy.records}</small><strong>{posts.length.toString().padStart(2, '0')}</strong></div>
+        <p>{copy.terminal}</p>
+      </div>
+
+      <BlogSearch client:load placeholder={copy.query} noResults={d.common.noResults} />
+
+      <div class="blog-layout archive-layout">
+        <div class="blog-grid blog-index archive-records">
+          {posts.map((post, index) => (
+            <div class="archive-record" data-record-index={String(index + 1).padStart(3, '0')}>
+              <BlogCard post={post} locale={locale} />
+            </div>
+          ))}
+        </div>
+        <aside class="archive-sidebar">
+          <section><p>YEAR INDEX</p>{years.map((year) => <span>{year}</span>)}</section>
+          <section><p>CATEGORIES</p>{categories.map((category) => <span>{category}</span>)}</section>
+          <section class="archive-health"><p>STORAGE</p><span>LOCAL CONTENT</span><span>RSS READY</span><span>SEARCH READY</span></section>
         </aside>
       </div>
     </div>

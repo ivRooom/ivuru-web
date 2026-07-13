@@ -16,19 +16,22 @@ const copy = {
     title: '人・ゲーム・技術・創作が集まる、デジタルルーム。',
     body: 'いゔる。－む / ivRmは、Discordだけに閉じないコミュニティです。ゲーム、雑談、配信、イラスト、勉強会、Minecraft、Webサービスを横断し、安心して集まり、新しい体験をつくれる場所を育てています。',
     role: 'OWNER / COMMUNITY OPERATOR',
-    link: 'ivRmを見る',
+    link: 'ルームへ入る',
+    online: 'ROOM ONLINE',
   },
   en: {
     title: 'A digital room for people, games, technology, and creativity.',
     body: 'ivRm is more than a Discord server. It brings together gaming, conversation, streaming, illustration, study sessions, Minecraft, and web services in a shared space built to grow.',
     role: 'OWNER / COMMUNITY OPERATOR',
-    link: 'Explore ivRm',
+    link: 'Enter the room',
+    online: 'ROOM ONLINE',
   },
   ko: {
     title: '사람, 게임, 기술, 창작이 모이는 디지털 룸.',
     body: 'ivRm은 Discord에만 머무르지 않는 커뮤니티입니다. 게임, 대화, 방송, 일러스트, 스터디, Minecraft, Web 서비스를 연결해 함께 성장할 수 있는 공간을 만듭니다.',
     role: 'OWNER / COMMUNITY OPERATOR',
-    link: 'ivRm 보기',
+    link: '룸 입장',
+    online: 'ROOM ONLINE',
   },
 }[locale];
 const items = [
@@ -43,34 +46,39 @@ const items = [
 ] as const;
 ---
 
-<section class="community section">
-  <div class="community-radar" aria-hidden="true"><i></i><i></i><i></i><span>ivRm</span></div>
-  <div class="community-copy" data-reveal>
-    <p class="section-kicker">DIGITAL ROOM / ivRm</p><span class="role-label">{copy.role}</span><h2>
-      {copy.title}
-    </h2><p>{copy.body}</p>{
-      siteConfig.ivrmUrl && (
-        <a
-          class="primary-button"
-          href={siteConfig.ivrmUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+<section class="community digital-room section" data-world-zone="community">
+  <div class="digital-room-shell">
+    <header class="digital-room-status" data-reveal>
+      <div><span></span><span></span><span></span></div>
+      <code>ivrm://digital-room/main</code>
+      <b><i></i>{copy.online}</b>
+    </header>
+
+    <div class="community-radar digital-room-core" aria-hidden="true">
+      <i></i><i></i><i></i><span>ivRm</span><small>PEOPLE / ACTIVITY / SIGNAL</small>
+    </div>
+
+    <div class="community-copy digital-room-copy" data-reveal>
+      <p class="section-kicker">DIGITAL ROOM / ivRm</p>
+      <span class="role-label">{copy.role}</span>
+      <h2>{copy.title}</h2>
+      <p>{copy.body}</p>
+      <div class="digital-room-meta">
+        <span>GAME</span><span>CHAT</span><span>CREATE</span><span>STUDY</span><span>MINECRAFT</span>
+      </div>
+      {siteConfig.ivrmUrl && (
+        <a class="primary-button" href={siteConfig.ivrmUrl} target="_blank" rel="noopener noreferrer">
           {copy.link} ↗
         </a>
-      )
-    }
-  </div>
-  <div class="community-nodes">
-    {
-      items.map(([Icon, label], index) => (
-        <div class={`community-node node-${index + 1}`} data-reveal>
-          <>
-            <Icon aria-hidden="true" />
-            <span>{label}</span>
-          </>
+      )}
+    </div>
+
+    <div class="community-nodes digital-room-nodes">
+      {items.map(([Icon, label], index) => (
+        <div class={`community-node room-node node-${index + 1}`} data-reveal>
+          <small>{String(index + 1).padStart(2, '0')}</small><Icon aria-hidden="true" /><span>{label}</span><i></i>
         </div>
-      ))
-    }
+      ))}
+    </div>
   </div>
 </section>

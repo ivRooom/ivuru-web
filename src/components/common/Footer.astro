@@ -1,15 +1,29 @@
 ---
 import Logo from './Logo.astro';
 import { navigation } from '@/data/navigation';
-import { siteConfig, type Locale } from '@/data/site-config';
+import { localePath, siteConfig, type Locale } from '@/data/site-config';
 import { getDictionary } from '@/i18n/dictionaries';
 const { locale = 'ja' } = Astro.props as { locale: Locale };
 const dict = getDictionary(locale);
+const legal = {
+  ja: { privacy: 'プライバシーポリシー', terms: '利用規約', harassment: 'カスタマーハラスメント対応方針' },
+  en: { privacy: 'Privacy Policy', terms: 'Terms of Use', harassment: 'Abusive Conduct Policy' },
+  ko: { privacy: '개인정보 처리방침', terms: '이용약관', harassment: '고객 괴롭힘 대응 방침' },
+}[locale];
 ---
 
 <footer class="site-footer">
   <div class="footer-main">
-    <div><Logo /><p>{dict.footer.statement}</p><small>つくる。遊ぶ。つなげる。</small></div>
+    <div>
+      <Logo />
+      <p>{dict.footer.statement}</p>
+      <small>つくる。遊ぶ。つなげる。</small>
+      <div class="footer-legal">
+        <a href={localePath(locale, '/privacy')}>{legal.privacy}</a>
+        <a href={localePath(locale, '/terms')}>{legal.terms}</a>
+        <a href={localePath(locale, '/customer-harassment')}>{legal.harassment}</a>
+      </div>
+    </div>
     <nav aria-label="Footer navigation">
       {
         navigation(locale).map((item) => (
@@ -23,6 +37,9 @@ const dict = getDictionary(locale);
         target="_blank"
         rel="noopener noreferrer">X {siteConfig.xHandle} ↗</a
       >
+      {siteConfig.instagramUrl && (
+        <a href={siteConfig.instagramUrl} target="_blank" rel="noopener noreferrer">Instagram ↗</a>
+      )}
     </div>
   </div>
   <div class="footer-bottom">

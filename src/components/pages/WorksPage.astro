@@ -2,54 +2,85 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import WorkFilter from '@/components/works/WorkFilter';
 import { projects } from '@/data/projects';
-import { localePath, type Locale } from '@/data/site-config';
+import { localePath, siteConfig, type Locale } from '@/data/site-config';
 import { getDictionary } from '@/i18n/dictionaries';
 const { locale } = Astro.props as { locale: Locale };
 const d = getDictionary(locale);
+const copy = {
+  ja: { select: 'ミッションを選択', active: '稼働中', route: 'ルートを開く', archive: '全ワールド記録', briefing: '制作・ゲーム・コミュニティ・創作の活動を、ミッションデータとして記録しています。' },
+  en: { select: 'Select a mission', active: 'Live', route: 'Open route', archive: 'All world records', briefing: 'Development, gaming, community, and creative activity recorded as mission data.' },
+  ko: { select: '미션 선택', active: '가동 중', route: '루트 열기', archive: '전체 월드 기록', briefing: '개발, 게임, 커뮤니티, 창작 활동을 미션 데이터로 기록합니다.' },
+}[locale];
 ---
 
-<BaseLayout title={`${d.works.title} — ivuruGG`} description={d.works.intro} locale={locale}>
-  <header class="page-hero page-grid-bg">
+<BaseLayout
+  title={`${d.works.title} — ${siteConfig.name} / ${siteConfig.idName}`}
+  description={d.works.intro}
+  locale={locale}
+  chapter={{ code: '02', title: 'MISSION ARCHIVE', world: 'CREATIVE WORLD' }}
+>
+  <header class="page-hero works-hero mission-world page-grid-bg" data-page-intro>
     <div class="page-hero-inner">
-      <p class="eyebrow">WORLD ARCHIVE / {projects.length.toString().padStart(2, '0')}</p><h1
-        class="page-title"
-      >
-        {d.works.title}
-      </h1><p>{d.works.intro}</p>
+      <p class="eyebrow">WORLD SELECT / {projects.length.toString().padStart(2, '0')}</p>
+      <h1 class="page-title">{d.works.title}</h1>
+      <p>{copy.briefing}</p>
+      <div class="mission-route-map" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
     </div>
   </header>
-  <section class="works-page section">
+
+  <section class="works-page mission-select section" data-world-zone="mission">
     <div class="section-inner">
-      <WorkFilter client:load noResults={d.common.noResults} /><div class="works-grid">
-        {
-          projects.map((project, index) => (
+      <div class="mission-console-bar" data-reveal>
+        <div><small>MISSION CONTROL</small><strong>{copy.select}</strong></div>
+        <span><i></i>{copy.active}</span>
+        <code>WORLD://IVURU/WORKS</code>
+      </div>
+
+      <WorkFilter client:load noResults={d.common.noResults} />
+
+      <div class="mission-layout">
+        <aside class="mission-map" aria-label={copy.archive} data-reveal>
+          <p>WORLD ROUTES</p>
+          {projects.map((project, index) => (
+            <a href={`#mission-${project.slug}`}>
+              <span>{String(index + 1).padStart(2, '0')}</span>
+              <i class={`accent-${project.accent}`}></i>
+              <b>{project.category}</b>
+            </a>
+          ))}
+        </aside>
+
+        <div class="works-grid mission-grid">
+          {projects.map((project, index) => (
             <article
-              class={`work-card accent-${project.accent}`}
+              id={`mission-${project.slug}`}
+              class={`work-card mission-card accent-${project.accent}`}
               data-work-card
               data-category={project.category}
               data-reveal
             >
               <a href={localePath(locale, `/works/${project.slug}`)}>
-                <>
-                  <div class="work-card-visual">
-                    <>
-                      <span>0{index + 1}</span>
-                      <i />
-                    </>
+                <div class="work-card-visual mission-visual" transition:name={`work-cover-${project.slug}`}>
+                  <span class="mission-number">MISSION / {String(index + 1).padStart(2, '0')}</span>
+                  <div class="mission-orbit" aria-hidden="true"><i></i><i></i><i></i></div>
+                  <small>{project.category}</small>
+                </div>
+                <div class="work-card-copy mission-copy">
+                  <div class="mission-card-status">
+                    <span>{project.status}</span><small>{project.year}</small>
                   </div>
-                  <div class="work-card-copy">
-                    <div class="project-tech">
-                      {project.technologies.map((tech) => (
-                        <span class="chip">{tech}</span>
-                      ))}
-                    </div>
-                    {project.sample && <small class="sample-label">{d.common.sample}</small>}
+                  <h2>{project.title}</h2>
+                  <p>{project.description[locale]}</p>
+                  <div class="project-tech">
+                    {project.technologies.map((tech) => <span class="chip">{tech}</span>)}
                   </div>
-                </>
+                  {project.sample && <small class="sample-label">{d.common.sample}</small>}
+                  <span class="mission-open">{copy.route} →</span>
+                </div>
               </a>
             </article>
-          ))
-        }
+          ))}
+        </div>
       </div>
     </div>
   </section>

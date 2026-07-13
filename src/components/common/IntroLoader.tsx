@@ -12,44 +12,35 @@ export default function IntroLoader() {
       timers.current = [];
     };
 
-    const play = (forceCompact = false) => {
-      clearTimers();
-      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const seen = (() => {
-        try {
-          const hasSeen = sessionStorage.getItem('ivuru-intro-seen') === '1';
-          sessionStorage.setItem('ivuru-intro-seen', '1');
-          return hasSeen;
-        } catch {
-          return true;
-        }
-      })();
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const seen = (() => {
+      try {
+        const hasSeen = sessionStorage.getItem('ivuru-intro-seen') === '1';
+        sessionStorage.setItem('ivuru-intro-seen', '1');
+        return hasSeen;
+      } catch {
+        return true;
+      }
+    })();
 
-      const short = forceCompact || seen;
-      const duration = reduced ? 180 : short ? 680 : 1120;
-      const exitLead = reduced ? 80 : short ? 250 : 340;
+    const duration = reduced ? 180 : seen ? 680 : 1120;
+    const exitLead = reduced ? 80 : seen ? 250 : 340;
 
-      setCompact(short);
-      setLeaving(false);
-      setVisible(true);
-      document.body.classList.add('site-loading');
+    setCompact(seen);
+    setLeaving(false);
+    setVisible(true);
+    document.body.classList.add('site-loading');
 
-      timers.current.push(
-        window.setTimeout(() => setLeaving(true), Math.max(0, duration - exitLead)),
-        window.setTimeout(() => {
-          setVisible(false);
-          document.body.classList.remove('site-loading');
-        }, duration),
-      );
-    };
-
-    play(false);
-    const onBeforePreparation = () => play(true);
-    document.addEventListener('astro:before-preparation', onBeforePreparation);
+    timers.current.push(
+      window.setTimeout(() => setLeaving(true), Math.max(0, duration - exitLead)),
+      window.setTimeout(() => {
+        setVisible(false);
+        document.body.classList.remove('site-loading');
+      }, duration),
+    );
 
     return () => {
       clearTimers();
-      document.removeEventListener('astro:before-preparation', onBeforePreparation);
       document.body.classList.remove('site-loading');
     };
   }, []);

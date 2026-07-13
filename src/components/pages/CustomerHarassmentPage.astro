@@ -1,0 +1,217 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { type Locale } from '@/data/site-config';
+
+const { locale } = Astro.props as { locale: Locale };
+
+type PolicySection = {
+  heading: string;
+  body: string;
+  items?: readonly string[];
+  note?: boolean;
+};
+
+type PolicyPage = {
+  title: string;
+  description: string;
+  intro: string;
+  status: readonly string[];
+  sections: readonly PolicySection[];
+};
+
+const content: Record<Locale, PolicyPage> = {
+  ja: {
+    title: 'カスタマーハラスメント等への対応方針',
+    description:
+      'お問い合わせ、コミュニティ運営、イベント、関連サービスにおいて、運営メンバーおよび関係者の安全と活動環境を守るための対応方針です。',
+    intro:
+      'いゔる。およびivRm運営チームは、利用者の皆さまから寄せられるご意見・ご要望を大切にし、誠実な対応に努めます。一方で、要求内容または言動の手段・態様が社会通念上相当な範囲を超え、運営メンバーや関係者の安全・尊厳・活動環境を害する行為には、毅然と対応します。',
+    status: ['POLICY / DRAFT', 'SCOPE / WEBSITE · ivRm · EVENTS', 'UPDATED / 2026-07-13'],
+    sections: [
+      {
+        heading: '目的',
+        body: '本方針は、運営メンバー、協力者、出演者、クリエイター、コミュニティ参加者その他の関係者が、安心して活動できる環境を守り、継続的で健全なサービス・コミュニティ運営を行うことを目的とします。',
+      },
+      {
+        heading: 'カスタマーハラスメント等の定義',
+        body: '利用者、問い合わせ者、取引・協力関係者その他の第三者による要求・言動のうち、要求内容に妥当性を欠くもの、または要求を実現するための手段・態様が社会通念上不相当であり、運営や関係者の安全、尊厳、活動環境を害するものを対象とします。',
+      },
+      {
+        heading: '対象となる行為の例',
+        body: '次の例に限らず、行為の内容、頻度、継続性、関係性、影響等を総合的に判断します。',
+        items: [
+          '暴力、物を投げる行為、接触、危害を加える旨の示唆または脅迫',
+          '大声、威圧、侮辱、人格否定、差別的・性的な言動、誹謗中傷',
+          '規約・運営方針・提供範囲を超える返金、補償、優遇、謝罪、処分等の過剰な要求',
+          '同一内容の執拗な連絡、長時間の拘束、複数窓口への反復連絡、回答期限の不当な強要',
+          'コミュニティ、配信、イベント、ゲームサーバー、Webサービス等の運営妨害',
+          '個人情報の詮索、無断録音・撮影、SNS等への晒し、なりすまし、つきまとい',
+          '運営メンバーまたは関係者個人への私的な接触、連絡、面会等の強要',
+          '虚偽情報の流布、証拠の改変、第三者を扇動して圧力を加える行為',
+        ],
+      },
+      {
+        heading: '対応方針',
+        body: '対象行為が確認された場合、必要に応じて記録を保存し、組織的に対応します。安全確保と運営継続を優先し、次の措置を講じる場合があります。',
+        items: [
+          '対応方法・窓口・連絡回数の制限、または以後の返信・対応の終了',
+          'Discord、Minecraft、Webサービス、イベント等の利用制限、退出、アカウント停止、参加拒否',
+          '投稿、メッセージ、コンテンツ等の削除または非公開化',
+          '関係者、プラットフォーム事業者、所属先等への情報共有・相談',
+          '緊急性や悪質性に応じた警察、弁護士その他の専門機関への相談・通報・法的措置',
+        ],
+      },
+      {
+        heading: '正当なご意見・ご要望について',
+        body: '本方針は、サービス改善につながる正当なご意見、ご要望、苦情、異議申立てを制限するものではありません。内容を確認し、可能な範囲で事実関係と運用ルールに基づいて対応します。相互の尊重を前提としたコミュニケーションにご協力ください。',
+        note: true,
+      },
+      {
+        heading: '運営側の取り組み',
+        body: '運営メンバーへの方針共有、相談体制の整備、記録とアクセス権限の管理、対応手順の見直しを行います。必要に応じて本方針を改定し、重要な変更は本サイト上で案内します。',
+      },
+    ],
+  },
+  en: {
+    title: 'Policy on Abusive or Harassing Conduct',
+    description:
+      'This policy protects the safety, dignity, and working environment of operators and related participants across inquiries, community operations, events, and related services.',
+    intro:
+      'ivuru and the ivRm operations team value legitimate feedback and requests and aim to respond in good faith. Conduct or demands that exceed socially reasonable boundaries and harm the safety, dignity, or activities of operators or related people may be restricted.',
+    status: ['POLICY / DRAFT', 'SCOPE / WEBSITE · ivRm · EVENTS', 'UPDATED / 2026-07-13'],
+    sections: [
+      {
+        heading: 'Purpose',
+        body: 'This policy is intended to protect operators, collaborators, performers, creators, community members, and other participants, and to support sustainable and healthy services and community operations.',
+      },
+      {
+        heading: 'Definition',
+        body: 'It covers demands or conduct whose substance lacks reasonable grounds, or whose means or manner is socially inappropriate and harms safety, dignity, operations, or the activity environment.',
+      },
+      {
+        heading: 'Examples',
+        body: 'The following examples are not exhaustive. Context, frequency, persistence, relationship, and impact will be considered.',
+        items: [
+          'Violence, throwing objects, unwanted contact, threats, or suggestions of harm',
+          'Intimidation, insults, personal attacks, discriminatory or sexual remarks, or defamation',
+          'Unreasonable demands for refunds, compensation, preferential treatment, apologies, or punishment',
+          'Repeated contacts, prolonged restraint, contacting multiple channels, or unreasonable deadlines',
+          'Disruption of communities, streams, events, game servers, or web services',
+          'Doxxing, stalking, impersonation, unauthorized recording, filming, or public shaming',
+          'Forcing private contact, meetings, or personal interaction with operators or participants',
+          'Spreading false information, altering evidence, or mobilizing others to apply pressure',
+        ],
+      },
+      {
+        heading: 'Response',
+        body: 'When relevant conduct is identified, records may be preserved and the following measures may be taken to protect safety and operations.',
+        items: [
+          'Restricting communication channels or frequency, or ending further responses',
+          'Restricting or suspending access to Discord, Minecraft, web services, events, or related activities',
+          'Removing or hiding posts, messages, or content',
+          'Consulting or sharing necessary information with platforms, related organizations, or responsible parties',
+          'Contacting police, legal counsel, or other specialists and taking legal action where appropriate',
+        ],
+      },
+      {
+        heading: 'Legitimate feedback',
+        body: 'This policy does not restrict legitimate feedback, requests, complaints, or objections. We review them based on facts and operational rules where possible. Please communicate with mutual respect.',
+        note: true,
+      },
+      {
+        heading: 'Operational measures',
+        body: 'We share this policy with operators, maintain consultation and record-management procedures, and review our response process. Important updates will be announced on this site.',
+      },
+    ],
+  },
+  ko: {
+    title: '고객 괴롭힘 및 부당 행위 대응 방침',
+    description:
+      '문의, 커뮤니티 운영, 이벤트 및 관련 서비스에서 운영자와 관계자의 안전, 존엄, 활동 환경을 보호하기 위한 방침입니다.',
+    intro:
+      'ivuru와 ivRm 운영팀은 정당한 의견과 요청을 소중히 여기고 성실히 대응합니다. 다만 요구 내용이나 표현 방식이 사회적으로 상당한 범위를 넘어 운영자와 관계자의 안전, 존엄, 활동 환경을 해치는 경우에는 단호하게 대응합니다.',
+    status: ['POLICY / DRAFT', 'SCOPE / WEBSITE · ivRm · EVENTS', 'UPDATED / 2026-07-13'],
+    sections: [
+      {
+        heading: '목적',
+        body: '운영자, 협력자, 출연자, 크리에이터, 커뮤니티 참가자 및 관계자가 안전하게 활동할 수 있는 환경을 지키고 지속 가능한 서비스와 커뮤니티 운영을 유지하는 것을 목적으로 합니다.',
+      },
+      {
+        heading: '정의',
+        body: '요구 내용에 타당성이 없거나, 요구를 실현하는 수단과 방식이 사회 통념상 부당하여 안전, 존엄, 운영 또는 활동 환경을 해치는 행위를 대상으로 합니다.',
+      },
+      {
+        heading: '대상 행위 예시',
+        body: '아래 예시에 한정되지 않으며 내용, 빈도, 지속성, 관계, 영향 등을 종합적으로 판단합니다.',
+        items: [
+          '폭력, 물건 투척, 원치 않는 접촉, 위해를 암시하는 말 또는 협박',
+          '위압, 모욕, 인격 부정, 차별적·성적 발언, 비방',
+          '규정과 제공 범위를 넘는 환불, 보상, 우대, 사과, 처벌 등의 과도한 요구',
+          '동일 내용의 반복 연락, 장시간 구속, 여러 창구를 이용한 반복 문의, 부당한 기한 강요',
+          '커뮤니티, 방송, 이벤트, 게임 서버, 웹 서비스 운영 방해',
+          '개인정보 탐색, 무단 녹음·촬영, 신상 공개, 사칭, 스토킹',
+          '운영자 또는 관계자 개인에게 사적 연락, 만남, 접촉을 강요하는 행위',
+          '허위 정보 유포, 증거 조작, 제3자를 선동해 압력을 가하는 행위',
+        ],
+      },
+      {
+        heading: '대응 방침',
+        body: '대상 행위가 확인되면 필요한 기록을 보존하고 안전과 운영 지속을 우선하여 다음 조치를 취할 수 있습니다.',
+        items: [
+          '연락 방법·횟수 제한 또는 이후 답변과 대응 종료',
+          'Discord, Minecraft, 웹 서비스, 이벤트 등의 이용 제한, 퇴장, 계정 정지, 참가 거절',
+          '게시물, 메시지, 콘텐츠 삭제 또는 비공개 처리',
+          '플랫폼 사업자, 소속 기관, 관계자 등과 필요한 정보 공유 및 상담',
+          '경찰, 변호사, 전문 기관 상담·신고 및 법적 조치',
+        ],
+      },
+      {
+        heading: '정당한 의견과 요청',
+        body: '본 방침은 서비스 개선을 위한 정당한 의견, 요청, 불만, 이의 제기를 제한하지 않습니다. 가능한 범위에서 사실관계와 운영 규정에 따라 확인하고 대응합니다. 상호 존중을 전제로 한 소통에 협조해 주세요.',
+        note: true,
+      },
+      {
+        heading: '운영 측의 노력',
+        body: '운영자에게 방침을 공유하고 상담 체계, 기록 및 접근 권한 관리, 대응 절차를 정비합니다. 중요한 변경은 본 사이트에서 안내합니다.',
+      },
+    ],
+  },
+};
+
+const page = content[locale];
+---
+
+<BaseLayout
+  title={`${page.title} — いゔる。 / ivuru`}
+  description={page.description}
+  locale={locale}
+  chapter={{ code: '90', title: 'POLICY FILE', world: 'LEGAL ARCHIVE' }}
+>
+  <header class="page-hero legal-hero policy-hero page-grid-bg" data-page-intro>
+    <div class="page-hero-inner">
+      <p class="eyebrow">LEGAL ARCHIVE / POLICY-090</p>
+      <h1 class="page-title">{page.title}</h1>
+      <p>{page.intro}</p>
+      <div class="policy-status">{page.status.map((item) => <span>{item}</span>)}</div>
+    </div>
+  </header>
+
+  <article class="legal-layout policy-layout section" data-world-zone="legal">
+    <nav aria-label="Table of contents">
+      <p>INDEX</p>
+      {page.sections.map((section, index) => (
+        <a href={`#policy-${index + 1}`}>{String(index + 1).padStart(2, '0')} / {section.heading}</a>
+      ))}
+    </nav>
+    <div class="legal-body">
+      {page.sections.map((section, index) => (
+        <section id={`policy-${index + 1}`}>
+          <span>{String(index + 1).padStart(2, '0')}</span>
+          <h2>{section.heading}</h2>
+          <p class={section.note ? 'policy-note' : undefined}>{section.body}</p>
+          {section.items && <ul>{section.items.map((item) => <li>{item}</li>)}</ul>}
+        </section>
+      ))}
+    </div>
+  </article>
+</BaseLayout>
