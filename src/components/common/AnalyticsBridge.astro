@@ -1,0 +1,38 @@
+---
+import { analyticsEventNames } from '@/data/analytics-events';
+---
+
+<script define:vars={{ allowedEventNames: analyticsEventNames }}>
+  import { emitAnalyticsEvent } from '@/lib/analytics';
+
+  const allowed = new Set(allowedEventNames);
+  let lastPageView = '';
+
+  const trackPageView = () => {
+    const key = `${location.pathname}${location.search}`;
+    if (lastPageView === key) return;
+    lastPageView = key;
+    emitAnalyticsEvent('page_view');
+  };
+
+  document.addEventListener('click', (event) => {
+    const target = event.target instanceof Element
+      ? event.target.closest('[data-analytics-event]')
+      : null;
+    if (!(target instanceof HTMLElement)) return;
+
+    const name = target.dataset.analyticsEvent;
+    if (!name || !allowed.has(name)) return;
+
+    emitAnalyticsEvent(name, {
+      target: target.dataset.analyticsTarget,
+      surface: target.dataset.analyticsSurface,
+      category: target.dataset.analyticsCategory,
+      position: target.dataset.analyticsPosition,
+      status: target.dataset.analyticsStatus,
+    });
+  }, { capture: true });
+
+  document.addEventListener('astro:page-load', trackPageView);
+  queueMicrotask(trackPageView);
+</script>
