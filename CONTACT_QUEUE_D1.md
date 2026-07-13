@@ -9,6 +9,10 @@ The Contact API can operate in two modes.
 
 Durable mode is enabled only when both `CONTACT_DB` and `CONTACT_DELIVERY_QUEUE` bindings exist. Missing bindings do not break the current production form.
 
+## Implementation status
+
+The code, migrations, multilingual status UI, fallback behavior, retention cleanup, and observability events are implemented in PR #19. Durable mode remains disabled until the real Cloudflare D1 and Queue resources are created and their bindings are added to the production Worker configuration.
+
 ## Cloudflare resources
 
 Create the following resources in the same Cloudflare account as the Worker.
