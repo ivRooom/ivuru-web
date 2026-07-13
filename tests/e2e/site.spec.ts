@@ -9,8 +9,11 @@ test('core routes and language variants render', async ({ page }) => {
     '/blog',
     '/privacy',
     '/terms',
+    '/customer-harassment',
     '/en',
+    '/en/customer-harassment',
     '/ko',
+    '/ko/customer-harassment',
   ]) {
     const response = await page.goto(route);
     expect(response?.ok(), route).toBeTruthy();
@@ -28,6 +31,20 @@ test('world loader appears on access and clears safely', async ({ page }) => {
   await page.reload();
   await expect(page.locator('.world-loader')).toBeVisible();
   await expect(page.locator('.world-loader')).toBeHidden({ timeout: 2000 });
+});
+
+test('chapter cut shows the destination chapter without replaying the intro loader', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
+
+  const chapterCut = page.locator('.chapter-cut');
+  await page.locator('.desktop-nav a[href="/profile"]').click();
+  await expect(chapterCut).toHaveAttribute('data-active', 'true');
+  await expect(chapterCut).toContainText('CHARACTER PROFILE');
+  await expect(page).toHaveURL(/\/profile\/?$/);
+  await expect(page.locator('.character-sheet')).toBeVisible();
+  await expect(page.locator('.world-loader')).toBeHidden();
+  await expect(chapterCut).toHaveAttribute('data-active', 'false', { timeout: 2000 });
 });
 
 test('custom animated 404 renders recovery routes', async ({ page }) => {
@@ -104,9 +121,13 @@ test('menu closes when viewport switches to desktop navigation', async ({ page }
   await expect(page.locator('body')).not.toHaveClass(/menu-open/);
 });
 
-test('detail routes keep their parent navigation active', async ({ page }) => {
+test('detail routes keep their parent navigation active and shared transition names', async ({ page }) => {
   await page.goto('/works/ivrm-community');
   await expect(page.locator('.desktop-nav a[href="/works"]')).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator('[style*="view-transition-name"], [data-astro-transition-scope]')).toHaveCount(
+    await page.locator('[style*="view-transition-name"], [data-astro-transition-scope]').count(),
+  );
+  await expect(page.locator('.mission-briefing-hero')).toBeVisible();
 });
 
 test('works filter and blog search work', async ({ page }) => {
@@ -114,8 +135,55 @@ test('works filter and blog search work', async ({ page }) => {
   await page.getByRole('button', { name: 'Community', exact: true }).click();
   await expect(page.locator('[data-work-card]:visible')).toHaveCount(1);
   await page.goto('/blog');
-  await page.getByPlaceholder('記事を検索').fill('not-found-query');
+  await page.getByPlaceholder('記録を検索').fill('not-found-query');
   await expect(page.getByText('一致する項目がありません。')).toBeVisible();
+});
+
+test('social embeds require an explicit action before third-party scripts load', async ({ page }) => {
+  await page.route('https://platform.x.com/**', (route) => route.abort());
+  await page.route('https://platform.twitter.com/**', (route) => route.abort());
+  await page.goto('/');
+  await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
+
+  const socialDock = page.locator('.social-dock');
+  await socialDock.scrollIntoViewIfNeeded();
+  await expect(page.locator('#x-widgets-script')).toHaveCount(0);
+  await expect(page.locator('#instagram-embed-script')).toHaveCount(0);
+
+  const loadX = page.getByRole('button', { name: 'Xタイムラインを読み込む' });
+  await expect(loadX).toBeVisible();
+  await loadX.click();
+  await expect(page.locator('#x-widgets-script')).toHaveCount(1);
+  await expect(page.locator('a.twitter-timeline')).toHaveAttribute('href', /x\.com\/ivuruGG/);
+});
+
+test('brand OGP and Twitter fallback metadata are present', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute('content', 'いゔる。 / ivuru');
+  await expect(page.locator('meta[property="og:image"]').first()).toHaveAttribute(
+    'content',
+    /\/assets\/og\/ivuru-brand-og\.svg$/,
+  );
+  await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
+    'content',
+    /\/assets\/og\/og-background\.png$/,
+  );
+  await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute('content', /いゔる。 \/ ivuru/);
+});
+
+test('customer harassment policy preserves legitimate feedback and response measures', async ({ page }) => {
+  await page.goto('/customer-harassment');
+  await expect(page.getByRole('heading', { name: 'カスタマーハラスメント等への対応方針' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '正当なご意見・ご要望について' })).toBeVisible();
+  await expect(page.getByText(/警察、弁護士/)).toBeVisible();
+  await expect(page.locator('html')).toHaveAttribute('data-chapter', '90');
+});
+
+test('scroll position updates the world time state', async ({ page }) => {
+  await page.goto('/profile');
+  await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await expect(page.locator('html')).toHaveAttribute('data-world-time', 'night');
 });
 
 test('reduced motion keeps content available', async ({ page }) => {
