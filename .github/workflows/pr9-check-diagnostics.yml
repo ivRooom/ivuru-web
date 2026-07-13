@@ -7,16 +7,13 @@ jobs:
   diagnose:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24.16.0
-          cache: npm
-      - run: npm ci --silent
-      - name: 型チェックの失敗箇所を出力
+      - name: 型チェックの失敗箇所だけを出力
         run: |
+          git clone -q --depth 1 --branch feat/world-chapter-social-policy https://github.com/ivRooom/ivuru-web.git repo
+          cd repo
+          npm ci --silent >/dev/null
           set +e
           npm run check > /tmp/check.log 2>&1
           status=$?
-          tail -n 160 /tmp/check.log
+          cat /tmp/check.log
           exit $status
