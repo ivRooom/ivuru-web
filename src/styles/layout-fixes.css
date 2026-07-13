@@ -1,9 +1,10 @@
 /* Production layout stabilization */
+html,body{overflow-x:clip}
 .site-header.hidden{transform:translateX(-50%)!important}
 .profile-passport{grid-template-columns:minmax(280px,.78fr) minmax(0,1.22fr)}
 .profile-passport>*,.profile-avatar-stage,.profile-avatar-frame,.profile-passport .character-data,.profile-passport .character-name-line,.profile-passport .character-core-stats{min-width:0}
 .profile-avatar-stage{display:grid;grid-template-rows:auto auto;align-self:stretch}
-.profile-avatar-frame{width:100%;height:auto!important;min-height:0!important;aspect-ratio:4/5}
+.profile-avatar-frame{width:100%;height:auto!important;min-height:0!important;aspect-ratio:4/5;contain:paint}
 .profile-avatar-frame img{display:block}
 .profile-passport .character-data{align-self:stretch;display:flex;flex-direction:column;justify-content:center;padding:clamp(28px,4vw,58px);overflow:hidden}
 .profile-passport .character-name-line{align-items:flex-end}
