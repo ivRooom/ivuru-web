@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { buildDiscordMessage, escapeHtml, validateContactPayload, type ContactPayload } from './contact';
+import {
+  buildAdminEmail,
+  buildDiscordMessage,
+  escapeHtml,
+  sanitizeHeaderValue,
+  validateContactPayload,
+  type ContactPayload,
+} from './contact';
 
 const valid: ContactPayload = {
   name: 'ivuru',
@@ -33,5 +40,12 @@ describe('notification helpers', () => {
     expect(escapeHtml('<script>')).toBe('&lt;script&gt;');
     const discord = buildDiscordMessage(valid, 'IVR-TEST');
     expect(discord.allowed_mentions.parse).toEqual([]);
+  });
+
+  it('removes CRLF characters from email subjects', () => {
+    expect(sanitizeHeaderValue('Hello\r\nBcc: attacker@example.com')).toBe('Hello Bcc: attacker@example.com');
+    const email = buildAdminEmail({ ...valid, subject: 'Hello\r\nInjected' }, 'IVR-TEST');
+    expect(email.subject).toBe('[ivuru Contact] Hello Injected');
+    expect(email.subject).not.toMatch(/[\r\n]/);
   });
 });
