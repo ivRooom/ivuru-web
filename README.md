@@ -7,7 +7,7 @@ DeveloperとGamerを主軸に、個人開発、ゲーム活動、ivRmコミュ�
 
 ## Status
 
-- 初期リリースは完全な静的サイトです。
+- Astroで静的生成したページをCloudflare Static Assetsで配信し、`/api/contact`のみWorkerで処理します。
 - Cloudflare Workers Builds + Static Assetsで公開します。
 - 架空の顧客、案件、数値、問い合わせ先は掲載していません。
 - `sample: true`の作品・記事は、実データに差し替えるための編集用サンプルです。
@@ -21,7 +21,7 @@ DeveloperとGamerを主軸に、個人開発、ゲーム活動、ivRmコミュ�
 - GSAP / ScrollTrigger
 - Motion（Framer Motion）
 - Three.js / React Three Fiber / Drei
-- Cloudflare Workers Static Assets / Wrangler
+- Cloudflare Workers / Static Assets / Turnstile / Wrangler
 - Lucide Icons
 - ESLint / Prettier / Vitest / Playwright
 
@@ -36,6 +36,10 @@ npm run dev
 ```
 
 開発サーバーは通常`http://localhost:4321`で起動します。
+
+### Dependency management
+
+`package.json`の直接依存関係は`package-lock.json`で検証済みの実バージョンへ固定しています。`.npmrc`では`save-exact=true`と`engine-strict=true`を有効化しています。依存関係の更新はDependabotの週次PRで確認し、CI・Visual Regression・Performance Budgetが成功してから取り込みます。
 
 ## Commands
 
@@ -59,7 +63,7 @@ npm run deploy:preview  # デプロイせず新しいWorker Versionをアップ�
 日本語は言語プレフィックスなし、英語は`/en`、韓国語は`/ko`です。
 
 - `/`, `/profile`, `/works`, `/works/[slug]`, `/portfolio`, `/blog`, `/blog/[slug]`
-- `/privacy`, `/terms`, `/customer-harassment`, `/404`
+- `/contact`, `/privacy`, `/terms`, `/customer-harassment`, `/404`
 - `/en/...`
 - `/ko/...`
 
@@ -202,11 +206,16 @@ Light / Dark / Systemに対応し、選択は`ivuru-theme`として`localStorage
 `wrangler.jsonc`では次を管理します。
 
 - Worker名: `ivrm-ivurugg`
+- `main`: `./src/worker.ts`
 - `assets.directory`: `./dist`
+- `assets.binding`: `ASSETS`
+- `assets.run_worker_first`: `/api/*`
 - `assets.not_found_handling`: `404-page`
 - `assets.html_handling`: `auto-trailing-slash`
+- Contact用Rate Limiting binding
+- Workers Observability
 
-Workerスクリプトの`main`は設定せず、静的成果物だけを配信します。
+通常ページはStatic Assetsから配信し、`/api/contact`とその他の`/api/*`だけをWorkerへ先に通します。
 
 ### Build variables
 
@@ -250,9 +259,11 @@ npx wrangler rollback
 
 Workers Buildsでは`main`を本番デプロイし、その他のブランチはVersionアップロードとして扱います。公開後はCloudflare Dashboardで対象コミットSHA、Preview URL、Custom Domain、SSLを確認してください。
 
-## Future contact form
+## Contact API
 
-現在は受付先未設定のため送信フォームを有効化していません。次フェーズではCloudflare Worker API、Turnstile、サーバー側バリデーション、レート制限、メール送信APIを追加します。送信後の自動受付メールと、管理側Discord通知を拡張できる構成にします。
+`/contact`、`/en/contact`、`/ko/contact`から`/api/contact`へ送信します。Worker側でOrigin、Content-Type、入力値、Honeypot、Rate Limit、Turnstileを検証し、Resendで`contact@ivrm.jp`へ通知します。受付メールとDiscord通知は補助通知です。
+
+必要な設定、通知再試行、ログ方針は[CONTACT_SETUP.md](./CONTACT_SETUP.md)と[CONTACT_DELIVERY.md](./CONTACT_DELIVERY.md)を参照してください。SecretやWebhook URLをリポジトリへ保存しないでください。
 
 ## Performance and accessibility
 
