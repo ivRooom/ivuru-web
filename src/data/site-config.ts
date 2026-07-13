@@ -8,9 +8,9 @@ export const siteConfig = {
   xUrl: 'https://x.com/ivuruGG',
   xHandle: '@ivuruGG',
   instagramUrl: import.meta.env.PUBLIC_INSTAGRAM_URL ?? '',
-  instagramPostUrls: (import.meta.env.PUBLIC_INSTAGRAM_POST_URLS ?? '')
+  instagramPostUrls: String(import.meta.env.PUBLIC_INSTAGRAM_POST_URLS ?? '')
     .split(',')
-    .map((value) => value.trim())
+    .map((value: string) => value.trim())
     .filter(Boolean),
   githubUrl: '',
   discordUrl: '',
