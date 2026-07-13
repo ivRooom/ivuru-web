@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 
 type Locale = 'ja' | 'en' | 'ko';
 
@@ -68,7 +68,7 @@ export default function ContactStatusTerminal({ locale }: { locale: Locale }) {
     }
   }, []);
 
-  const submit = async (event: React.FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
     setLoading(true);
     setError('');
