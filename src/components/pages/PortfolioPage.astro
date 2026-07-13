@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { Code2, Cloud, Database, LayoutTemplate, Network, Workflow } from 'lucide-react';
-import { siteConfig, type Locale } from '@/data/site-config';
+import { siteConfig, localePath, type Locale } from '@/data/site-config';
 import { getDictionary } from '@/i18n/dictionaries';
 const { locale } = Astro.props as { locale: Locale };
 const d = getDictionary(locale);
@@ -19,9 +19,24 @@ const process = {
   ko: ['목표와 사용자 정리', '정보 구조와 화면 구성', 'UI 구현과 데이터 연동', '검증, 개선, 공개'],
 }[locale];
 const consoleCopy = {
-  ja: { online: 'SYSTEM ONLINE', command: '相談ルート', description: '要件整理からUI実装、検証、公開まで、実装を中心にプロジェクトを進めます。' },
-  en: { online: 'SYSTEM ONLINE', command: 'Inquiry route', description: 'From requirements and UI implementation to validation and release, with a strong focus on building.' },
-  ko: { online: 'SYSTEM ONLINE', command: '문의 루트', description: '요구사항 정리부터 UI 구현, 검증, 공개까지 구현을 중심으로 진행합니다.' },
+  ja: {
+    online: 'SYSTEM ONLINE',
+    command: 'Contact Terminalへ接続',
+    description: '要件整理からUI実装、検証、公開まで、実装を中心にプロジェクトを進めます。',
+    contact: 'お問い合わせを開始',
+  },
+  en: {
+    online: 'SYSTEM ONLINE',
+    command: 'Connect to Contact Terminal',
+    description: 'From requirements and UI implementation to validation and release, with a strong focus on building.',
+    contact: 'Start an inquiry',
+  },
+  ko: {
+    online: 'SYSTEM ONLINE',
+    command: 'Contact Terminal 연결',
+    description: '요구사항 정리부터 UI 구현, 검증, 공개까지 구현을 중심으로 진행합니다.',
+    contact: '문의 시작',
+  },
 }[locale];
 ---
 
@@ -34,7 +49,7 @@ const consoleCopy = {
   <header class="page-hero portfolio-hero developer-console-hero page-grid-bg" data-page-intro>
     <div class="page-hero-inner">
       <p class="eyebrow">DEVELOPER WORLD / SYSTEM CONSOLE</p>
-      <h1 class="page-title">Developer<br />Portfolio</h1>
+      <h1 class="page-title"><span>Developer</span><span>Portfolio</span></h1>
       <p>{d.portfolio.intro}</p>
       <div class="console-status-line"><i></i><span>{consoleCopy.online}</span><code>node: ivuru-dev-01</code></div>
     </div>
@@ -100,6 +115,6 @@ const consoleCopy = {
     <p class="section-kicker">{d.portfolio.inquiries}</p>
     <h2>{consoleCopy.command}</h2>
     <p>{consoleCopy.description}</p>
-    <a class="secondary-button" href={siteConfig.xUrl} target="_blank" rel="noopener noreferrer">X {siteConfig.xHandle} ↗</a>
+    <a class="secondary-button" href={localePath(locale, '/contact')}>{consoleCopy.contact} →</a>
   </section>
 </BaseLayout>
