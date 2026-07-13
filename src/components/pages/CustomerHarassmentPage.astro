@@ -4,7 +4,22 @@ import { type Locale } from '@/data/site-config';
 
 const { locale } = Astro.props as { locale: Locale };
 
-const content = {
+type PolicySection = {
+  heading: string;
+  body: string;
+  items?: readonly string[];
+  note?: boolean;
+};
+
+type PolicyPage = {
+  title: string;
+  description: string;
+  intro: string;
+  status: readonly string[];
+  sections: readonly PolicySection[];
+};
+
+const content: Record<Locale, PolicyPage> = {
   ja: {
     title: 'カスタマーハラスメント等への対応方針',
     description:
@@ -161,7 +176,7 @@ const content = {
       },
     ],
   },
-} as const;
+};
 
 const page = content[locale];
 ---
@@ -194,7 +209,7 @@ const page = content[locale];
           <span>{String(index + 1).padStart(2, '0')}</span>
           <h2>{section.heading}</h2>
           <p class={section.note ? 'policy-note' : undefined}>{section.body}</p>
-          {'items' in section && section.items && <ul>{section.items.map((item) => <li>{item}</li>)}</ul>}
+          {section.items && <ul>{section.items.map((item) => <li>{item}</li>)}</ul>}
         </section>
       ))}
     </div>
