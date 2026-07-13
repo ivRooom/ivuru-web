@@ -2,7 +2,7 @@ export const siteConfig = {
   name: 'いゔる。',
   idName: 'ivuru',
   title: 'いゔる。 / ivuru — Developer / Gamer',
-  siteUrl: import.meta.env.SITE_URL ?? 'https://ivuru-web.pages.dev',
+  siteUrl: import.meta.env.SITE_URL ?? 'https://ivurugg.ivrm.jp',
   xUrl: 'https://x.com/ivuruGG',
   xHandle: '@ivuruGG',
   githubUrl: '',
