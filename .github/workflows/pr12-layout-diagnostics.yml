@@ -16,5 +16,5 @@ jobs:
           set +e
           npm run test:e2e -- tests/e2e/site.spec.ts --project=chromium --reporter=line --grep "mobile menu|header stays|profile passport|developer portfolio" > /tmp/layout-e2e.log 2>&1
           status=$?
-          tail -n 180 /tmp/layout-e2e.log
+          grep -E "([0-9]+ failed|[0-9]+ passed|Error:|Expected:|Received:|site.spec.ts:|Timeout|waiting for|locator\(|retry #[0-9]+)" /tmp/layout-e2e.log | tail -n 180 || true
           exit $status
