@@ -8,12 +8,17 @@
   "vars": {
     "CONTACT_TO_EMAIL": "contact@ivrm.jp",
     "CONTACT_FROM_EMAIL": "ivuru Contact <contact@ivrm.jp>",
+    "CONTACT_RETENTION_DAYS": "90",
     "ALLOWED_ORIGINS": "https://ivurugg.ivrm.jp"
   },
 
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1
+  },
+
+  "triggers": {
+    "crons": ["17 18 * * *"]
   },
 
   "ratelimits": [
