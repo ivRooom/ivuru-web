@@ -13,7 +13,7 @@ for (const [route, heading] of [
     }));
     const response = await page.goto(route);
     expect(response?.ok()).toBeTruthy();
-    await expect(page.getByRole('heading', { name: heading })).toBeVisible();
+    await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
     await expect(page.locator('.contact-terminal')).toBeVisible();
     await expect(page.locator('.contact-terminal-unavailable a')).toHaveAttribute('href', 'mailto:contact@ivrm.jp');
     await expect(page.locator('html')).toHaveAttribute('data-chapter', '05');
