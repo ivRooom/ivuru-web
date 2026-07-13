@@ -16,5 +16,5 @@ jobs:
           set +e
           npm run test:e2e -- --project=chromium --reporter=line > /tmp/e2e.log 2>&1
           status=$?
-          tail -n 130 /tmp/e2e.log
+          grep -v -E "Invalid hook call|Hooks can only|mismatching versions|breaking the Rules|more than one copy|react.dev/link" /tmp/e2e.log | tail -n 100
           exit $status
