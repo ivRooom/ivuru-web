@@ -1,9 +1,7 @@
 name: Lint diagnostics
 
 on:
-  push:
-    branches:
-      - fix/navigation-loader-world-experience
+  pull_request:
 
 jobs:
   lint:
