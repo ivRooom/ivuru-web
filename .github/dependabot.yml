@@ -1,0 +1,40 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: Asia/Tokyo
+    open-pull-requests-limit: 10
+    groups:
+      astro:
+        patterns:
+          - astro
+          - "@astrojs/*"
+      react:
+        patterns:
+          - react
+          - react-dom
+          - "@types/react*"
+          - "@react-three/*"
+      styling:
+        patterns:
+          - tailwindcss
+          - "@tailwindcss/*"
+          - prettier
+          - "prettier-*"
+      testing:
+        patterns:
+          - vitest
+          - "@playwright/test"
+          - eslint
+          - "eslint-*"
+          - typescript
+          - "typescript-*"
+      cloudflare:
+        patterns:
+          - wrangler
+    commit-message:
+      prefix: "依存関係"
