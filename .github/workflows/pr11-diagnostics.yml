@@ -1,0 +1,13 @@
+name: PR11 diagnostics
+on:
+  pull_request:
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 型チェック結果
+        run: |
+          git clone -q --depth 1 --branch feat/contact-terminal-worker https://github.com/ivRooom/ivuru-web.git repo
+          cd repo
+          npm ci --silent >/dev/null
+          npm run check
