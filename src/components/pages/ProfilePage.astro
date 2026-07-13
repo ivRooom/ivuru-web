@@ -1,21 +1,55 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { Picture } from 'astro:assets';
-import profileVisual from '@/assets/profile-silhouette.webp';
 import { profile } from '@/data/profile';
+import { gameClips } from '@/data/game-clips';
+import { socialLinks } from '@/data/social-links';
 import { siteConfig, type Locale } from '@/data/site-config';
 import { getDictionary } from '@/i18n/dictionaries';
+
 const { locale } = Astro.props as { locale: Locale };
 const d = getDictionary(locale);
 const about = {
-  ja: 'Web開発を軸に、ゲーム、クラウド、コミュニティ運営を横断して活動しています。ivRmのオーナー兼運営として、Discord・Minecraft・Webをつなぐ仕組みづくりにも取り組んでいます。',
-  en: 'Working across web development, gaming, cloud, and community operations. As the owner and operator of ivRm, I also build connections between Discord, Minecraft, and the web.',
-  ko: '웹 개발을 중심으로 게임, 클라우드, 커뮤니티 운영을 넘나들며 활동합니다. ivRm 오너이자 운영자로 Discord, Minecraft, Web을 연결하는 시스템도 만들고 있습니다.',
+  ja: 'Web開発を軸に、ゲーム、クラウド、コミュニティ運営を横断して活動しています。DeveloperとGamer、そしてivRmオーナーという複数の世界をつなぎ、体験そのものを設計しています。',
+  en: 'Working across web development, gaming, cloud, and community operations—connecting the worlds of Developer, Gamer, and ivRm owner through designed experiences.',
+  ko: '웹 개발을 중심으로 게임, 클라우드, 커뮤니티 운영을 넘나들며 Developer, Gamer, ivRm 오너의 세계를 하나의 경험으로 연결합니다.',
 }[locale];
-const statusCopy = {
-  ja: { online: 'ONLINE', class: 'Developer / Gamer', base: 'Japan / Digital Room', signal: 'World Gate synchronized' },
-  en: { online: 'ONLINE', class: 'Developer / Gamer', base: 'Japan / Digital Room', signal: 'World Gate synchronized' },
-  ko: { online: 'ONLINE', class: 'Developer / Gamer', base: 'Japan / Digital Room', signal: 'World Gate synchronized' },
+const copy = {
+  ja: {
+    social: '通信ノード',
+    socialIntro: '活動・配信・コミュニティ・連絡先へ接続します。公開URLが設定されているノードだけを表示します。',
+    clips: 'ゲームリプレイ・アーカイブ',
+    clipsIntro: 'ゲームクリップ、配信切り抜き、ショート動画を記録する領域です。',
+    clipsEmpty: '公開できるクリップを準備中です。YouTube・Twitch・TikTok・Xの実URLを追加すると表示されます。',
+    passport: 'WORLD PASSPORT',
+    access: 'ACCESS LEVEL / CREATOR',
+    identities: 'CONNECTED IDENTITIES / 03',
+    nowBuilding: 'NOW BUILDING',
+    nowPlaying: 'NOW PLAYING',
+  },
+  en: {
+    social: 'Communication Nodes',
+    socialIntro: 'Connect to activity, streams, community, and contact routes. Only configured nodes are shown.',
+    clips: 'Game Replay Archive',
+    clipsIntro: 'A place for game clips, stream highlights, and short-form video.',
+    clipsEmpty: 'Public clips are being prepared. Cards appear after real YouTube, Twitch, TikTok, or X URLs are added.',
+    passport: 'WORLD PASSPORT',
+    access: 'ACCESS LEVEL / CREATOR',
+    identities: 'CONNECTED IDENTITIES / 03',
+    nowBuilding: 'NOW BUILDING',
+    nowPlaying: 'NOW PLAYING',
+  },
+  ko: {
+    social: '통신 노드',
+    socialIntro: '활동, 방송, 커뮤니티, 연락처로 연결합니다. 설정된 노드만 표시합니다.',
+    clips: '게임 리플레이 아카이브',
+    clipsIntro: '게임 클립, 방송 하이라이트, 숏폼 영상을 기록하는 영역입니다.',
+    clipsEmpty: '공개 가능한 클립을 준비 중입니다. 실제 YouTube, Twitch, TikTok, X URL을 추가하면 표시됩니다.',
+    passport: 'WORLD PASSPORT',
+    access: 'ACCESS LEVEL / CREATOR',
+    identities: 'CONNECTED IDENTITIES / 03',
+    nowBuilding: 'NOW BUILDING',
+    nowPlaying: 'NOW PLAYING',
+  },
 }[locale];
 ---
 
@@ -35,49 +69,51 @@ const statusCopy = {
   </header>
 
   <section class="profile-character-screen section" data-world-zone="identity">
-    <div class="section-inner character-sheet" data-reveal>
+    <div class="section-inner character-sheet profile-passport" data-reveal>
       <header class="character-sheet-bar">
         <span>IDENTITY DATABASE</span>
-        <span class="character-online"><i></i>{statusCopy.online}</span>
+        <span class="character-online"><i></i>ONLINE</span>
         <span>FILE NO. 001</span>
       </header>
 
-      <div class="character-portrait">
-        <div class="character-portrait-frame">
-          <Picture
-            src={profileVisual}
-            widths={[480, 768, 960, 1200]}
-            sizes="(max-width: 960px) 90vw, 42vw"
-            formats={['avif']}
-            fallbackFormat="webp"
-            alt={locale === 'ja'
-              ? 'デジタルルームのポータルに向かう人物の後ろ姿'
-              : locale === 'en'
-                ? 'Back-view silhouette facing a portal in a digital room'
-                : '디지털 룸의 포털을 바라보는 인물의 뒷모습'}
+      <div class="character-portrait profile-avatar-stage">
+        <div class="character-portrait-frame profile-avatar-frame">
+          <img
+            src={siteConfig.profileImageUrl}
+            alt={`${siteConfig.name} / ${siteConfig.idName} profile icon from X`}
+            width="720"
+            height="720"
             loading="eager"
+            referrerpolicy="no-referrer"
           />
           <div class="character-reticle" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div class="avatar-orbit" aria-hidden="true"><i></i><i></i><i></i></div>
+          <span class="avatar-source">SOURCE / X {siteConfig.xHandle}</span>
         </div>
         <div class="character-portrait-data">
-          <span>CALLSIGN</span><strong>{profile.id}</strong><small>{statusCopy.signal}</small>
+          <span>CALLSIGN</span><strong>{profile.id}</strong><small>World Gate synchronized</small>
         </div>
       </div>
 
       <div class="character-data">
-        <p class="section-kicker">PLAYER / CREATOR PROFILE</p>
+        <p class="section-kicker">{copy.passport}</p>
         <div class="character-name-line">
           <h2>{profile.name}</h2><span>{profile.id.toUpperCase()}</span>
         </div>
         <p class="character-about">{about}</p>
+        <div class="passport-status-grid">
+          <span>{copy.access}</span><span>{copy.identities}</span><span>STATUS / ONLINE</span>
+        </div>
         <dl class="character-core-stats">
-          <div><dt>CLASS</dt><dd>{statusCopy.class}</dd></div>
-          <div><dt>BASE</dt><dd>{statusCopy.base}</dd></div>
+          <div><dt>PRIMARY</dt><dd>Developer</dd></div>
+          <div><dt>SECONDARY</dt><dd>Gamer / Creator</dd></div>
           <div><dt>ROLE</dt><dd>ivRm Owner / Community Operator</dd></div>
           <div><dt>MODE</dt><dd>BUILD. PLAY. CREATE.</dd></div>
         </dl>
-        <div class="role-list character-roles">
-          {profile.roles.map((role, index) => <span><small>0{index + 1}</small>{role}</span>)}
+        <div class="identity-switch" aria-label="Identity modes">
+          <span data-mode="developer">DEVELOPER MODE</span>
+          <span data-mode="gamer">GAMER MODE</span>
+          <span data-mode="community">COMMUNITY MODE</span>
         </div>
         <div class="character-interests">
           {profile.interests.map((interest) => <span>{interest}</span>)}
@@ -86,17 +122,68 @@ const statusCopy = {
     </div>
   </section>
 
+  <section class="profile-now-grid section" data-world-zone="signal">
+    <div class="section-inner now-panels">
+      <article data-reveal><small>{copy.nowBuilding}</small><strong>ivuru Official World</strong><p>Astro / React / Cloudflare</p></article>
+      <article data-reveal><small>{copy.nowPlaying}</small><strong>Gamer World</strong><p>Clips / Streams / Community Sessions</p></article>
+    </div>
+  </section>
+
+  <section class="social-hub section" data-world-zone="signal">
+    <div class="section-inner">
+      <div class="section-heading" data-reveal>
+        <div><p class="section-kicker">SOCIAL SIGNAL MATRIX</p><h2>{copy.social}</h2></div>
+        <p class="section-intro">{copy.socialIntro}</p>
+      </div>
+      <div class="social-node-grid">
+        {socialLinks.map((item, index) => (
+          <a
+            class={`social-node social-${item.accent}`}
+            href={item.href}
+            target={item.key === 'email' ? undefined : '_blank'}
+            rel={item.key === 'email' ? undefined : 'noopener noreferrer'}
+            data-reveal
+          >
+            <small>NODE / {String(index + 1).padStart(2, '0')}</small>
+            <strong>{item.label}</strong>
+            <span>{item.description}</span>
+            <i aria-hidden="true">↗</i>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="game-clip-archive section" data-world-zone="gamer">
+    <div class="section-inner">
+      <div class="section-heading" data-reveal>
+        <div><p class="section-kicker">REPLAY STORAGE</p><h2>{copy.clips}</h2></div>
+        <p class="section-intro">{copy.clipsIntro}</p>
+      </div>
+      {gameClips.length > 0 ? (
+        <div class="clip-grid">
+          {gameClips.map((clip, index) => (
+            <a class="clip-card" href={clip.url} target="_blank" rel="noopener noreferrer" data-reveal>
+              <div class="clip-visual">
+                {clip.thumbnail ? <img src={clip.thumbnail} alt="" loading="lazy" /> : <span>REPLAY / {String(index + 1).padStart(2, '0')}</span>}
+                <b>{clip.duration ?? 'CLIP'}</b>
+              </div>
+              <small>{clip.platform.toUpperCase()} / {clip.game}</small>
+              <h3>{clip.title}</h3>
+              <div>{clip.tags?.map((tag) => <span>#{tag}</span>)}</div>
+            </a>
+          ))}
+        </div>
+      ) : (
+        <div class="clip-empty" data-reveal><span>NO REPLAY DATA</span><p>{copy.clipsEmpty}</p></div>
+      )}
+    </div>
+  </section>
+
   <section class="profile-stack character-capabilities section" data-world-zone="developer">
     <div class="section-inner">
       <div class="section-heading" data-reveal>
         <div><p class="section-kicker">CAPABILITY MODULES</p><h2>{d.profile.stack}</h2></div>
-        <p class="section-intro">{
-          locale === 'ja'
-            ? 'パーセンテージではなく、現在の使用・学習状況で示しています。'
-            : locale === 'en'
-              ? 'Shown by current practice and learning status—not arbitrary percentages.'
-              : '임의의 퍼센트 대신 현재 사용 및 학습 상태로 표시합니다.'
-        }</p>
       </div>
       <div class="stack-groups character-module-grid">
         {Object.entries(profile.stack).map(([group, items], groupIndex) => (

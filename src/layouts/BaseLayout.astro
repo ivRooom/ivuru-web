@@ -11,6 +11,7 @@ import '@/styles/global.css';
 import '@/styles/experience.css';
 import '@/styles/navigation-fix.css';
 import '@/styles/world-system.css';
+import '@/styles/profile-hub.css';
 
 type Chapter = {
   code: string;
@@ -43,19 +44,12 @@ const ogImage = new URL(image, siteConfig.siteUrl);
 const fallbackOgImage = new URL(siteConfig.fallbackOgImage, siteConfig.siteUrl);
 const ogImageType = image.endsWith('.svg') ? 'image/svg+xml' : image.endsWith('.webp') ? 'image/webp' : 'image/png';
 const twitterImage = image.endsWith('.svg') ? fallbackOgImage : ogImage;
-const sameAs = [siteConfig.xUrl, siteConfig.instagramUrl].filter(Boolean);
+const sameAs = [siteConfig.xUrl, siteConfig.instagramUrl, siteConfig.tiktokUrl, siteConfig.twitchUrl, siteConfig.youtubeUrl].filter(Boolean);
 const pageWorld = chapter.world.toLowerCase().replaceAll(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 ---
 
 <!doctype html>
-<html
-  lang={locale}
-  data-theme="dark"
-  data-theme-mode="system"
-  data-chapter={chapter.code}
-  data-world={pageWorld}
-  data-world-time="dawn"
->
+<html lang={locale} data-theme="dark" data-theme-mode="system" data-chapter={chapter.code} data-world={pageWorld} data-world-time="dawn">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -64,20 +58,10 @@ const pageWorld = chapter.world.toLowerCase().replaceAll(/[^a-z0-9]+/g, '-').rep
     <title>{resolvedTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    {
-      siteConfig.locales.map((lang) => (
-        <link
-          rel="alternate"
-          hreflang={lang === 'ja' ? 'ja-JP' : lang === 'en' ? 'en-US' : 'ko-KR'}
-          href={new URL(localePath(lang, normalized), siteConfig.siteUrl)}
-        />
-      ))
-    }
-    <link
-      rel="alternate"
-      hreflang="x-default"
-      href={new URL(localePath('ja', normalized), siteConfig.siteUrl)}
-    />
+    {siteConfig.locales.map((lang) => (
+      <link rel="alternate" hreflang={lang === 'ja' ? 'ja-JP' : lang === 'en' ? 'en-US' : 'ko-KR'} href={new URL(localePath(lang, normalized), siteConfig.siteUrl)} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={new URL(localePath('ja', normalized), siteConfig.siteUrl)} />
     <meta property="og:type" content={type} />
     <meta property="og:title" content={resolvedTitle} />
     <meta property="og:description" content={description} />
@@ -88,23 +72,18 @@ const pageWorld = chapter.world.toLowerCase().replaceAll(/[^a-z0-9]+/g, '-').rep
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content={`${siteConfig.name} / ${siteConfig.idName} — Developer World × Gamer World`} />
-    {
-      ogImage.href !== fallbackOgImage.href && (
-        <>
-          <meta property="og:image" content={fallbackOgImage} />
-          <meta property="og:image:secure_url" content={fallbackOgImage} />
-          <meta property="og:image:type" content="image/png" />
-          <meta property="og:image:width" content="1200" />
-          <meta property="og:image:height" content="630" />
-          <meta property="og:image:alt" content={`${siteConfig.name} / ${siteConfig.idName} official site`} />
-        </>
-      )
-    }
+    {ogImage.href !== fallbackOgImage.href && (
+      <>
+        <meta property="og:image" content={fallbackOgImage} />
+        <meta property="og:image:secure_url" content={fallbackOgImage} />
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={`${siteConfig.name} / ${siteConfig.idName} official site`} />
+      </>
+    )}
     <meta property="og:site_name" content={`${siteConfig.name} / ${siteConfig.idName}`} />
-    <meta
-      property="og:locale"
-      content={locale === 'ja' ? 'ja_JP' : locale === 'en' ? 'en_US' : 'ko_KR'}
-    />
+    <meta property="og:locale" content={locale === 'ja' ? 'ja_JP' : locale === 'en' ? 'en_US' : 'ko_KR'} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content={siteConfig.xHandle} />
     <meta name="twitter:title" content={resolvedTitle} />
@@ -114,21 +93,11 @@ const pageWorld = chapter.world.toLowerCase().replaceAll(/[^a-z0-9]+/g, '-').rep
     {noindex && <meta name="robots" content="noindex,follow" />}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="manifest" href="/site.webmanifest" />
-    <link
-      rel="alternate"
-      type="application/rss+xml"
-      title={`${siteConfig.name} Blog`}
-      href="/rss.xml"
-    />
+    <link rel="alternate" type="application/rss+xml" title={`${siteConfig.name} Blog`} href="/rss.xml" />
     <script is:inline>
       (() => {
         const stored = localStorage.getItem('ivuru-theme') || 'system';
-        const resolved =
-          stored === 'system'
-            ? matchMedia('(prefers-color-scheme: dark)').matches
-              ? 'dark'
-              : 'light'
-            : stored;
+        const resolved = stored === 'system' ? matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' : stored;
         document.documentElement.dataset.theme = resolved;
         document.documentElement.dataset.themeMode = stored;
       })();
@@ -136,35 +105,17 @@ const pageWorld = chapter.world.toLowerCase().replaceAll(/[^a-z0-9]+/g, '-').rep
     <script is:inline define:vars={{ currentLocale: locale }}>
       (() => {
         if (localStorage.getItem('ivuru-locale')) return;
-        if (currentLocale !== 'ja') {
-          localStorage.setItem('ivuru-locale', currentLocale);
-          return;
-        }
-        const detected = navigator.language.toLowerCase().startsWith('ko')
-          ? 'ko'
-          : navigator.language.toLowerCase().startsWith('en')
-            ? 'en'
-            : 'ja';
+        if (currentLocale !== 'ja') { localStorage.setItem('ivuru-locale', currentLocale); return; }
+        const detected = navigator.language.toLowerCase().startsWith('ko') ? 'ko' : navigator.language.toLowerCase().startsWith('en') ? 'en' : 'ja';
         localStorage.setItem('ivuru-locale', detected);
-        if (detected !== 'ja')
-          location.replace(`/${detected}${location.pathname === '/' ? '' : location.pathname}`);
+        if (detected !== 'ja') location.replace(`/${detected}${location.pathname === '/' ? '' : location.pathname}`);
       })();
     </script>
-    <script
-      is:inline
-      type="application/ld+json"
-      set:html={JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'Person',
-        name: siteConfig.name,
-        alternateName: siteConfig.idName,
-        url: siteConfig.siteUrl,
-        sameAs,
-        image: ogImage.toString(),
-        jobTitle: 'Developer / Gamer',
-        description,
-      })}
-    />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify({
+      '@context': 'https://schema.org', '@type': 'Person', name: siteConfig.name, alternateName: siteConfig.idName,
+      url: siteConfig.siteUrl, sameAs, image: siteConfig.profileImageUrl, email: `mailto:${siteConfig.email}`,
+      jobTitle: 'Developer / Gamer', description,
+    })} />
     <ClientRouter />
   </head>
   <body data-page-world={pageWorld}>

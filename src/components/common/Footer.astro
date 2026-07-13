@@ -1,14 +1,15 @@
 ---
 import Logo from './Logo.astro';
 import { navigation } from '@/data/navigation';
+import { socialLinks } from '@/data/social-links';
 import { localePath, siteConfig, type Locale } from '@/data/site-config';
 import { getDictionary } from '@/i18n/dictionaries';
 const { locale = 'ja' } = Astro.props as { locale: Locale };
 const dict = getDictionary(locale);
 const legal = {
-  ja: { privacy: 'プライバシーポリシー', terms: '利用規約', harassment: 'カスタマーハラスメント対応方針' },
-  en: { privacy: 'Privacy Policy', terms: 'Terms of Use', harassment: 'Abusive Conduct Policy' },
-  ko: { privacy: '개인정보 처리방침', terms: '이용약관', harassment: '고객 괴롭힘 대응 방침' },
+  ja: { privacy: 'プライバシーポリシー', terms: '利用規約', harassment: 'カスタマーハラスメント対応方針', portfolio: 'Portfolio' },
+  en: { privacy: 'Privacy Policy', terms: 'Terms of Use', harassment: 'Abusive Conduct Policy', portfolio: 'Portfolio' },
+  ko: { privacy: '개인정보 처리방침', terms: '이용약관', harassment: '고객 괴롭힘 대응 방침', portfolio: 'Portfolio' },
 }[locale];
 ---
 
@@ -19,32 +20,30 @@ const legal = {
       <p>{dict.footer.statement}</p>
       <small>つくる。遊ぶ。つなげる。</small>
       <div class="footer-legal">
+        <a href={localePath(locale, '/portfolio')}>{legal.portfolio}</a>
         <a href={localePath(locale, '/privacy')}>{legal.privacy}</a>
         <a href={localePath(locale, '/terms')}>{legal.terms}</a>
         <a href={localePath(locale, '/customer-harassment')}>{legal.harassment}</a>
       </div>
     </div>
     <nav aria-label="Footer navigation">
-      {
-        navigation(locale).map((item) => (
-          <a href={item.href}>{dict.nav[item.key as keyof typeof dict.nav]}</a>
-        ))
-      }
+      {navigation(locale).map((item) => (
+        <a href={item.href}>{dict.nav[item.key as keyof typeof dict.nav]}</a>
+      ))}
+      <a href={localePath(locale, '/portfolio')}>Portfolio</a>
     </nav>
     <div class="footer-worlds">
-      <span>01 / Developer World</span><span>02 / Gamer World</span><span>ID / {siteConfig.idName}</span><a
-        href={siteConfig.xUrl}
-        target="_blank"
-        rel="noopener noreferrer">X {siteConfig.xHandle} ↗</a
-      >
-      {siteConfig.instagramUrl && (
-        <a href={siteConfig.instagramUrl} target="_blank" rel="noopener noreferrer">Instagram ↗</a>
-      )}
+      <span>01 / Developer World</span><span>02 / Gamer World</span><span>ID / {siteConfig.idName}</span>
+      {socialLinks.map((item) => (
+        <a
+          href={item.href}
+          target={item.key === 'email' ? undefined : '_blank'}
+          rel={item.key === 'email' ? undefined : 'noopener noreferrer'}
+        >{item.label} ↗</a>
+      ))}
     </div>
   </div>
   <div class="footer-bottom">
-    <span>© {new Date().getFullYear()} {siteConfig.name} / {siteConfig.idName}. {dict.footer.rights}</span><span
-      >DESIGNED BETWEEN TWO WORLDS</span
-    >
+    <span>© {new Date().getFullYear()} {siteConfig.name} / {siteConfig.idName}. {dict.footer.rights}</span><span>DESIGNED BETWEEN TWO WORLDS</span>
   </div>
 </footer>
