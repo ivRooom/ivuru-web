@@ -9,6 +9,7 @@ import ActivitySection from '@/components/home/ActivitySection.astro';
 import MediaReel from '@/components/home/MediaReel';
 import LatestPosts from '@/components/blog/LatestPosts.astro';
 import ContactCTA from '@/components/home/ContactCTA.astro';
+import SocialDock from '@/components/social/SocialDock.astro';
 import CustomCursor from '@/components/common/CustomCursor';
 import { localePath, siteConfig, type Locale } from '@/data/site-config';
 import { getDictionary } from '@/i18n/dictionaries';
@@ -21,9 +22,14 @@ const descriptions = {
 };
 ---
 
-<BaseLayout title={siteConfig.title} description={descriptions[locale]} locale={locale}>
+<BaseLayout
+  title={siteConfig.title}
+  description={descriptions[locale]}
+  locale={locale}
+  chapter={{ code: '00', title: 'WORLD GATE', world: 'NEXUS' }}
+>
   <CustomCursor client:load />
-  <section class="hero anime-world-hero" data-hero>
+  <section class="hero anime-world-hero" data-hero data-page-intro>
     <div class="hero-art" data-hero-art></div><HeroWorld client:only="react" /><div
       class="hero-vignette"
     >
@@ -68,7 +74,7 @@ const descriptions = {
   <IdentitySection locale={locale} /><FeaturedWorks locale={locale} /><CommunitySection
     locale={locale}
   /><ActivitySection locale={locale} />
-  <section class="media-section section">
+  <section class="media-section section" data-world-zone="creative">
     <div class="section-heading section-inner" data-reveal>
       <div><p class="section-kicker">VISUAL LOG</p><h2>{d.sections.media}</h2></div><p
         class="section-intro"
@@ -77,5 +83,6 @@ const descriptions = {
       </p>
     </div><MediaReel client:visible />
   </section>
+  <SocialDock locale={locale} />
   <LatestPosts locale={locale} /><ContactCTA locale={locale} /><ScrollEffects client:idle />
 </BaseLayout>
