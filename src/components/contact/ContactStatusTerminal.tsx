@@ -26,7 +26,8 @@ const copy = {
   },
   en: {
     title: 'CONTACT STATUS',
-    intro: 'Check a privacy-safe delivery status using the request ID and lookup key shown after submission.',
+    intro:
+      'Check a privacy-safe delivery status using the request ID and lookup key shown after submission.',
     requestId: 'Request ID',
     token: 'Lookup key',
     submit: 'Check status',
@@ -37,7 +38,8 @@ const copy = {
   },
   ko: {
     title: 'CONTACT STATUS',
-    intro: '접수 완료 시 표시된 접수 번호와 조회 키로 개인정보가 포함되지 않은 처리 상태를 확인할 수 있습니다.',
+    intro:
+      '접수 완료 시 표시된 접수 번호와 조회 키로 개인정보가 포함되지 않은 처리 상태를 확인할 수 있습니다.',
     requestId: '접수 번호',
     token: '조회 키',
     submit: '상태 확인',
@@ -92,7 +94,9 @@ export default function ContactStatusTerminal({ locale }: { locale: Locale }) {
   return (
     <section className="contact-terminal contact-status-terminal">
       <header className="contact-terminal-bar">
-        <span><i /> SECURE LOOKUP</span>
+        <span>
+          <i /> SECURE LOOKUP
+        </span>
         <code>NO PII RESPONSE</code>
         <small>STATUS CHANNEL</small>
       </header>
@@ -104,24 +108,45 @@ export default function ContactStatusTerminal({ locale }: { locale: Locale }) {
       <form onSubmit={submit}>
         <label>
           <span>01 / {t.requestId}</span>
-          <input value={requestId} onChange={(event) => setRequestId(event.target.value)} required maxLength={40} autoComplete="off" />
+          <input
+            value={requestId}
+            onChange={(event) => setRequestId(event.target.value)}
+            required
+            maxLength={40}
+            autoComplete="off"
+          />
         </label>
         <label>
           <span>02 / {t.token}</span>
-          <input value={token} onChange={(event) => setToken(event.target.value)} required minLength={32} maxLength={96} autoComplete="off" />
+          <input
+            value={token}
+            onChange={(event) => setToken(event.target.value)}
+            required
+            minLength={32}
+            maxLength={96}
+            autoComplete="off"
+          />
         </label>
         <button type="submit" className="button-primary" disabled={loading}>
           {loading ? t.checking : t.submit}
         </button>
       </form>
-      {error && <p className="contact-error" role="alert">ERROR / {error === 'not_found' ? t.notFound : error}</p>}
+      {error && (
+        <p className="contact-error" role="alert">
+          ERROR / {error === 'not_found' ? t.notFound : error}
+        </p>
+      )}
       {result && (
         <div className="contact-terminal-result" role="status">
           <span>STATUS / {result.deliveryStatus?.toUpperCase()}</span>
           <h2>{result.status}</h2>
           <code>{result.requestId}</code>
-          <p>{t.updated}: {result.updatedAt}</p>
-          <p>{t.expires}: {result.expiresAt}</p>
+          <p>
+            {t.updated}: {result.updatedAt}
+          </p>
+          <p>
+            {t.expires}: {result.expiresAt}
+          </p>
         </div>
       )}
     </section>

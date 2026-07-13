@@ -272,7 +272,8 @@ const deliverContact = async (env: Env, message: ContactQueueMessage) => {
 const handleStatus = async (request: Request, env: Env) => {
   if (request.method !== 'POST')
     return json({ ok: false, code: 'method_not_allowed' }, 405, { allow: 'POST' });
-  if (!isAllowedPostOrigin(request, env)) return json({ ok: false, code: 'origin_not_allowed' }, 403);
+  if (!isAllowedPostOrigin(request, env))
+    return json({ ok: false, code: 'origin_not_allowed' }, 403);
   if (!env.CONTACT_DB) return json({ ok: false, code: 'status_unavailable' }, 503);
   const contentType = request.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase();
   if (contentType !== 'application/json')
@@ -317,7 +318,8 @@ const handleContact = async (request: Request, env: Env, ctx: WorkerExecutionCon
     logContact('warn', 'origin_rejected', { rayId });
     return json({ ok: false, code: 'origin_not_allowed' }, 403);
   }
-  const contentType = request.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase() ?? '';
+  const contentType =
+    request.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase() ?? '';
   if (contentType !== 'application/json')
     return json({ ok: false, code: 'unsupported_media_type' }, 415);
   const declaredLength = Number(request.headers.get('content-length') || 0);
@@ -337,7 +339,11 @@ const handleContact = async (request: Request, env: Env, ctx: WorkerExecutionCon
   const payload = validation.value;
 
   if (payload.website) {
-    logContact('warn', 'honeypot_accepted', { category: payload.category, locale: payload.locale, rayId });
+    logContact('warn', 'honeypot_accepted', {
+      category: payload.category,
+      locale: payload.locale,
+      rayId,
+    });
     return json({ ok: true, requestId: crypto.randomUUID(), accepted: true });
   }
 
@@ -369,7 +375,10 @@ const handleContact = async (request: Request, env: Env, ctx: WorkerExecutionCon
 
   if (spamScore >= 80) {
     logContact('warn', 'spam_suppressed', { requestId, spamScore, rayId });
-    return json({ ok: true, requestId, statusToken, accepted: true, statusEnabled: Boolean(env.CONTACT_DB) }, 202);
+    return json(
+      { ok: true, requestId, statusToken, accepted: true, statusEnabled: Boolean(env.CONTACT_DB) },
+      202,
+    );
   }
 
   if (env.CONTACT_DB && env.CONTACT_DELIVERY_QUEUE) {
@@ -397,7 +406,10 @@ const handleContact = async (request: Request, env: Env, ctx: WorkerExecutionCon
 
   logContact('info', 'contact_accepted', { requestId, spamScore, rayId });
   ctx.waitUntil(Promise.resolve());
-  return json({ ok: true, requestId, statusToken, accepted: true, statusEnabled: Boolean(env.CONTACT_DB) }, 202);
+  return json(
+    { ok: true, requestId, statusToken, accepted: true, statusEnabled: Boolean(env.CONTACT_DB) },
+    202,
+  );
 };
 
 export default {

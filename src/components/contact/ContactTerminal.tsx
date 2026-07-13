@@ -269,16 +269,29 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
   return (
     <section className="contact-terminal" data-phase={phase}>
       <header className="contact-terminal-bar">
-        <span><i /> SECURE CHANNEL</span>
+        <span>
+          <i /> SECURE CHANNEL
+        </span>
         <code>contact@ivrm.jp</code>
-        <small>{config?.queueEnabled ? 'QUEUE + MAIL + DISCORD' : config?.discordEnabled ? 'MAIL + DISCORD' : 'MAIL ROUTE'}</small>
+        <small>
+          {config?.queueEnabled
+            ? 'QUEUE + MAIL + DISCORD'
+            : config?.discordEnabled
+              ? 'MAIL + DISCORD'
+              : 'MAIL ROUTE'}
+        </small>
       </header>
 
       {!config?.ready && config !== null ? (
         <div className="contact-terminal-unavailable">
           <strong>CHANNEL / STANDBY</strong>
           <p>{t.unavailable}</p>
-          <a href="mailto:contact@ivrm.jp" data-analytics-event="social_open" data-analytics-target="email" data-analytics-surface="contact_fallback">
+          <a
+            href="mailto:contact@ivrm.jp"
+            data-analytics-event="social_open"
+            data-analytics-target="email"
+            data-analytics-surface="contact_fallback"
+          >
             {t.direct} ↗
           </a>
         </div>
@@ -290,17 +303,24 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
           <code>{requestId}</code>
           {statusEnabled && (
             <>
-              <p><strong>{t.lookupKey}</strong></p>
+              <p>
+                <strong>{t.lookupKey}</strong>
+              </p>
               <code>{statusToken}</code>
-              <a className="button-primary" href={statusPath(locale)}>{t.status} →</a>
+              <a className="button-primary" href={statusPath(locale)}>
+                {t.status} →
+              </a>
             </>
           )}
-          <button type="button" onClick={() => {
-            setPhase('input');
-            setRequestId('');
-            setStatusToken('');
-            setStatusEnabled(false);
-          }}>
+          <button
+            type="button"
+            onClick={() => {
+              setPhase('input');
+              setRequestId('');
+              setStatusToken('');
+              setStatusEnabled(false);
+            }}
+          >
             {t.retry}
           </button>
         </div>
@@ -315,29 +335,128 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
             <div className="contact-confirm-panel">
               <p className="terminal-prompt">&gt; REVIEW_PAYLOAD</p>
               <dl>
-                <div><dt>{t.name}</dt><dd>{form.name}</dd></div>
-                <div><dt>{t.email}</dt><dd>{form.email}</dd></div>
-                <div><dt>{t.category}</dt><dd>{t[form.category]}</dd></div>
-                <div><dt>{t.subject}</dt><dd>{form.subject}</dd></div>
-                <div><dt>{t.message}</dt><dd>{form.message}</dd></div>
+                <div>
+                  <dt>{t.name}</dt>
+                  <dd>{form.name}</dd>
+                </div>
+                <div>
+                  <dt>{t.email}</dt>
+                  <dd>{form.email}</dd>
+                </div>
+                <div>
+                  <dt>{t.category}</dt>
+                  <dd>{t[form.category]}</dd>
+                </div>
+                <div>
+                  <dt>{t.subject}</dt>
+                  <dd>{form.subject}</dd>
+                </div>
+                <div>
+                  <dt>{t.message}</dt>
+                  <dd>{form.message}</dd>
+                </div>
               </dl>
-              {phase === 'error' && <p className="contact-error" role="alert">ERROR / {error}</p>}
+              {phase === 'error' && (
+                <p className="contact-error" role="alert">
+                  ERROR / {error}
+                </p>
+              )}
               <div ref={widget} className="turnstile-slot" />
               <small>{t.security}</small>
               <div className="contact-actions">
-                <button type="button" className="button-ghost" onClick={() => setPhase('input')} disabled={phase === 'sending'}>{t.edit}</button>
-                <button type="button" className="button-primary" onClick={submit} disabled={!token || phase === 'sending'}>{phase === 'sending' ? t.sending : t.send}</button>
+                <button
+                  type="button"
+                  className="button-ghost"
+                  onClick={() => setPhase('input')}
+                  disabled={phase === 'sending'}
+                >
+                  {t.edit}
+                </button>
+                <button
+                  type="button"
+                  className="button-primary"
+                  onClick={submit}
+                  disabled={!token || phase === 'sending'}
+                >
+                  {phase === 'sending' ? t.sending : t.send}
+                </button>
               </div>
             </div>
           ) : (
-            <form onSubmit={(event) => { event.preventDefault(); confirm(); }}>
-              <label><span>01 / {t.name}</span><input value={form.name} onChange={(e) => update('name', e.target.value)} maxLength={80} required autoComplete="name" /></label>
-              <label><span>02 / {t.email}</span><input type="email" value={form.email} onChange={(e) => update('email', e.target.value)} maxLength={254} required autoComplete="email" /></label>
-              <label><span>03 / {t.category}</span><select value={form.category} onChange={(e) => update('category', e.target.value)}><option value="project">{t.project}</option><option value="community">{t.community}</option><option value="media">{t.media}</option><option value="other">{t.other}</option></select></label>
-              <label><span>04 / {t.subject}</span><input value={form.subject} onChange={(e) => update('subject', e.target.value)} minLength={2} maxLength={120} required /></label>
-              <label className="contact-message"><span>05 / {t.message}</span><textarea value={form.message} onChange={(e) => update('message', e.target.value)} minLength={20} maxLength={5000} rows={10} required /><small>{form.message.length} / 5000</small></label>
-              <label className="contact-honeypot" aria-hidden="true"><span>Website</span><input tabIndex={-1} autoComplete="off" value={form.website} onChange={(e) => update('website', e.target.value)} /></label>
-              <button type="submit" className="button-primary contact-confirm" disabled={!canConfirm || config === null}>{t.confirm} →</button>
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                confirm();
+              }}
+            >
+              <label>
+                <span>01 / {t.name}</span>
+                <input
+                  value={form.name}
+                  onChange={(e) => update('name', e.target.value)}
+                  maxLength={80}
+                  required
+                  autoComplete="name"
+                />
+              </label>
+              <label>
+                <span>02 / {t.email}</span>
+                <input
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => update('email', e.target.value)}
+                  maxLength={254}
+                  required
+                  autoComplete="email"
+                />
+              </label>
+              <label>
+                <span>03 / {t.category}</span>
+                <select value={form.category} onChange={(e) => update('category', e.target.value)}>
+                  <option value="project">{t.project}</option>
+                  <option value="community">{t.community}</option>
+                  <option value="media">{t.media}</option>
+                  <option value="other">{t.other}</option>
+                </select>
+              </label>
+              <label>
+                <span>04 / {t.subject}</span>
+                <input
+                  value={form.subject}
+                  onChange={(e) => update('subject', e.target.value)}
+                  minLength={2}
+                  maxLength={120}
+                  required
+                />
+              </label>
+              <label className="contact-message">
+                <span>05 / {t.message}</span>
+                <textarea
+                  value={form.message}
+                  onChange={(e) => update('message', e.target.value)}
+                  minLength={20}
+                  maxLength={5000}
+                  rows={10}
+                  required
+                />
+                <small>{form.message.length} / 5000</small>
+              </label>
+              <label className="contact-honeypot" aria-hidden="true">
+                <span>Website</span>
+                <input
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={form.website}
+                  onChange={(e) => update('website', e.target.value)}
+                />
+              </label>
+              <button
+                type="submit"
+                className="button-primary contact-confirm"
+                disabled={!canConfirm || config === null}
+              >
+                {t.confirm} →
+              </button>
             </form>
           )}
         </>

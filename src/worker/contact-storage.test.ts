@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  calculateSpamScore,
-  createStatusToken,
-  hashStatusToken,
-} from './contact-storage';
+import { calculateSpamScore, createStatusToken, hashStatusToken } from './contact-storage';
 import type { ContactPayload } from './contact';
 
 const payload = (overrides: Partial<ContactPayload> = {}): ContactPayload => ({

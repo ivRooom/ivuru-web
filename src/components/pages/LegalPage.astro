@@ -8,75 +8,217 @@ const title = d.legal[kind];
 const legalCopy = {
   ja: {
     privacy: [
-      ['基本方針', 'いゔる。は、本サイトおよび関連するコミュニティ・サービスで取り扱う情報を、目的に必要な範囲で適切に管理します。'],
-      ['取得する情報', 'アクセス時の技術情報、Cookie・ローカルストレージに保存されるテーマ・言語・外部SNS表示の同意状態、お問い合わせ時の氏名、メールアドレス、種別、件名、本文、受付番号、配信状態、不正利用判定スコア等を取得します。Turnstile検証時にはCloudflareへ必要な技術情報が送信されます。'],
-      ['利用目的', 'サイト表示、設定保持、問い合わせ受付・返信・配信状況管理、本人確認、荒らし・スパム等の不正利用防止、サービス・コミュニティ運営、品質改善、障害調査のために利用します。'],
-      ['お問い合わせデータと状態照会', 'お問い合わせデータはCloudflare D1へ保存し、Cloudflare Queues、Resend、Discord等を利用して通知する場合があります。状態照会では受付番号と照会キーを使用し、氏名、メールアドレス、件名、本文、スパム判定等の個人情報・内部情報は表示しません。照会キーそのものはサーバーへ保存せず、SHA-256ハッシュのみを保存します。'],
-      ['外部SNS・外部サービス', 'XおよびInstagramの埋め込みは、利用者が表示ボタンを押した後にのみ外部スクリプトを読み込みます。Cloudflare、Resend、Discord、GitHubその他の利用サービスには各事業者の規約・プライバシーポリシーが適用されます。'],
-      ['Cookie・ローカルストレージ', 'テーマ、言語、初回ロード演出、外部SNS表示の選択等を端末内に保存します。お問い合わせの受付番号と照会キーは同一タブ内のsessionStorageへ一時保存する場合があり、タブを閉じると削除されます。'],
-      ['第三者提供・国外サービス', '法令に基づく場合、安全確保のために必要な場合、または本人の同意がある場合を除き、取得情報を目的外で第三者へ提供しません。国外に拠点を持つクラウド・メール・SNS事業者を利用する場合があります。'],
-      ['保存期間・安全管理', 'お問い合わせデータは原則90日間保存し、設定可能な保存期間は7日から365日の範囲とします。期限経過後は日次処理で削除します。アクセス権限、ログ、バックアップ、認証情報を適切に管理し、本文や認証情報を運用ログへ記録しません。'],
-      ['開示・削除等の請求', '本人情報の開示、訂正、削除、利用停止等はContact窓口で受け付けます。本人確認、法令上の保存義務、安全確保、障害調査等の理由により対応できない場合があります。'],
+      [
+        '基本方針',
+        'いゔる。は、本サイトおよび関連するコミュニティ・サービスで取り扱う情報を、目的に必要な範囲で適切に管理します。',
+      ],
+      [
+        '取得する情報',
+        'アクセス時の技術情報、Cookie・ローカルストレージに保存されるテーマ・言語・外部SNS表示の同意状態、お問い合わせ時の氏名、メールアドレス、種別、件名、本文、受付番号、配信状態、不正利用判定スコア等を取得します。Turnstile検証時にはCloudflareへ必要な技術情報が送信されます。',
+      ],
+      [
+        '利用目的',
+        'サイト表示、設定保持、問い合わせ受付・返信・配信状況管理、本人確認、荒らし・スパム等の不正利用防止、サービス・コミュニティ運営、品質改善、障害調査のために利用します。',
+      ],
+      [
+        'お問い合わせデータと状態照会',
+        'お問い合わせデータはCloudflare D1へ保存し、Cloudflare Queues、Resend、Discord等を利用して通知する場合があります。状態照会では受付番号と照会キーを使用し、氏名、メールアドレス、件名、本文、スパム判定等の個人情報・内部情報は表示しません。照会キーそのものはサーバーへ保存せず、SHA-256ハッシュのみを保存します。',
+      ],
+      [
+        '外部SNS・外部サービス',
+        'XおよびInstagramの埋め込みは、利用者が表示ボタンを押した後にのみ外部スクリプトを読み込みます。Cloudflare、Resend、Discord、GitHubその他の利用サービスには各事業者の規約・プライバシーポリシーが適用されます。',
+      ],
+      [
+        'Cookie・ローカルストレージ',
+        'テーマ、言語、初回ロード演出、外部SNS表示の選択等を端末内に保存します。お問い合わせの受付番号と照会キーは同一タブ内のsessionStorageへ一時保存する場合があり、タブを閉じると削除されます。',
+      ],
+      [
+        '第三者提供・国外サービス',
+        '法令に基づく場合、安全確保のために必要な場合、または本人の同意がある場合を除き、取得情報を目的外で第三者へ提供しません。国外に拠点を持つクラウド・メール・SNS事業者を利用する場合があります。',
+      ],
+      [
+        '保存期間・安全管理',
+        'お問い合わせデータは原則90日間保存し、設定可能な保存期間は7日から365日の範囲とします。期限経過後は日次処理で削除します。アクセス権限、ログ、バックアップ、認証情報を適切に管理し、本文や認証情報を運用ログへ記録しません。',
+      ],
+      [
+        '開示・削除等の請求',
+        '本人情報の開示、訂正、削除、利用停止等はContact窓口で受け付けます。本人確認、法令上の保存義務、安全確保、障害調査等の理由により対応できない場合があります。',
+      ],
     ],
     terms: [
-      ['適用範囲', '本規約は、いゔる。公式サイトおよび本サイトから案内する関連機能の利用に適用します。ivRm、Discord、Minecraft等に個別の規約・ガイドラインがある場合は、各文書が優先されます。'],
-      ['禁止事項', '不正アクセス、権利侵害、なりすまし、虚偽情報の送信、運営妨害、差別・脅迫・誹謗中傷、過度な負荷を与える行為、法令または公序良俗に反する行為を禁止します。カスタマーハラスメント対応方針の対象行為も含みます。'],
-      ['知的財産権', '本サイトの文章、デザイン、プログラム、ロゴ等の権利は、各権利者に帰属します。引用、転載、二次利用は法令および個別に示す条件に従ってください。第三者の商標・サービス名は各権利者に帰属します。'],
-      ['外部サービス・リンク', 'X、Instagram、GitHub、ivRmその他の外部サイト・サービスは各運営者が提供します。外部サービスの内容、可用性、セキュリティ、データ取扱いについて、本サイトは保証しません。'],
-      ['サービス変更・停止', '保守、障害、安全確保、運営上の判断等により、事前の通知なく内容の変更、公開停止、機能制限を行う場合があります。可能な範囲で重要な変更を本サイト上に案内します。'],
-      ['免責・責任制限', '掲載情報の正確性と安全性の確保に努めますが、利用によって生じた損害を常に補償するものではありません。故意または重大な過失がある場合、法令上制限できない場合を除きます。'],
-      ['変更・準拠法', '本規約を改定する場合は、施行日と変更内容を本サイトで案内します。準拠法は日本法とし、紛争が生じた場合の管轄は公開前に法務確認を行い確定します。'],
+      [
+        '適用範囲',
+        '本規約は、いゔる。公式サイトおよび本サイトから案内する関連機能の利用に適用します。ivRm、Discord、Minecraft等に個別の規約・ガイドラインがある場合は、各文書が優先されます。',
+      ],
+      [
+        '禁止事項',
+        '不正アクセス、権利侵害、なりすまし、虚偽情報の送信、運営妨害、差別・脅迫・誹謗中傷、過度な負荷を与える行為、法令または公序良俗に反する行為を禁止します。カスタマーハラスメント対応方針の対象行為も含みます。',
+      ],
+      [
+        '知的財産権',
+        '本サイトの文章、デザイン、プログラム、ロゴ等の権利は、各権利者に帰属します。引用、転載、二次利用は法令および個別に示す条件に従ってください。第三者の商標・サービス名は各権利者に帰属します。',
+      ],
+      [
+        '外部サービス・リンク',
+        'X、Instagram、GitHub、ivRmその他の外部サイト・サービスは各運営者が提供します。外部サービスの内容、可用性、セキュリティ、データ取扱いについて、本サイトは保証しません。',
+      ],
+      [
+        'サービス変更・停止',
+        '保守、障害、安全確保、運営上の判断等により、事前の通知なく内容の変更、公開停止、機能制限を行う場合があります。可能な範囲で重要な変更を本サイト上に案内します。',
+      ],
+      [
+        '免責・責任制限',
+        '掲載情報の正確性と安全性の確保に努めますが、利用によって生じた損害を常に補償するものではありません。故意または重大な過失がある場合、法令上制限できない場合を除きます。',
+      ],
+      [
+        '変更・準拠法',
+        '本規約を改定する場合は、施行日と変更内容を本サイトで案内します。準拠法は日本法とし、紛争が生じた場合の管轄は公開前に法務確認を行い確定します。',
+      ],
     ],
   },
   en: {
     privacy: [
-      ['Principles', 'ivuru manages information used by this site and related services only to the extent necessary.'],
-      ['Information collected', 'The site may collect technical access data, device preferences, and contact data including name, email, category, subject, message, request ID, delivery state, and abuse-prevention score. Cloudflare receives technical data required for Turnstile verification.'],
-      ['Purposes', 'Information is used for site operation, preference storage, contact handling, delivery-state management, verification, abuse prevention, community operation, quality improvement, and incident investigation.'],
-      ['Contact storage and status lookup', 'Contact data may be stored in Cloudflare D1 and delivered through Cloudflare Queues, Resend, and Discord. Status lookup uses a request ID and lookup key and never displays the submitted message, personal details, spam score, or provider errors. Only a SHA-256 hash of the lookup key is stored server-side.'],
-      ['External services', 'X and Instagram scripts load only after visitor action. Cloudflare, Resend, Discord, GitHub, and other providers apply their own terms and privacy policies.'],
-      ['Cookies and local storage', 'Theme, language, intro state, and external-media choices are stored on the device. The request ID and lookup key may be kept temporarily in sessionStorage and are removed when the tab session ends.'],
-      ['Third parties and international services', 'Information is not shared outside its purpose unless required by law, needed for safety, or consented to. Cloud, email, and social services operated outside Japan may be used.'],
-      ['Retention and security', 'Contact data is normally retained for 90 days, with an operational range of 7–365 days, and deleted by a daily cleanup after expiration. Access, logs, backups, and credentials are protected, and message bodies or credentials are not written to operational logs.'],
-      ['Requests', 'Requests for access, correction, deletion, or suspension are accepted through the Contact channel. Identity verification, legal retention, safety, or incident-investigation constraints may apply.'],
+      [
+        'Principles',
+        'ivuru manages information used by this site and related services only to the extent necessary.',
+      ],
+      [
+        'Information collected',
+        'The site may collect technical access data, device preferences, and contact data including name, email, category, subject, message, request ID, delivery state, and abuse-prevention score. Cloudflare receives technical data required for Turnstile verification.',
+      ],
+      [
+        'Purposes',
+        'Information is used for site operation, preference storage, contact handling, delivery-state management, verification, abuse prevention, community operation, quality improvement, and incident investigation.',
+      ],
+      [
+        'Contact storage and status lookup',
+        'Contact data may be stored in Cloudflare D1 and delivered through Cloudflare Queues, Resend, and Discord. Status lookup uses a request ID and lookup key and never displays the submitted message, personal details, spam score, or provider errors. Only a SHA-256 hash of the lookup key is stored server-side.',
+      ],
+      [
+        'External services',
+        'X and Instagram scripts load only after visitor action. Cloudflare, Resend, Discord, GitHub, and other providers apply their own terms and privacy policies.',
+      ],
+      [
+        'Cookies and local storage',
+        'Theme, language, intro state, and external-media choices are stored on the device. The request ID and lookup key may be kept temporarily in sessionStorage and are removed when the tab session ends.',
+      ],
+      [
+        'Third parties and international services',
+        'Information is not shared outside its purpose unless required by law, needed for safety, or consented to. Cloud, email, and social services operated outside Japan may be used.',
+      ],
+      [
+        'Retention and security',
+        'Contact data is normally retained for 90 days, with an operational range of 7–365 days, and deleted by a daily cleanup after expiration. Access, logs, backups, and credentials are protected, and message bodies or credentials are not written to operational logs.',
+      ],
+      [
+        'Requests',
+        'Requests for access, correction, deletion, or suspension are accepted through the Contact channel. Identity verification, legal retention, safety, or incident-investigation constraints may apply.',
+      ],
     ],
     terms: [
-      ['Scope', 'These terms apply to the ivuru official site and related functions introduced by it. Separate ivRm, Discord, or Minecraft rules take priority where applicable.'],
-      ['Prohibited conduct', 'Unauthorized access, infringement, impersonation, false submissions, disruption, discrimination, threats, defamation, excessive load, illegal conduct, and behavior covered by the abusive conduct policy are prohibited.'],
-      ['Intellectual property', 'Text, design, software, logos, and other content belong to their respective owners. Quotation and reuse must follow law and any stated conditions.'],
-      ['External services', 'X, Instagram, GitHub, ivRm, and other external services are operated by their providers. Their content, availability, security, and data handling are not guaranteed by this site.'],
-      ['Changes and suspension', 'Content or functions may be changed, limited, or suspended for maintenance, incidents, safety, or operational reasons. Material changes will be announced where reasonably possible.'],
-      ['Disclaimer', 'Reasonable efforts are made for accuracy and safety, but this does not guarantee compensation for every loss, except where liability cannot be limited by law.'],
-      ['Changes and law', 'Changes will be announced with an effective date. Japanese law applies; jurisdiction will be finalized after legal review before launch.'],
+      [
+        'Scope',
+        'These terms apply to the ivuru official site and related functions introduced by it. Separate ivRm, Discord, or Minecraft rules take priority where applicable.',
+      ],
+      [
+        'Prohibited conduct',
+        'Unauthorized access, infringement, impersonation, false submissions, disruption, discrimination, threats, defamation, excessive load, illegal conduct, and behavior covered by the abusive conduct policy are prohibited.',
+      ],
+      [
+        'Intellectual property',
+        'Text, design, software, logos, and other content belong to their respective owners. Quotation and reuse must follow law and any stated conditions.',
+      ],
+      [
+        'External services',
+        'X, Instagram, GitHub, ivRm, and other external services are operated by their providers. Their content, availability, security, and data handling are not guaranteed by this site.',
+      ],
+      [
+        'Changes and suspension',
+        'Content or functions may be changed, limited, or suspended for maintenance, incidents, safety, or operational reasons. Material changes will be announced where reasonably possible.',
+      ],
+      [
+        'Disclaimer',
+        'Reasonable efforts are made for accuracy and safety, but this does not guarantee compensation for every loss, except where liability cannot be limited by law.',
+      ],
+      [
+        'Changes and law',
+        'Changes will be announced with an effective date. Japanese law applies; jurisdiction will be finalized after legal review before launch.',
+      ],
     ],
   },
   ko: {
     privacy: [
       ['기본 방침', 'ivuru는 사이트와 관련 서비스 운영에 필요한 범위에서 정보를 관리합니다.'],
-      ['수집 정보', '접속 기술 정보, 기기 설정, 이름, 이메일, 문의 유형, 제목, 본문, 접수 번호, 전송 상태, 부정 이용 방지 점수 등을 수집할 수 있습니다. Turnstile 검증에 필요한 기술 정보는 Cloudflare로 전송됩니다.'],
-      ['이용 목적', '사이트 운영, 설정 유지, 문의 접수와 회신, 전송 상태 관리, 본인 확인, 스팸 방지, 커뮤니티 운영, 품질 개선, 장애 조사에 이용합니다.'],
-      ['문의 저장 및 상태 조회', '문의 데이터는 Cloudflare D1에 저장되고 Cloudflare Queues, Resend, Discord를 통해 알림될 수 있습니다. 상태 조회는 접수 번호와 조회 키를 사용하며 개인정보, 문의 본문, 스팸 점수, 공급자 오류는 표시하지 않습니다. 서버에는 조회 키의 SHA-256 해시만 저장합니다.'],
-      ['외부 서비스', 'X와 Instagram 임베드는 사용자가 표시를 선택한 뒤에만 불러옵니다. Cloudflare, Resend, Discord, GitHub 등의 약관과 개인정보처리방침이 적용됩니다.'],
-      ['Cookie 및 로컬 저장소', '테마, 언어, 인트로, 외부 미디어 선택을 기기에 저장합니다. 접수 번호와 조회 키는 sessionStorage에 임시 저장될 수 있으며 탭 세션 종료 시 삭제됩니다.'],
-      ['제3자 제공 및 해외 서비스', '법령, 안전 확보 또는 동의가 있는 경우를 제외하고 목적 외로 제공하지 않습니다. 해외 사업자가 운영하는 클라우드, 이메일, SNS 서비스를 이용할 수 있습니다.'],
-      ['보관 및 보안', '문의 데이터는 원칙적으로 90일 동안 보관하며 운영 설정 범위는 7~365일입니다. 만료 후 일일 정리 작업으로 삭제합니다. 문의 본문과 인증 정보는 운영 로그에 기록하지 않습니다.'],
-      ['권리 요청', '열람, 정정, 삭제, 이용 정지는 Contact 창구에서 접수합니다. 본인 확인, 법적 보관, 안전 또는 장애 조사상 제한이 적용될 수 있습니다.'],
+      [
+        '수집 정보',
+        '접속 기술 정보, 기기 설정, 이름, 이메일, 문의 유형, 제목, 본문, 접수 번호, 전송 상태, 부정 이용 방지 점수 등을 수집할 수 있습니다. Turnstile 검증에 필요한 기술 정보는 Cloudflare로 전송됩니다.',
+      ],
+      [
+        '이용 목적',
+        '사이트 운영, 설정 유지, 문의 접수와 회신, 전송 상태 관리, 본인 확인, 스팸 방지, 커뮤니티 운영, 품질 개선, 장애 조사에 이용합니다.',
+      ],
+      [
+        '문의 저장 및 상태 조회',
+        '문의 데이터는 Cloudflare D1에 저장되고 Cloudflare Queues, Resend, Discord를 통해 알림될 수 있습니다. 상태 조회는 접수 번호와 조회 키를 사용하며 개인정보, 문의 본문, 스팸 점수, 공급자 오류는 표시하지 않습니다. 서버에는 조회 키의 SHA-256 해시만 저장합니다.',
+      ],
+      [
+        '외부 서비스',
+        'X와 Instagram 임베드는 사용자가 표시를 선택한 뒤에만 불러옵니다. Cloudflare, Resend, Discord, GitHub 등의 약관과 개인정보처리방침이 적용됩니다.',
+      ],
+      [
+        'Cookie 및 로컬 저장소',
+        '테마, 언어, 인트로, 외부 미디어 선택을 기기에 저장합니다. 접수 번호와 조회 키는 sessionStorage에 임시 저장될 수 있으며 탭 세션 종료 시 삭제됩니다.',
+      ],
+      [
+        '제3자 제공 및 해외 서비스',
+        '법령, 안전 확보 또는 동의가 있는 경우를 제외하고 목적 외로 제공하지 않습니다. 해외 사업자가 운영하는 클라우드, 이메일, SNS 서비스를 이용할 수 있습니다.',
+      ],
+      [
+        '보관 및 보안',
+        '문의 데이터는 원칙적으로 90일 동안 보관하며 운영 설정 범위는 7~365일입니다. 만료 후 일일 정리 작업으로 삭제합니다. 문의 본문과 인증 정보는 운영 로그에 기록하지 않습니다.',
+      ],
+      [
+        '권리 요청',
+        '열람, 정정, 삭제, 이용 정지는 Contact 창구에서 접수합니다. 본인 확인, 법적 보관, 안전 또는 장애 조사상 제한이 적용될 수 있습니다.',
+      ],
     ],
     terms: [
-      ['적용 범위', '본 약관은 ivuru 공식 사이트와 여기서 안내하는 관련 기능에 적용됩니다. ivRm, Discord, Minecraft의 별도 규정이 있는 경우 해당 문서가 우선합니다.'],
-      ['금지 행위', '무단 접근, 권리 침해, 사칭, 허위 전송, 운영 방해, 차별, 협박, 비방, 과도한 부하, 불법 행위 및 고객 괴롭힘 대응 방침 대상 행위를 금지합니다.'],
-      ['지식재산권', '문장, 디자인, 프로그램, 로고 등의 권리는 각 권리자에게 귀속됩니다. 인용과 재사용은 법령 및 별도 조건을 따라야 합니다.'],
-      ['외부 서비스', 'X, Instagram, GitHub, ivRm 등은 각 사업자가 제공합니다. 외부 서비스의 내용, 가용성, 보안, 데이터 처리를 본 사이트가 보증하지 않습니다.'],
-      ['변경 및 중단', '점검, 장애, 안전, 운영상 이유로 내용과 기능을 변경·제한·중단할 수 있습니다. 중요한 변경은 가능한 범위에서 안내합니다.'],
-      ['면책', '정확성과 안전을 위해 노력하지만 모든 손해를 보상하는 것은 아닙니다. 법령상 제한할 수 없는 책임은 제외합니다.'],
-      ['변경 및 준거법', '개정 시 시행일과 내용을 안내합니다. 일본법을 준거법으로 하며 관할은 공개 전 법률 검토 후 확정합니다.'],
+      [
+        '적용 범위',
+        '본 약관은 ivuru 공식 사이트와 여기서 안내하는 관련 기능에 적용됩니다. ivRm, Discord, Minecraft의 별도 규정이 있는 경우 해당 문서가 우선합니다.',
+      ],
+      [
+        '금지 행위',
+        '무단 접근, 권리 침해, 사칭, 허위 전송, 운영 방해, 차별, 협박, 비방, 과도한 부하, 불법 행위 및 고객 괴롭힘 대응 방침 대상 행위를 금지합니다.',
+      ],
+      [
+        '지식재산권',
+        '문장, 디자인, 프로그램, 로고 등의 권리는 각 권리자에게 귀속됩니다. 인용과 재사용은 법령 및 별도 조건을 따라야 합니다.',
+      ],
+      [
+        '외부 서비스',
+        'X, Instagram, GitHub, ivRm 등은 각 사업자가 제공합니다. 외부 서비스의 내용, 가용성, 보안, 데이터 처리를 본 사이트가 보증하지 않습니다.',
+      ],
+      [
+        '변경 및 중단',
+        '점검, 장애, 안전, 운영상 이유로 내용과 기능을 변경·제한·중단할 수 있습니다. 중요한 변경은 가능한 범위에서 안내합니다.',
+      ],
+      [
+        '면책',
+        '정확성과 안전을 위해 노력하지만 모든 손해를 보상하는 것은 아닙니다. 법령상 제한할 수 없는 책임은 제외합니다.',
+      ],
+      [
+        '변경 및 준거법',
+        '개정 시 시행일과 내용을 안내합니다. 일본법을 준거법으로 하며 관할은 공개 전 법률 검토 후 확정합니다.',
+      ],
     ],
   },
 } as const;
 const copy = legalCopy[locale][kind];
-const chapter = kind === 'privacy'
-  ? { code: '91', title: 'PRIVACY FILE', world: 'LEGAL ARCHIVE' }
-  : { code: '92', title: 'TERMS FILE', world: 'LEGAL ARCHIVE' };
+const chapter =
+  kind === 'privacy'
+    ? { code: '91', title: 'PRIVACY FILE', world: 'LEGAL ARCHIVE' }
+    : { code: '92', title: 'TERMS FILE', world: 'LEGAL ARCHIVE' };
 ---
 
 <BaseLayout

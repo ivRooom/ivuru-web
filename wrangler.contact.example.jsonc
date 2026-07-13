@@ -5,15 +5,15 @@
       "binding": "CONTACT_DB",
       "database_name": "ivuru-contact-production",
       "database_id": "REPLACE_WITH_D1_DATABASE_ID",
-      "migrations_dir": "migrations"
-    }
+      "migrations_dir": "migrations",
+    },
   ],
   "queues": {
     "producers": [
       {
         "binding": "CONTACT_DELIVERY_QUEUE",
-        "queue": "ivuru-contact-delivery"
-      }
+        "queue": "ivuru-contact-delivery",
+      },
     ],
     "consumers": [
       {
@@ -22,8 +22,8 @@
         "max_batch_timeout": 5,
         "max_retries": 5,
         "dead_letter_queue": "ivuru-contact-delivery-dlq",
-        "retry_delay": 60
-      }
-    ]
-  }
+        "retry_delay": 60,
+      },
+    ],
+  },
 }

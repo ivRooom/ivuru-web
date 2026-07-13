@@ -17,7 +17,8 @@ export interface D1Database {
   batch<T = unknown>(statements: D1PreparedStatement[]): Promise<D1Result<T>[]>;
 }
 
-export type ContactDeliveryStatus = 'pending' | 'processing' | 'delivered' | 'partial' | 'failed' | 'spam';
+export type ContactDeliveryStatus =
+  'pending' | 'processing' | 'delivered' | 'partial' | 'failed' | 'spam';
 
 export interface ContactQueueMessage {
   requestId: string;
@@ -47,7 +48,9 @@ export const createStatusToken = () => {
 
 export const hashStatusToken = async (token: string) => {
   const digest = await crypto.subtle.digest('SHA-256', encoder.encode(token));
-  return Array.from(new Uint8Array(digest), (value) => value.toString(16).padStart(2, '0')).join('');
+  return Array.from(new Uint8Array(digest), (value) => value.toString(16).padStart(2, '0')).join(
+    '',
+  );
 };
 
 export const calculateSpamScore = (payload: ContactPayload) => {
