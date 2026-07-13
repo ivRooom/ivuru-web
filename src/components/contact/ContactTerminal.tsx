@@ -77,7 +77,7 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
   const [requestId, setRequestId] = useState('');
   const [error, setError] = useState('');
   const widget = useRef<HTMLDivElement>(null);
-  const widgetId = useRef<string>();
+  const widgetId = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     let cancelled = false;
