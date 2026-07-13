@@ -5,11 +5,14 @@ jobs:
   diagnose:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24.16.0
-          cache: npm
-      - run: npm ci --silent
-      - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e -- tests/e2e/contact.spec.ts --project=chromium --reporter=line
+      - name: Contact E2Eの失敗箇所だけを出力
+        run: |
+          git clone -q --depth 1 --branch feat/contact-terminal-worker https://github.com/ivRooom/ivuru-web.git repo
+          cd repo
+          npm ci --silent >/dev/null
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+          set +e
+          npm run test:e2e -- tests/e2e/contact.spec.ts --project=chromium --reporter=line > /tmp/contact-e2e.log 2>&1
+          status=$?
+          tail -n 140 /tmp/contact-e2e.log
+          exit $status
