@@ -26,7 +26,9 @@ export const emitAnalyticsEvent = (
     ...detail,
   };
 
-  window.dispatchEvent(new CustomEvent<AnalyticsEventDetail>('ivuru:analytics', { detail: payload }));
+  window.dispatchEvent(
+    new CustomEvent<AnalyticsEventDetail>('ivuru:analytics', { detail: payload }),
+  );
 
   if (typeof window.gtag === 'function') {
     const { name: eventName, ...parameters } = payload;

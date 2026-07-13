@@ -39,7 +39,10 @@ export const analyticsParameterAllowlist = [
   'status',
 ] as const;
 
-export const analyticsEventMap: Record<AnalyticsEventName, { purpose: string; parameters: readonly string[] }> = {
+export const analyticsEventMap: Record<
+  AnalyticsEventName,
+  { purpose: string; parameters: readonly string[] }
+> = {
   page_view: {
     purpose: 'ページ閲覧とAstro ClientRouterによるページ遷移を把握する',
     parameters: ['path', 'locale'],

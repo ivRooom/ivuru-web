@@ -20,12 +20,12 @@ GitHub Actionsの権限は`contents: read`に限定し、同一PRの古い実行
 
 `scripts/check-performance-budget.mjs`が`dist/`を検査します。
 
-| Budget | Limit |
-| --- | ---: |
-| dist total | 20 MiB |
-| JavaScript total | 3 MiB |
-| CSS total | 700 KiB |
-| Largest asset | 4 MiB |
+| Budget           |   Limit |
+| ---------------- | ------: |
+| dist total       |  20 MiB |
+| JavaScript total |   3 MiB |
+| CSS total        | 700 KiB |
+| Largest asset    |   4 MiB |
 
 制限変更は実測値・利用者への効果・Cloudflare配信コストを確認したうえで行います。単にCIを通すためだけに上限を引き上げないでください。
 

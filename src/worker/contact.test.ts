@@ -27,7 +27,12 @@ describe('validateContactPayload', () => {
   });
 
   it('rejects invalid and oversized fields', () => {
-    const result = validateContactPayload({ ...valid, email: 'invalid', message: 'short', category: 'unknown' });
+    const result = validateContactPayload({
+      ...valid,
+      email: 'invalid',
+      message: 'short',
+      category: 'unknown',
+    });
     expect(result.value).toBeUndefined();
     expect(result.errors.map((error) => error.code)).toEqual(
       expect.arrayContaining(['invalid_email', 'invalid_message', 'invalid_category']),
@@ -43,7 +48,9 @@ describe('notification helpers', () => {
   });
 
   it('removes CRLF characters from email subjects', () => {
-    expect(sanitizeHeaderValue('Hello\r\nBcc: attacker@example.com')).toBe('Hello Bcc: attacker@example.com');
+    expect(sanitizeHeaderValue('Hello\r\nBcc: attacker@example.com')).toBe(
+      'Hello Bcc: attacker@example.com',
+    );
     const email = buildAdminEmail({ ...valid, subject: 'Hello\r\nInjected' }, 'IVR-TEST');
     expect(email.subject).toBe('[ivuru Contact] Hello Injected');
     expect(email.subject).not.toMatch(/[\r\n]/);

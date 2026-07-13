@@ -32,15 +32,23 @@ try {
 }
 
 const total = files.reduce((sum, file) => sum + file.size, 0);
-const javascript = files.filter((file) => ['.js', '.mjs'].includes(extname(file.path))).reduce((sum, file) => sum + file.size, 0);
-const css = files.filter((file) => extname(file.path) === '.css').reduce((sum, file) => sum + file.size, 0);
+const javascript = files
+  .filter((file) => ['.js', '.mjs'].includes(extname(file.path)))
+  .reduce((sum, file) => sum + file.size, 0);
+const css = files
+  .filter((file) => extname(file.path) === '.css')
+  .reduce((sum, file) => sum + file.size, 0);
 const largest = files.toSorted((a, b) => b.size - a.size)[0];
 
 const rows = [
   ['dist total', total, limits.total],
   ['JavaScript total', javascript, limits.javascript],
   ['CSS total', css, limits.css],
-  [`largest asset (${largest ? relative(root.pathname, largest.path) : 'none'})`, largest?.size ?? 0, limits.largestAsset],
+  [
+    `largest asset (${largest ? relative(root.pathname, largest.path) : 'none'})`,
+    largest?.size ?? 0,
+    limits.largestAsset,
+  ],
 ];
 
 console.log('| Budget | Actual | Limit | Result |');
@@ -59,7 +67,10 @@ if (process.env.GITHUB_STEP_SUMMARY) {
     '',
     '| Budget | Actual | Limit | Result |',
     '| --- | ---: | ---: | --- |',
-    ...rows.map(([label, actual, limit]) => `| ${label} | ${format(actual)} | ${format(limit)} | ${actual <= limit ? 'PASS' : 'FAIL'} |`),
+    ...rows.map(
+      ([label, actual, limit]) =>
+        `| ${label} | ${format(actual)} | ${format(limit)} | ${actual <= limit ? 'PASS' : 'FAIL'} |`,
+    ),
     '',
   ].join('\n');
   await appendFile(process.env.GITHUB_STEP_SUMMARY, markdown);

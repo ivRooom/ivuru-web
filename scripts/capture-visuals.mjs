@@ -23,11 +23,14 @@ try {
       reducedMotion: 'reduce',
       colorScheme: item.theme,
     });
-    await context.addInitScript(({ theme }) => {
-      localStorage.setItem('ivuru-theme', theme);
-      localStorage.setItem('ivuru-locale', 'ja');
-      sessionStorage.setItem('ivuru-intro-seen', '1');
-    }, { theme: item.theme });
+    await context.addInitScript(
+      ({ theme }) => {
+        localStorage.setItem('ivuru-theme', theme);
+        localStorage.setItem('ivuru-locale', 'ja');
+        sessionStorage.setItem('ivuru-intro-seen', '1');
+      },
+      { theme: item.theme },
+    );
     await context.route('**/*', async (route) => {
       const url = new URL(route.request().url());
       if (url.hostname === '127.0.0.1' || url.hostname === 'localhost') await route.continue();
@@ -35,11 +38,16 @@ try {
     });
     const page = await context.newPage();
     await page.goto(`${baseURL}${item.path}`, { waitUntil: 'networkidle' });
-    await page.addStyleTag({ content: `
+    await page.addStyleTag({
+      content: `
       *, *::before, *::after { animation: none !important; transition: none !important; caret-color: transparent !important; }
       .noise, .world-atmosphere { opacity: 0 !important; }
-    ` });
-    await page.locator('.world-loader').waitFor({ state: 'hidden', timeout: 3000 }).catch(() => undefined);
+    `,
+    });
+    await page
+      .locator('.world-loader')
+      .waitFor({ state: 'hidden', timeout: 3000 })
+      .catch(() => undefined);
     await page.screenshot({ path: join(output, `${item.name}.png`), animations: 'disabled' });
     await context.close();
   }

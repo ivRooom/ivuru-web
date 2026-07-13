@@ -104,7 +104,11 @@ const verifyTurnstile = async (token: string, request: Request, env: Env) => {
       action?: string;
     };
     const expectedHostname = new URL(request.url).hostname;
-    return result.success === true && result.hostname === expectedHostname && result.action === 'contact_submit';
+    return (
+      result.success === true &&
+      result.hostname === expectedHostname &&
+      result.action === 'contact_submit'
+    );
   } catch {
     return false;
   }
@@ -114,7 +118,8 @@ const sendResendEmail = async (
   env: Env,
   options: { to: string; subject: string; html: string; replyTo?: string },
 ) => {
-  if (!env.RESEND_API_KEY || !env.CONTACT_FROM_EMAIL) throw new Error('Email provider is not configured.');
+  if (!env.RESEND_API_KEY || !env.CONTACT_FROM_EMAIL)
+    throw new Error('Email provider is not configured.');
 
   const response = await fetchWithTimeout('https://api.resend.com/emails', {
     method: 'POST',
@@ -160,7 +165,11 @@ const handleContact = async (request: Request, env: Env, ctx: WorkerExecutionCon
 
   if (request.method === 'GET') {
     const ready = Boolean(env.TURNSTILE_SITE_KEY && env.TURNSTILE_SECRET_KEY && env.RESEND_API_KEY);
-    logContact('info', 'config_read', { ready, discordEnabled: Boolean(env.DISCORD_WEBHOOK_URL), rayId });
+    logContact('info', 'config_read', {
+      ready,
+      discordEnabled: Boolean(env.DISCORD_WEBHOOK_URL),
+      rayId,
+    });
     return getConfig(env);
   }
 
@@ -173,8 +182,10 @@ const handleContact = async (request: Request, env: Env, ctx: WorkerExecutionCon
     return json({ ok: false, code: 'origin_not_allowed' }, 403);
   }
 
-  const contentType = request.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase() ?? '';
-  if (contentType !== 'application/json') return json({ ok: false, code: 'unsupported_media_type' }, 415);
+  const contentType =
+    request.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase() ?? '';
+  if (contentType !== 'application/json')
+    return json({ ok: false, code: 'unsupported_media_type' }, 415);
 
   const declaredLength = Number(request.headers.get('content-length') || 0);
   if (declaredLength > 24_000) return json({ ok: false, code: 'payload_too_large' }, 413);
@@ -197,7 +208,11 @@ const handleContact = async (request: Request, env: Env, ctx: WorkerExecutionCon
   const payload = validation.value;
 
   if (payload.website) {
-    logContact('warn', 'honeypot_accepted', { category: payload.category, locale: payload.locale, rayId });
+    logContact('warn', 'honeypot_accepted', {
+      category: payload.category,
+      locale: payload.locale,
+      rayId,
+    });
     return json({ ok: true, requestId: crypto.randomUUID(), accepted: true });
   }
 
@@ -205,14 +220,22 @@ const handleContact = async (request: Request, env: Env, ctx: WorkerExecutionCon
   if (env.CONTACT_RATE_LIMITER) {
     const rateLimit = await env.CONTACT_RATE_LIMITER.limit({ key: `contact:${clientIp}` });
     if (!rateLimit.success) {
-      logContact('warn', 'rate_limited', { category: payload.category, locale: payload.locale, rayId });
+      logContact('warn', 'rate_limited', {
+        category: payload.category,
+        locale: payload.locale,
+        rayId,
+      });
       return json({ ok: false, code: 'rate_limited' }, 429);
     }
   }
 
   const verified = await verifyTurnstile(payload.turnstileToken, request, env);
   if (!verified) {
-    logContact('warn', 'turnstile_failed', { category: payload.category, locale: payload.locale, rayId });
+    logContact('warn', 'turnstile_failed', {
+      category: payload.category,
+      locale: payload.locale,
+      rayId,
+    });
     return json({ ok: false, code: 'turnstile_failed' }, 403);
   }
 

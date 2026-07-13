@@ -5,7 +5,9 @@ import { projects } from '@/data/projects';
 import { localePath, type Locale } from '@/data/site-config';
 
 const { locale } = Astro.props as { locale: Locale };
-const activeProject = projects.find((project) => project.status === 'In Development') ?? projects.find((project) => project.status === 'Active');
+const activeProject =
+  projects.find((project) => project.status === 'In Development') ??
+  projects.find((project) => project.status === 'Active');
 const featuredClip = gameClips.find((clip) => clip.featured) ?? gameClips[0];
 const latestSignal = activities[0];
 
@@ -13,7 +15,8 @@ const copy = {
   ja: {
     eyebrow: 'ACTIVITY COMMAND CENTER',
     title: '現在の活動を、ひとつの管制画面に。',
-    intro: '開発、ゲーム、コミュニティ、発信の現在地へ接続します。公開済みの実データだけを表示しています。',
+    intro:
+      '開発、ゲーム、コミュニティ、発信の現在地へ接続します。公開済みの実データだけを表示しています。',
     building: 'NOW BUILDING',
     playing: 'NOW PLAYING',
     community: 'COMMUNITY',
@@ -27,7 +30,8 @@ const copy = {
   en: {
     eyebrow: 'ACTIVITY COMMAND CENTER',
     title: 'One control surface for every active world.',
-    intro: 'Connect to current development, gaming, community, and publishing activity. Only real published data is shown.',
+    intro:
+      'Connect to current development, gaming, community, and publishing activity. Only real published data is shown.',
     building: 'NOW BUILDING',
     playing: 'NOW PLAYING',
     community: 'COMMUNITY',
@@ -55,7 +59,11 @@ const copy = {
 }[locale];
 ---
 
-<section class="activity-command-center section" data-world-zone="signal" aria-labelledby="activity-command-title">
+<section
+  class="activity-command-center section"
+  data-world-zone="signal"
+  aria-labelledby="activity-command-title"
+>
   <div class="section-inner command-center-shell">
     <header class="command-center-header" data-reveal>
       <div>
@@ -71,14 +79,16 @@ const copy = {
         <small>NODE / 01 · {copy.building}</small>
         <strong>{activeProject?.title ?? 'ivuru Official World'}</strong>
         <p>{activeProject?.description[locale] ?? 'Astro / React / Cloudflare'}</p>
-        <div>{activeProject?.technologies.slice(0, 4).map((technology) => <span>{technology}</span>)}</div>
+        <div>
+          {activeProject?.technologies.slice(0, 4).map((technology) => <span>{technology}</span>)}
+        </div>
         <a
           href={localePath(locale, '/works')}
           data-analytics-event="command_center_open"
           data-analytics-target="works"
           data-analytics-surface="activity_command_center"
-          data-analytics-position="1"
-        >{copy.works} →</a>
+          data-analytics-position="1">{copy.works} →</a
+        >
       </article>
 
       <article class="command-node command-node-playing" data-reveal>
@@ -91,8 +101,8 @@ const copy = {
           data-analytics-event="command_center_open"
           data-analytics-target="game_clips"
           data-analytics-surface="activity_command_center"
-          data-analytics-position="2"
-        >{copy.profile} →</a>
+          data-analytics-position="2">{copy.profile} →</a
+        >
       </article>
 
       <article class="command-node command-node-community" data-reveal>
@@ -107,8 +117,8 @@ const copy = {
           data-analytics-event="command_center_open"
           data-analytics-target="ivrm"
           data-analytics-surface="activity_command_center"
-          data-analytics-position="3"
-        >{copy.room} ↗</a>
+          data-analytics-position="3">{copy.room} ↗</a
+        >
       </article>
 
       <article class="command-node command-node-signal" data-reveal>
@@ -121,8 +131,8 @@ const copy = {
           data-analytics-event="command_center_open"
           data-analytics-target="blog"
           data-analytics-surface="activity_command_center"
-          data-analytics-position="4"
-        >{copy.blog} →</a>
+          data-analytics-position="4">{copy.blog} →</a
+        >
       </article>
     </div>
   </div>
