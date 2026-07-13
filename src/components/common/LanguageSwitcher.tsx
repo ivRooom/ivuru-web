@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Languages } from 'lucide-react';
 
 const locales = [
@@ -14,25 +14,53 @@ function localizedPath(code: string) {
 
 export default function LanguageSwitcher({ current }: { current: string }) {
   const [open, setOpen] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
+  const button = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (event: PointerEvent) => {
+      if (!root.current?.contains(event.target as Node)) setOpen(false);
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      setOpen(false);
+      button.current?.focus();
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [open]);
+
   const choose = (code: string) => {
+    if (code === current) {
+      setOpen(false);
+      return;
+    }
     localStorage.setItem('ivuru-locale', code);
     window.location.assign(localizedPath(code));
   };
+
   return (
-    <div className="language-switcher">
+    <div ref={root} className="language-switcher">
       <button
+        ref={button}
         className="icon-button language-button"
         type="button"
-        onClick={() => setOpen(!open)}
+        onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
         aria-haspopup="menu"
+        aria-controls="language-menu"
         aria-label="Language"
       >
         <Languages size={18} aria-hidden="true" />
         <span>{current.toUpperCase()}</span>
       </button>
       {open && (
-        <div className="language-menu" role="menu">
+        <div id="language-menu" className="language-menu" role="menu">
           {locales.map((locale) => (
             <button
               key={locale.code}
