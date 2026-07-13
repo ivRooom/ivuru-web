@@ -1,0 +1,18 @@
+name: PR8 E2E diagnostics
+
+on:
+  push:
+    branches:
+      - fix/workers-navigation-finalize
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: E2Eを簡潔なログで実行
+        run: |
+          git clone -q --depth 1 --branch fix/workers-navigation-finalize https://github.com/ivRooom/ivuru-web.git repo
+          cd repo
+          npm ci --silent >/dev/null
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+          npm run test:e2e -- --project=chromium --reporter=line
