@@ -18,5 +18,5 @@ jobs:
           set +e
           npm run lint > /tmp/lint.log 2>&1
           status=$?
-          tail -n 24 /tmp/lint.log
+          grep -E '^/home/|^[[:space:]]*[0-9]+:[0-9]+|error|warning|problems' /tmp/lint.log | tail -n 60
           exit $status
