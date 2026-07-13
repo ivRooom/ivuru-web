@@ -49,13 +49,14 @@ const logContact = (
   else console.log(payload);
 };
 
-const json = (data: unknown, status = 200) =>
+const json = (data: unknown, status = 200, extraHeaders: HeadersInit = {}) =>
   new Response(JSON.stringify(data), {
     status,
     headers: {
       'content-type': 'application/json; charset=utf-8',
       'cache-control': 'no-store',
       'x-content-type-options': 'nosniff',
+      ...extraHeaders,
     },
   });
 
@@ -68,9 +69,17 @@ const allowedOrigins = (env: Env, request: Request) => {
   );
 };
 
-const isAllowedOrigin = (request: Request, env: Env) => {
+const isAllowedPostOrigin = (request: Request, env: Env) => {
   const origin = request.headers.get('origin');
-  return !origin || allowedOrigins(env, request).has(origin);
+  if (!origin || !allowedOrigins(env, request).has(origin)) return false;
+  const fetchSite = request.headers.get('sec-fetch-site');
+  return !fetchSite || fetchSite === 'same-origin' || fetchSite === 'same-site';
+};
+
+const fetchWithTimeout = (input: RequestInfo | URL, init: RequestInit, timeoutMs = 8_000) => {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort('timeout'), timeoutMs);
+  return fetch(input, { ...init, signal: controller.signal }).finally(() => clearTimeout(timer));
 };
 
 const verifyTurnstile = async (token: string, request: Request, env: Env) => {
@@ -83,13 +92,22 @@ const verifyTurnstile = async (token: string, request: Request, env: Env) => {
   if (remoteIp) body.append('remoteip', remoteIp);
   body.append('idempotency_key', crypto.randomUUID());
 
-  const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-    method: 'POST',
-    body,
-  });
-  if (!response.ok) return false;
-  const result = (await response.json()) as { success?: boolean };
-  return result.success === true;
+  try {
+    const response = await fetchWithTimeout(
+      'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+      { method: 'POST', body },
+    );
+    if (!response.ok) return false;
+    const result = (await response.json()) as {
+      success?: boolean;
+      hostname?: string;
+      action?: string;
+    };
+    const expectedHostname = new URL(request.url).hostname;
+    return result.success === true && result.hostname === expectedHostname && result.action === 'contact_submit';
+  } catch {
+    return false;
+  }
 };
 
 const sendResendEmail = async (
@@ -98,7 +116,7 @@ const sendResendEmail = async (
 ) => {
   if (!env.RESEND_API_KEY || !env.CONTACT_FROM_EMAIL) throw new Error('Email provider is not configured.');
 
-  const response = await fetch('https://api.resend.com/emails', {
+  const response = await fetchWithTimeout('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
       authorization: `Bearer ${env.RESEND_API_KEY}`,
@@ -114,15 +132,14 @@ const sendResendEmail = async (
   });
 
   if (!response.ok) {
-    const detail = await response.text();
-    console.error('Resend request failed', response.status, detail.slice(0, 500));
+    console.error('Resend request failed', { status: response.status });
     throw new Error('Email delivery failed.');
   }
 };
 
 const sendDiscord = async (env: Env, payload: ContactPayload, requestId: string) => {
   if (!env.DISCORD_WEBHOOK_URL) return;
-  const response = await fetch(env.DISCORD_WEBHOOK_URL, {
+  const response = await fetchWithTimeout(env.DISCORD_WEBHOOK_URL, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(buildDiscordMessage(payload, requestId)),
@@ -141,21 +158,23 @@ const getConfig = (env: Env) =>
 const handleContact = async (request: Request, env: Env, ctx: WorkerExecutionContext) => {
   const rayId = request.headers.get('cf-ray');
 
-  if (!isAllowedOrigin(request, env)) {
-    logContact('warn', 'origin_rejected', { rayId });
-    return json({ ok: false, code: 'origin_not_allowed' }, 403);
-  }
-
   if (request.method === 'GET') {
     const ready = Boolean(env.TURNSTILE_SITE_KEY && env.TURNSTILE_SECRET_KEY && env.RESEND_API_KEY);
     logContact('info', 'config_read', { ready, discordEnabled: Boolean(env.DISCORD_WEBHOOK_URL), rayId });
     return getConfig(env);
   }
 
-  if (request.method !== 'POST') return json({ ok: false, code: 'method_not_allowed' }, 405);
+  if (request.method !== 'POST') {
+    return json({ ok: false, code: 'method_not_allowed' }, 405, { allow: 'GET, POST' });
+  }
 
-  const contentType = request.headers.get('content-type') ?? '';
-  if (!contentType.includes('application/json')) return json({ ok: false, code: 'unsupported_media_type' }, 415);
+  if (!isAllowedPostOrigin(request, env)) {
+    logContact('warn', 'origin_rejected', { rayId });
+    return json({ ok: false, code: 'origin_not_allowed' }, 403);
+  }
+
+  const contentType = request.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase() ?? '';
+  if (contentType !== 'application/json') return json({ ok: false, code: 'unsupported_media_type' }, 415);
 
   const declaredLength = Number(request.headers.get('content-length') || 0);
   if (declaredLength > 24_000) return json({ ok: false, code: 'payload_too_large' }, 413);
