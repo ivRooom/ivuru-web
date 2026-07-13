@@ -82,7 +82,8 @@ test('mobile menu remains viewport-bound and reachable at mobile and tablet widt
     await expect(dialog).toBeVisible();
     await expect(page.locator('body')).toHaveClass(/menu-open/);
     await expect(layer).toHaveCSS('position', 'fixed');
-    await expect(links).toHaveCount(4);
+    await expect(links).toHaveCount(5);
+    await expect(panel.locator('nav a[href$="/contact"]')).toBeVisible();
     const layerBox = await layer.boundingBox();
     const panelBox = await panel.boundingBox();
     expect(layerBox?.width).toBeGreaterThanOrEqual(viewport.width - 1);
@@ -111,6 +112,44 @@ test('menu closes when viewport switches to desktop navigation', async ({ page }
   await expect(page.locator('body')).not.toHaveClass(/menu-open/);
 });
 
+test('header stays visible while scrolling down', async ({ page }) => {
+  await page.setViewportSize({ width: 1365, height: 768 });
+  await page.goto('/profile');
+  await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
+  const header = page.locator('[data-site-header]');
+  await page.evaluate(() => window.scrollTo(0, 1200));
+  await expect(header).toHaveClass(/scrolled/);
+  await expect(header).not.toHaveClass(/hidden/);
+  const box = await header.boundingBox();
+  expect(box?.y).toBeGreaterThanOrEqual(0);
+});
+
+test('profile passport keeps image and data within the character sheet', async ({ page }) => {
+  for (const viewport of [
+    { width: 1365, height: 900 },
+    { width: 1024, height: 768 },
+    { width: 768, height: 900 },
+    { width: 390, height: 844 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.goto('/profile');
+    await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
+    const sheet = page.locator('.profile-passport');
+    const portrait = page.locator('.profile-avatar-stage');
+    const data = page.locator('.profile-passport .character-data');
+    await sheet.scrollIntoViewIfNeeded();
+    const sheetBox = await sheet.boundingBox();
+    const portraitBox = await portrait.boundingBox();
+    const dataBox = await data.boundingBox();
+    expect(sheetBox).not.toBeNull();
+    expect(portraitBox).not.toBeNull();
+    expect(dataBox).not.toBeNull();
+    expect((portraitBox?.x ?? 0) + (portraitBox?.width ?? 0)).toBeLessThanOrEqual((sheetBox?.x ?? 0) + (sheetBox?.width ?? 0) + 1);
+    expect((dataBox?.x ?? 0) + (dataBox?.width ?? 0)).toBeLessThanOrEqual((sheetBox?.x ?? 0) + (sheetBox?.width ?? 0) + 1);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBeTruthy();
+  }
+});
+
 test('detail routes keep their parent navigation active and shared transition names', async ({ page }) => {
   await page.goto('/works/ivrm-community');
   await expect(page.locator('.desktop-nav a[href="/works"]')).toHaveAttribute('aria-current', 'page');
@@ -132,6 +171,22 @@ test('portfolio is removed from main navigation but reachable from works and foo
   await expect(page.getByRole('link', { name: /Developer Consoleを開く/ })).toHaveAttribute('href', '/portfolio');
   await expect(page.locator('footer a[href="/portfolio"]').first()).toBeVisible();
   await expect(page.locator('.developer-stack-matrix')).toBeVisible();
+});
+
+test('developer portfolio stays within the viewport and links to Contact', async ({ page }) => {
+  for (const viewport of [
+    { width: 1280, height: 800 },
+    { width: 1024, height: 768 },
+    { width: 768, height: 900 },
+    { width: 390, height: 844 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.goto('/portfolio');
+    await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
+    await expect(page.locator('.console-module-grid article')).toHaveCount(6);
+    await expect(page.locator('.console-contact-cta a[href="/contact"]')).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBeTruthy();
+  }
 });
 
 test('profile renders X avatar, social nodes, contact email, and game clip archive', async ({ page }) => {
