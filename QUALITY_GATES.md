@@ -16,6 +16,12 @@
 
 GitHub Actionsの権限は`contents: read`に限定し、同一PRの古い実行はConcurrencyでキャンセルします。
 
+## E2E diagnostics
+
+Playwrightでは失敗時にtrace、screenshot、video、HTML reportを保持します。GitHub Actionsは`playwright-report/`と`test-results/`を`playwright-diagnostics-{run_attempt}`として14日間保存します。
+
+一時的な失敗でも、再実行前にArtifactを確認し、タイムアウト、外部通信、アニメーション、selector競合、viewport依存のどれかを切り分けてください。再実行だけで成功した場合も、原因不明のままテストを削除したり待機時間を無制限に増やしたりしないでください。
+
 ## Performance Budget
 
 `scripts/check-performance-budget.mjs`が`dist/`を検査します。
