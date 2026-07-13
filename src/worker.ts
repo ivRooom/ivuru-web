@@ -30,6 +30,25 @@ interface Env {
   DISCORD_WEBHOOK_URL?: string;
 }
 
+type LogLevel = 'info' | 'warn' | 'error';
+
+const logContact = (
+  level: LogLevel,
+  event: string,
+  fields: Record<string, string | number | boolean | null | undefined> = {},
+) => {
+  const payload = {
+    scope: 'contact',
+    event,
+    level,
+    ...fields,
+  };
+
+  if (level === 'error') console.error(payload);
+  else if (level === 'warn') console.warn(payload);
+  else console.log(payload);
+};
+
 const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), {
     status,
@@ -108,7 +127,7 @@ const sendDiscord = async (env: Env, payload: ContactPayload, requestId: string)
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(buildDiscordMessage(payload, requestId)),
   });
-  if (!response.ok) console.error('Discord notification failed', response.status);
+  if (!response.ok) throw new Error(`Discord notification failed with ${response.status}.`);
 };
 
 const getConfig = (env: Env) =>
@@ -120,8 +139,19 @@ const getConfig = (env: Env) =>
   });
 
 const handleContact = async (request: Request, env: Env, ctx: WorkerExecutionContext) => {
-  if (!isAllowedOrigin(request, env)) return json({ ok: false, code: 'origin_not_allowed' }, 403);
-  if (request.method === 'GET') return getConfig(env);
+  const rayId = request.headers.get('cf-ray');
+
+  if (!isAllowedOrigin(request, env)) {
+    logContact('warn', 'origin_rejected', { rayId });
+    return json({ ok: false, code: 'origin_not_allowed' }, 403);
+  }
+
+  if (request.method === 'GET') {
+    const ready = Boolean(env.TURNSTILE_SITE_KEY && env.TURNSTILE_SECRET_KEY && env.RESEND_API_KEY);
+    logContact('info', 'config_read', { ready, discordEnabled: Boolean(env.DISCORD_WEBHOOK_URL), rayId });
+    return getConfig(env);
+  }
+
   if (request.method !== 'POST') return json({ ok: false, code: 'method_not_allowed' }, 405);
 
   const contentType = request.headers.get('content-type') ?? '';
@@ -141,21 +171,31 @@ const handleContact = async (request: Request, env: Env, ctx: WorkerExecutionCon
   }
 
   const validation = validateContactPayload(parsed);
-  if (!validation.value) return json({ ok: false, code: 'validation_failed', errors: validation.errors }, 422);
+  if (!validation.value) {
+    logContact('warn', 'validation_failed', { errorCount: validation.errors.length, rayId });
+    return json({ ok: false, code: 'validation_failed', errors: validation.errors }, 422);
+  }
   const payload = validation.value;
 
   if (payload.website) {
+    logContact('warn', 'honeypot_accepted', { category: payload.category, locale: payload.locale, rayId });
     return json({ ok: true, requestId: crypto.randomUUID(), accepted: true });
   }
 
   const clientIp = request.headers.get('CF-Connecting-IP') || 'unknown';
   if (env.CONTACT_RATE_LIMITER) {
     const rateLimit = await env.CONTACT_RATE_LIMITER.limit({ key: `contact:${clientIp}` });
-    if (!rateLimit.success) return json({ ok: false, code: 'rate_limited' }, 429);
+    if (!rateLimit.success) {
+      logContact('warn', 'rate_limited', { category: payload.category, locale: payload.locale, rayId });
+      return json({ ok: false, code: 'rate_limited' }, 429);
+    }
   }
 
   const verified = await verifyTurnstile(payload.turnstileToken, request, env);
-  if (!verified) return json({ ok: false, code: 'turnstile_failed' }, 403);
+  if (!verified) {
+    logContact('warn', 'turnstile_failed', { category: payload.category, locale: payload.locale, rayId });
+    return json({ ok: false, code: 'turnstile_failed' }, 403);
+  }
 
   const requestId = `IVR-${new Date().toISOString().slice(0, 10).replaceAll('-', '')}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
   const recipient = env.CONTACT_TO_EMAIL || 'contact@ivrm.jp';
@@ -169,18 +209,40 @@ const handleContact = async (request: Request, env: Env, ctx: WorkerExecutionCon
       html: adminEmail.html,
       replyTo: payload.email,
     });
-  } catch (error) {
-    console.error('Admin notification failed', requestId, error);
+  } catch {
+    logContact('error', 'admin_delivery_failed', {
+      requestId,
+      category: payload.category,
+      locale: payload.locale,
+      rayId,
+    });
     return json({ ok: false, code: 'delivery_failed' }, 502);
   }
+
+  logContact('info', 'contact_accepted', {
+    requestId,
+    category: payload.category,
+    locale: payload.locale,
+    discordEnabled: Boolean(env.DISCORD_WEBHOOK_URL),
+    rayId,
+  });
 
   ctx.waitUntil(
     Promise.allSettled([
       sendResendEmail(env, { to: payload.email, subject: receipt.subject, html: receipt.html }),
       sendDiscord(env, payload, requestId),
     ]).then((results) => {
-      results.forEach((result) => {
-        if (result.status === 'rejected') console.error('Secondary notification failed', requestId, result.reason);
+      const names = ['receipt_email', 'discord'] as const;
+      results.forEach((result, index) => {
+        if (result.status === 'rejected') {
+          logContact('error', 'secondary_delivery_failed', {
+            requestId,
+            channel: names[index],
+            category: payload.category,
+            locale: payload.locale,
+            rayId,
+          });
+        }
       });
     }),
   );
