@@ -14,12 +14,18 @@ import SocialDock from '@/components/social/SocialDock.astro';
 import CustomCursor from '@/components/common/CustomCursor';
 import { localePath, siteConfig, type Locale } from '@/data/site-config';
 import { getDictionary } from '@/i18n/dictionaries';
+import '@/styles/hero-motion.css';
 const { locale } = Astro.props as { locale: Locale };
 const d = getDictionary(locale);
 const descriptions = {
   ja: 'DeveloperとGamer、2つの世界をつなぐ「いゔる。」の公式サイト。個人開発、ゲーム、ivRmコミュニティ、創作活動を発信します。',
   en: 'The official site of ivuru, connecting Developer and Gamer worlds through projects, games, the ivRm community, and creative work.',
   ko: 'Developer와 Gamer의 두 세계를 연결하는 ivuru 공식 사이트입니다. 개인 개발, 게임, ivRm 커뮤니티, 창작 활동을 소개합니다.',
+};
+const sceneCopy = {
+  ja: { opening: 'ふたつの世界が、ひとつになる。', status: 'WORLD GATE / ONLINE' },
+  en: { opening: 'Two worlds become one.', status: 'WORLD GATE / ONLINE' },
+  ko: { opening: '두 세계가 하나가 된다.', status: 'WORLD GATE / ONLINE' },
 };
 ---
 
@@ -31,24 +37,35 @@ const descriptions = {
 >
   <CustomCursor client:load />
   <section class="hero anime-world-hero" data-hero data-page-intro>
-    <div class="hero-art" data-hero-art></div><HeroWorld locale={locale} client:only="react" /><div
+    <div class="hero-cinematic-intro" data-cinematic-intro aria-hidden="true">
+      <div class="hero-cinematic-shutter hero-cinematic-shutter-top"></div>
+      <div class="hero-cinematic-shutter hero-cinematic-shutter-bottom"></div>
+      <div class="hero-cinematic-title-card">
+        <span>IVURU / WORLD GATE</span>
+        <strong>{sceneCopy[locale].opening}</strong>
+        <small>{sceneCopy[locale].status}</small>
+      </div>
+    </div>
+    <div class="hero-film-grain" data-hero-depth="grain" aria-hidden="true"></div>
+    <div class="hero-orbit-lines" data-hero-depth="orbit" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="hero-art" data-hero-art data-hero-depth="background"></div><HeroWorld locale={locale} client:only="react" /><div
       class="hero-vignette"
     >
-    </div><div class="hero-grid" aria-hidden="true"></div>
-    <div class="hero-light-ribbons" aria-hidden="true"><i></i><i></i><i></i></div>
-    <div class="hero-scene-frame" aria-hidden="true">
+    </div><div class="hero-grid" data-hero-depth="grid" aria-hidden="true"></div>
+    <div class="hero-light-ribbons" data-hero-depth="ribbons" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="hero-scene-frame" data-hero-depth="frame" aria-hidden="true">
       <span class="scene-number">SCENE / 01</span>
       <span class="scene-caption">BETWEEN TWO WORLDS</span>
       <i class="scene-corner top-left"></i><i class="scene-corner top-right"></i><i
         class="scene-corner bottom-left"></i><i class="scene-corner bottom-right"></i>
     </div>
-    <div class="hero-world-label developer" aria-hidden="true">
+    <div class="hero-world-label developer" data-hero-depth="label-left" aria-hidden="true">
       <small>WORLD 01</small><span>DEVELOPER</span>
     </div>
-    <div class="hero-world-label gamer" aria-hidden="true">
+    <div class="hero-world-label gamer" data-hero-depth="label-right" aria-hidden="true">
       <small>WORLD 02</small><span>GAMER</span>
     </div>
-    <div class="hero-copy" data-hero-copy>
+    <div class="hero-copy" data-hero-copy data-hero-depth="copy">
       <p class="eyebrow">{d.hero.eyebrow}</p><h1 class="hero-title">
         <span class="hero-display-name">いゔる。</span>
         <span class="hero-id-name">ivuru</span>
@@ -68,7 +85,7 @@ const descriptions = {
         >
       </div>
     </div>
-    <div class="hero-coordinates" aria-hidden="true">
+    <div class="hero-coordinates" data-hero-depth="coordinates" aria-hidden="true">
       ID / IVURU<br />DEVELOPER ↔ GAMER<br />WORLD GATE: SYNCHRONIZED
     </div><div class="hero-scroll" aria-hidden="true">{d.hero.scroll}</div>
   </section>
