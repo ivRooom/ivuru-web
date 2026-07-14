@@ -46,14 +46,14 @@ npx wrangler deploy --dry-run --outdir .wrangler/dry-run
 
 Workers Builds must generate the Astro static assets before running Wrangler. Use the following project settings:
 
-| Setting | Value |
-| --- | --- |
-| Production branch | `main` |
-| Build command | `npm run build` |
-| Deploy command | `npx wrangler deploy` |
+| Setting                       | Value                          |
+| ----------------------------- | ------------------------------ |
+| Production branch             | `main`                         |
+| Build command                 | `npm run build`                |
+| Deploy command                | `npx wrangler deploy`          |
 | Non-production branch command | `npx wrangler versions upload` |
-| Root directory | `/` |
-| Node.js | `22.22.3` |
+| Root directory                | `/`                            |
+| Node.js                       | `22.22.3`                      |
 
 Set the build variable:
 

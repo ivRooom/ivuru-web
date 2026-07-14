@@ -25,7 +25,10 @@ if (config.includes('REPLACE_WITH_D1_DATABASE_ID')) {
 }
 
 const databaseId = config.match(/"database_id"\s*:\s*"([0-9a-f-]+)"/i)?.[1];
-if (!databaseId || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(databaseId)) {
+if (
+  !databaseId ||
+  !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(databaseId)
+) {
   throw new Error('D1 database_idがUUID形式ではありません。');
 }
 
