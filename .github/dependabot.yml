@@ -36,5 +36,9 @@ updates:
       cloudflare:
         patterns:
           - wrangler
+    ignore:
+      - dependency-name: typescript
+        update-types:
+          - version-update:semver-major
     commit-message:
       prefix: '依存関係'
