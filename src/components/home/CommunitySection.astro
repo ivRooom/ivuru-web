@@ -64,21 +64,36 @@ const items = [
       <h2>{copy.title}</h2>
       <p>{copy.body}</p>
       <div class="digital-room-meta">
-        <span>GAME</span><span>CHAT</span><span>CREATE</span><span>STUDY</span><span>MINECRAFT</span>
+        <span>GAME</span><span>CHAT</span><span>CREATE</span><span>STUDY</span><span>MINECRAFT</span
+        >
       </div>
-      {siteConfig.ivrmUrl && (
-        <a class="primary-button" href={siteConfig.ivrmUrl} target="_blank" rel="noopener noreferrer">
-          {copy.link} ↗
-        </a>
-      )}
+      {
+        siteConfig.ivrmUrl && (
+          <a
+            class="primary-button"
+            href={siteConfig.ivrmUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {copy.link} ↗
+          </a>
+        )
+      }
     </div>
 
     <div class="digital-room-nodes">
-      {items.map(([Icon, label], index) => (
-        <div class="room-node" data-reveal>
-          <small>{String(index + 1).padStart(2, '0')}</small><Icon aria-hidden="true" /><span>{label}</span><i></i>
-        </div>
-      ))}
+      {
+        items.map(([Icon, label], index) => (
+          <div class="room-node" data-reveal>
+            <>
+              <small>{String(index + 1).padStart(2, '0')}</small>
+              <Icon aria-hidden="true" />
+              <span>{label}</span>
+              <i />
+            </>
+          </div>
+        ))
+      }
     </div>
   </div>
 </section>
@@ -162,14 +177,23 @@ const items = [
     width: 1px;
     height: min(82%, 400px);
     translate: -50% -50%;
-    background: linear-gradient(transparent, color-mix(in srgb, var(--cyan) 42%, transparent), transparent);
+    background: linear-gradient(
+      transparent,
+      color-mix(in srgb, var(--cyan) 42%, transparent),
+      transparent
+    );
   }
 
   .digital-room-core > i:nth-child(3) {
     width: min(82%, 400px);
     height: 1px;
     translate: -50% -50%;
-    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--cyan) 42%, transparent), transparent);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--cyan) 42%, transparent),
+      transparent
+    );
   }
 
   .digital-room-core > span {

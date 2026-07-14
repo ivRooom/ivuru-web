@@ -30,7 +30,9 @@ for (const [route, heading] of [
   });
 }
 
-test('turnstile initializes after validation and the confirmation panel mounts', async ({ page }) => {
+test('turnstile initializes after validation and the confirmation panel mounts', async ({
+  page,
+}) => {
   await page.addInitScript(() => {
     window.turnstile = {
       render: (_target: HTMLElement, options: Record<string, unknown>) => {

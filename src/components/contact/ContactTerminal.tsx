@@ -570,7 +570,11 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
               </label>
               <p
                 id="contact-form-guidance"
-                className={`contact-form-guidance${showValidation && !canConfirm ? ' is-error' : ''}`}
+                className={
+                  showValidation && !canConfirm
+                    ? 'contact-form-guidance is-error'
+                    : 'contact-form-guidance'
+                }
                 role={showValidation && !canConfirm ? 'alert' : 'status'}
               >
                 {guidance}
