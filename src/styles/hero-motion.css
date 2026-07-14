@@ -1,3 +1,4 @@
+/* Hero-only motion layers. Interactive controls remain outside these pointer-free surfaces. */
 .hero-cinematic-intro {
   position: absolute;
   z-index: 12;
