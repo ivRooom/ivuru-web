@@ -22,6 +22,7 @@ import {
   type ContactQueueMessage,
   type D1Database,
 } from './worker/contact-storage';
+import { PayloadTooLargeError, readTextBodyWithLimit } from './worker/request-body';
 
 interface AssetsBinding {
   fetch(request: Request): Promise<Response>;
@@ -70,6 +71,9 @@ interface Env {
   RESEND_API_KEY?: string;
   DISCORD_WEBHOOK_URL?: string;
 }
+
+const CONTACT_BODY_LIMIT_BYTES = 24_000;
+const STATUS_BODY_LIMIT_BYTES = 2_000;
 
 type LogLevel = 'info' | 'warn' | 'error';
 
@@ -287,8 +291,11 @@ const handleStatus = async (request: Request, env: Env) => {
 
   let body: { requestId?: unknown; token?: unknown };
   try {
-    body = (await request.json()) as { requestId?: unknown; token?: unknown };
-  } catch {
+    const rawBody = await readTextBodyWithLimit(request, STATUS_BODY_LIMIT_BYTES);
+    body = JSON.parse(rawBody) as { requestId?: unknown; token?: unknown };
+  } catch (error) {
+    if (error instanceof PayloadTooLargeError)
+      return json({ ok: false, code: 'payload_too_large' }, 413);
     return json({ ok: false, code: 'invalid_json' }, 400);
   }
   const requestId = typeof body.requestId === 'string' ? body.requestId.trim() : '';
@@ -322,10 +329,14 @@ const handleContact = async (request: Request, env: Env, ctx: WorkerExecutionCon
     request.headers.get('content-type')?.split(';', 1)[0].trim().toLowerCase() ?? '';
   if (contentType !== 'application/json')
     return json({ ok: false, code: 'unsupported_media_type' }, 415);
-  const declaredLength = Number(request.headers.get('content-length') || 0);
-  if (declaredLength > 24_000) return json({ ok: false, code: 'payload_too_large' }, 413);
-  const rawBody = await request.text();
-  if (rawBody.length > 24_000) return json({ ok: false, code: 'payload_too_large' }, 413);
+  let rawBody: string;
+  try {
+    rawBody = await readTextBodyWithLimit(request, CONTACT_BODY_LIMIT_BYTES);
+  } catch (error) {
+    if (error instanceof PayloadTooLargeError)
+      return json({ ok: false, code: 'payload_too_large' }, 413);
+    throw error;
+  }
 
   let parsed: unknown;
   try {
