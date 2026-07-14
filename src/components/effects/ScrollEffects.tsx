@@ -28,7 +28,11 @@ export default function ScrollEffects() {
       if (intro) {
         const introTimeline = gsap.timeline({ defaults: { ease: 'power3.inOut' } });
         introTimeline
-          .fromTo('.hero-cinematic-title-card', { opacity: 0, scale: 0.96 }, { opacity: 1, scale: 1, duration: 0.55 })
+          .fromTo(
+            '.hero-cinematic-title-card',
+            { opacity: 0, scale: 0.96 },
+            { opacity: 1, scale: 1, duration: 0.55 },
+          )
           .to('.hero-cinematic-title-card', { opacity: 0, y: -12, duration: 0.35 }, '+=0.5')
           .to('.hero-cinematic-shutter-top', { yPercent: -102, duration: 0.8 }, '-=0.08')
           .to('.hero-cinematic-shutter-bottom', { yPercent: 102, duration: 0.8 }, '<')

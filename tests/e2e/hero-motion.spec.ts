@@ -42,6 +42,8 @@ test.describe('cinematic motion', () => {
       sessionStorage.setItem('ivuru-intro-seen', '1');
     });
     await page.goto('/en');
-    await expect(page.locator('.hero-cinematic-title-card')).toContainText('Two worlds become one.');
+    await expect(page.locator('.hero-cinematic-title-card')).toContainText(
+      'Two worlds become one.',
+    );
   });
 });
