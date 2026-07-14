@@ -46,7 +46,7 @@ const items = [
 ] as const;
 ---
 
-<section class="community digital-room section" data-world-zone="community">
+<section class="digital-room section" data-world-zone="community">
   <div class="digital-room-shell">
     <header class="digital-room-status" data-reveal>
       <div><span></span><span></span><span></span></div>
@@ -54,31 +54,222 @@ const items = [
       <b><i></i>{copy.online}</b>
     </header>
 
-    <div class="community-radar digital-room-core" aria-hidden="true">
+    <div class="digital-room-core" aria-hidden="true">
       <i></i><i></i><i></i><span>ivRm</span><small>PEOPLE / ACTIVITY / SIGNAL</small>
     </div>
 
-    <div class="community-copy digital-room-copy" data-reveal>
+    <div class="digital-room-copy" data-reveal>
       <p class="section-kicker">DIGITAL ROOM / ivRm</p>
       <span class="role-label">{copy.role}</span>
       <h2>{copy.title}</h2>
       <p>{copy.body}</p>
       <div class="digital-room-meta">
-        <span>GAME</span><span>CHAT</span><span>CREATE</span><span>STUDY</span><span>MINECRAFT</span>
+        <span>GAME</span><span>CHAT</span><span>CREATE</span><span>STUDY</span><span>MINECRAFT</span
+        >
       </div>
-      {siteConfig.ivrmUrl && (
-        <a class="primary-button" href={siteConfig.ivrmUrl} target="_blank" rel="noopener noreferrer">
-          {copy.link} ↗
-        </a>
-      )}
+      {
+        siteConfig.ivrmUrl && (
+          <a
+            class="primary-button"
+            href={siteConfig.ivrmUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {copy.link} ↗
+          </a>
+        )
+      }
     </div>
 
-    <div class="community-nodes digital-room-nodes">
-      {items.map(([Icon, label], index) => (
-        <div class={`community-node room-node node-${index + 1}`} data-reveal>
-          <small>{String(index + 1).padStart(2, '0')}</small><Icon aria-hidden="true" /><span>{label}</span><i></i>
-        </div>
-      ))}
+    <div class="digital-room-nodes">
+      {
+        items.map(([Icon, label], index) => (
+          <div class="room-node" data-reveal>
+            <>
+              <small>{String(index + 1).padStart(2, '0')}</small>
+              <Icon aria-hidden="true" />
+              <span>{label}</span>
+              <i />
+            </>
+          </div>
+        ))
+      }
     </div>
   </div>
 </section>
+
+<style>
+  .digital-room {
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(
+        circle at 76% 48%,
+        color-mix(in srgb, var(--purple) 16%, transparent),
+        transparent 34%
+      ),
+      var(--bg);
+  }
+
+  .digital-room::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.18;
+    background-image: radial-gradient(var(--cyan) 1px, transparent 1px);
+    background-size: 28px 28px;
+    mask-image: linear-gradient(90deg, transparent, black 22%, black 78%, transparent);
+  }
+
+  .digital-room-shell {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+  }
+
+  .digital-room-core {
+    isolation: isolate;
+    overflow: hidden;
+  }
+
+  .digital-room-core::before,
+  .digital-room-core::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .digital-room-core::before {
+    width: min(82%, 400px);
+    border: 1px solid color-mix(in srgb, var(--purple) 40%, transparent);
+    box-shadow: inset 0 0 70px color-mix(in srgb, var(--purple) 8%, transparent);
+  }
+
+  .digital-room-core::after {
+    width: min(54%, 260px);
+    border: 1px solid color-mix(in srgb, var(--cyan) 28%, transparent);
+  }
+
+  .digital-room-core > i {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .digital-room-core > i:nth-child(1) {
+    width: 12px;
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    border-radius: 50%;
+    background: var(--purple);
+    box-shadow: 0 0 34px 12px color-mix(in srgb, var(--purple) 46%, transparent);
+  }
+
+  .digital-room-core > i:nth-child(2) {
+    width: 1px;
+    height: min(82%, 400px);
+    translate: -50% -50%;
+    background: linear-gradient(
+      transparent,
+      color-mix(in srgb, var(--cyan) 42%, transparent),
+      transparent
+    );
+  }
+
+  .digital-room-core > i:nth-child(3) {
+    width: min(82%, 400px);
+    height: 1px;
+    translate: -50% -50%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--cyan) 42%, transparent),
+      transparent
+    );
+  }
+
+  .digital-room-core > span {
+    position: relative;
+    z-index: 1;
+    color: white;
+    font-size: 22px;
+    font-weight: 900;
+    text-shadow: 0 0 20px var(--cyan);
+  }
+
+  .digital-room-copy > p:not(.section-kicker) {
+    margin-bottom: 34px;
+    color: var(--muted);
+    font-size: 18px;
+  }
+
+  .room-node {
+    min-width: 0;
+    align-content: center;
+    padding: 30px 14px 20px;
+    border-bottom: 1px solid var(--line);
+    background: color-mix(in srgb, var(--surface-solid) 70%, transparent);
+    transition:
+      background 0.25s ease,
+      color 0.25s ease;
+  }
+
+  .room-node:nth-child(n + 5) {
+    border-bottom: 0;
+  }
+
+  .room-node:hover {
+    background: color-mix(in srgb, var(--cyan) 8%, var(--surface-solid));
+  }
+
+  .room-node svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .room-node > span {
+    min-width: 0;
+    color: var(--muted);
+    font-size: 10px;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  @media (max-width: 1040px) {
+    .room-node:nth-child(n) {
+      border-bottom: 1px solid var(--line);
+    }
+
+    .room-node:nth-last-child(-n + 2) {
+      border-bottom: 0;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .digital-room-core::before,
+    .digital-room-core > i:nth-child(3) {
+      width: min(78%, 310px);
+    }
+
+    .digital-room-core > i:nth-child(2) {
+      height: min(78%, 310px);
+    }
+
+    .digital-room-copy > p:not(.section-kicker) {
+      font-size: 16px;
+    }
+
+    .room-node {
+      min-height: 106px;
+      padding-inline: 8px;
+    }
+  }
+</style>

@@ -1,0 +1,60 @@
+.contact-terminal label:has([aria-invalid='true']) {
+  border-color: color-mix(in srgb, #ff7b91 72%, var(--border));
+  box-shadow: 0 0 0 3px color-mix(in srgb, #ff7b91 10%, transparent);
+}
+
+.contact-terminal input:disabled,
+.contact-terminal select:disabled,
+.contact-terminal textarea:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.contact-message-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.contact-message-meta > small:last-child {
+  margin-left: auto;
+  color: var(--text-muted);
+}
+
+.contact-terminal .contact-field-error,
+.contact-message .contact-field-error {
+  color: #ff7b91;
+  font: 700 0.72rem/1.45 var(--font-mono, monospace);
+}
+
+.contact-form-guidance {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--accent-cyan) 22%, var(--border));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--accent-cyan) 4%, transparent);
+  color: var(--text-muted);
+  font: 600 0.76rem/1.55 var(--font-mono, monospace);
+}
+
+.contact-form-guidance.is-error {
+  border-color: color-mix(in srgb, #ff7b91 45%, var(--border));
+  background: color-mix(in srgb, #ff7b91 6%, transparent);
+  color: #ff9aaa;
+}
+
+.contact-confirm:disabled {
+  cursor: wait;
+}
+
+@media (max-width: 720px) {
+  .contact-form-guidance {
+    grid-column: 1;
+  }
+
+  .contact-message-meta {
+    align-items: flex-end;
+  }
+}
