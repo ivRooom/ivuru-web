@@ -20,6 +20,22 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - name: 動的クラス名を安全な条件分岐へ変換
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('src/components/contact/ContactTerminal.tsx')
+          source = path.read_text()
+          source = source.replace(
+              "className={`contact-form-guidance${showValidation && !canConfirm ? ' is-error' : ''}`}",
+              "className={showValidation && !canConfirm ? 'contact-form-guidance is-error' : 'contact-form-guidance'}",
+          )
+          source = source.replace(
+              "className={`contact-form-guidance${showValidation && !canConfirm ? 'is-error' : ''}`}",
+              "className={showValidation && !canConfirm ? 'contact-form-guidance is-error' : 'contact-form-guidance'}",
+          )
+          path.write_text(source)
+          PY
       - name: 変更ファイルをPrettierで整形
         run: |
           npx prettier --write \
