@@ -1,0 +1,40 @@
+name: PR21の変更ファイルを整形
+
+on:
+  push:
+    branches: [chore/contact-durable-production]
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: chore/contact-durable-production
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: 変更ファイルを整形
+        run: |
+          npx prettier --write \
+            CONTACT_DURABLE_PROVISIONING.md \
+            CONTACT_QUEUE_D1.md \
+            package.json \
+            scripts/check-cloudflare-durable-config.mjs \
+            .github/workflows/ci.yml \
+            wrangler.jsonc
+          rm -f .github/workflows/format-pr21.yml
+      - name: 整形結果をコミット
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add CONTACT_DURABLE_PROVISIONING.md CONTACT_QUEUE_D1.md package.json scripts/check-cloudflare-durable-config.mjs .github/workflows/ci.yml wrangler.jsonc .github/workflows/format-pr21.yml
+          git commit -m "PR21の変更ファイルを整形"
+          git push origin HEAD:chore/contact-durable-production
