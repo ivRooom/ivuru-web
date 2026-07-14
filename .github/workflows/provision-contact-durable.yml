@@ -9,7 +9,7 @@ permissions:
 
 concurrency:
   group: contact-durable-production
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   provision:
@@ -31,15 +31,19 @@ jobs:
           cache: npm
 
       - name: Cloudflare認証情報を確認
+        id: auth
         shell: bash
         run: |
           set -euo pipefail
           test -n "${CLOUDFLARE_API_TOKEN:-}" || { echo 'CLOUDFLARE_API_TOKENがGitHub Actions Secretsにありません。'; exit 1; }
           test -n "${CLOUDFLARE_ACCOUNT_ID:-}" || { echo 'CLOUDFLARE_ACCOUNT_IDがGitHub Actions Secretsにありません。'; exit 1; }
 
-      - run: npm ci
+      - name: 依存関係をインストール
+        id: install
+        run: npm ci
 
       - name: D1データベースを作成または取得
+        id: d1
         shell: bash
         run: |
           set -euo pipefail
@@ -55,10 +59,10 @@ jobs:
           const id = item.uuid || item.id || item.database_id;
           if (!id || typeof id !== 'string') throw new Error('D1 database IDを取得できませんでした。');
           fs.appendFileSync(process.env.GITHUB_ENV, `D1_DATABASE_ID=${id}\n`);
-          console.log(`D1 database ID: ${id}`);
           NODE
 
       - name: QueueとDLQを作成または確認
+        id: queues
         shell: bash
         run: |
           set -euo pipefail
@@ -72,6 +76,7 @@ jobs:
           done
 
       - name: Durable modeのBindingを設定
+        id: config
         shell: bash
         run: |
           set -euo pipefail
@@ -103,10 +108,7 @@ jobs:
               {
                 name: 'CONTACT_RATE_LIMITER',
                 namespace_id: '1661',
-                simple: {
-                  limit: 3,
-                  period: 60,
-                },
+                simple: { limit: 3, period: 60 },
               },
             ],
             d1_databases: [
@@ -149,9 +151,11 @@ jobs:
           npx prettier --write wrangler.jsonc
 
       - name: D1 Migrationを本番適用
+        id: migration
         run: npx wrangler d1 migrations apply ivuru-contact-production --remote
 
       - name: ビルドとWrangler設定を検証
+        id: validate
         env:
           ASTRO_TELEMETRY_DISABLED: '1'
           SITE_URL: https://ivurugg.ivrm.jp
@@ -164,9 +168,11 @@ jobs:
           npx wrangler deploy --dry-run --outdir .wrangler/dry-run
 
       - name: Workerを本番デプロイ
+        id: deploy
         run: npx wrangler deploy
 
       - name: D1とQueue Consumerを確認
+        id: resources
         shell: bash
         run: |
           set -euo pipefail
@@ -177,6 +183,7 @@ jobs:
           npx wrangler queues consumer worker list ivuru-contact-delivery --json
 
       - name: 本番APIを確認
+        id: smoke
         shell: bash
         run: |
           set -euo pipefail
@@ -186,7 +193,6 @@ jobs:
           const value = JSON.parse(fs.readFileSync('/tmp/contact-config.json', 'utf8'));
           if (typeof value.ready !== 'boolean') throw new Error('/api/contactの設定レスポンスが不正です。');
           if (value.recipient !== 'contact@ivrm.jp') throw new Error('Contact受信先が想定と異なります。');
-          console.log('/api/contact:', value);
           NODE
 
           status=$(curl --silent --show-error --output /tmp/contact-status.json --write-out '%{http_code}' \
@@ -198,6 +204,7 @@ jobs:
           test "$status" = '404' || { cat /tmp/contact-status.json; echo "想定外のHTTP status: $status"; exit 1; }
 
       - name: 運用ドキュメントを本番状態へ更新
+        id: docs
         shell: bash
         run: |
           set -euo pipefail
@@ -213,13 +220,55 @@ jobs:
           NODE
           npx prettier --write CONTACT_QUEUE_D1.md
 
-      - name: 本番Binding設定をコミット
+      - name: 構築結果をブランチへ記録
+        if: always()
+        env:
+          AUTH: ${{ steps.auth.outcome }}
+          INSTALL: ${{ steps.install.outcome }}
+          D1: ${{ steps.d1.outcome }}
+          QUEUES: ${{ steps.queues.outcome }}
+          CONFIG: ${{ steps.config.outcome }}
+          MIGRATION: ${{ steps.migration.outcome }}
+          VALIDATE: ${{ steps.validate.outcome }}
+          DEPLOY: ${{ steps.deploy.outcome }}
+          RESOURCES: ${{ steps.resources.outcome }}
+          SMOKE: ${{ steps.smoke.outcome }}
+          DOCS: ${{ steps.docs.outcome }}
         shell: bash
         run: |
           set -euo pipefail
-          rm -f .github/workflows/provision-contact-durable.yml
+          success=true
+          for value in "$AUTH" "$INSTALL" "$D1" "$QUEUES" "$CONFIG" "$MIGRATION" "$VALIDATE" "$DEPLOY" "$RESOURCES" "$SMOKE" "$DOCS"; do
+            test "$value" = 'success' || success=false
+          done
+
+          cat > .github/contact-durable-status.md <<EOF
+          # Contact Durable Mode provisioning status
+
+          | Stage | Result |
+          | --- | --- |
+          | Cloudflare authentication | $AUTH |
+          | npm ci | $INSTALL |
+          | D1 create / lookup | $D1 |
+          | Queue / DLQ create | $QUEUES |
+          | Wrangler binding config | $CONFIG |
+          | D1 migration | $MIGRATION |
+          | Build / tests / dry-run | $VALIDATE |
+          | Production deploy | $DEPLOY |
+          | D1 / Queue verification | $RESOURCES |
+          | Production API smoke test | $SMOKE |
+          | Operations documentation | $DOCS |
+          EOF
+
+          if $success; then
+            rm -f .github/contact-durable-status.md
+            rm -f .github/workflows/provision-contact-durable.yml
+          fi
+
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add wrangler.jsonc CONTACT_QUEUE_D1.md .github/workflows/provision-contact-durable.yml
-          git commit -m 'Contact Durable modeを本番有効化'
+          git add wrangler.jsonc CONTACT_QUEUE_D1.md .github/contact-durable-status.md .github/workflows/provision-contact-durable.yml
+          git commit -m "$($success && echo 'Contact Durable modeを本番有効化' || echo 'Contact Durable mode構築結果を記録')"
           git push origin HEAD:chore/enable-contact-durable
+
+          $success
