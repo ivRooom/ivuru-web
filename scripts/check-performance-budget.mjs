@@ -7,6 +7,7 @@ const limits = {
   total: 20 * 1024 * 1024,
   javascript: 3 * 1024 * 1024,
   css: 700 * 1024,
+  video: 8 * 1024 * 1024,
   largestAsset: 4 * 1024 * 1024,
 };
 
@@ -40,12 +41,16 @@ const javascript = files
 const css = files
   .filter((file) => extname(file.path) === '.css')
   .reduce((sum, file) => sum + file.size, 0);
+const video = files
+  .filter((file) => ['.mp4', '.webm'].includes(extname(file.path)))
+  .reduce((sum, file) => sum + file.size, 0);
 const largest = files.toSorted((a, b) => b.size - a.size)[0];
 
 const rows = [
   ['dist total', total, limits.total],
   ['JavaScript total', javascript, limits.javascript],
   ['CSS total', css, limits.css],
+  ['Video total', video, limits.video],
   [
     `largest asset (${largest ? relative(root, largest.path) : 'none'})`,
     largest?.size ?? 0,
