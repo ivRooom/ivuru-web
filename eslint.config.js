@@ -11,6 +11,14 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   ...astro.configs['flat/recommended'],
   {
+    files: ['**/*.astro'],
+    languageOptions: {
+      parserOptions: {
+        parser: tseslint.parser,
+      },
+    },
+  },
+  {
     files: ['**/*.{ts,tsx}'],
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
     plugins: { 'react-hooks': reactHooks },
