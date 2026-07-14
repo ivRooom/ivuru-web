@@ -8,12 +8,17 @@
   "vars": {
     "CONTACT_TO_EMAIL": "contact@ivrm.jp",
     "CONTACT_FROM_EMAIL": "ivuru Contact <contact@ivrm.jp>",
-    "ALLOWED_ORIGINS": "https://ivurugg.ivrm.jp"
+    "CONTACT_RETENTION_DAYS": "90",
+    "ALLOWED_ORIGINS": "https://ivurugg.ivrm.jp",
   },
 
   "observability": {
     "enabled": true,
-    "head_sampling_rate": 1
+    "head_sampling_rate": 1,
+  },
+
+  "triggers": {
+    "crons": ["17 18 * * *"],
   },
 
   "ratelimits": [
@@ -22,9 +27,9 @@
       "namespace_id": "1661",
       "simple": {
         "limit": 3,
-        "period": 60
-      }
-    }
+        "period": 60,
+      },
+    },
   ],
 
   "assets": {
@@ -32,6 +37,6 @@
     "binding": "ASSETS",
     "run_worker_first": ["/api/*"],
     "not_found_handling": "404-page",
-    "html_handling": "auto-trailing-slash"
-  }
+    "html_handling": "auto-trailing-slash",
+  },
 }

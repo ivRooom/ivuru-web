@@ -1,0 +1,29 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "d1_databases": [
+    {
+      "binding": "CONTACT_DB",
+      "database_name": "ivuru-contact-production",
+      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+      "migrations_dir": "migrations",
+    },
+  ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "CONTACT_DELIVERY_QUEUE",
+        "queue": "ivuru-contact-delivery",
+      },
+    ],
+    "consumers": [
+      {
+        "queue": "ivuru-contact-delivery",
+        "max_batch_size": 5,
+        "max_batch_timeout": 5,
+        "max_retries": 5,
+        "dead_letter_queue": "ivuru-contact-delivery-dlq",
+        "retry_delay": 60,
+      },
+    ],
+  },
+}
