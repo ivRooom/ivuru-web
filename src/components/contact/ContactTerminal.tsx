@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { emitAnalyticsEvent } from '@/lib/analytics';
+import '@/styles/contact-validation.css';
 
 type Locale = 'ja' | 'en' | 'ko';
 type Phase = 'input' | 'confirm' | 'sending' | 'success' | 'error';
 type Category = 'project' | 'community' | 'media' | 'other';
+type ValidationField = 'name' | 'email' | 'subject' | 'message';
 
 type FormState = {
   name: string;
@@ -67,6 +69,13 @@ const copy = {
     retry: 'もう一度送信する',
     direct: 'メールを開く',
     security: 'Cloudflare Turnstileで保護されています。',
+    initializing: '送信チャンネルを初期化しています…',
+    requirements: '必須項目を入力してください。件名は2文字以上、本文は20文字以上です。',
+    validationSummary: '未入力または条件を満たしていない項目があります。',
+    nameError: 'お名前を入力してください。',
+    emailError: '正しいメールアドレスを入力してください。',
+    subjectError: '件名は2文字以上で入力してください。',
+    messageError: 'お問い合わせ内容は20文字以上で入力してください。',
   },
   en: {
     title: 'CONTACT TERMINAL',
@@ -92,6 +101,13 @@ const copy = {
     retry: 'Send another message',
     direct: 'Open email',
     security: 'Protected by Cloudflare Turnstile.',
+    initializing: 'Initializing the secure contact channel…',
+    requirements: 'Complete all required fields. Subject: 2+ characters. Message: 20+ characters.',
+    validationSummary: 'Some required fields are missing or do not meet the requirements.',
+    nameError: 'Enter your name.',
+    emailError: 'Enter a valid email address.',
+    subjectError: 'Enter at least 2 characters for the subject.',
+    messageError: 'Enter at least 20 characters for the message.',
   },
   ko: {
     title: 'CONTACT TERMINAL',
@@ -117,11 +133,20 @@ const copy = {
     retry: '다른 문의 보내기',
     direct: '이메일 열기',
     security: 'Cloudflare Turnstile로 보호됩니다.',
+    initializing: '보안 문의 채널을 초기화하고 있습니다…',
+    requirements: '필수 항목을 입력해 주세요. 제목은 2자 이상, 문의 내용은 20자 이상입니다.',
+    validationSummary: '입력하지 않았거나 조건을 충족하지 않은 항목이 있습니다.',
+    nameError: '이름을 입력해 주세요.',
+    emailError: '올바른 이메일 주소를 입력해 주세요.',
+    subjectError: '제목을 2자 이상 입력해 주세요.',
+    messageError: '문의 내용을 20자 이상 입력해 주세요.',
   },
 };
 
 const statusPath = (locale: Locale) =>
   locale === 'ja' ? '/contact/status/' : `/${locale}/contact/status/`;
+
+const validationOrder: ValidationField[] = ['name', 'email', 'subject', 'message'];
 
 export default function ContactTerminal({ locale }: { locale: Locale }) {
   const t = copy[locale];
@@ -133,6 +158,7 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
   const [statusToken, setStatusToken] = useState('');
   const [statusEnabled, setStatusEnabled] = useState(false);
   const [error, setError] = useState('');
+  const [showValidation, setShowValidation] = useState(false);
   const widget = useRef<HTMLDivElement>(null);
   const widgetId = useRef<string | undefined>(undefined);
   const started = useRef(false);
@@ -140,13 +166,15 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
 
   useEffect(() => {
     let cancelled = false;
-    fetch('/api/contact', { headers: { accept: 'application/json' } })
-      .then((response) => response.json())
-      .then((value: Config) => {
+
+    const loadConfig = async () => {
+      try {
+        const response = await fetch('/api/contact', { headers: { accept: 'application/json' } });
+        if (!response.ok) throw new Error('contact_config_failed');
+        const value = (await response.json()) as Config;
         if (!cancelled) setConfig(value);
-      })
-      .catch(() => {
-        if (!cancelled)
+      } catch {
+        if (!cancelled) {
           setConfig({
             ready: false,
             turnstileSiteKey: null,
@@ -155,7 +183,11 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
             queueEnabled: false,
             statusEnabled: false,
           });
-      });
+        }
+      }
+    };
+
+    void loadConfig();
     return () => {
       cancelled = true;
     };
@@ -166,8 +198,10 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
       !config?.turnstileSiteKey ||
       !widget.current ||
       !['confirm', 'sending', 'error'].includes(phase)
-    )
+    ) {
       return;
+    }
+
     const render = () => {
       if (!window.turnstile || !widget.current || widgetId.current) return;
       widgetId.current = window.turnstile.render(widget.current, {
@@ -179,11 +213,14 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
         'error-callback': () => setToken(''),
       });
     };
-    if (window.turnstile) render();
-    else {
+
+    if (window.turnstile) {
+      render();
+    } else {
       const existing = document.getElementById('turnstile-script');
-      if (existing) existing.addEventListener('load', render, { once: true });
-      else {
+      if (existing) {
+        existing.addEventListener('load', render, { once: true });
+      } else {
         const script = document.createElement('script');
         script.id = 'turnstile-script';
         script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
@@ -193,20 +230,24 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
         document.head.appendChild(script);
       }
     }
+
     return () => {
       if (widgetId.current && window.turnstile) window.turnstile.remove(widgetId.current);
       widgetId.current = undefined;
     };
   }, [config, phase]);
 
-  const canConfirm = useMemo(
-    () =>
-      form.name.trim().length > 0 &&
-      /[^\s@]+@[^\s@]+\.[^\s@]+/.test(form.email) &&
-      form.subject.trim().length >= 2 &&
-      form.message.trim().length >= 20,
+  const validation = useMemo(
+    () => ({
+      name: form.name.trim().length > 0,
+      email: /[^\s@]+@[^\s@]+\.[^\s@]+/.test(form.email),
+      subject: form.subject.trim().length >= 2,
+      message: form.message.trim().length >= 20,
+    }),
     [form],
   );
+
+  const canConfirm = validationOrder.every((field) => validation[field]);
 
   const update = (key: keyof FormState, value: string) => {
     if (!started.current && key !== 'website' && value.trim()) {
@@ -217,7 +258,16 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
   };
 
   const confirm = () => {
-    if (!canConfirm) return;
+    if (!canConfirm) {
+      setShowValidation(true);
+      requestAnimationFrame(() => {
+        const firstInvalid = validationOrder.find((field) => !validation[field]);
+        if (firstInvalid) document.getElementById(`contact-${firstInvalid}`)?.focus();
+      });
+      return;
+    }
+
+    setShowValidation(false);
     emitAnalyticsEvent('contact_confirm', { category: form.category, surface: 'contact_terminal' });
     setPhase('confirm');
   };
@@ -227,6 +277,7 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
     setPhase('sending');
     setError('');
     emitAnalyticsEvent('contact_submit', { category: form.category, surface: 'contact_terminal' });
+
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
@@ -241,6 +292,7 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
         code?: string;
       };
       if (!response.ok || !result.ok) throw new Error(result.code || 'request_failed');
+
       const nextRequestId = result.requestId || 'ACCEPTED';
       const nextStatusToken = result.statusToken || '';
       const nextStatusEnabled = Boolean(result.statusEnabled && nextStatusToken);
@@ -250,12 +302,14 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
           JSON.stringify({ requestId: nextRequestId, token: nextStatusToken }),
         );
       }
+
       emitAnalyticsEvent('contact_success', { category: form.category, status: 'accepted' });
       setRequestId(nextRequestId);
       setStatusToken(nextStatusToken);
       setStatusEnabled(nextStatusEnabled);
       setPhase('success');
       setForm(initialState);
+      setShowValidation(false);
       started.current = false;
     } catch (reason) {
       const code = reason instanceof Error ? reason.message : 'request_failed';
@@ -266,6 +320,12 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
       if (window.turnstile) window.turnstile.reset(widgetId.current);
     }
   };
+
+  const guidance = configLoading
+    ? t.initializing
+    : showValidation && !canConfirm
+      ? t.validationSummary
+      : t.requirements;
 
   return (
     <section className="contact-terminal" data-phase={phase}>
@@ -320,6 +380,7 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
               setRequestId('');
               setStatusToken('');
               setStatusEnabled(false);
+              setToken('');
             }}
           >
             {t.retry}
@@ -368,7 +429,10 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
                 <button
                   type="button"
                   className="button-ghost"
-                  onClick={() => setPhase('input')}
+                  onClick={() => {
+                    setPhase('input');
+                    setToken('');
+                  }}
                   disabled={phase === 'sending'}
                 >
                   {t.edit}
@@ -385,6 +449,7 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
             </div>
           ) : (
             <form
+              noValidate
               aria-busy={configLoading}
               onSubmit={(event) => {
                 event.preventDefault();
@@ -394,31 +459,51 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
               <label>
                 <span>01 / {t.name}</span>
                 <input
+                  id="contact-name"
                   value={form.name}
-                  onChange={(e) => update('name', e.target.value)}
+                  onChange={(event) => update('name', event.target.value)}
                   maxLength={80}
                   required
                   autoComplete="name"
                   disabled={configLoading}
+                  aria-invalid={showValidation && !validation.name}
+                  aria-describedby={
+                    showValidation && !validation.name ? 'contact-name-error' : undefined
+                  }
                 />
+                {showValidation && !validation.name && (
+                  <small id="contact-name-error" className="contact-field-error">
+                    {t.nameError}
+                  </small>
+                )}
               </label>
               <label>
                 <span>02 / {t.email}</span>
                 <input
+                  id="contact-email"
                   type="email"
                   value={form.email}
-                  onChange={(e) => update('email', e.target.value)}
+                  onChange={(event) => update('email', event.target.value)}
                   maxLength={254}
                   required
                   autoComplete="email"
                   disabled={configLoading}
+                  aria-invalid={showValidation && !validation.email}
+                  aria-describedby={
+                    showValidation && !validation.email ? 'contact-email-error' : undefined
+                  }
                 />
+                {showValidation && !validation.email && (
+                  <small id="contact-email-error" className="contact-field-error">
+                    {t.emailError}
+                  </small>
+                )}
               </label>
               <label>
                 <span>03 / {t.category}</span>
                 <select
                   value={form.category}
-                  onChange={(e) => update('category', e.target.value)}
+                  onChange={(event) => update('category', event.target.value)}
                   disabled={configLoading}
                 >
                   <option value="project">{t.project}</option>
@@ -430,26 +515,48 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
               <label>
                 <span>04 / {t.subject}</span>
                 <input
+                  id="contact-subject"
                   value={form.subject}
-                  onChange={(e) => update('subject', e.target.value)}
+                  onChange={(event) => update('subject', event.target.value)}
                   minLength={2}
                   maxLength={120}
                   required
                   disabled={configLoading}
+                  aria-invalid={showValidation && !validation.subject}
+                  aria-describedby={
+                    showValidation && !validation.subject ? 'contact-subject-error' : undefined
+                  }
                 />
+                {showValidation && !validation.subject && (
+                  <small id="contact-subject-error" className="contact-field-error">
+                    {t.subjectError}
+                  </small>
+                )}
               </label>
               <label className="contact-message">
                 <span>05 / {t.message}</span>
                 <textarea
+                  id="contact-message"
                   value={form.message}
-                  onChange={(e) => update('message', e.target.value)}
+                  onChange={(event) => update('message', event.target.value)}
                   minLength={20}
                   maxLength={5000}
                   rows={10}
                   required
                   disabled={configLoading}
+                  aria-invalid={showValidation && !validation.message}
+                  aria-describedby={
+                    showValidation && !validation.message ? 'contact-message-error' : undefined
+                  }
                 />
-                <small>{form.message.length} / 5000</small>
+                <div className="contact-message-meta">
+                  {showValidation && !validation.message && (
+                    <small id="contact-message-error" className="contact-field-error">
+                      {t.messageError}
+                    </small>
+                  )}
+                  <small>{form.message.length} / 5000</small>
+                </div>
               </label>
               <label className="contact-honeypot" aria-hidden="true">
                 <span>Website</span>
@@ -457,14 +564,22 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
                   tabIndex={-1}
                   autoComplete="off"
                   value={form.website}
-                  onChange={(e) => update('website', e.target.value)}
+                  onChange={(event) => update('website', event.target.value)}
                   disabled={configLoading}
                 />
               </label>
+              <p
+                id="contact-form-guidance"
+                className={`contact-form-guidance${showValidation && !canConfirm ? ' is-error' : ''}`}
+                role={showValidation && !canConfirm ? 'alert' : 'status'}
+              >
+                {guidance}
+              </p>
               <button
                 type="submit"
                 className="button-primary contact-confirm"
-                disabled={!canConfirm || configLoading}
+                disabled={configLoading}
+                aria-describedby="contact-form-guidance"
               >
                 {t.confirm} →
               </button>
