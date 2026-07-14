@@ -1,0 +1,161 @@
+.hero-art {
+  z-index: -4;
+}
+
+.hero-cinematic {
+  position: absolute;
+  z-index: -3;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: #050817;
+}
+
+.hero-cinematic::before,
+.hero-cinematic::after {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hero-cinematic::before {
+  background:
+    linear-gradient(90deg, rgb(3 6 20 / 72%), rgb(3 6 20 / 10%) 48%, rgb(3 6 20 / 48%)),
+    linear-gradient(180deg, rgb(6 8 23 / 34%), transparent 42%, #060817 100%);
+}
+
+.hero-cinematic::after {
+  opacity: 0.16;
+  background: repeating-linear-gradient(180deg, transparent 0 3px, rgb(255 255 255 / 4%) 4px);
+  mix-blend-mode: screen;
+}
+
+.hero-cinematic-poster,
+.hero-cinematic video {
+  position: absolute;
+  inset: -3%;
+  width: 106%;
+  height: 106%;
+  object-fit: cover;
+}
+
+.hero-cinematic-poster {
+  background: url('/assets/video/hero-cinematic-poster.webp') center / cover no-repeat;
+  opacity: 0.92;
+  transform: scale(1.035);
+  transition: opacity 0.8s ease;
+}
+
+.hero-cinematic video {
+  opacity: 0;
+  transform: scale(1.035);
+  filter: saturate(1.12) contrast(1.05);
+  transition:
+    opacity 0.8s ease,
+    filter 0.45s ease;
+}
+
+.hero-cinematic[data-state='playing'] video,
+.hero-cinematic[data-state='paused'] video {
+  opacity: 0.82;
+}
+
+.hero-cinematic[data-state='playing'] .hero-cinematic-poster,
+.hero-cinematic[data-state='paused'] .hero-cinematic-poster {
+  opacity: 0;
+}
+
+.hero-cinematic[data-state='paused'] video {
+  filter: saturate(0.78) brightness(0.82) contrast(1.04);
+}
+
+.hero-motion-toggle {
+  position: absolute;
+  z-index: 4;
+  left: 30px;
+  bottom: 92px;
+  min-height: 36px;
+  padding: 0 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid rgb(126 190 255 / 28%);
+  border-radius: 999px;
+  background: rgb(4 8 24 / 52%);
+  color: rgb(220 238 255 / 78%);
+  font:
+    700 8px/1 ui-monospace,
+    SFMono-Regular,
+    Consolas,
+    monospace;
+  letter-spacing: 0.18em;
+  cursor: pointer;
+  backdrop-filter: blur(14px) saturate(135%);
+  transition:
+    border-color 0.22s ease,
+    background 0.22s ease,
+    color 0.22s ease,
+    transform 0.22s ease;
+}
+
+.hero-motion-toggle:hover {
+  transform: translateY(-2px);
+  border-color: rgb(85 230 255 / 62%);
+  background: rgb(85 230 255 / 10%);
+  color: white;
+}
+
+.hero-motion-toggle i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 12px var(--cyan);
+}
+
+.hero-motion-toggle[aria-pressed='false'] i {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px rgb(220 238 255 / 55%);
+}
+
+html[data-theme='light'] .hero-cinematic {
+  filter: brightness(1.14) saturate(0.82);
+}
+
+html[data-theme='light'] .hero-cinematic::before {
+  background:
+    linear-gradient(
+      90deg,
+      rgb(237 244 255 / 48%),
+      rgb(237 244 255 / 4%) 50%,
+      rgb(237 244 255 / 32%)
+    ),
+    linear-gradient(180deg, rgb(238 244 255 / 18%), transparent 48%, rgb(248 250 255 / 86%));
+}
+
+@media (max-width: 720px) {
+  .hero-motion-toggle {
+    left: 18px;
+    bottom: 76px;
+    min-height: 34px;
+    padding-inline: 11px;
+    letter-spacing: 0.14em;
+  }
+
+  .hero-cinematic-poster,
+  .hero-cinematic video {
+    inset: -6%;
+    width: 112%;
+    height: 112%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-cinematic video,
+  .hero-cinematic-poster,
+  .hero-motion-toggle {
+    transition: none !important;
+  }
+}
