@@ -23,14 +23,14 @@
     "deploy:check": "npm run build && npm run performance:check && wrangler deploy --dry-run --outdir .wrangler/dry-run"
   },
   "dependencies": {
-    "@astrojs/mdx": "7.0.2",
+    "@astrojs/mdx": "7.0.3",
     "@astrojs/react": "6.0.1",
     "@astrojs/rss": "4.0.19",
     "@astrojs/sitemap": "3.7.3",
     "@react-three/drei": "10.7.7",
     "@react-three/fiber": "9.6.1",
     "@tailwindcss/vite": "4.3.2",
-    "astro": "7.0.7",
+    "astro": "7.0.9",
     "framer-motion": "12.42.2",
     "gsap": "3.15.0",
     "lucide-react": "1.24.0",
