@@ -1,0 +1,225 @@
+name: Contact Durable Modeを本番有効化
+
+on:
+  push:
+    branches: [chore/enable-contact-durable]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: contact-durable-production
+  cancel-in-progress: false
+
+jobs:
+  provision:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: chore/enable-contact-durable
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Cloudflare認証情報を確認
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${CLOUDFLARE_API_TOKEN:-}" || { echo 'CLOUDFLARE_API_TOKENがGitHub Actions Secretsにありません。'; exit 1; }
+          test -n "${CLOUDFLARE_ACCOUNT_ID:-}" || { echo 'CLOUDFLARE_ACCOUNT_IDがGitHub Actions Secretsにありません。'; exit 1; }
+
+      - run: npm ci
+
+      - name: D1データベースを作成または取得
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! npx wrangler d1 info ivuru-contact-production --json > /tmp/d1-info.json 2>/tmp/d1-info-error.log; then
+            npx wrangler d1 create ivuru-contact-production --location apac
+            npx wrangler d1 info ivuru-contact-production --json > /tmp/d1-info.json
+          fi
+
+          node <<'NODE'
+          const fs = require('node:fs');
+          const value = JSON.parse(fs.readFileSync('/tmp/d1-info.json', 'utf8'));
+          const item = Array.isArray(value) ? value[0] : value;
+          const id = item.uuid || item.id || item.database_id;
+          if (!id || typeof id !== 'string') throw new Error('D1 database IDを取得できませんでした。');
+          fs.appendFileSync(process.env.GITHUB_ENV, `D1_DATABASE_ID=${id}\n`);
+          console.log(`D1 database ID: ${id}`);
+          NODE
+
+      - name: QueueとDLQを作成または確認
+        shell: bash
+        run: |
+          set -euo pipefail
+          for queue in ivuru-contact-delivery ivuru-contact-delivery-dlq; do
+            if npx wrangler queues info "$queue" > "/tmp/${queue}.log" 2>&1; then
+              echo "$queue は作成済みです。"
+            else
+              npx wrangler queues create "$queue"
+              npx wrangler queues info "$queue"
+            fi
+          done
+
+      - name: Durable modeのBindingを設定
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('node:fs');
+          const databaseId = process.env.D1_DATABASE_ID;
+          if (!databaseId) throw new Error('D1_DATABASE_IDがありません。');
+
+          const config = {
+            $schema: './node_modules/wrangler/config-schema.json',
+            name: 'ivrm-ivurugg',
+            main: './src/worker.ts',
+            compatibility_date: '2026-07-13',
+            keep_vars: true,
+            vars: {
+              CONTACT_TO_EMAIL: 'contact@ivrm.jp',
+              CONTACT_FROM_EMAIL: 'ivuru Contact <contact@ivrm.jp>',
+              CONTACT_RETENTION_DAYS: '90',
+              ALLOWED_ORIGINS: 'https://ivurugg.ivrm.jp',
+            },
+            observability: {
+              enabled: true,
+              head_sampling_rate: 1,
+            },
+            triggers: {
+              crons: ['17 18 * * *'],
+            },
+            ratelimits: [
+              {
+                name: 'CONTACT_RATE_LIMITER',
+                namespace_id: '1661',
+                simple: {
+                  limit: 3,
+                  period: 60,
+                },
+              },
+            ],
+            d1_databases: [
+              {
+                binding: 'CONTACT_DB',
+                database_name: 'ivuru-contact-production',
+                database_id: databaseId,
+                migrations_dir: 'migrations',
+              },
+            ],
+            queues: {
+              producers: [
+                {
+                  binding: 'CONTACT_DELIVERY_QUEUE',
+                  queue: 'ivuru-contact-delivery',
+                },
+              ],
+              consumers: [
+                {
+                  queue: 'ivuru-contact-delivery',
+                  max_batch_size: 5,
+                  max_batch_timeout: 5,
+                  max_retries: 5,
+                  dead_letter_queue: 'ivuru-contact-delivery-dlq',
+                  retry_delay: 60,
+                },
+              ],
+            },
+            assets: {
+              directory: './dist',
+              binding: 'ASSETS',
+              run_worker_first: ['/api/*'],
+              not_found_handling: '404-page',
+              html_handling: 'auto-trailing-slash',
+            },
+          };
+
+          fs.writeFileSync('wrangler.jsonc', `${JSON.stringify(config, null, 2)}\n`);
+          NODE
+          npx prettier --write wrangler.jsonc
+
+      - name: D1 Migrationを本番適用
+        run: npx wrangler d1 migrations apply ivuru-contact-production --remote
+
+      - name: ビルドとWrangler設定を検証
+        env:
+          ASTRO_TELEMETRY_DISABLED: '1'
+          SITE_URL: https://ivurugg.ivrm.jp
+        run: |
+          npm run check
+          npm run lint
+          npm test
+          npm run build
+          npm run performance:check
+          npx wrangler deploy --dry-run --outdir .wrangler/dry-run
+
+      - name: Workerを本番デプロイ
+        run: npx wrangler deploy
+
+      - name: D1とQueue Consumerを確認
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx wrangler d1 execute ivuru-contact-production --remote --json \
+            --command "SELECT name FROM sqlite_master WHERE type = 'table' AND name IN ('contact_requests', 'd1_migrations') ORDER BY name"
+          npx wrangler queues info ivuru-contact-delivery
+          npx wrangler queues info ivuru-contact-delivery-dlq
+          npx wrangler queues consumer worker list ivuru-contact-delivery --json
+
+      - name: 本番APIを確認
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error https://ivurugg.ivrm.jp/api/contact > /tmp/contact-config.json
+          node <<'NODE'
+          const fs = require('node:fs');
+          const value = JSON.parse(fs.readFileSync('/tmp/contact-config.json', 'utf8'));
+          if (typeof value.ready !== 'boolean') throw new Error('/api/contactの設定レスポンスが不正です。');
+          if (value.recipient !== 'contact@ivrm.jp') throw new Error('Contact受信先が想定と異なります。');
+          console.log('/api/contact:', value);
+          NODE
+
+          status=$(curl --silent --show-error --output /tmp/contact-status.json --write-out '%{http_code}' \
+            -X POST https://ivurugg.ivrm.jp/api/contact/status \
+            -H 'Origin: https://ivurugg.ivrm.jp' \
+            -H 'Content-Type: application/json' \
+            -H 'Accept: application/json' \
+            --data '{"requestId":"IVR-20260714-00000000","token":"000000000000000000000000000000000000000000000000"}')
+          test "$status" = '404' || { cat /tmp/contact-status.json; echo "想定外のHTTP status: $status"; exit 1; }
+
+      - name: 運用ドキュメントを本番状態へ更新
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = 'CONTACT_QUEUE_D1.md';
+          let text = fs.readFileSync(path, 'utf8');
+          text = text.replace(
+            'The code, migrations, multilingual status UI, fallback behavior, retention cleanup, and observability events are implemented in PR #19. Durable mode remains disabled until the real Cloudflare D1 and Queue resources are created and their bindings are added to the production Worker configuration.',
+            'PR #19 has been merged. The production D1 database, delivery Queue, dead-letter Queue, Worker bindings, migration, scheduled cleanup, and status API have been provisioned. Durable mode is active in the production Worker.',
+          );
+          fs.writeFileSync(path, text);
+          NODE
+          npx prettier --write CONTACT_QUEUE_D1.md
+
+      - name: 本番Binding設定をコミット
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/provision-contact-durable.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add wrangler.jsonc CONTACT_QUEUE_D1.md .github/workflows/provision-contact-durable.yml
+          git commit -m 'Contact Durable modeを本番有効化'
+          git push origin HEAD:chore/enable-contact-durable
