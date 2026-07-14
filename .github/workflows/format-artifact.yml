@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - fix/community-contact-usability
+  pull_request:
 
 permissions:
   contents: read
