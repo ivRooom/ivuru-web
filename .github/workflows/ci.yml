@@ -64,6 +64,8 @@ jobs:
           test -f dist/ko/index.html
       - name: Performance Budgetを確認
         run: npm run performance:check
+      - name: Durable ModeのBinding設定を確認
+        run: npm run cloudflare:durable:check
       - name: Wrangler設定をdry-runで検証
         run: npx wrangler deploy --dry-run --outdir .wrangler/dry-run
 

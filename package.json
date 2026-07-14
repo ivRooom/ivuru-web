@@ -18,9 +18,10 @@
     "test:e2e": "playwright test",
     "test:visual:capture": "node scripts/capture-visuals.mjs",
     "performance:check": "node scripts/check-performance-budget.mjs",
+    "cloudflare:durable:check": "node scripts/check-cloudflare-durable-config.mjs",
     "deploy": "wrangler deploy",
     "deploy:preview": "wrangler versions upload",
-    "deploy:check": "npm run build && npm run performance:check && wrangler deploy --dry-run --outdir .wrangler/dry-run"
+    "deploy:check": "npm run cloudflare:durable:check && npm run build && npm run performance:check && wrangler deploy --dry-run --outdir .wrangler/dry-run"
   },
   "dependencies": {
     "@astrojs/mdx": "7.0.3",
