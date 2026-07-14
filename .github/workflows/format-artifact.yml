@@ -1,0 +1,38 @@
+name: Temporary Format Artifact
+
+on:
+  push:
+    branches:
+      - fix/community-contact-usability
+
+permissions:
+  contents: read
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: 変更ファイルをPrettierで整形
+        run: |
+          npx prettier --write \
+            src/components/contact/ContactTerminal.tsx \
+            src/components/home/CommunitySection.astro \
+            src/styles/contact-validation.css \
+            tests/e2e/contact.spec.ts
+      - name: 整形済みファイルを保存
+        uses: actions/upload-artifact@v4
+        with:
+          name: formatted-files
+          path: |
+            src/components/contact/ContactTerminal.tsx
+            src/components/home/CommunitySection.astro
+            src/styles/contact-validation.css
+            tests/e2e/contact.spec.ts
+          retention-days: 1
