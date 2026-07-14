@@ -30,7 +30,7 @@ for (const [route, heading] of [
   });
 }
 
-test('turnstile initializes after the confirmation panel mounts', async ({ page }) => {
+test('turnstile initializes after validation and the confirmation panel mounts', async ({ page }) => {
   await page.addInitScript(() => {
     window.turnstile = {
       render: (_target: HTMLElement, options: Record<string, unknown>) => {
@@ -62,21 +62,51 @@ test('turnstile initializes after the confirmation panel mounts', async ({ page 
 
   await page.goto('/contact');
   const name = page.getByLabel('01 / お名前');
+  const confirmButton = page.getByRole('button', { name: '送信内容を確認' });
   await expect(name).toBeDisabled();
+  await expect(confirmButton).toBeDisabled();
   releaseConfig();
   await expect(name).toBeEnabled();
+  await expect(confirmButton).toBeEnabled();
+
+  await confirmButton.click();
+  await expect(page.getByRole('alert')).toContainText(
+    '未入力または条件を満たしていない項目があります。',
+  );
+  await expect(name).toBeFocused();
+  await expect(name).toHaveAttribute('aria-invalid', 'true');
+
   await name.fill('ivuru');
   await page.getByLabel('02 / メールアドレス').fill('test@example.com');
   await page.getByLabel('04 / 件名').fill('テスト問い合わせ');
   await page
     .getByLabel('05 / お問い合わせ内容')
     .fill('これはお問い合わせ送信確認用の十分な長さを持つテスト本文です。');
-  const confirmButton = page.getByRole('button', { name: '送信内容を確認' });
-  await expect(confirmButton).toBeEnabled();
   await confirmButton.click();
 
   await expect(page.getByText('REVIEW_PAYLOAD')).toBeVisible();
   await expect(page.getByRole('button', { name: '送信する' })).toBeEnabled();
+});
+
+test('Digital Room shell is centered and uses the available desktop width', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/');
+
+  const section = page.locator('.digital-room');
+  const shell = page.locator('.digital-room-shell');
+  await shell.scrollIntoViewIfNeeded();
+  await expect(section).not.toHaveClass(/community/);
+  await expect(shell.locator('.room-node')).toHaveCount(8);
+
+  const sectionBox = await section.boundingBox();
+  const shellBox = await shell.boundingBox();
+  expect(sectionBox).not.toBeNull();
+  expect(shellBox).not.toBeNull();
+
+  const leftGap = shellBox!.x - sectionBox!.x;
+  const rightGap = sectionBox!.x + sectionBox!.width - (shellBox!.x + shellBox!.width);
+  expect(Math.abs(leftGap - rightGap)).toBeLessThan(3);
+  expect(shellBox!.width).toBeGreaterThan(sectionBox!.width * 0.65);
 });
 
 test('header and footer expose Contact', async ({ page }) => {
