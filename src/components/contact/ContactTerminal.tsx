@@ -136,6 +136,7 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
   const widget = useRef<HTMLDivElement>(null);
   const widgetId = useRef<string | undefined>(undefined);
   const started = useRef(false);
+  const configLoading = config === null;
 
   useEffect(() => {
     let cancelled = false;
@@ -384,6 +385,7 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
             </div>
           ) : (
             <form
+              aria-busy={configLoading}
               onSubmit={(event) => {
                 event.preventDefault();
                 confirm();
@@ -397,6 +399,7 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
                   maxLength={80}
                   required
                   autoComplete="name"
+                  disabled={configLoading}
                 />
               </label>
               <label>
@@ -408,11 +411,16 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
                   maxLength={254}
                   required
                   autoComplete="email"
+                  disabled={configLoading}
                 />
               </label>
               <label>
                 <span>03 / {t.category}</span>
-                <select value={form.category} onChange={(e) => update('category', e.target.value)}>
+                <select
+                  value={form.category}
+                  onChange={(e) => update('category', e.target.value)}
+                  disabled={configLoading}
+                >
                   <option value="project">{t.project}</option>
                   <option value="community">{t.community}</option>
                   <option value="media">{t.media}</option>
@@ -427,6 +435,7 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
                   minLength={2}
                   maxLength={120}
                   required
+                  disabled={configLoading}
                 />
               </label>
               <label className="contact-message">
@@ -438,6 +447,7 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
                   maxLength={5000}
                   rows={10}
                   required
+                  disabled={configLoading}
                 />
                 <small>{form.message.length} / 5000</small>
               </label>
@@ -448,12 +458,13 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
                   autoComplete="off"
                   value={form.website}
                   onChange={(e) => update('website', e.target.value)}
+                  disabled={configLoading}
                 />
               </label>
               <button
                 type="submit"
                 className="button-primary contact-confirm"
-                disabled={!canConfirm || config === null}
+                disabled={!canConfirm || configLoading}
               >
                 {t.confirm} →
               </button>
