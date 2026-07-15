@@ -48,11 +48,19 @@ npx wrangler secret put RESEND_API_KEY
 `wrangler.jsonc`の既定値:
 
 ```text
-CONTACT_TO_EMAIL=contact@ivrm.jp
-CONTACT_FROM_EMAIL=ivuru Contact <contact@ivrm.jp>
+CONTACT_TO_EMAIL=contact.ivuru@ivrm.jp
+CONTACT_FROM_EMAIL=ivuru Contact <info.ivuru@ivrm.jp>
+CONTACT_RECEIPT_FROM_EMAIL=ivuru Contact <info.ivuru@ivrm.jp>
+CONTACT_RECEIPT_BCC_EMAIL=ivuruGG.info@gmail.com
 ```
 
-Resend側の認証状況に応じて、送信元は`noreply@ivrm.jp`へ変更しても構いません。受信先は`contact@ivrm.jp`のままです。
+メール経路は次のとおりです。
+
+- 管理者通知: `contact.ivuru@ivrm.jp`
+- 自動受付メール送信元: `info.ivuru@ivrm.jp`
+- 自動受付メールBCC: `ivuruGG.info@gmail.com`
+- BCCは自動受付メールだけへ設定し、管理者通知には追加しません
+- Resendで`info.ivuru@ivrm.jp`を送信できるよう、`ivrm.jp`ドメイン認証を完了させます
 
 ## 4. Discord通知（任意）
 
@@ -76,7 +84,7 @@ GET /api/contact
 {
   "ready": true,
   "turnstileSiteKey": "...",
-  "recipient": "contact@ivrm.jp",
+  "recipient": "contact.ivuru@ivrm.jp",
   "discordEnabled": true,
   "queueEnabled": true,
   "statusEnabled": true
@@ -101,8 +109,10 @@ GET /api/contact
 - 不足項目がある場合は項目別エラーが表示される
 - `/contact`でTurnstileが表示される
 - 正常送信でHTTP 202
-- `contact@ivrm.jp`へ管理者通知が届く
-- 送信者へ受付メールが届く
+- `contact.ivuru@ivrm.jp`へ管理者通知が届く
+- 送信者へ`info.ivuru@ivrm.jp`から受付メールが届く
+- 受付メールが`ivuruGG.info@gmail.com`へBCCされる
+- 管理者通知にはBCCが追加されない
 - Discord通知が届く（設定時）
 - 受付番号と照会キーが画面へ表示される
 - 状態照会が有効な場合は`/contact/status/`から確認できる
@@ -126,6 +136,7 @@ Cloudflareのテストキーはローカル・CI専用です。本番環境へ�
 
 - Turnstile tokenは必ずサーバー側で検証します。
 - API KeyとWebhook URLはSecretとして保存します。
+- メールアドレス設定は公開Variableであり、API Keyとは分離します。
 - `keep_vars: true`によりDashboardで追加したVariableを次回デプロイでも維持します。
 - `/api/contact`以外の静的配信はAssets bindingへ委譲します。
 - Contact本文は最大24,000 UTF-8バイト、状態照会本文は最大2,000 UTF-8バイトです。
