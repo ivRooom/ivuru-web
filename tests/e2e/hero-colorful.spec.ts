@@ -13,7 +13,9 @@ test('colorful anime hero layers render without blocking actions', async ({ page
   await expect(hero.getByRole('link', { name: /Works|制作|작업/i }).first()).toBeVisible();
 });
 
-test('reduced motion keeps the colorful key visual but stops decorative motion', async ({ page }) => {
+test('reduced motion keeps the colorful key visual but stops decorative motion', async ({
+  page,
+}) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
   await expect(page.locator('.hero-anime-bloom')).toBeVisible();
