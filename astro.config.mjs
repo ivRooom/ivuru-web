@@ -4,7 +4,10 @@ import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
-const site = process.env.SITE_URL ?? 'https://ivuru-web.pages.dev';
+const site =
+  process.env.SITE_URL?.trim() ||
+  process.env.DEPLOY_PRIME_URL?.trim() ||
+  'https://ivuru-web.pages.dev';
 
 export default defineConfig({
   site,
