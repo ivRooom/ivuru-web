@@ -3,6 +3,8 @@ name: Apply contact email routing
 on:
   push:
     branches: [fix/contact-email-routing]
+  pull_request:
+    branches: [main]
 
 permissions:
   contents: write
@@ -39,35 +41,14 @@ jobs:
               "    replyTo?: string;\n    idempotencyKey: string;",
               "    replyTo?: string;\n    from?: string;\n    bcc?: string;\n    idempotencyKey: string;",
           )
-          old = """  if (!env.RESEND_API_KEY || !env.CONTACT_FROM_EMAIL)
-    throw new Error('Email provider is not configured.');
-  const response = await fetchDelivery('https://api.resend.com/emails', {
-"""
-          new = """  const from = options.from || env.CONTACT_FROM_EMAIL;
-  if (!env.RESEND_API_KEY || !from) throw new Error('Email provider is not configured.');
-  const response = await fetchDelivery('https://api.resend.com/emails', {
-"""
-          text = text.replace(old, new)
-          old_body = """    body: JSON.stringify({
-      from: env.CONTACT_FROM_EMAIL,
-      to: [options.to],
-      subject: options.subject,
-      html: options.html,
-      reply_to: options.replyTo,
-    }),
-"""
-          new_body = """    body: JSON.stringify(
-      buildResendPayload({
-        from,
-        to: options.to,
-        subject: options.subject,
-        html: options.html,
-        replyTo: options.replyTo,
-        bcc: options.bcc,
-      }),
-    ),
-"""
-          text = text.replace(old_body, new_body)
+          text = text.replace(
+              "  if (!env.RESEND_API_KEY || !env.CONTACT_FROM_EMAIL)\n    throw new Error('Email provider is not configured.');\n  const response = await fetchDelivery('https://api.resend.com/emails', {",
+              "  const from = options.from || env.CONTACT_FROM_EMAIL;\n  if (!env.RESEND_API_KEY || !from) throw new Error('Email provider is not configured.');\n  const response = await fetchDelivery('https://api.resend.com/emails', {",
+          )
+          text = text.replace(
+              "    body: JSON.stringify({\n      from: env.CONTACT_FROM_EMAIL,\n      to: [options.to],\n      subject: options.subject,\n      html: options.html,\n      reply_to: options.replyTo,\n    }),",
+              "    body: JSON.stringify(\n      buildResendPayload({\n        from,\n        to: options.to,\n        subject: options.subject,\n        html: options.html,\n        replyTo: options.replyTo,\n        bcc: options.bcc,\n      }),\n    ),",
+          )
           text = text.replace("recipient: env.CONTACT_TO_EMAIL || 'contact@ivrm.jp'", "recipient: env.CONTACT_TO_EMAIL || 'contact.ivuru@ivrm.jp'")
           text = text.replace("const recipient = env.CONTACT_TO_EMAIL || 'contact@ivrm.jp';", "const recipient = env.CONTACT_TO_EMAIL || 'contact.ivuru@ivrm.jp';")
           text = text.replace(
