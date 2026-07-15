@@ -130,3 +130,13 @@ const sceneCopy = {
   <SocialDock locale={locale} />
   <LatestPosts locale={locale} /><ContactCTA locale={locale} /><ScrollEffects client:idle />
 </BaseLayout>
+
+<style>
+  @media (prefers-reduced-motion: reduce) {
+    :global(.world-loader) {
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+  }
+</style>
