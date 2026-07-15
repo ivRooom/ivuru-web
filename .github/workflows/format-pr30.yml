@@ -1,0 +1,41 @@
+name: Format PR 30
+
+on:
+  push:
+    branches: [feat/immersive-worlds]
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/immersive-worlds
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: 変更ファイルを整形
+        run: |
+          npx prettier --write \
+            src/components/pages/HomePage.astro \
+            tests/e2e/immersive-worlds.spec.ts \
+            tests/e2e/site.spec.ts
+      - name: 整形結果をプッシュ
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add src/components/pages/HomePage.astro tests/e2e/immersive-worlds.spec.ts tests/e2e/site.spec.ts
+          if git diff --cached --quiet; then
+            echo "No formatting changes"
+            exit 0
+          fi
+          git commit -m "PR #30のフォーマットを修正"
+          git push origin HEAD:feat/immersive-worlds
