@@ -20,7 +20,8 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - run: npx prettier --write src/components/pages/HomePage.astro src/styles/hero-color-bloom.css tests/e2e/hero-colorful.spec.ts
+      - name: 変更ファイルをPrettierで整形
+        run: npx prettier --write src/components/pages/HomePage.astro src/styles/hero-color-bloom.css tests/e2e/hero-colorful.spec.ts
       - name: 整形結果を反映
         run: |
           git config user.name github-actions[bot]
