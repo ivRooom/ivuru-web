@@ -4,3 +4,7 @@ publish = "dist"
 
 [build.environment]
 NODE_VERSION = "22.22.3"
+
+[context.deploy-preview.environment]
+NODE_VERSION = "22.22.3"
+SITE_URL = "https://ivuru.ivrm.jp"
