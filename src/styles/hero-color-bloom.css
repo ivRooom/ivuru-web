@@ -1,0 +1,350 @@
+.anime-world-hero {
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 18% 20%, rgb(255 152 219 / 28%), transparent 32%),
+    radial-gradient(circle at 82% 18%, rgb(93 238 255 / 30%), transparent 35%),
+    linear-gradient(135deg, #1a1556 0%, #2f247c 38%, #713c91 68%, #ef76b8 115%);
+}
+
+.anime-world-hero .hero-cinematic {
+  background: linear-gradient(135deg, #22175c, #4a2b86 46%, #d85ca8 120%);
+}
+
+.anime-world-hero .hero-cinematic::before {
+  background:
+    linear-gradient(90deg, rgb(21 13 67 / 46%), transparent 42%, rgb(38 19 78 / 28%)),
+    linear-gradient(180deg, rgb(255 203 236 / 8%), transparent 48%, rgb(28 17 78 / 62%));
+}
+
+.anime-world-hero .hero-cinematic video {
+  filter: saturate(1.62) brightness(1.16) contrast(1.02) hue-rotate(-7deg);
+}
+
+.anime-world-hero .hero-cinematic[data-state='playing'] video,
+.anime-world-hero .hero-cinematic[data-state='paused'] video {
+  opacity: 0.9;
+}
+
+.anime-world-hero .hero-cinematic-poster {
+  filter: saturate(1.52) brightness(1.13) hue-rotate(-8deg);
+}
+
+.hero-anime-bloom {
+  position: absolute;
+  z-index: -1;
+  inset: -4%;
+  overflow: hidden;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0.74;
+}
+
+.hero-anime-bloom img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.04);
+  animation: anime-bloom-drift 12s ease-in-out infinite alternate;
+}
+
+.hero-prism-rays {
+  position: absolute;
+  z-index: 0;
+  inset: -20%;
+  overflow: hidden;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.hero-prism-rays i {
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  width: 145%;
+  height: 10%;
+  transform-origin: left center;
+  border-radius: 999px;
+  filter: blur(18px);
+  opacity: 0.28;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #77f7ff 22%,
+    #fff09b 48%,
+    #ff8ed8 72%,
+    transparent
+  );
+  animation: prism-ray-pulse 7s ease-in-out infinite;
+}
+
+.hero-prism-rays i:nth-child(1) {
+  transform: rotate(-22deg);
+}
+
+.hero-prism-rays i:nth-child(2) {
+  transform: rotate(12deg);
+  animation-delay: -2.2s;
+}
+
+.hero-prism-rays i:nth-child(3) {
+  transform: rotate(38deg);
+  animation-delay: -4.4s;
+}
+
+.hero-spark-field,
+.hero-petal-field {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hero-spark-field i {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 18px 5px rgb(255 223 126 / 72%);
+  animation: anime-spark 3.6s ease-in-out infinite;
+}
+
+.hero-spark-field i:nth-child(1) {
+  top: 16%;
+  left: 8%;
+}
+
+.hero-spark-field i:nth-child(2) {
+  top: 68%;
+  left: 18%;
+  animation-delay: -0.8s;
+}
+
+.hero-spark-field i:nth-child(3) {
+  top: 34%;
+  left: 29%;
+  animation-delay: -1.7s;
+}
+
+.hero-spark-field i:nth-child(4) {
+  top: 78%;
+  left: 40%;
+  animation-delay: -2.4s;
+}
+
+.hero-spark-field i:nth-child(5) {
+  top: 17%;
+  left: 52%;
+  animation-delay: -1.2s;
+}
+
+.hero-spark-field i:nth-child(6) {
+  top: 61%;
+  left: 62%;
+  animation-delay: -2.9s;
+}
+
+.hero-spark-field i:nth-child(7) {
+  top: 28%;
+  left: 72%;
+  animation-delay: -0.4s;
+}
+
+.hero-spark-field i:nth-child(8) {
+  top: 70%;
+  left: 84%;
+  animation-delay: -2s;
+}
+
+.hero-spark-field i:nth-child(9) {
+  top: 22%;
+  left: 92%;
+  animation-delay: -3.1s;
+}
+
+.hero-spark-field i:nth-child(10) {
+  top: 44%;
+  left: 13%;
+  animation-delay: -2.6s;
+}
+
+.hero-spark-field i:nth-child(11) {
+  top: 84%;
+  left: 67%;
+  animation-delay: -1.4s;
+}
+
+.hero-spark-field i:nth-child(12) {
+  top: 48%;
+  left: 88%;
+  animation-delay: -0.9s;
+}
+
+.hero-petal-field i {
+  position: absolute;
+  top: -12%;
+  width: 18px;
+  height: 11px;
+  border-radius: 80% 10% 80% 10%;
+  background: linear-gradient(135deg, #fff, #ff9bd6 72%);
+  opacity: 0.65;
+  animation: anime-petal-fall 11s linear infinite;
+}
+
+.hero-petal-field i:nth-child(1) {
+  left: 6%;
+  animation-delay: -2s;
+}
+
+.hero-petal-field i:nth-child(2) {
+  left: 18%;
+  animation-duration: 13s;
+  animation-delay: -7s;
+}
+
+.hero-petal-field i:nth-child(3) {
+  left: 34%;
+  animation-delay: -4s;
+}
+
+.hero-petal-field i:nth-child(4) {
+  left: 47%;
+  animation-duration: 15s;
+  animation-delay: -9s;
+}
+
+.hero-petal-field i:nth-child(5) {
+  left: 61%;
+  animation-delay: -1s;
+}
+
+.hero-petal-field i:nth-child(6) {
+  left: 73%;
+  animation-duration: 12s;
+  animation-delay: -6s;
+}
+
+.hero-petal-field i:nth-child(7) {
+  left: 86%;
+  animation-delay: -3s;
+}
+
+.hero-petal-field i:nth-child(8) {
+  left: 94%;
+  animation-duration: 14s;
+  animation-delay: -8s;
+}
+
+.anime-world-hero .hero-title,
+.anime-world-hero .hero-role,
+.anime-world-hero .hero-tagline {
+  text-shadow:
+    0 4px 24px rgb(31 20 88 / 78%),
+    0 0 32px rgb(255 130 210 / 22%);
+}
+
+.anime-world-hero .primary-button {
+  border-color: rgb(255 255 255 / 55%);
+  background: linear-gradient(135deg, #58ddff, #9a7cff 48%, #ff77c9);
+  box-shadow:
+    0 14px 44px rgb(255 107 194 / 30%),
+    0 0 28px rgb(90 230 255 / 22%);
+}
+
+.anime-world-hero .secondary-button {
+  border-color: rgb(255 255 255 / 34%);
+  background: rgb(29 18 79 / 38%);
+  backdrop-filter: blur(16px) saturate(145%);
+}
+
+html[data-theme='light'] .anime-world-hero {
+  background:
+    radial-gradient(circle at 18% 18%, rgb(255 176 221 / 42%), transparent 34%),
+    radial-gradient(circle at 83% 14%, rgb(112 232 255 / 48%), transparent 36%),
+    linear-gradient(135deg, #eef7ff, #e9e5ff 44%, #ffd8ee 100%);
+}
+
+html[data-theme='light'] .hero-anime-bloom {
+  opacity: 0.58;
+  mix-blend-mode: multiply;
+}
+
+@keyframes anime-bloom-drift {
+  from {
+    transform: scale(1.04) translate3d(-1.5%, -0.8%, 0);
+  }
+
+  to {
+    transform: scale(1.1) translate3d(1.5%, 1%, 0);
+  }
+}
+
+@keyframes prism-ray-pulse {
+  0%,
+  100% {
+    filter: blur(22px);
+    opacity: 0.12;
+  }
+
+  50% {
+    filter: blur(13px);
+    opacity: 0.42;
+  }
+}
+
+@keyframes anime-spark {
+  0%,
+  100% {
+    transform: scale(0.45) rotate(0deg);
+    opacity: 0.2;
+  }
+
+  45% {
+    transform: scale(1.2) rotate(90deg);
+    opacity: 1;
+  }
+
+  65% {
+    transform: scale(0.75) rotate(150deg);
+    opacity: 0.55;
+  }
+}
+
+@keyframes anime-petal-fall {
+  from {
+    transform: translate3d(0, -10vh, 0) rotate(0deg);
+  }
+
+  to {
+    transform: translate3d(10vw, 120vh, 0) rotate(720deg);
+  }
+}
+
+@media (max-width: 720px) {
+  .hero-anime-bloom {
+    inset: -10%;
+    opacity: 0.65;
+  }
+
+  .hero-prism-rays {
+    inset: -35%;
+  }
+
+  .hero-petal-field i:nth-child(even) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-anime-bloom img,
+  .hero-prism-rays i,
+  .hero-spark-field i,
+  .hero-petal-field i {
+    animation: none !important;
+  }
+
+  .hero-petal-field {
+    display: none;
+  }
+}

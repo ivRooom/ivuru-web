@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">ivuru colorful world gate</title>
+  <desc id="desc">An original abstract anime-inspired portal with clouds, stars, ribbons and prism light.</desc>
+  <defs>
+    <radialGradient id="sky" cx="50%" cy="45%" r="72%">
+      <stop offset="0" stop-color="#fff6cf"/>
+      <stop offset=".2" stop-color="#ffbfe5"/>
+      <stop offset=".48" stop-color="#9ee9ff"/>
+      <stop offset=".76" stop-color="#8d8bff"/>
+      <stop offset="1" stop-color="#43247b" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#64f7ff"/>
+      <stop offset=".3" stop-color="#fff08a"/>
+      <stop offset=".6" stop-color="#ff7fcf"/>
+      <stop offset="1" stop-color="#9d7cff"/>
+    </linearGradient>
+    <linearGradient id="ribbonA" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#65f5ff" stop-opacity="0"/>
+      <stop offset=".35" stop-color="#65f5ff" stop-opacity=".86"/>
+      <stop offset=".7" stop-color="#ff89d7" stop-opacity=".9"/>
+      <stop offset="1" stop-color="#ff89d7" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="18" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="26"/>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#sky)" opacity=".88"/>
+  <circle cx="800" cy="430" r="272" fill="none" stroke="url(#ring)" stroke-width="28" opacity=".34" filter="url(#glow)"/>
+  <circle cx="800" cy="430" r="208" fill="#ffffff" opacity=".18" filter="url(#soft)"/>
+  <circle cx="800" cy="430" r="148" fill="#fff9dc" opacity=".28" filter="url(#glow)"/>
+
+  <path d="M-100 620C250 460 420 720 780 525S1320 360 1700 510" fill="none" stroke="url(#ribbonA)" stroke-width="54" opacity=".46" filter="url(#glow)"/>
+  <path d="M-80 720C290 520 530 760 880 600s510-60 800-190" fill="none" stroke="url(#ribbonA)" stroke-width="22" opacity=".65"/>
+  <path d="M180 140C440 320 570 80 850 210s360 210 590 70" fill="none" stroke="url(#ribbonA)" stroke-width="20" opacity=".42"/>
+
+  <g fill="#fff" opacity=".82">
+    <path d="M225 195l8 22 23 8-23 8-8 22-8-22-23-8 23-8z"/>
+    <path d="M1320 184l6 17 18 6-18 6-6 17-6-17-18-6 18-6z"/>
+    <path d="M1190 612l10 28 28 10-28 10-10 28-10-28-28-10 28-10z"/>
+    <path d="M430 690l7 19 19 7-19 7-7 19-7-19-19-7 19-7z"/>
+  </g>
+
+  <g fill="none" stroke-linecap="round">
+    <path d="M338 738c180-155 330-205 462-220" stroke="#fff" stroke-width="4" opacity=".34"/>
+    <path d="M1260 698c-180-130-300-172-460-180" stroke="#fff" stroke-width="3" opacity=".26"/>
+  </g>
+
+  <g fill="#fff" opacity=".72">
+    <ellipse cx="180" cy="782" rx="230" ry="72"/>
+    <ellipse cx="420" cy="820" rx="290" ry="96"/>
+    <ellipse cx="1280" cy="802" rx="340" ry="100"/>
+    <ellipse cx="1510" cy="742" rx="220" ry="76"/>
+  </g>
+
+  <g fill="#ffd1eb" opacity=".72">
+    <path d="M285 354c18-28 48-12 38 14-9 22-31 34-49 46 1-23-1-44 11-60z"/>
+    <path d="M1390 408c14-24 40-9 31 13-8 18-27 27-42 37 2-19 2-35 11-50z"/>
+    <path d="M1110 218c15-23 39-5 28 15-9 16-26 24-42 32 4-17 5-32 14-47z"/>
+  </g>
+</svg>
