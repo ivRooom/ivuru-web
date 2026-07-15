@@ -6,8 +6,10 @@
   "keep_vars": true,
 
   "vars": {
-    "CONTACT_TO_EMAIL": "contact@ivrm.jp",
-    "CONTACT_FROM_EMAIL": "ivuru Contact <contact@ivrm.jp>",
+    "CONTACT_TO_EMAIL": "contact.ivuru@ivrm.jp",
+    "CONTACT_FROM_EMAIL": "ivuru Contact <info.ivuru@ivrm.jp>",
+    "CONTACT_RECEIPT_FROM_EMAIL": "ivuru Contact <info.ivuru@ivrm.jp>",
+    "CONTACT_RECEIPT_BCC_EMAIL": "ivuruGG.info@gmail.com",
     "CONTACT_RETENTION_DAYS": "90",
     "ALLOWED_ORIGINS": "https://ivurugg.ivrm.jp",
   },
