@@ -6,13 +6,22 @@ test('core routes and language variants render', async ({ page }) => {
     '/profile',
     '/works',
     '/portfolio',
+    '/news',
+    '/games',
+    '/favorites',
     '/blog',
     '/privacy',
     '/terms',
     '/customer-harassment',
     '/en',
+    '/en/news',
+    '/en/games',
+    '/en/favorites',
     '/en/customer-harassment',
     '/ko',
+    '/ko/news',
+    '/ko/games',
+    '/ko/favorites',
     '/ko/customer-harassment',
   ]) {
     const response = await page.goto(route);
@@ -33,7 +42,9 @@ test('world loader appears on access and clears safely', async ({ page }) => {
   await expect(page.locator('.world-loader')).toBeHidden({ timeout: 2000 });
 });
 
-test('chapter cut shows the destination chapter without replaying the intro loader', async ({ page }) => {
+test('chapter cut shows the destination chapter without replaying the intro loader', async ({
+  page,
+}) => {
   await page.goto('/');
   await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
   const chapterCut = page.locator('.chapter-cut');
@@ -64,7 +75,9 @@ test('theme selection persists', async ({ page }) => {
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
 });
 
-test('mobile menu remains viewport-bound and reachable at mobile and tablet widths', async ({ page }) => {
+test('mobile menu remains viewport-bound and reachable at mobile and tablet widths', async ({
+  page,
+}) => {
   for (const viewport of [
     { width: 390, height: 844 },
     { width: 768, height: 720 },
@@ -82,7 +95,7 @@ test('mobile menu remains viewport-bound and reachable at mobile and tablet widt
     await expect(dialog).toBeVisible();
     await expect(page.locator('body')).toHaveClass(/menu-open/);
     await expect(layer).toHaveCSS('position', 'fixed');
-    await expect(links).toHaveCount(5);
+    await expect(links).toHaveCount(8);
     await expect(panel.locator('nav a[href$="/contact"]')).toBeVisible();
     const layerBox = await layer.boundingBox();
     const panelBox = await panel.boundingBox();
@@ -144,15 +157,28 @@ test('profile passport keeps image and data within the character sheet', async (
     expect(sheetBox).not.toBeNull();
     expect(portraitBox).not.toBeNull();
     expect(dataBox).not.toBeNull();
-    expect((portraitBox?.x ?? 0) + (portraitBox?.width ?? 0)).toBeLessThanOrEqual((sheetBox?.x ?? 0) + (sheetBox?.width ?? 0) + 1);
-    expect((dataBox?.x ?? 0) + (dataBox?.width ?? 0)).toBeLessThanOrEqual((sheetBox?.x ?? 0) + (sheetBox?.width ?? 0) + 1);
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBeTruthy();
+    expect((portraitBox?.x ?? 0) + (portraitBox?.width ?? 0)).toBeLessThanOrEqual(
+      (sheetBox?.x ?? 0) + (sheetBox?.width ?? 0) + 1,
+    );
+    expect((dataBox?.x ?? 0) + (dataBox?.width ?? 0)).toBeLessThanOrEqual(
+      (sheetBox?.x ?? 0) + (sheetBox?.width ?? 0) + 1,
+    );
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1,
+      ),
+    ).toBeTruthy();
   }
 });
 
-test('detail routes keep their parent navigation active and shared transition names', async ({ page }) => {
+test('detail routes keep their parent navigation active and shared transition names', async ({
+  page,
+}) => {
   await page.goto('/works/ivrm-community');
-  await expect(page.locator('.desktop-nav a[href="/works"]')).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator('.desktop-nav a[href="/works"]')).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
   await expect(page.locator('.mission-briefing-hero')).toBeVisible();
 });
 
@@ -165,10 +191,15 @@ test('works filter and blog search work', async ({ page }) => {
   await expect(page.getByText('一致する項目がありません。')).toBeVisible();
 });
 
-test('portfolio is removed from main navigation but reachable from works and footer', async ({ page }) => {
+test('portfolio is removed from main navigation but reachable from works and footer', async ({
+  page,
+}) => {
   await page.goto('/works');
   await expect(page.locator('.desktop-nav a[href="/portfolio"]')).toHaveCount(0);
-  await expect(page.getByRole('link', { name: /Developer Consoleを開く/ })).toHaveAttribute('href', '/portfolio');
+  await expect(page.getByRole('link', { name: /Developer Consoleを開く/ })).toHaveAttribute(
+    'href',
+    '/portfolio',
+  );
   await expect(page.locator('footer a[href="/portfolio"]').first()).toBeVisible();
   await expect(page.locator('.developer-stack-matrix')).toBeVisible();
 });
@@ -185,20 +216,33 @@ test('developer portfolio stays within the viewport and links to Contact', async
     await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
     await expect(page.locator('.console-module-grid article')).toHaveCount(6);
     await expect(page.locator('.console-contact-cta a[href="/contact"]')).toBeVisible();
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBeTruthy();
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1,
+      ),
+    ).toBeTruthy();
   }
 });
 
-test('profile renders X avatar, social nodes, contact email, and game clip archive', async ({ page }) => {
+test('profile renders X avatar, social nodes, contact email, and game clip archive', async ({
+  page,
+}) => {
   await page.goto('/profile');
-  await expect(page.locator('.profile-avatar-frame img')).toHaveAttribute('src', /unavatar\.io\/x\/ivuruGG/);
+  await expect(page.locator('.profile-avatar-frame img')).toHaveAttribute(
+    'src',
+    /unavatar\.io\/x\/ivuruGG/,
+  );
   await expect(page.locator('.social-node-grid a[href="https://x.com/ivuruGG"]')).toBeVisible();
-  await expect(page.locator('.social-node-grid a[href="mailto:contact@ivrm.jp"]')).toBeVisible();
+  await expect(
+    page.locator('.social-node-grid a[href="mailto:contact.ivuru@ivrm.jp"]'),
+  ).toBeVisible();
   await expect(page.locator('.game-clip-archive')).toBeVisible();
-  await expect(page.getByText('NO REPLAY DATA')).toBeVisible();
+  await expect(page.locator('.clip-card')).toHaveCount(3);
 });
 
-test('social embeds require an explicit action before third-party scripts load', async ({ page }) => {
+test('social embeds require an explicit action before third-party scripts load', async ({
+  page,
+}) => {
   await page.route('https://platform.x.com/**', (route) => route.abort());
   await page.route('https://platform.twitter.com/**', (route) => route.abort());
   await page.goto('/');
@@ -216,15 +260,31 @@ test('social embeds require an explicit action before third-party scripts load',
 
 test('brand OGP and Twitter fallback metadata are present', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute('content', 'いゔる。 / ivuru');
-  await expect(page.locator('meta[property="og:image"]').first()).toHaveAttribute('content', /\/assets\/og\/ivuru-brand-og\.svg$/);
-  await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute('content', /\/assets\/og\/og-background\.png$/);
-  await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute('content', /いゔる。 \/ ivuru/);
+  await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute(
+    'content',
+    'いゔる。 / ivuru',
+  );
+  await expect(page.locator('meta[property="og:image"]').first()).toHaveAttribute(
+    'content',
+    /\/assets\/og\/ivuru-brand-og\.svg$/,
+  );
+  await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
+    'content',
+    /\/assets\/og\/og-background\.png$/,
+  );
+  await expect(page.locator('meta[name="twitter:title"]')).toHaveAttribute(
+    'content',
+    /いゔる。 \/ ivuru/,
+  );
 });
 
-test('customer harassment policy preserves legitimate feedback and response measures', async ({ page }) => {
+test('customer harassment policy preserves legitimate feedback and response measures', async ({
+  page,
+}) => {
   await page.goto('/customer-harassment');
-  await expect(page.getByRole('heading', { name: 'カスタマーハラスメント等への対応方針' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'カスタマーハラスメント等への対応方針' }),
+  ).toBeVisible();
   await expect(page.getByRole('heading', { name: '正当なご意見・ご要望について' })).toBeVisible();
   await expect(page.getByText(/警察、弁護士/)).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('data-chapter', '90');

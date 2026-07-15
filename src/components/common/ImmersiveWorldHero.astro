@@ -1,0 +1,54 @@
+---
+import AdaptiveLoopVideo from './AdaptiveLoopVideo';
+
+type Props = {
+  code: string;
+  label: string;
+  title: string;
+  description: string;
+  tone: 'news' | 'games' | 'favorites';
+  media?: {
+    webm: string;
+    mp4: string;
+    poster: string;
+  };
+};
+
+const { code, label, title, description, tone, media } = Astro.props;
+---
+
+<header class:list={['immersive-page-hero', `immersive-page-hero-${tone}`]} data-page-intro>
+  <div class="immersive-hero-media" aria-hidden={!media}>
+    {
+      media ? (
+        <AdaptiveLoopVideo
+          client:visible
+          webm={media.webm}
+          mp4={media.mp4}
+          poster={media.poster}
+          title={title}
+          className="immersive-hero-video"
+          eager
+        />
+      ) : (
+        <img
+          src="/assets/visuals/hero-anime-keyvisual.svg"
+          alt=""
+          width="960"
+          height="600"
+          loading="eager"
+        />
+      )
+    }
+  </div>
+  <div class="immersive-hero-prism" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="immersive-hero-copy">
+    <span>{code} / {label}</span>
+    <h1>{title}</h1>
+    <p>{description}</p>
+    <slot />
+  </div>
+  <div class="immersive-hero-frame" aria-hidden="true">
+    <span>IVURU WORLD ARCHIVE</span><span>ONLINE / SYNCHRONIZED</span>
+  </div>
+</header>

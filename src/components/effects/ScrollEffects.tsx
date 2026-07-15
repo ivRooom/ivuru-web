@@ -13,6 +13,9 @@ const depthMap: Record<string, number> = {
   'label-right': 11,
   copy: 4,
   coordinates: 8,
+  bloom: 7,
+  sparkles: 18,
+  petals: 14,
 };
 
 export default function ScrollEffects() {
@@ -51,6 +54,26 @@ export default function ScrollEffects() {
             delay: (index % 3) * 0.06,
             ease: 'power3.out',
             scrollTrigger: { trigger: element, start: 'top 86%', once: true },
+          },
+        );
+      });
+
+      gsap.utils.toArray<HTMLElement>('[data-enter-side]').forEach((element) => {
+        const direction = element.dataset.enterSide === 'right' ? 1 : -1;
+        gsap.fromTo(
+          element,
+          {
+            x: direction * Math.min(window.innerWidth * 0.12, 140),
+            opacity: 0,
+            rotateY: direction * -4,
+          },
+          {
+            x: 0,
+            opacity: 1,
+            rotateY: 0,
+            duration: 1.15,
+            ease: 'power3.out',
+            scrollTrigger: { trigger: element, start: 'top 88%', once: true },
           },
         );
       });

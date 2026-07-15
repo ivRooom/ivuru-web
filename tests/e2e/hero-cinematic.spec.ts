@@ -38,14 +38,14 @@ test.describe('cinematic home hero', () => {
 
     await expect(media).toBeVisible();
     await expect(video).toHaveCount(1);
-    await expect(video).toHaveAttribute('poster', '/assets/video/hero-cinematic-poster.webp');
+    await expect(video).toHaveAttribute('poster', '/assets/video/hero-anime-op-poster.webp');
     await expect(video.locator('source[type="video/webm"]')).toHaveAttribute(
       'src',
-      '/assets/video/hero-cinematic-loop.webm',
+      '/assets/video/hero-anime-op-loop.webm',
     );
     await expect(video.locator('source[type="video/mp4"]')).toHaveAttribute(
       'src',
-      '/assets/video/hero-cinematic-loop.mp4',
+      '/assets/video/hero-anime-op-loop.mp4',
     );
     await expect(toggle).toBeVisible();
     await expect(toggle).toHaveAttribute('aria-pressed', 'true');
@@ -68,7 +68,7 @@ test.describe('cinematic home hero', () => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     let videoRequests = 0;
     page.on('request', (request) => {
-      if (/hero-cinematic-loop\.(webm|mp4)$/.test(new URL(request.url()).pathname)) {
+      if (/hero-anime-op-loop\.(webm|mp4)$/.test(new URL(request.url()).pathname)) {
         videoRequests += 1;
       }
     });

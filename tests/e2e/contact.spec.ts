@@ -13,7 +13,7 @@ for (const [route, heading] of [
         body: JSON.stringify({
           ready: false,
           turnstileSiteKey: null,
-          recipient: 'contact@ivrm.jp',
+          recipient: 'contact.ivuru@ivrm.jp',
           discordEnabled: false,
         }),
       }),
@@ -24,7 +24,7 @@ for (const [route, heading] of [
     await expect(page.locator('.contact-terminal')).toBeVisible();
     await expect(page.locator('.contact-terminal-unavailable a')).toHaveAttribute(
       'href',
-      'mailto:contact@ivrm.jp',
+      'mailto:contact.ivuru@ivrm.jp',
     );
     await expect(page.locator('html')).toHaveAttribute('data-chapter', '05');
   });
@@ -56,7 +56,7 @@ test('turnstile initializes after validation and the confirmation panel mounts',
       body: JSON.stringify({
         ready: true,
         turnstileSiteKey: 'test-site-key',
-        recipient: 'contact@ivrm.jp',
+        recipient: 'contact.ivuru@ivrm.jp',
         discordEnabled: true,
       }),
     });

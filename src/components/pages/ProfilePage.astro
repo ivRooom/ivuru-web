@@ -3,7 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import { profile } from '@/data/profile';
 import { gameClips } from '@/data/game-clips';
 import { socialLinks } from '@/data/social-links';
-import { siteConfig, type Locale } from '@/data/site-config';
+import { localePath, siteConfig, type Locale } from '@/data/site-config';
 import { getDictionary } from '@/i18n/dictionaries';
 
 const { locale } = Astro.props as { locale: Locale };
@@ -16,39 +16,47 @@ const about = {
 const copy = {
   ja: {
     social: '通信ノード',
-    socialIntro: '活動・配信・コミュニティ・連絡先へ接続します。公開URLが設定されているノードだけを表示します。',
+    socialIntro:
+      '活動・配信・コミュニティ・連絡先へ接続します。公開URLが設定されているノードだけを表示します。',
     clips: 'ゲームリプレイ・アーカイブ',
     clipsIntro: 'ゲームクリップ、配信切り抜き、ショート動画を記録する領域です。',
-    clipsEmpty: '公開できるクリップを準備中です。YouTube・Twitch・TikTok・Xの実URLを追加すると表示されます。',
+    clipsEmpty:
+      '公開できるクリップを準備中です。YouTube・Twitch・TikTok・Xの実URLを追加すると表示されます。',
     passport: 'WORLD PASSPORT',
     access: 'ACCESS LEVEL / CREATOR',
     identities: 'CONNECTED IDENTITIES / 03',
     nowBuilding: 'NOW BUILDING',
     nowPlaying: 'NOW PLAYING',
+    nowListening: 'NOW LISTENING',
   },
   en: {
     social: 'Communication Nodes',
-    socialIntro: 'Connect to activity, streams, community, and contact routes. Only configured nodes are shown.',
+    socialIntro:
+      'Connect to activity, streams, community, and contact routes. Only configured nodes are shown.',
     clips: 'Game Replay Archive',
     clipsIntro: 'A place for game clips, stream highlights, and short-form video.',
-    clipsEmpty: 'Public clips are being prepared. Cards appear after real YouTube, Twitch, TikTok, or X URLs are added.',
+    clipsEmpty:
+      'Public clips are being prepared. Cards appear after real YouTube, Twitch, TikTok, or X URLs are added.',
     passport: 'WORLD PASSPORT',
     access: 'ACCESS LEVEL / CREATOR',
     identities: 'CONNECTED IDENTITIES / 03',
     nowBuilding: 'NOW BUILDING',
     nowPlaying: 'NOW PLAYING',
+    nowListening: 'NOW LISTENING',
   },
   ko: {
     social: '통신 노드',
     socialIntro: '활동, 방송, 커뮤니티, 연락처로 연결합니다. 설정된 노드만 표시합니다.',
     clips: '게임 리플레이 아카이브',
     clipsIntro: '게임 클립, 방송 하이라이트, 숏폼 영상을 기록하는 영역입니다.',
-    clipsEmpty: '공개 가능한 클립을 준비 중입니다. 실제 YouTube, Twitch, TikTok, X URL을 추가하면 표시됩니다.',
+    clipsEmpty:
+      '공개 가능한 클립을 준비 중입니다. 실제 YouTube, Twitch, TikTok, X URL을 추가하면 표시됩니다.',
     passport: 'WORLD PASSPORT',
     access: 'ACCESS LEVEL / CREATOR',
     identities: 'CONNECTED IDENTITIES / 03',
     nowBuilding: 'NOW BUILDING',
     nowPlaying: 'NOW PLAYING',
+    nowListening: 'NOW LISTENING',
   },
 }[locale];
 ---
@@ -64,7 +72,9 @@ const copy = {
       <p class="eyebrow">CHARACTER FILE / 001</p>
       <h1 class="page-title">{d.profile.title}</h1>
       <p>{d.profile.intro}</p>
-      <div class="character-scan" aria-hidden="true"><i></i><span>ID / {profile.id.toUpperCase()}</span></div>
+      <div class="character-scan" aria-hidden="true">
+        <i></i><span>ID / {profile.id.toUpperCase()}</span>
+      </div>
     </div>
   </header>
 
@@ -124,8 +134,21 @@ const copy = {
 
   <section class="profile-now-grid section" data-world-zone="signal">
     <div class="section-inner now-panels">
-      <article data-reveal><small>{copy.nowBuilding}</small><strong>ivuru Official World</strong><p>Astro / React / Cloudflare</p></article>
-      <article data-reveal><small>{copy.nowPlaying}</small><strong>Gamer World</strong><p>Clips / Streams / Community Sessions</p></article>
+      <article data-reveal>
+        <small>{copy.nowBuilding}</small><strong>ivuru Official World</strong><p>
+          Astro / React / Cloudflare
+        </p>
+      </article>
+      <article data-reveal>
+        <small>{copy.nowPlaying}</small><strong>Gamer World</strong><p>
+          Clips / Streams / Community Sessions
+        </p>
+      </article>
+      <article data-reveal>
+        <small>{copy.nowListening}</small><strong>Favorite Sound World</strong><p>
+          Music / Pages / Personal Archive
+        </p><a href={localePath(locale, '/favorites')}>OPEN FAVORITES ↗</a>
+      </article>
     </div>
   </section>
 
@@ -136,20 +159,22 @@ const copy = {
         <p class="section-intro">{copy.socialIntro}</p>
       </div>
       <div class="social-node-grid">
-        {socialLinks.map((item, index) => (
-          <a
-            class={`social-node social-${item.accent}`}
-            href={item.href}
-            target={item.key === 'email' ? undefined : '_blank'}
-            rel={item.key === 'email' ? undefined : 'noopener noreferrer'}
-            data-reveal
-          >
-            <small>NODE / {String(index + 1).padStart(2, '0')}</small>
-            <strong>{item.label}</strong>
-            <span>{item.description}</span>
-            <i aria-hidden="true">↗</i>
-          </a>
-        ))}
+        {
+          socialLinks.map((item, index) => (
+            <a
+              class={`social-node social-${item.accent}`}
+              href={item.href}
+              target={item.key === 'email' ? undefined : '_blank'}
+              rel={item.key === 'email' ? undefined : 'noopener noreferrer'}
+              data-reveal
+            >
+              <small>NODE / {String(index + 1).padStart(2, '0')}</small>
+              <strong>{item.label}</strong>
+              <span>{item.description}</span>
+              <i aria-hidden="true">↗</i>
+            </a>
+          ))
+        }
       </div>
     </div>
   </section>
@@ -160,23 +185,46 @@ const copy = {
         <div><p class="section-kicker">REPLAY STORAGE</p><h2>{copy.clips}</h2></div>
         <p class="section-intro">{copy.clipsIntro}</p>
       </div>
-      {gameClips.length > 0 ? (
-        <div class="clip-grid">
-          {gameClips.map((clip, index) => (
-            <a class="clip-card" href={clip.url} target="_blank" rel="noopener noreferrer" data-reveal>
-              <div class="clip-visual">
-                {clip.thumbnail ? <img src={clip.thumbnail} alt="" loading="lazy" /> : <span>REPLAY / {String(index + 1).padStart(2, '0')}</span>}
-                <b>{clip.duration ?? 'CLIP'}</b>
-              </div>
-              <small>{clip.platform.toUpperCase()} / {clip.game}</small>
-              <h3>{clip.title}</h3>
-              <div>{clip.tags?.map((tag) => <span>#{tag}</span>)}</div>
-            </a>
-          ))}
-        </div>
-      ) : (
-        <div class="clip-empty" data-reveal><span>NO REPLAY DATA</span><p>{copy.clipsEmpty}</p></div>
-      )}
+      {
+        gameClips.length > 0 ? (
+          <div class="clip-grid">
+            {gameClips.map((clip, index) => (
+              <a
+                class="clip-card"
+                href={clip.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-reveal
+              >
+                <div class="clip-visual">
+                  {clip.thumbnail ? (
+                    <img src={clip.thumbnail} alt="" loading="lazy" />
+                  ) : (
+                    <span>REPLAY / {String(index + 1).padStart(2, '0')}</span>
+                  )}
+                  <b>{clip.duration ?? 'CLIP'}</b>
+                </div>
+                <small>
+                  {clip.platform.toUpperCase()} / {clip.game}
+                </small>
+                <h3>{clip.title}</h3>
+                <div>
+                  {clip.tags?.map((tag) => (
+                    <span>#{tag}</span>
+                  ))}
+                </div>
+              </a>
+            ))}
+          </div>
+        ) : (
+          <div class="clip-empty" data-reveal>
+            <>
+              <span>NO REPLAY DATA</span>
+              <p>{copy.clipsEmpty}</p>
+            </>
+          </div>
+        )
+      }
     </div>
   </section>
 
@@ -186,12 +234,26 @@ const copy = {
         <div><p class="section-kicker">CAPABILITY MODULES</p><h2>{d.profile.stack}</h2></div>
       </div>
       <div class="stack-groups character-module-grid">
-        {Object.entries(profile.stack).map(([group, items], groupIndex) => (
-          <article data-reveal>
-            <header><small>MODULE / {String(groupIndex + 1).padStart(2, '0')}</small><h3>{group}</h3></header>
-            <ul>{items.map((item) => <li><span>{item.name}</span><small data-status={item.status}>{d.profile.statuses[item.status]}</small></li>)}</ul>
-          </article>
-        ))}
+        {
+          Object.entries(profile.stack).map(([group, items], groupIndex) => (
+            <article data-reveal>
+              <header>
+                <>
+                  <small>MODULE / {String(groupIndex + 1).padStart(2, '0')}</small>
+                  <h3>{group}</h3>
+                </>
+              </header>
+              <ul>
+                {items.map((item) => (
+                  <li>
+                    <span>{item.name}</span>
+                    <small data-status={item.status}>{d.profile.statuses[item.status]}</small>
+                  </li>
+                ))}
+              </ul>
+            </article>
+          ))
+        }
       </div>
     </div>
   </section>
@@ -199,12 +261,23 @@ const copy = {
   <section class="timeline character-history section" data-world-zone="night">
     <div class="section-inner">
       <div class="section-heading" data-reveal>
-        <div><p class="section-kicker">CHARACTER LOG / NOW → NEXT</p><h2>{d.profile.timeline}</h2></div>
+        <div>
+          <p class="section-kicker">CHARACTER LOG / NOW → NEXT</p><h2>{d.profile.timeline}</h2>
+        </div>
       </div>
       <div class="timeline-list">
-        {profile.timeline.map((item, index) => (
-          <article data-reveal><span>{item.year}</span><i /><p>{d.profile.timelineItems[item.key]}</p><small>LOG-{String(index + 1).padStart(2, '0')}</small></article>
-        ))}
+        {
+          profile.timeline.map((item, index) => (
+            <article data-reveal>
+              <>
+                <span>{item.year}</span>
+                <i />
+                <p>{d.profile.timelineItems[item.key]}</p>
+                <small>LOG-{String(index + 1).padStart(2, '0')}</small>
+              </>
+            </article>
+          ))
+        }
       </div>
     </div>
   </section>

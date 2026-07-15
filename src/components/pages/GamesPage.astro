@@ -1,0 +1,139 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ImmersiveWorldHero from '@/components/common/ImmersiveWorldHero.astro';
+import ScrollEffects from '@/components/effects/ScrollEffects';
+import AdaptiveLoopVideo from '@/components/common/AdaptiveLoopVideo';
+import { gameWorlds } from '@/data/game-worlds';
+import { localePath, siteConfig, type Locale } from '@/data/site-config';
+import '@/styles/immersive-worlds.css';
+
+const { locale } = Astro.props as { locale: Locale };
+const copy = {
+  ja: {
+    label: 'GAMER WORLD',
+    title: 'Games / Replay Gate',
+    description: 'ゲームの熱量を、左右から飛び込んでくるアニメ調クリップと光の演出で記録します。',
+    clips: 'ゲームクリップ・ゲート',
+    clipsIntro: 'すべてサイト用に生成したオリジナルコンセプト映像です。',
+    concept: 'ORIGINAL CONCEPT FOOTAGE',
+    playStyle: 'PLAY STYLE',
+    playTitle: '競う、つくる、つながる。',
+    playBody:
+      'FPSの緊張感、サンドボックスの創造性、協力プレイの一体感。ジャンルを越えて、体験を共有できるゲームが好きです。',
+    styles: ['FPS / Tactical', 'Sandbox / Building', 'Co-op / Community', 'RPG / Adventure'],
+    home: 'ホームへ戻る',
+  },
+  en: {
+    label: 'GAMER WORLD',
+    title: 'Games / Replay Gate',
+    description: 'Game energy is captured through anime-inspired clips that enter from both sides.',
+    clips: 'Game clip gates',
+    clipsIntro: 'Every sequence is original concept footage generated for this site.',
+    concept: 'ORIGINAL CONCEPT FOOTAGE',
+    playStyle: 'PLAY STYLE',
+    playTitle: 'Compete, build, and connect.',
+    playBody:
+      'The tension of FPS games, sandbox creativity, and the unity of co-op play all become shared experiences.',
+    styles: ['FPS / Tactical', 'Sandbox / Building', 'Co-op / Community', 'RPG / Adventure'],
+    home: 'Back home',
+  },
+  ko: {
+    label: 'GAMER WORLD',
+    title: 'Games / Replay Gate',
+    description: '좌우에서 등장하는 애니메이션풍 클립과 빛의 연출로 게임의 에너지를 기록합니다.',
+    clips: '게임 클립 게이트',
+    clipsIntro: '모든 영상은 이 사이트를 위해 생성한 오리지널 콘셉트 영상입니다.',
+    concept: 'ORIGINAL CONCEPT FOOTAGE',
+    playStyle: 'PLAY STYLE',
+    playTitle: '경쟁하고, 만들고, 연결하다.',
+    playBody: 'FPS의 긴장감, 샌드박스의 창의성, 협동 플레이의 일체감을 장르를 넘어 공유합니다.',
+    styles: ['FPS / Tactical', 'Sandbox / Building', 'Co-op / Community', 'RPG / Adventure'],
+    home: '홈으로 돌아가기',
+  },
+}[locale];
+---
+
+<BaseLayout
+  title={`${copy.title} — ${siteConfig.name} / ${siteConfig.idName}`}
+  description={copy.description}
+  locale={locale}
+  image="/assets/video/games/neon-rift-poster.webp"
+  chapter={{ code: '04', title: 'REPLAY GATE', world: 'GAMER WORLD' }}
+>
+  <ImmersiveWorldHero
+    code="CHAPTER 04"
+    label={copy.label}
+    title={copy.title}
+    description={copy.description}
+    tone="games"
+    media={{
+      webm: '/assets/video/games/neon-rift.webm',
+      mp4: '/assets/video/games/neon-rift.mp4',
+      poster: '/assets/video/games/neon-rift-poster.webp',
+    }}
+  >
+    <a class="immersive-hero-action" href={localePath(locale, '/')}>{copy.home}</a>
+  </ImmersiveWorldHero>
+
+  <section class="game-world-section section" data-world-zone="gamer">
+    <div class="section-inner">
+      <div class="section-heading" data-reveal>
+        <div><p class="section-kicker">REPLAY SEQUENCE / 01—03</p><h2>{copy.clips}</h2></div>
+        <p class="section-intro">{copy.clipsIntro}</p>
+      </div>
+      <div class="game-clip-sequence">
+        {
+          gameWorlds.map((world, index) => (
+            <article
+              class:list={[
+                'game-cinematic-card',
+                `game-card-${world.accent}`,
+                `game-card-${world.side}`,
+              ]}
+              data-enter-side={world.side}
+              data-reveal
+            >
+              <div class="game-card-index" aria-hidden="true">
+                0{index + 1}
+              </div>
+              <AdaptiveLoopVideo
+                client:visible
+                webm={world.webm}
+                mp4={world.mp4}
+                poster={world.poster}
+                title={world.title}
+                className="game-card-video"
+              />
+              <div class="game-card-copy">
+                <small>{copy.concept}</small>
+                <h3>{world.title}</h3>
+                <strong>{world.subtitle[locale]}</strong>
+                <p>{world.description[locale]}</p>
+                <div>
+                  {world.tags.map((tag) => (
+                    <span>#{tag}</span>
+                  ))}
+                </div>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="play-style-section section" data-world-zone="creative">
+    <div class="section-inner play-style-grid">
+      <div data-reveal>
+        <p class="section-kicker">{copy.playStyle}</p>
+        <h2>{copy.playTitle}</h2>
+        <p>{copy.playBody}</p>
+      </div>
+      <div class="play-style-orbit" aria-label="Favorite game styles">
+        {copy.styles.map((style, index) => <span style={`--orbit-order:${index}`}>{style}</span>)}
+        <i aria-hidden="true"></i>
+      </div>
+    </div>
+  </section>
+  <ScrollEffects client:idle />
+</BaseLayout>

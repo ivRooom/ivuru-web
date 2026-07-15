@@ -66,7 +66,7 @@ test('contact confirmation configures Turnstile action', async ({ page }) => {
       body: JSON.stringify({
         ready: true,
         turnstileSiteKey: 'test-key',
-        recipient: 'contact@ivrm.jp',
+        recipient: 'contact.ivuru@ivrm.jp',
         discordEnabled: false,
       }),
     }),

@@ -12,6 +12,9 @@ export const analyticsEventNames = [
   'contact_success',
   'contact_error',
   'command_center_open',
+  'world_portal_open',
+  'media_playback_toggle',
+  'spotify_load',
   'language_change',
   'theme_change',
 ] as const;
@@ -94,6 +97,18 @@ export const analyticsEventMap: Record<
   command_center_open: {
     purpose: 'Activity Command Centerからの主要導線利用を把握する',
     parameters: ['path', 'locale', 'target', 'surface', 'position'],
+  },
+  world_portal_open: {
+    purpose: 'News・Games・Favoritesの各ワールドへの導線利用を把握する',
+    parameters: ['path', 'locale', 'target', 'surface', 'position'],
+  },
+  media_playback_toggle: {
+    purpose: 'ローカル生成動画の再生・停止操作を把握する',
+    parameters: ['path', 'locale', 'target', 'surface', 'status'],
+  },
+  spotify_load: {
+    purpose: '明示操作によるSpotify埋め込み読み込みを把握する',
+    parameters: ['path', 'locale', 'surface'],
   },
   language_change: {
     purpose: '表示言語切替の利用状況を把握する',

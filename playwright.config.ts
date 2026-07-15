@@ -10,6 +10,9 @@ export default defineConfig({
     : 'list',
   outputDir: 'test-results',
   use: {
+    launchOptions: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
+      ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH }
+      : undefined,
     baseURL: 'http://127.0.0.1:4321',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',

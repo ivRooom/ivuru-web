@@ -158,13 +158,13 @@ export default function HeroWorld({ locale }: { locale: Locale }) {
             playsInline
             autoPlay={!pausedByUser}
             preload="metadata"
-            poster="/assets/video/hero-cinematic-poster.webp"
+            poster="/assets/video/hero-anime-op-poster.webp"
             tabIndex={-1}
             onLoadedData={() => setVideoReady(true)}
             onError={() => setVideoFailed(true)}
           >
-            <source src="/assets/video/hero-cinematic-loop.webm" type="video/webm" />
-            <source src="/assets/video/hero-cinematic-loop.mp4" type="video/mp4" />
+            <source src="/assets/video/hero-anime-op-loop.webm" type="video/webm" />
+            <source src="/assets/video/hero-anime-op-loop.mp4" type="video/mp4" />
           </video>
         )}
       </div>
