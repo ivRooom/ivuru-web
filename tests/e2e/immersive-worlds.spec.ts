@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
 const worldRoutes = [
   '/news',
@@ -12,6 +12,26 @@ const worldRoutes = [
   '/ko/favorites',
 ];
 
+const prepareMediaCapablePage = async (page: Page) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'hardwareConcurrency', {
+      configurable: true,
+      value: 8,
+    });
+    Object.defineProperty(navigator, 'connection', {
+      configurable: true,
+      value: {
+        saveData: false,
+        effectiveType: '4g',
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+      },
+    });
+    sessionStorage.setItem('ivuru-intro-seen', '1');
+  });
+};
+
 test('new immersive worlds render in every locale', async ({ page }) => {
   for (const route of worldRoutes) {
     const response = await page.goto(route);
@@ -22,10 +42,11 @@ test('new immersive worlds render in every locale', async ({ page }) => {
 });
 
 test('home exposes News, Games, and Favorites gateways and anime hero media', async ({ page }) => {
+  await prepareMediaCapablePage(page);
   await page.goto('/');
   await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
   await expect(
-    page.locator('video source[src="/assets/video/hero-anime-op-loop.webm"]'),
+    page.locator('[data-hero-video] source[src="/assets/video/hero-anime-op-loop.webm"]'),
   ).toHaveCount(1);
   await expect(page.locator('.world-portal-card[href="/news"]')).toBeVisible();
   await expect(page.locator('.world-portal-card[href="/games"]')).toBeVisible();
@@ -34,6 +55,7 @@ test('home exposes News, Games, and Favorites gateways and anime hero media', as
 });
 
 test('games page presents original clips from alternating sides', async ({ page }) => {
+  await prepareMediaCapablePage(page);
   await page.goto('/games');
   await expect(page.locator('.game-cinematic-card')).toHaveCount(3);
   await expect(page.locator('.game-card-left')).toHaveCount(2);
