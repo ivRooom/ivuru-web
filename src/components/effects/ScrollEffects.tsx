@@ -79,7 +79,12 @@ export default function ScrollEffects() {
           {
             scaleY: 1,
             ease: 'none',
-            scrollTrigger: { trigger: element, start: 'top 80%', end: 'bottom 50%', scrub: true },
+            scrollTrigger: {
+              trigger: element,
+              start: 'top 80%',
+              end: 'bottom 50%',
+              scrub: true,
+            },
           },
         );
       });
@@ -88,26 +93,46 @@ export default function ScrollEffects() {
         scale: 1.025,
         yPercent: 2,
         ease: 'none',
-        scrollTrigger: { trigger: '[data-hero]', start: 'top top', end: 'bottom top', scrub: true },
+        scrollTrigger: {
+          trigger: '[data-hero]',
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true,
+        },
       });
       gsap.to('[data-hero-copy]', {
         yPercent: 9,
         opacity: 0.45,
         ease: 'none',
-        scrollTrigger: { trigger: '[data-hero]', start: '35% top', end: '95% top', scrub: true },
+        scrollTrigger: {
+          trigger: '[data-hero]',
+          start: '35% top',
+          end: '95% top',
+          scrub: true,
+        },
       });
       gsap.to('[data-hero-depth="grid"]', {
         yPercent: 5,
         scale: 1.02,
         ease: 'none',
-        scrollTrigger: { trigger: '[data-hero]', start: 'top top', end: 'bottom top', scrub: true },
+        scrollTrigger: {
+          trigger: '[data-hero]',
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true,
+        },
       });
       gsap.to('[data-hero-depth="orbit"]', {
         rotation: 4,
         scale: 1.03,
         opacity: 0.32,
         ease: 'none',
-        scrollTrigger: { trigger: '[data-hero]', start: 'top top', end: 'bottom top', scrub: true },
+        scrollTrigger: {
+          trigger: '[data-hero]',
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true,
+        },
       });
     });
 
@@ -131,7 +156,13 @@ export default function ScrollEffects() {
 
     const resetDepth = () => {
       for (const element of depthElements) {
-        gsap.to(element, { x: 0, y: 0, duration: 0.65, ease: 'power2.out', overwrite: 'auto' });
+        gsap.to(element, {
+          x: 0,
+          y: 0,
+          duration: 0.65,
+          ease: 'power2.out',
+          overwrite: 'auto',
+        });
       }
     };
 
