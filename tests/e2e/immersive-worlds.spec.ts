@@ -57,10 +57,18 @@ test('home exposes News, Games, and Favorites gateways and anime hero media', as
 test('games page presents original clips from alternating sides', async ({ page }) => {
   await prepareMediaCapablePage(page);
   await page.goto('/games');
-  await expect(page.locator('.game-cinematic-card')).toHaveCount(3);
+
+  const cards = page.locator('.game-cinematic-card');
+  await expect(cards).toHaveCount(3);
   await expect(page.locator('.game-card-left')).toHaveCount(2);
   await expect(page.locator('.game-card-right')).toHaveCount(1);
-  await expect(page.locator('.game-card-video source[type="video/webm"]')).toHaveCount(3);
+
+  for (let index = 0; index < 3; index += 1) {
+    const card = cards.nth(index);
+    await card.scrollIntoViewIfNeeded();
+    await expect(card.locator('.game-card-video source[type="video/webm"]')).toHaveCount(1);
+  }
+
   await expect(page.getByText('ORIGINAL CONCEPT FOOTAGE').first()).toBeVisible();
 });
 
