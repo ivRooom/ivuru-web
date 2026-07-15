@@ -274,6 +274,7 @@ html[data-theme='light'] .hero-anime-bloom {
   from {
     transform: scale(1.04) translate3d(-1.5%, -0.8%, 0);
   }
+
   to {
     transform: scale(1.1) translate3d(1.5%, 1%, 0);
   }
@@ -285,6 +286,7 @@ html[data-theme='light'] .hero-anime-bloom {
     filter: blur(22px);
     opacity: 0.12;
   }
+
   50% {
     filter: blur(13px);
     opacity: 0.42;
@@ -297,10 +299,12 @@ html[data-theme='light'] .hero-anime-bloom {
     transform: scale(0.45) rotate(0deg);
     opacity: 0.2;
   }
+
   45% {
     transform: scale(1.2) rotate(90deg);
     opacity: 1;
   }
+
   65% {
     transform: scale(0.75) rotate(150deg);
     opacity: 0.55;
@@ -311,6 +315,7 @@ html[data-theme='light'] .hero-anime-bloom {
   from {
     transform: translate3d(0, -10vh, 0) rotate(0deg);
   }
+
   to {
     transform: translate3d(10vw, 120vh, 0) rotate(720deg);
   }
