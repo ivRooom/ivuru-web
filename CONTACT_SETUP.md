@@ -77,18 +77,33 @@ GET /api/contact
   "ready": true,
   "turnstileSiteKey": "...",
   "recipient": "contact@ivrm.jp",
-  "discordEnabled": true
+  "discordEnabled": true,
+  "queueEnabled": true,
+  "statusEnabled": true
 }
 ```
 
+フォームUIの入力条件:
+
+- お名前は空白以外を1文字以上
+- メールアドレスは有効な形式
+- 件名は空白以外を2文字以上
+- 本文は空白以外を20文字以上
+- 設定取得中のみ入力欄と確認操作を無効化
+- 条件未達時は不足項目を表示し、最初の不正項目へフォーカスを移動
+
 確認項目:
 
+- `/contact`で入力条件が表示される
+- 設定取得完了後に「送信内容を確認」を操作できる
+- 不足項目がある場合は項目別エラーが表示される
 - `/contact`でTurnstileが表示される
 - 正常送信でHTTP 202
 - `contact@ivrm.jp`へ管理者通知が届く
 - 送信者へ受付メールが届く
 - Discord通知が届く（設定時）
-- 受付番号が画面へ表示される
+- 受付番号と照会キーが画面へ表示される
+- 状態照会が有効な場合は`/contact/status/`から確認できる
 - 4回目以降の連続送信がHTTP 429になる
 - 存在しないページが従来どおり独自404になる
 
@@ -111,5 +126,6 @@ Cloudflareのテストキーはローカル・CI専用です。本番環境へ�
 - API KeyとWebhook URLはSecretとして保存します。
 - `keep_vars: true`によりDashboardで追加したVariableを次回デプロイでも維持します。
 - `/api/contact`以外の静的配信はAssets bindingへ委譲します。
+- Contact本文は最大24,000 UTF-8バイト、状態照会本文は最大2,000 UTF-8バイトです。
 - 管理者メール送信に失敗した場合は成功扱いにしません。
 - 自動受付メールまたはDiscordだけが失敗した場合は、管理者通知成功後に受付を完了します。
