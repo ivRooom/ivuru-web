@@ -13,6 +13,8 @@ export type GameWorld = {
   tags: string[];
 };
 
+const editorialPoster = '/assets/visuals/editorial/game-room-sketch.svg';
+
 export const gameWorlds: GameWorld[] = [
   {
     slug: 'neon-rift',
@@ -25,7 +27,7 @@ export const gameWorlds: GameWorld[] = [
     },
     webm: '/assets/video/games/neon-rift.webm',
     mp4: '/assets/video/games/neon-rift.mp4',
-    poster: '/assets/video/games/neon-rift-poster.webp',
+    poster: editorialPoster,
     side: 'left',
     accent: 'cyan',
     tags: ['FPS', 'Speed', 'Original Clip'],
@@ -45,7 +47,7 @@ export const gameWorlds: GameWorld[] = [
     },
     webm: '/assets/video/games/sky-raid.webm',
     mp4: '/assets/video/games/sky-raid.mp4',
-    poster: '/assets/video/games/sky-raid-poster.webp',
+    poster: editorialPoster,
     side: 'right',
     accent: 'pink',
     tags: ['Co-op', 'Action', 'Anime Motion'],
@@ -65,7 +67,7 @@ export const gameWorlds: GameWorld[] = [
     },
     webm: '/assets/video/games/prism-arena.webm',
     mp4: '/assets/video/games/prism-arena.mp4',
-    poster: '/assets/video/games/prism-arena-poster.webp',
+    poster: editorialPoster,
     side: 'left',
     accent: 'gold',
     tags: ['Arena', 'Competitive', 'Highlight'],

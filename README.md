@@ -63,7 +63,8 @@ npm run deploy:preview  # デプロイせず新しいWorker Versionをアップ�
 日本語は言語プレフィックスなし、英語は`/en`、韓国語は`/ko`です。
 
 - `/`, `/profile`, `/works`, `/works/[slug]`, `/portfolio`, `/blog`, `/blog/[slug]`
-- `/news`, `/games`, `/favorites`
+- `/news`, `/games`
+- `/favorites`は`/profile#favorites`へ移動する互換URL
 - `/contact`, `/privacy`, `/terms`, `/customer-harassment`, `/404`
 - `/en/...`
 - `/ko/...`
@@ -80,14 +81,20 @@ npm run deploy:preview  # デプロイせず新しいWorker Versionをアップ�
 - Portfolio: Developer World System Console
 - Blog: Digital Archive Terminal
 - News: Signal Archive / Update Timeline
-- Games: Replay Gate / 左右から登場する生成ゲームクリップ
-- Favorites: Favorite Archive / 明示読み込み型Spotifyプレイヤー
+- Games: 手描きビジュアルと短いローカル動画を組み合わせたエディトリアル記録
+- Profile: Favoritesセクション / 明示読み込み型Spotifyプレイヤー
 - ivRm: Digital Room
 - スクロール進行: Dawn / Day / Sunset / NightのWorld State
 - Works一覧と詳細: View Transition共有要素
 - `prefers-reduced-motion`では主要アニメーションを短縮・停止
 
 `ChapterCut`は内部リンクの遷移先を表示します。IntroLoaderはページ遷移では再生せず、Chapter Cutと重複しない設計です。
+
+## Visual direction
+
+トップ、Games、Profile / Favoritesは、過度な光彩・花びら・軌道・左右スライド演出を避け、余白、タイポグラフィ、短い動画、手描き風のオリジナルSVGを中心としたエディトリアル表現へ統一しています。生成イラストは`public/assets/visuals/editorial/`で管理し、外部画像生成APIや第三者キャラクター素材へ依存しません。
+
+GamesとFavoritesはグローバルナビゲーションへ常設せず、HomeのExploreカードとProfile内の導線からアクセスします。動画はData Saver、低速回線、低性能端末、`prefers-reduced-motion`を尊重します。
 
 ## Updating site data
 
@@ -132,7 +139,7 @@ PUBLIC_INSTAGRAM_POST_URLS=https://www.instagram.com/p/POST_1/,https://www.insta
 
 ## Spotify embed
 
-`/favorites`のSpotifyプレイヤーは、利用者が「プレイヤーを読み込む」を操作するまでiframeを生成しません。埋め込みURLは`src/data/favorites.ts`の`spotifyEmbedUrl`で管理します。URLを変更する場合はSpotify公式の`open.spotify.com/embed/` URLを使用し、`public/_headers`のCSPを維持してください。
+`/profile#favorites`のSpotifyプレイヤーは、利用者が「プレイヤーを読み込む」を操作するまでiframeを生成しません。埋め込みURLは`src/data/favorites.ts`の`spotifyEmbedUrl`で管理します。URLを変更する場合はSpotify公式の`open.spotify.com/embed/` URLを使用し、`public/_headers`のCSPを維持してください。
 
 ## Legal pages
 

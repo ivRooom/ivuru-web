@@ -1,5 +1,45 @@
 ---
-import FavoritesPage from '@/components/pages/FavoritesPage.astro';
+const target = '/ko/profile#favorites';
 ---
 
-<FavoritesPage locale="ko" />
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,follow" />
+    <meta http-equiv="refresh" content={`0;url=${target}`} />
+    <title>Favorites가 Profile로 이동했습니다</title>
+  </head>
+  <body>
+    <main>
+      <p>Favorites가 Profile 안으로 이동했습니다.</p>
+      <a href={target}>Profile의 Favorites 열기</a>
+    </main>
+    <script is:inline>
+      window.location.replace('/ko/profile#favorites');
+    </script>
+  </body>
+</html>
+
+<style>
+  body {
+    display: grid;
+    min-height: 100vh;
+    place-items: center;
+    margin: 0;
+    background: #f4efe6;
+    color: #1c2537;
+    font-family: system-ui, sans-serif;
+  }
+
+  main {
+    padding: 2rem;
+    text-align: center;
+  }
+
+  a {
+    color: inherit;
+    font-weight: 700;
+  }
+</style>

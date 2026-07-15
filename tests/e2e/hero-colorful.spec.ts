@@ -1,31 +1,33 @@
 import { expect, test } from '@playwright/test';
 
-test('colorful anime hero layers render without blocking actions', async ({ page }) => {
+test('editorial home hero keeps the primary actions clear', async ({ page }) => {
   await page.goto('/');
-  const hero = page.locator('[data-colorful-anime-hero]');
+  const hero = page.locator('[data-editorial-hero]');
   await expect(hero).toBeVisible();
-  await expect(hero.locator('.hero-anime-bloom img')).toHaveAttribute(
+  await expect(hero.locator('.home-editorial-sketch img')).toHaveAttribute(
     'src',
-    '/assets/visuals/hero-anime-bloom.svg',
+    '/assets/visuals/editorial/home-studio-sketch.svg',
   );
-  await expect(hero.locator('.hero-spark-field i')).toHaveCount(12);
-  await expect(hero.locator('.hero-petal-field i')).toHaveCount(8);
+  await expect(hero.locator('.hero-spark-field')).toHaveCount(0);
+  await expect(hero.locator('.hero-petal-field')).toHaveCount(0);
   await expect(hero.getByRole('link', { name: /Works|制作|작업/i }).first()).toBeVisible();
+  await expect(
+    hero.getByRole('link', { name: /Profile|プロフィール|프로필/i }).first(),
+  ).toBeVisible();
 });
 
-test('reduced motion keeps the colorful key visual but stops decorative motion', async ({
-  page,
-}) => {
+test('reduced motion keeps the editorial hero and static artwork available', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
-  await expect(page.locator('.hero-anime-bloom')).toBeVisible();
-  await expect(page.locator('.hero-petal-field')).toBeHidden();
+  await expect(page.locator('[data-editorial-hero]')).toBeVisible();
+  await expect(page.locator('.home-editorial-sketch')).toBeVisible();
+  await expect(page.locator('.hero-petal-field')).toHaveCount(0);
 });
 
-test('localized routes share the colorful hero composition', async ({ page }) => {
+test('localized routes share the restrained editorial composition', async ({ page }) => {
   for (const route of ['/en', '/ko']) {
     await page.goto(route);
-    await expect(page.locator('[data-colorful-anime-hero]')).toBeVisible();
-    await expect(page.locator('.hero-anime-bloom img')).toBeVisible();
+    await expect(page.locator('[data-editorial-hero]')).toBeVisible();
+    await expect(page.locator('.home-editorial-sketch img')).toBeVisible();
   }
 });

@@ -1,77 +1,92 @@
 ---
 import { localePath, type Locale } from '@/data/site-config';
+import '@/styles/editorial-refresh.css';
 
 const { locale } = Astro.props as { locale: Locale };
 const copy = {
   ja: {
-    kicker: 'EXPLORE THE NEXT WORLDS',
-    title: '物語の続きを、好きな入口から。',
+    kicker: 'EXPLORE',
+    title: '最近の更新と、よく戻る場所。',
     intro:
-      '更新情報、ゲームクリップ、好きなもの。3つの新しいワールドをアニメ作品のチャプターとして巡れます。',
+      '派手なワールド演出を減らし、News、Games、Profile内のFavoritesへ直接移動できる3つのカードに整理しました。',
     news: ['News', 'サイトとプロジェクトの更新記録'],
-    games: ['Games', '左右から現れるオリジナルゲームクリップ'],
-    favorites: ['Favorites', '好きなページ、音楽、世界観のコレクション'],
-    enter: 'ワールドへ入る',
+    games: ['Games', 'ゲームクリップとプレイの記録'],
+    favorites: ['Profile / Favorites', '好きなページ、音楽、コミュニティ'],
+    enter: '開く',
   },
   en: {
-    kicker: 'EXPLORE THE NEXT WORLDS',
-    title: 'Continue the story from any gateway.',
-    intro: 'News, game clips, and favorite things become three new chapters in the ivuru world.',
+    kicker: 'EXPLORE',
+    title: 'Recent updates and places worth returning to.',
+    intro:
+      'The previous world effects are replaced by three direct routes to News, Games, and Favorites inside Profile.',
     news: ['News', 'Updates from the site and ongoing projects'],
-    games: ['Games', 'Original game clips entering from both sides'],
-    favorites: ['Favorites', 'A collection of pages, music, and visual worlds'],
-    enter: 'Enter world',
+    games: ['Games', 'Game clips and session notes'],
+    favorites: ['Profile / Favorites', 'Pages, music, and community links'],
+    enter: 'Open',
   },
   ko: {
-    kicker: 'EXPLORE THE NEXT WORLDS',
-    title: '좋아하는 게이트에서 이야기를 이어가세요.',
-    intro: '업데이트, 게임 클립, 좋아하는 것들을 세 개의 새로운 챕터로 탐험할 수 있습니다.',
+    kicker: 'EXPLORE',
+    title: '최근 업데이트와 자주 돌아가는 장소.',
+    intro:
+      '과한 월드 연출을 줄이고 News, Games, Profile 안의 Favorites로 바로 이동하는 세 개의 카드로 정리했습니다.',
     news: ['News', '사이트와 프로젝트의 업데이트 기록'],
-    games: ['Games', '좌우에서 등장하는 오리지널 게임 클립'],
-    favorites: ['Favorites', '좋아하는 페이지, 음악, 세계관 컬렉션'],
-    enter: '월드 입장',
+    games: ['Games', '게임 클립과 플레이 기록'],
+    favorites: ['Profile / Favorites', '좋아하는 페이지, 음악, 커뮤니티'],
+    enter: '열기',
   },
 }[locale];
 
 const worlds = [
-  { key: 'news', index: '03', href: '/news', media: '/assets/video/games/sky-raid-poster.webp' },
-  { key: 'games', index: '04', href: '/games', media: '/assets/video/games/neon-rift-poster.webp' },
+  {
+    key: 'news',
+    index: '01',
+    href: '/news',
+    media: '/assets/visuals/editorial/news-notebook-sketch.svg',
+  },
+  {
+    key: 'games',
+    index: '02',
+    href: '/games',
+    media: '/assets/visuals/editorial/game-room-sketch.svg',
+  },
   {
     key: 'favorites',
-    index: '05',
-    href: '/favorites',
-    media: '/assets/video/games/prism-arena-poster.webp',
+    index: '03',
+    href: '/profile#favorites',
+    media: '/assets/visuals/editorial/favorites-desk-sketch.svg',
   },
 ] as const;
 ---
 
-<section class="world-portal-section section" data-world-zone="creative">
+<section class="editorial-portal-section section" data-world-zone="creative">
   <div class="section-inner">
-    <div class="section-heading" data-reveal>
-      <div><p class="section-kicker">{copy.kicker}</p><h2>{copy.title}</h2></div>
-      <p class="section-intro">{copy.intro}</p>
+    <div class="editorial-section-heading" data-reveal>
+      <div><p class="editorial-kicker">{copy.kicker}</p><h2>{copy.title}</h2></div>
+      <p>{copy.intro}</p>
     </div>
-    <div class="world-portal-grid">
+    <div class="editorial-portal-grid">
       {
         worlds.map((world, index) => {
           const item = copy[world.key];
           return (
             <a
-              class={`world-portal-card portal-${world.key}`}
+              class="editorial-portal-card"
               href={localePath(locale, world.href)}
               data-reveal
-              data-enter-side={index % 2 === 0 ? 'left' : 'right'}
               data-analytics-event="world_portal_open"
               data-analytics-target={world.key}
-              data-analytics-surface="home_world_portal"
+              data-analytics-surface="home_editorial_portal"
               data-analytics-position={String(index + 1)}
             >
-              <img src={world.media} alt="" width="960" height="540" loading="lazy" />
-              <div class="world-portal-glow" aria-hidden="true" />
-              <small>CHAPTER / {world.index}</small>
-              <h3>{item[0]}</h3>
-              <p>{item[1]}</p>
-              <span>{copy.enter} ↗</span>
+              <img src={world.media} alt="" width="1200" height="800" loading="lazy" />
+              <div class="editorial-portal-card-copy">
+                <small>
+                  {world.index} / {world.key.toUpperCase()}
+                </small>
+                <h3>{item[0]}</h3>
+                <p>{item[1]}</p>
+                <span>{copy.enter} ↗</span>
+              </div>
             </a>
           );
         })

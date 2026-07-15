@@ -1,62 +1,102 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import DeferredSpotify from '@/components/common/DeferredSpotify';
 import { profile } from '@/data/profile';
+import { favoriteLinks, spotifyEmbedUrl } from '@/data/favorites';
 import { gameClips } from '@/data/game-clips';
 import { socialLinks } from '@/data/social-links';
-import { localePath, siteConfig, type Locale } from '@/data/site-config';
+import { siteConfig, type Locale } from '@/data/site-config';
 import { getDictionary } from '@/i18n/dictionaries';
+import '@/styles/editorial-refresh.css';
 
 const { locale } = Astro.props as { locale: Locale };
 const d = getDictionary(locale);
 const about = {
-  ja: 'Web開発を軸に、ゲーム、クラウド、コミュニティ運営を横断して活動しています。DeveloperとGamer、そしてivRmオーナーという複数の世界をつなぎ、体験そのものを設計しています。',
-  en: 'Working across web development, gaming, cloud, and community operations—connecting the worlds of Developer, Gamer, and ivRm owner through designed experiences.',
-  ko: '웹 개발을 중심으로 게임, 클라우드, 커뮤니티 운영을 넘나들며 Developer, Gamer, ivRm 오너의 세계를 하나의 경험으로 연결합니다.',
+  ja: 'Web開発を軸に、ゲーム、クラウド、コミュニティ運営を横断して活動しています。つくることと遊ぶことを分けず、長く使える体験としてまとめるのが好きです。',
+  en: 'I work across web development, games, cloud infrastructure, and community operations. I like treating building and playing as parts of the same long-lived experience.',
+  ko: '웹 개발을 중심으로 게임, 클라우드, 커뮤니티 운영을 넘나듭니다. 만들기와 플레이를 나누지 않고 오래 사용할 수 있는 경험으로 정리하는 것을 좋아합니다.',
 }[locale];
 const copy = {
   ja: {
-    social: '通信ノード',
-    socialIntro:
-      '活動・配信・コミュニティ・連絡先へ接続します。公開URLが設定されているノードだけを表示します。',
-    clips: 'ゲームリプレイ・アーカイブ',
-    clipsIntro: 'ゲームクリップ、配信切り抜き、ショート動画を記録する領域です。',
-    clipsEmpty:
-      '公開できるクリップを準備中です。YouTube・Twitch・TikTok・Xの実URLを追加すると表示されます。',
-    passport: 'WORLD PASSPORT',
-    access: 'ACCESS LEVEL / CREATOR',
-    identities: 'CONNECTED IDENTITIES / 03',
-    nowBuilding: 'NOW BUILDING',
-    nowPlaying: 'NOW PLAYING',
-    nowListening: 'NOW LISTENING',
+    heroKicker: 'PROFILE / IVURU',
+    heroSubtitle: 'Developer, gamer, and community operator',
+    social: 'リンク',
+    socialIntro: '活動、配信、コミュニティ、連絡先。現在公開している接続先だけをまとめています。',
+    clips: 'ゲームクリップ',
+    clipsIntro: 'ゲームクリップ、配信切り抜き、ショート動画の記録です。',
+    clipsEmpty: '公開できるクリップを準備中です。',
+    profileLabel: 'ABOUT / PROFILE',
+    focus: 'FOCUS / WEB & GAME',
+    identities: 'INTERESTS / DEVELOPMENT · GAME · COMMUNITY',
+    nowBuilding: 'CURRENT PROJECT',
+    nowPlaying: 'CURRENT INTEREST',
+    nowListening: 'ON REPEAT',
+    favoritesKicker: 'FAVORITES / PERSONAL SHELF',
+    favoritesTitle: 'よく戻る場所と、気分を切り替える音楽。',
+    favoritesIntro:
+      'Favoritesは独立したページではなく、Profileの一部としてまとめました。制作、ゲーム、コミュニティ、音楽の入口を、過度な演出なしで並べています。',
+    favoriteOpen: '開く',
+    musicTitle: '作業とゲームのためのプレイリスト',
+    musicBody:
+      'Spotifyは操作するまで外部通信を開始しません。集中したい時間や、ゲームのあとに余韻を残したい時間に流す音楽です。',
+    musicPalette: ['Future Bass', 'Lo-fi', 'Game Soundtrack', 'Anime Songs'],
+    illustrationCaption: 'personal shelf / sketch 01',
+    skills: 'スキル',
+    timeline: 'これまでと、これから',
   },
   en: {
-    social: 'Communication Nodes',
-    socialIntro:
-      'Connect to activity, streams, community, and contact routes. Only configured nodes are shown.',
-    clips: 'Game Replay Archive',
-    clipsIntro: 'A place for game clips, stream highlights, and short-form video.',
-    clipsEmpty:
-      'Public clips are being prepared. Cards appear after real YouTube, Twitch, TikTok, or X URLs are added.',
-    passport: 'WORLD PASSPORT',
-    access: 'ACCESS LEVEL / CREATOR',
-    identities: 'CONNECTED IDENTITIES / 03',
-    nowBuilding: 'NOW BUILDING',
-    nowPlaying: 'NOW PLAYING',
-    nowListening: 'NOW LISTENING',
+    heroKicker: 'PROFILE / IVURU',
+    heroSubtitle: 'Developer, gamer, and community operator',
+    social: 'Links',
+    socialIntro: 'Public routes to activity, streams, community, and contact.',
+    clips: 'Game clips',
+    clipsIntro: 'A record of game clips, stream highlights, and short videos.',
+    clipsEmpty: 'Public clips are being prepared.',
+    profileLabel: 'ABOUT / PROFILE',
+    focus: 'FOCUS / WEB & GAME',
+    identities: 'INTERESTS / DEVELOPMENT · GAME · COMMUNITY',
+    nowBuilding: 'CURRENT PROJECT',
+    nowPlaying: 'CURRENT INTEREST',
+    nowListening: 'ON REPEAT',
+    favoritesKicker: 'FAVORITES / PERSONAL SHELF',
+    favoritesTitle: 'Places I return to and music that changes the pace.',
+    favoritesIntro:
+      'Favorites now lives inside Profile instead of a separate page. The links are kept calm and direct, without unnecessary visual effects.',
+    favoriteOpen: 'Open',
+    musicTitle: 'A playlist for building and playing',
+    musicBody:
+      'Spotify does not connect until you choose to load it. This is music for focused work and the quiet time after a game.',
+    musicPalette: ['Future Bass', 'Lo-fi', 'Game Soundtrack', 'Anime Songs'],
+    illustrationCaption: 'personal shelf / sketch 01',
+    skills: 'Skills',
+    timeline: 'Past and next',
   },
   ko: {
-    social: '통신 노드',
-    socialIntro: '활동, 방송, 커뮤니티, 연락처로 연결합니다. 설정된 노드만 표시합니다.',
-    clips: '게임 리플레이 아카이브',
-    clipsIntro: '게임 클립, 방송 하이라이트, 숏폼 영상을 기록하는 영역입니다.',
-    clipsEmpty:
-      '공개 가능한 클립을 준비 중입니다. 실제 YouTube, Twitch, TikTok, X URL을 추가하면 표시됩니다.',
-    passport: 'WORLD PASSPORT',
-    access: 'ACCESS LEVEL / CREATOR',
-    identities: 'CONNECTED IDENTITIES / 03',
-    nowBuilding: 'NOW BUILDING',
-    nowPlaying: 'NOW PLAYING',
-    nowListening: 'NOW LISTENING',
+    heroKicker: 'PROFILE / IVURU',
+    heroSubtitle: 'Developer, gamer, and community operator',
+    social: '링크',
+    socialIntro: '활동, 방송, 커뮤니티, 연락처 중 현재 공개된 연결만 정리합니다.',
+    clips: '게임 클립',
+    clipsIntro: '게임 클립, 방송 하이라이트, 짧은 영상 기록입니다.',
+    clipsEmpty: '공개할 수 있는 클립을 준비 중입니다.',
+    profileLabel: 'ABOUT / PROFILE',
+    focus: 'FOCUS / WEB & GAME',
+    identities: 'INTERESTS / DEVELOPMENT · GAME · COMMUNITY',
+    nowBuilding: 'CURRENT PROJECT',
+    nowPlaying: 'CURRENT INTEREST',
+    nowListening: 'ON REPEAT',
+    favoritesKicker: 'FAVORITES / PERSONAL SHELF',
+    favoritesTitle: '자주 돌아가는 장소와 분위기를 바꾸는 음악.',
+    favoritesIntro:
+      'Favorites를 별도 페이지가 아닌 Profile의 일부로 정리했습니다. 불필요한 효과 없이 제작, 게임, 커뮤니티, 음악의 입구를 보여줍니다.',
+    favoriteOpen: '열기',
+    musicTitle: '작업과 게임을 위한 플레이리스트',
+    musicBody:
+      'Spotify는 직접 불러오기 전까지 외부 통신을 시작하지 않습니다. 집중할 때와 게임이 끝난 뒤의 여운을 위한 음악입니다.',
+    musicPalette: ['Future Bass', 'Lo-fi', 'Game Soundtrack', 'Anime Songs'],
+    illustrationCaption: 'personal shelf / sketch 01',
+    skills: '기술',
+    timeline: '지금까지와 앞으로',
   },
 }[locale];
 ---
@@ -65,25 +105,37 @@ const copy = {
   title={`${d.profile.title} — ${siteConfig.name} / ${siteConfig.idName}`}
   description={d.profile.intro}
   locale={locale}
-  chapter={{ code: '01', title: 'CHARACTER PROFILE', world: 'DEVELOPER WORLD' }}
+  chapter={{ code: '01', title: 'PROFILE', world: 'IVURU' }}
 >
-  <header class="page-hero profile-hero character-world page-grid-bg" data-page-intro>
-    <div class="page-hero-inner">
-      <p class="eyebrow">CHARACTER FILE / 001</p>
-      <h1 class="page-title">{d.profile.title}</h1>
-      <p>{d.profile.intro}</p>
-      <div class="character-scan" aria-hidden="true">
-        <i></i><span>ID / {profile.id.toUpperCase()}</span>
+  <header class="editorial-page-hero" data-page-intro>
+    <div class="editorial-page-hero-inner">
+      <div class="editorial-page-hero-copy">
+        <p class="editorial-kicker">{copy.heroKicker}</p>
+        <h1>{profile.name}<span>{copy.heroSubtitle}</span></h1>
+        <p class="editorial-lede">{about}</p>
+        <div class="editorial-hero-note" aria-label="Profile focus">
+          <span>WEB DEVELOPMENT</span><span>GAME</span><span>COMMUNITY</span>
+        </div>
       </div>
+      <figure class="editorial-hero-illustration profile-editorial-avatar">
+        <img
+          src={siteConfig.profileImageUrl}
+          alt={`${siteConfig.name} / ${siteConfig.idName}`}
+          width="720"
+          height="720"
+          loading="eager"
+          referrerpolicy="no-referrer"
+        />
+      </figure>
     </div>
   </header>
 
   <section class="profile-character-screen section" data-world-zone="identity">
     <div class="section-inner character-sheet profile-passport" data-reveal>
       <header class="character-sheet-bar">
-        <span>IDENTITY DATABASE</span>
+        <span>PROFILE / IVURU</span>
         <span class="character-online"><i></i>ONLINE</span>
-        <span>FILE NO. 001</span>
+        <span>UPDATED / 2026</span>
       </header>
 
       <div class="character-portrait profile-avatar-stage">
@@ -93,38 +145,31 @@ const copy = {
             alt={`${siteConfig.name} / ${siteConfig.idName} profile icon from X`}
             width="720"
             height="720"
-            loading="eager"
+            loading="lazy"
             referrerpolicy="no-referrer"
           />
-          <div class="character-reticle" aria-hidden="true"><i></i><i></i><i></i></div>
-          <div class="avatar-orbit" aria-hidden="true"><i></i><i></i><i></i></div>
-          <span class="avatar-source">SOURCE / X {siteConfig.xHandle}</span>
+          <span class="avatar-source">{siteConfig.xHandle}</span>
         </div>
         <div class="character-portrait-data">
-          <span>CALLSIGN</span><strong>{profile.id}</strong><small>World Gate synchronized</small>
+          <span>ID</span><strong>{profile.id}</strong><small>Developer / Gamer</small>
         </div>
       </div>
 
       <div class="character-data">
-        <p class="section-kicker">{copy.passport}</p>
+        <p class="section-kicker">{copy.profileLabel}</p>
         <div class="character-name-line">
           <h2>{profile.name}</h2><span>{profile.id.toUpperCase()}</span>
         </div>
         <p class="character-about">{about}</p>
         <div class="passport-status-grid">
-          <span>{copy.access}</span><span>{copy.identities}</span><span>STATUS / ONLINE</span>
+          <span>{copy.focus}</span><span>{copy.identities}</span><span>STATUS / ACTIVE</span>
         </div>
         <dl class="character-core-stats">
           <div><dt>PRIMARY</dt><dd>Developer</dd></div>
           <div><dt>SECONDARY</dt><dd>Gamer / Creator</dd></div>
           <div><dt>ROLE</dt><dd>ivRm Owner / Community Operator</dd></div>
-          <div><dt>MODE</dt><dd>BUILD. PLAY. CREATE.</dd></div>
+          <div><dt>THEME</dt><dd>BUILD. PLAY. CREATE.</dd></div>
         </dl>
-        <div class="identity-switch" aria-label="Identity modes">
-          <span data-mode="developer">DEVELOPER MODE</span>
-          <span data-mode="gamer">GAMER MODE</span>
-          <span data-mode="community">COMMUNITY MODE</span>
-        </div>
         <div class="character-interests">
           {profile.interests.map((interest) => <span>{interest}</span>)}
         </div>
@@ -135,27 +180,80 @@ const copy = {
   <section class="profile-now-grid section" data-world-zone="signal">
     <div class="section-inner now-panels">
       <article data-reveal>
-        <small>{copy.nowBuilding}</small><strong>ivuru Official World</strong><p>
+        <small>{copy.nowBuilding}</small><strong>ivuru Official Website</strong><p>
           Astro / React / Cloudflare
         </p>
       </article>
       <article data-reveal>
-        <small>{copy.nowPlaying}</small><strong>Gamer World</strong><p>
-          Clips / Streams / Community Sessions
+        <small>{copy.nowPlaying}</small><strong>Games and community sessions</strong><p>
+          Clips / Streams / Minecraft
         </p>
       </article>
       <article data-reveal>
-        <small>{copy.nowListening}</small><strong>Favorite Sound World</strong><p>
-          Music / Pages / Personal Archive
-        </p><a href={localePath(locale, '/favorites')}>OPEN FAVORITES ↗</a>
+        <small>{copy.nowListening}</small><strong>Personal playlist</strong><p>
+          Focus / Game / Late night
+        </p><a href="#favorites">FAVORITES ↓</a>
       </article>
+    </div>
+  </section>
+
+  <section id="favorites" class="profile-favorites-editorial section" data-world-zone="creative">
+    <div class="section-inner profile-favorites-layout">
+      <figure class="profile-favorites-visual" data-reveal>
+        <img
+          src="/assets/visuals/editorial/favorites-desk-sketch.svg"
+          alt=""
+          width="1200"
+          height="800"
+          loading="lazy"
+        />
+        <figcaption>{copy.illustrationCaption}</figcaption>
+      </figure>
+
+      <div class="profile-favorites-copy">
+        <p class="editorial-kicker">{copy.favoritesKicker}</p>
+        <h2>{copy.favoritesTitle}</h2>
+        <p>{copy.favoritesIntro}</p>
+
+        <div class="profile-favorite-links">
+          {
+            favoriteLinks.map((item, index) => (
+              <a
+                class="profile-favorite-card"
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-reveal
+              >
+                <small>
+                  {String(index + 1).padStart(2, '0')} / {item.kind.toUpperCase()}
+                </small>
+                <h3>{item.title}</h3>
+                <strong>{item.label[locale]}</strong>
+                <p>{item.description[locale]}</p>
+                <span>{copy.favoriteOpen} ↗</span>
+              </a>
+            ))
+          }
+        </div>
+
+        <div class="profile-music-panel" data-reveal>
+          <p class="editorial-kicker">MUSIC / PRIVATE MODE</p>
+          <h3>{copy.musicTitle}</h3>
+          <p>{copy.musicBody}</p>
+          <div class="profile-music-palette">
+            {copy.musicPalette.map((item) => <span>{item}</span>)}
+          </div>
+          <DeferredSpotify client:visible locale={locale} embedUrl={spotifyEmbedUrl} />
+        </div>
+      </div>
     </div>
   </section>
 
   <section class="social-hub section" data-world-zone="signal">
     <div class="section-inner">
       <div class="section-heading" data-reveal>
-        <div><p class="section-kicker">SOCIAL SIGNAL MATRIX</p><h2>{copy.social}</h2></div>
+        <div><p class="section-kicker">LINKS</p><h2>{copy.social}</h2></div>
         <p class="section-intro">{copy.socialIntro}</p>
       </div>
       <div class="social-node-grid">
@@ -168,7 +266,7 @@ const copy = {
               rel={item.key === 'email' ? undefined : 'noopener noreferrer'}
               data-reveal
             >
-              <small>NODE / {String(index + 1).padStart(2, '0')}</small>
+              <small>LINK / {String(index + 1).padStart(2, '0')}</small>
               <strong>{item.label}</strong>
               <span>{item.description}</span>
               <i aria-hidden="true">↗</i>
@@ -182,7 +280,7 @@ const copy = {
   <section class="game-clip-archive section" data-world-zone="gamer">
     <div class="section-inner">
       <div class="section-heading" data-reveal>
-        <div><p class="section-kicker">REPLAY STORAGE</p><h2>{copy.clips}</h2></div>
+        <div><p class="section-kicker">GAME CLIPS</p><h2>{copy.clips}</h2></div>
         <p class="section-intro">{copy.clipsIntro}</p>
       </div>
       {
@@ -200,7 +298,7 @@ const copy = {
                   {clip.thumbnail ? (
                     <img src={clip.thumbnail} alt="" loading="lazy" />
                   ) : (
-                    <span>REPLAY / {String(index + 1).padStart(2, '0')}</span>
+                    <span>CLIP / {String(index + 1).padStart(2, '0')}</span>
                   )}
                   <b>{clip.duration ?? 'CLIP'}</b>
                 </div>
@@ -218,10 +316,8 @@ const copy = {
           </div>
         ) : (
           <div class="clip-empty" data-reveal>
-            <>
-              <span>NO REPLAY DATA</span>
-              <p>{copy.clipsEmpty}</p>
-            </>
+            <span>NO CLIPS</span>
+            <p>{copy.clipsEmpty}</p>
           </div>
         )
       }
@@ -231,17 +327,14 @@ const copy = {
   <section class="profile-stack character-capabilities section" data-world-zone="developer">
     <div class="section-inner">
       <div class="section-heading" data-reveal>
-        <div><p class="section-kicker">CAPABILITY MODULES</p><h2>{d.profile.stack}</h2></div>
+        <div><p class="section-kicker">SKILLS</p><h2>{copy.skills}</h2></div>
       </div>
       <div class="stack-groups character-module-grid">
         {
-          Object.entries(profile.stack).map(([group, items], groupIndex) => (
+          Object.entries(profile.stack).map(([group, items]) => (
             <article data-reveal>
               <header>
-                <>
-                  <small>MODULE / {String(groupIndex + 1).padStart(2, '0')}</small>
-                  <h3>{group}</h3>
-                </>
+                <h3>{group}</h3>
               </header>
               <ul>
                 {items.map((item) => (
@@ -261,20 +354,16 @@ const copy = {
   <section class="timeline character-history section" data-world-zone="night">
     <div class="section-inner">
       <div class="section-heading" data-reveal>
-        <div>
-          <p class="section-kicker">CHARACTER LOG / NOW → NEXT</p><h2>{d.profile.timeline}</h2>
-        </div>
+        <div><p class="section-kicker">TIMELINE</p><h2>{copy.timeline}</h2></div>
       </div>
       <div class="timeline-list">
         {
           profile.timeline.map((item, index) => (
             <article data-reveal>
-              <>
-                <span>{item.year}</span>
-                <i />
-                <p>{d.profile.timelineItems[item.key]}</p>
-                <small>LOG-{String(index + 1).padStart(2, '0')}</small>
-              </>
+              <span>{item.year}</span>
+              <i />
+              <p>{d.profile.timelineItems[item.key]}</p>
+              <small>{String(index + 1).padStart(2, '0')}</small>
             </article>
           ))
         }

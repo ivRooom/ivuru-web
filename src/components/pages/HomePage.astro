@@ -12,12 +12,10 @@ import MediaReel from '@/components/home/MediaReel';
 import LatestPosts from '@/components/blog/LatestPosts.astro';
 import ContactCTA from '@/components/home/ContactCTA.astro';
 import SocialDock from '@/components/social/SocialDock.astro';
-import CustomCursor from '@/components/common/CustomCursor';
 import { localePath, siteConfig, type Locale } from '@/data/site-config';
 import { getDictionary } from '@/i18n/dictionaries';
-import '@/styles/hero-motion.css';
-import '@/styles/hero-color-bloom.css';
-import '@/styles/immersive-worlds.css';
+import '@/styles/home-editorial.css';
+
 const { locale } = Astro.props as { locale: Locale };
 const d = getDictionary(locale);
 const descriptions = {
@@ -25,110 +23,80 @@ const descriptions = {
   en: 'The official site of ivuru, connecting Developer and Gamer worlds through projects, games, the ivRm community, and creative work.',
   ko: 'Developer와 Gamer의 두 세계를 연결하는 ivuru 공식 사이트입니다. 개인 개발, 게임, ivRm 커뮤니티, 창작 활동을 소개합니다.',
 };
-const sceneCopy = {
-  ja: { opening: 'ふたつの世界が、ひとつになる。', status: 'WORLD GATE / ONLINE' },
-  en: { opening: 'Two worlds become one.', status: 'WORLD GATE / ONLINE' },
-  ko: { opening: '두 세계가 하나가 된다.', status: 'WORLD GATE / ONLINE' },
-};
+const heroCopy = {
+  ja: {
+    kicker: 'IVURU / PERSONAL WEBSITE',
+    role: 'Webをつくり、ゲームで遊び、コミュニティを育てる。',
+    body: '個人開発、クラウド、ゲーム、ivRmコミュニティの記録を、過度な演出に頼らず一つの場所へまとめています。',
+    caption: 'workspace sketch / developer · gamer · community',
+  },
+  en: {
+    kicker: 'IVURU / PERSONAL WEBSITE',
+    role: 'Building for the web, playing games, and growing communities.',
+    body: 'A calm record of personal development, cloud work, games, and the ivRm community without unnecessary visual effects.',
+    caption: 'workspace sketch / developer · gamer · community',
+  },
+  ko: {
+    kicker: 'IVURU / PERSONAL WEBSITE',
+    role: '웹을 만들고, 게임을 즐기고, 커뮤니티를 키웁니다.',
+    body: '개인 개발, 클라우드, 게임, ivRm 커뮤니티의 기록을 과한 연출 없이 한곳에 정리합니다.',
+    caption: 'workspace sketch / developer · gamer · community',
+  },
+}[locale];
 ---
 
 <BaseLayout
   title={siteConfig.title}
   description={descriptions[locale]}
   locale={locale}
-  chapter={{ code: '00', title: 'WORLD GATE', world: 'NEXUS' }}
+  chapter={{ code: '00', title: 'HOME', world: 'IVURU' }}
 >
-  <CustomCursor client:load />
-  <section class="hero anime-world-hero" data-hero data-page-intro data-colorful-anime-hero>
-    <div class="hero-cinematic-intro" data-cinematic-intro aria-hidden="true">
-      <div class="hero-cinematic-shutter hero-cinematic-shutter-top"></div>
-      <div class="hero-cinematic-shutter hero-cinematic-shutter-bottom"></div>
-      <div class="hero-cinematic-title-card">
-        <span>IVURU / WORLD GATE</span>
-        <strong>{sceneCopy[locale].opening}</strong>
-        <small>{sceneCopy[locale].status}</small>
+  <section class="home-editorial-hero" data-hero data-page-intro data-editorial-hero>
+    <HeroWorld locale={locale} client:only="react" />
+    <div class="home-editorial-hero-inner">
+      <div class="home-editorial-copy" data-hero-copy>
+        <p class="eyebrow">{heroCopy.kicker}</p>
+        <h1 class="home-editorial-title">いゔる。<span>ivuru / Developer · Gamer</span></h1>
+        <p class="home-editorial-role"><strong>{heroCopy.role}</strong><br />{heroCopy.body}</p>
+        <div class="home-editorial-actions">
+          <a href={localePath(locale, '/works')}>{d.hero.works}</a>
+          <a href={localePath(locale, '/profile')}>{d.hero.profile}</a>
+          <a href={siteConfig.xUrl} target="_blank" rel="noopener noreferrer">X ↗</a>
+        </div>
+        <div class="home-editorial-meta" aria-label="Site topics">
+          <span>WEB DEVELOPMENT</span><span>GAME</span><span>COMMUNITY</span>
+        </div>
       </div>
+      <figure class="home-editorial-sketch">
+        <img
+          src="/assets/visuals/editorial/home-studio-sketch.svg"
+          alt=""
+          width="1200"
+          height="800"
+          loading="eager"
+        />
+        <figcaption>{heroCopy.caption}</figcaption>
+      </figure>
     </div>
-    <div class="hero-film-grain" data-hero-depth="grain" aria-hidden="true"></div>
-    <div class="hero-anime-bloom" data-hero-depth="bloom" aria-hidden="true">
-      <img src="/assets/visuals/hero-anime-bloom.svg" alt="" width="1600" height="900" />
-    </div>
-    <div class="hero-prism-rays" data-hero-depth="ribbons" aria-hidden="true">
-      <i></i><i></i><i></i>
-    </div>
-    <div class="hero-spark-field" data-hero-depth="sparkles" aria-hidden="true">
-      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-    </div>
-    <div class="hero-petal-field" data-hero-depth="petals" aria-hidden="true">
-      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-    </div>
-    <div class="hero-orbit-lines" data-hero-depth="orbit" aria-hidden="true">
-      <i></i><i></i><i></i>
-    </div>
-    <div class="hero-art" data-hero-art data-hero-depth="background"></div><HeroWorld
-      locale={locale}
-      client:only="react"
-    /><div class="hero-vignette"></div><div
-      class="hero-grid"
-      data-hero-depth="grid"
-      aria-hidden="true"
-    >
-    </div>
-    <div class="hero-light-ribbons" data-hero-depth="ribbons" aria-hidden="true">
-      <i></i><i></i><i></i>
-    </div>
-    <div class="hero-scene-frame" data-hero-depth="frame" aria-hidden="true">
-      <span class="scene-number">SCENE / 01</span>
-      <span class="scene-caption">BETWEEN TWO WORLDS</span>
-      <i class="scene-corner top-left"></i><i class="scene-corner top-right"></i><i
-        class="scene-corner bottom-left"></i><i class="scene-corner bottom-right"></i>
-    </div>
-    <div class="hero-world-label developer" data-hero-depth="label-left" aria-hidden="true">
-      <small>WORLD 01</small><span>DEVELOPER</span>
-    </div>
-    <div class="hero-world-label gamer" data-hero-depth="label-right" aria-hidden="true">
-      <small>WORLD 02</small><span>GAMER</span>
-    </div>
-    <div class="hero-copy" data-hero-copy data-hero-depth="copy">
-      <p class="eyebrow">{d.hero.eyebrow}</p><h1 class="hero-title">
-        <span class="hero-display-name">いゔる。</span>
-        <span class="hero-id-name">ivuru</span>
-      </h1><p class="hero-role">
-        {d.hero.role}
-      </p><p class="hero-tagline">BUILD. PLAY. CREATE. — {d.hero.tagline}</p><div
-        class="hero-actions"
-      >
-        <a class="primary-button" href={localePath(locale, '/works')}>{d.hero.works}</a><a
-          class="secondary-button"
-          href={localePath(locale, '/profile')}>{d.hero.profile}</a
-        ><a
-          class="secondary-button"
-          href={siteConfig.xUrl}
-          target="_blank"
-          rel="noopener noreferrer">X ↗</a
-        >
-      </div>
-    </div>
-    <div class="hero-coordinates" data-hero-depth="coordinates" aria-hidden="true">
-      ID / IVURU<br />DEVELOPER ↔ GAMER<br />WORLD GATE: SYNCHRONIZED
-    </div><div class="hero-scroll" aria-hidden="true">{d.hero.scroll}</div>
   </section>
+
   <ActivityCommandCenter locale={locale} />
   <WorldPortalSection locale={locale} />
-  <IdentitySection locale={locale} /><FeaturedWorks locale={locale} /><CommunitySection
-    locale={locale}
-  /><ActivitySection locale={locale} />
+  <IdentitySection locale={locale} />
+  <FeaturedWorks locale={locale} />
+  <CommunitySection locale={locale} />
+  <ActivitySection locale={locale} />
   <section class="media-section section" data-world-zone="creative">
     <div class="section-heading section-inner" data-reveal>
-      <div><p class="section-kicker">VISUAL LOG</p><h2>{d.sections.media}</h2></div><p
-        class="section-intro"
-      >
-        Development / Gaming / Community / Creative
-      </p>
-    </div><MediaReel client:visible />
+      <div><p class="section-kicker">VISUAL LOG</p><h2>{d.sections.media}</h2></div>
+      <p class="section-intro">Development / Gaming / Community / Creative</p>
+    </div>
+    <MediaReel client:visible />
   </section>
   <SocialDock locale={locale} />
-  <LatestPosts locale={locale} /><ContactCTA locale={locale} /><ScrollEffects client:idle />
+  <LatestPosts locale={locale} />
+  <ContactCTA locale={locale} />
+  <ScrollEffects client:idle />
 </BaseLayout>
 
 <style>

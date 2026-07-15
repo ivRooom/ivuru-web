@@ -1,17 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
 
-const worldRoutes = [
-  '/news',
-  '/games',
-  '/favorites',
-  '/en/news',
-  '/en/games',
-  '/en/favorites',
-  '/ko/news',
-  '/ko/games',
-  '/ko/favorites',
-];
-
 const prepareMediaCapablePage = async (page: Page) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.addInitScript(() => {
@@ -32,65 +20,82 @@ const prepareMediaCapablePage = async (page: Page) => {
   });
 };
 
-test('new immersive worlds render in every locale', async ({ page }) => {
-  for (const route of worldRoutes) {
+test('News and Games render in every locale', async ({ page }) => {
+  for (const route of ['/news', '/en/news', '/ko/news']) {
     const response = await page.goto(route);
     expect(response?.ok(), route).toBeTruthy();
     await expect(page.locator('.immersive-page-hero')).toBeVisible();
-    await expect(page.locator('main h1')).toBeVisible();
+  }
+
+  for (const route of ['/games', '/en/games', '/ko/games']) {
+    const response = await page.goto(route);
+    expect(response?.ok(), route).toBeTruthy();
+    await expect(page.locator('.editorial-page-hero')).toBeVisible();
+    await expect(page.locator('.editorial-game-card')).toHaveCount(3);
   }
 });
 
-test('home exposes News, Games, and Favorites gateways and anime hero media', async ({ page }) => {
-  await prepareMediaCapablePage(page);
+test('home exposes editorial routes to News, Games, and Profile Favorites', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
-  await expect(
-    page.locator('[data-hero-video] source[src="/assets/video/hero-anime-op-loop.webm"]'),
-  ).toHaveCount(1);
-  await expect(page.locator('.world-portal-card[href="/news"]')).toBeVisible();
-  await expect(page.locator('.world-portal-card[href="/games"]')).toBeVisible();
-  await expect(page.locator('.world-portal-card[href="/favorites"]')).toBeVisible();
-  await expect(page.locator('.media-tile-live')).toHaveCount(4);
+  await expect(page.locator('.editorial-portal-card[href="/news"]')).toBeVisible();
+  await expect(page.locator('.editorial-portal-card[href="/games"]')).toBeVisible();
+  await expect(page.locator('.editorial-portal-card[href="/profile#favorites"]')).toBeVisible();
 });
 
-test('games page presents original clips from alternating sides', async ({ page }) => {
+test('games page presents three restrained motion studies', async ({ page }) => {
   await prepareMediaCapablePage(page);
   await page.goto('/games');
 
-  const cards = page.locator('.game-cinematic-card');
+  const cards = page.locator('.editorial-game-card');
   await expect(cards).toHaveCount(3);
-  await expect(page.locator('.game-card-left')).toHaveCount(2);
-  await expect(page.locator('.game-card-right')).toHaveCount(1);
 
   for (let index = 0; index < 3; index += 1) {
     const card = cards.nth(index);
     await card.scrollIntoViewIfNeeded();
-    await expect(card.locator('.game-card-video source[type="video/webm"]')).toHaveCount(1);
+    await expect(card.locator('.editorial-game-video source[type="video/webm"]')).toHaveCount(1);
   }
 
-  await expect(page.getByText('ORIGINAL CONCEPT FOOTAGE').first()).toBeVisible();
+  await expect(page.getByText('ORIGINAL MOTION STUDY').first()).toBeVisible();
 });
 
-test('Spotify stays unloaded until the visitor explicitly requests it', async ({ page }) => {
-  await page.goto('/favorites');
+test('Favorites lives inside Profile and Spotify stays deferred', async ({ page }) => {
+  await page.goto('/profile#favorites');
+  const favorites = page.locator('#favorites');
+  await expect(favorites).toBeVisible();
+  await expect(favorites.locator('.profile-favorite-card')).toHaveCount(4);
   await expect(page.locator('iframe[src*="open.spotify.com"]')).toHaveCount(0);
-  const consent = page.locator('[data-spotify-loaded="false"]');
+
+  const consent = favorites.locator('[data-spotify-loaded="false"]');
   await expect(consent).toBeVisible();
   await consent.getByRole('button').click();
   await expect(page.locator('iframe[src*="open.spotify.com/embed/playlist"]')).toHaveCount(1);
-  await expect(page.locator('[data-spotify-loaded="true"]')).toBeVisible();
+  await expect(favorites.locator('[data-spotify-loaded="true"]')).toBeVisible();
 });
 
-test('reduced motion keeps generated media as static posters', async ({ page }) => {
+test('legacy Favorites URLs move to the matching Profile section', async ({ page }) => {
+  for (const [route, target] of [
+    ['/favorites', '/profile#favorites'],
+    ['/en/favorites', '/en/profile#favorites'],
+    ['/ko/favorites', '/ko/profile#favorites'],
+  ]) {
+    await page.goto(route);
+    await expect
+      .poll(() => page.evaluate(() => `${window.location.pathname}${window.location.hash}`))
+      .toBe(target);
+    await expect(page.locator('#favorites')).toBeVisible();
+  }
+});
+
+test('reduced motion keeps Games media as static posters', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/games');
-  await expect(page.locator('.adaptive-loop-video[data-media-state="poster"]')).toHaveCount(4);
+  await expect(page.locator('.adaptive-loop-video[data-media-state="poster"]')).toHaveCount(3);
   await expect(page.locator('.adaptive-loop-video video')).toHaveCount(0);
-  await expect(page.locator('.game-cinematic-card')).toHaveCount(3);
+  await expect(page.locator('.editorial-game-card')).toHaveCount(3);
 });
 
-test('immersive pages remain viewport-bound on desktop, tablet, and mobile', async ({ page }) => {
+test('editorial pages remain viewport-bound on desktop, tablet, and mobile', async ({ page }) => {
   for (const viewport of [
     { width: 1440, height: 900 },
     { width: 1024, height: 768 },
@@ -98,9 +103,8 @@ test('immersive pages remain viewport-bound on desktop, tablet, and mobile', asy
     { width: 390, height: 844 },
   ]) {
     await page.setViewportSize(viewport);
-    for (const route of ['/news', '/games', '/favorites']) {
+    for (const route of ['/games', '/profile#favorites']) {
       await page.goto(route);
-      await expect(page.locator('.immersive-page-hero')).toBeVisible();
       expect(
         await page.evaluate(
           () => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1,

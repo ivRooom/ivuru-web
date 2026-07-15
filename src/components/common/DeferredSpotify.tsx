@@ -63,7 +63,7 @@ export default function DeferredSpotify({
       <button
         type="button"
         data-analytics-event="spotify_load"
-        data-analytics-surface="favorites_music"
+        data-analytics-surface="profile_favorites_music"
         onClick={() => setLoaded(true)}
       >
         <Play aria-hidden="true" /> {t.load}

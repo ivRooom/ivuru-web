@@ -1,5 +1,45 @@
 ---
-import FavoritesPage from '@/components/pages/FavoritesPage.astro';
+const target = '/profile#favorites';
 ---
 
-<FavoritesPage locale="ja" />
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,follow" />
+    <meta http-equiv="refresh" content={`0;url=${target}`} />
+    <title>FavoritesはProfileへ移動しました</title>
+  </head>
+  <body>
+    <main>
+      <p>FavoritesはProfile内へ移動しました。</p>
+      <a href={target}>ProfileのFavoritesを開く</a>
+    </main>
+    <script is:inline>
+      window.location.replace('/profile#favorites');
+    </script>
+  </body>
+</html>
+
+<style>
+  body {
+    display: grid;
+    min-height: 100vh;
+    place-items: center;
+    margin: 0;
+    background: #f4efe6;
+    color: #1c2537;
+    font-family: system-ui, sans-serif;
+  }
+
+  main {
+    padding: 2rem;
+    text-align: center;
+  }
+
+  a {
+    color: inherit;
+    font-weight: 700;
+  }
+</style>
