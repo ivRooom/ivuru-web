@@ -1,0 +1,33 @@
+name: Format scroll effects
+
+on:
+  push:
+    branches: [refactor/editorial-profile-games]
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refactor/editorial-profile-games
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx prettier --write src/components/effects/ScrollEffects.tsx
+      - run: rm .github/workflows/format-scroll-effects.yml
+      - name: 整形結果をプッシュ
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -A
+          git commit -m "スクロール演出のフォーマットを修正"
+          git push origin HEAD:refactor/editorial-profile-games
