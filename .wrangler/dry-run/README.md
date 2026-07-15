@@ -1,0 +1,1 @@
+This folder contains the built output assets for the worker "ivrm-ivurugg" generated at 2026-07-15T14:06:52.456Z.

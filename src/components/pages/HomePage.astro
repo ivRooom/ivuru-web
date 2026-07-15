@@ -7,6 +7,7 @@ import FeaturedWorks from '@/components/home/FeaturedWorks.astro';
 import CommunitySection from '@/components/home/CommunitySection.astro';
 import ActivitySection from '@/components/home/ActivitySection.astro';
 import ActivityCommandCenter from '@/components/home/ActivityCommandCenter.astro';
+import WorldPortalSection from '@/components/home/WorldPortalSection.astro';
 import MediaReel from '@/components/home/MediaReel';
 import LatestPosts from '@/components/blog/LatestPosts.astro';
 import ContactCTA from '@/components/home/ContactCTA.astro';
@@ -16,6 +17,7 @@ import { localePath, siteConfig, type Locale } from '@/data/site-config';
 import { getDictionary } from '@/i18n/dictionaries';
 import '@/styles/hero-motion.css';
 import '@/styles/hero-color-bloom.css';
+import '@/styles/immersive-worlds.css';
 const { locale } = Astro.props as { locale: Locale };
 const d = getDictionary(locale);
 const descriptions = {
@@ -112,6 +114,7 @@ const sceneCopy = {
     </div><div class="hero-scroll" aria-hidden="true">{d.hero.scroll}</div>
   </section>
   <ActivityCommandCenter locale={locale} />
+  <WorldPortalSection locale={locale} />
   <IdentitySection locale={locale} /><FeaturedWorks locale={locale} /><CommunitySection
     locale={locale}
   /><ActivitySection locale={locale} />

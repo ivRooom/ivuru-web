@@ -1,7 +1,17 @@
 import type { Locale } from '@/data/site-config';
 
 const ja = {
-  nav: { home: 'Home', profile: 'Profile', works: 'Works', portfolio: 'Portfolio', blog: 'Blog', contact: 'Contact' },
+  nav: {
+    home: 'Home',
+    profile: 'Profile',
+    works: 'Works',
+    news: 'News',
+    games: 'Games',
+    favorites: 'Favorites',
+    portfolio: 'Portfolio',
+    blog: 'Blog',
+    contact: 'Contact',
+  },
   hero: {
     eyebrow: 'OFFICIAL WORLD PORTAL',
     role: 'Developer / Gamer',
@@ -90,7 +100,17 @@ const ja = {
 };
 
 const en: typeof ja = {
-  nav: { home: 'Home', profile: 'Profile', works: 'Works', portfolio: 'Portfolio', blog: 'Blog', contact: 'Contact' },
+  nav: {
+    home: 'Home',
+    profile: 'Profile',
+    works: 'Works',
+    news: 'News',
+    games: 'Games',
+    favorites: 'Favorites',
+    portfolio: 'Portfolio',
+    blog: 'Blog',
+    contact: 'Contact',
+  },
   hero: {
     eyebrow: 'OFFICIAL WORLD PORTAL',
     role: 'Developer / Gamer',
@@ -185,7 +205,17 @@ const en: typeof ja = {
 };
 
 const ko: typeof ja = {
-  nav: { home: 'Home', profile: 'Profile', works: 'Works', portfolio: 'Portfolio', blog: 'Blog', contact: 'Contact' },
+  nav: {
+    home: 'Home',
+    profile: 'Profile',
+    works: 'Works',
+    news: 'News',
+    games: 'Games',
+    favorites: 'Favorites',
+    portfolio: 'Portfolio',
+    blog: 'Blog',
+    contact: 'Contact',
+  },
   hero: {
     eyebrow: 'OFFICIAL WORLD PORTAL',
     role: 'Developer / Gamer',

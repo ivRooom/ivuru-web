@@ -63,6 +63,7 @@ npm run deploy:preview  # デプロイせず新しいWorker Versionをアップ�
 日本語は言語プレフィックスなし、英語は`/en`、韓国語は`/ko`です。
 
 - `/`, `/profile`, `/works`, `/works/[slug]`, `/portfolio`, `/blog`, `/blog/[slug]`
+- `/news`, `/games`, `/favorites`
 - `/contact`, `/privacy`, `/terms`, `/customer-harassment`, `/404`
 - `/en/...`
 - `/ko/...`
@@ -78,6 +79,9 @@ npm run deploy:preview  # デプロイせず新しいWorker Versionをアップ�
 - Works詳細: Mission Briefing
 - Portfolio: Developer World System Console
 - Blog: Digital Archive Terminal
+- News: Signal Archive / Update Timeline
+- Games: Replay Gate / 左右から登場する生成ゲームクリップ
+- Favorites: Favorite Archive / 明示読み込み型Spotifyプレイヤー
 - ivRm: Digital Room
 - スクロール進行: Dawn / Day / Sunset / NightのWorld State
 - Works一覧と詳細: View Transition共有要素
@@ -95,6 +99,9 @@ npm run deploy:preview  # デプロイせず新しいWorker Versionをアップ�
 - `activities.ts`: Activity / Now
 - `categories.ts`: Works / Blogのカテゴリー
 - `navigation.ts`: 共通ナビゲーション
+- `news.ts`: Newsページの更新記録
+- `game-worlds.ts`: Gamesページのローカル生成クリップ
+- `favorites.ts`: 好きなページとSpotify埋め込み設定
 
 URLが空文字のリンクは表示しない設計です。未確定の問い合わせ先やSNSアカウントを作らないでください。
 
@@ -122,6 +129,10 @@ PUBLIC_INSTAGRAM_POST_URLS=https://www.instagram.com/p/POST_1/,https://www.insta
 - タイムライン全体ではなく、権利と掲載内容を確認した投稿だけを選ぶ
 - 外部スクリプト拒否・障害時でもサイト本文とリンクは利用可能
 - 外部サービス追加時は`public/_headers`のCSPとPrivacy Policyを更新
+
+## Spotify embed
+
+`/favorites`のSpotifyプレイヤーは、利用者が「プレイヤーを読み込む」を操作するまでiframeを生成しません。埋め込みURLは`src/data/favorites.ts`の`spotifyEmbedUrl`で管理します。URLを変更する場合はSpotify公式の`open.spotify.com/embed/` URLを使用し、`public/_headers`のCSPを維持してください。
 
 ## Legal pages
 
@@ -180,6 +191,9 @@ Light / Dark / Systemに対応し、選択は`ivuru-theme`として`localStorage
 - 画像: AVIF / WebPを優先し、幅・高さ・`sizes`を指定
 - 動画: WebM + MP4 + poster
 - 背景動画: `muted playsinline loop`
+- HERO生成動画: `hero-anime-op-loop.webm` / `hero-anime-op-loop.mp4`
+- Games生成動画: `public/assets/video/games/`
+- 生成キービジュアル: `public/assets/visuals/hero-anime-keyvisual.svg`
 - 画面外の動画はIntersectionObserverで停止
 - Data Saverでは自動再生しない
 - 著作権上使用できないゲーム・アニメ・キャラクター素材は追加しない
@@ -243,7 +257,7 @@ PUBLIC_INSTAGRAM_POST_URLS=
 - HTMLの再検証
 - 言語・旧URLリダイレクト
 
-SNS埋め込み用CSPはX・Instagramの必要ドメインに限定しています。新しい外部ドメインを追加する際は、読み込み目的、Privacy Policy、フォールバック表示を同時に更新してください。
+外部埋め込み用CSPはX・Instagram・Spotifyの必要ドメインに限定しています。新しい外部ドメインを追加する際は、読み込み目的、Privacy Policy、フォールバック表示を同時に更新してください。
 
 SPA用の`/* /index.html 200`は使用しません。存在しないURLは最寄りの`404.html`をHTTP 404で返します。
 
@@ -261,7 +275,7 @@ Workers Buildsでは`main`を本番デプロイし、その他のブランチは
 
 ## Contact API
 
-`/contact`、`/en/contact`、`/ko/contact`から`/api/contact`へ送信します。Worker側でOrigin、Content-Type、入力値、Honeypot、Rate Limit、Turnstileを検証し、Resendで`contact@ivrm.jp`へ通知します。受付メールとDiscord通知は補助通知です。
+`/contact`、`/en/contact`、`/ko/contact`から`/api/contact`へ送信します。Worker側でOrigin、Content-Type、入力値、Honeypot、Rate Limit、Turnstileを検証し、Resendで`contact.ivuru@ivrm.jp`へ通知します。受付メールとDiscord通知は補助通知です。
 
 必要な設定、通知再試行、ログ方針は[CONTACT_SETUP.md](./CONTACT_SETUP.md)と[CONTACT_DELIVERY.md](./CONTACT_DELIVERY.md)を参照してください。SecretやWebhook URLをリポジトリへ保存しないでください。
 

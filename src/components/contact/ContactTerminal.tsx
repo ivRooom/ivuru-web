@@ -178,7 +178,7 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
           setConfig({
             ready: false,
             turnstileSiteKey: null,
-            recipient: 'contact@ivrm.jp',
+            recipient: 'contact.ivuru@ivrm.jp',
             discordEnabled: false,
             queueEnabled: false,
             statusEnabled: false,
@@ -333,7 +333,7 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
         <span>
           <i /> SECURE CHANNEL
         </span>
-        <code>contact@ivrm.jp</code>
+        <code>contact.ivuru@ivrm.jp</code>
         <small>
           {config?.queueEnabled
             ? 'QUEUE + MAIL + DISCORD'
@@ -348,7 +348,7 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
           <strong>CHANNEL / STANDBY</strong>
           <p>{t.unavailable}</p>
           <a
-            href="mailto:contact@ivrm.jp"
+            href="mailto:contact.ivuru@ivrm.jp"
             data-analytics-event="social_open"
             data-analytics-target="email"
             data-analytics-surface="contact_fallback"

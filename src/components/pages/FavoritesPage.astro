@@ -1,0 +1,131 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ImmersiveWorldHero from '@/components/common/ImmersiveWorldHero.astro';
+import ScrollEffects from '@/components/effects/ScrollEffects';
+import DeferredSpotify from '@/components/common/DeferredSpotify';
+import { favoriteLinks, spotifyEmbedUrl } from '@/data/favorites';
+import { localePath, siteConfig, type Locale } from '@/data/site-config';
+import '@/styles/immersive-worlds.css';
+
+const { locale } = Astro.props as { locale: Locale };
+const copy = {
+  ja: {
+    label: 'FAVORITE WORLD',
+    title: 'Favorites / 好きなもの',
+    description: 'よく訪れるページ、好きな音楽、心が動く世界観を集めた個人的なアーカイブです。',
+    collection: '好きなページと場所',
+    collectionIntro: 'つくる・遊ぶ・聴く・つながるを支えている場所。',
+    music: '好きな音楽',
+    musicTitle: '世界を切り替えるサウンドトラック。',
+    musicBody:
+      '作業へ集中するとき、ゲームへ潜るとき、夜にアイデアを整理するとき。音楽が世界の色を切り替えます。',
+    palette: ['Dreamy / Future Bass', 'Lo-fi / Focus', 'Game Soundtrack', 'Anime Opening Energy'],
+    note: 'Spotifyプレイリストは差し替え可能な公開埋め込みです。再生は利用者が読み込みを選んだ後に開始します。',
+    home: 'ホームへ戻る',
+  },
+  en: {
+    label: 'FAVORITE WORLD',
+    title: 'Favorites / Personal Archive',
+    description:
+      'A personal archive of frequently visited pages, favorite sounds, and worlds that spark ideas.',
+    collection: 'Favorite pages and places',
+    collectionIntro: 'Places that support building, playing, listening, and connecting.',
+    music: 'Favorite music',
+    musicTitle: 'A soundtrack that changes the world around me.',
+    musicBody:
+      'Music changes the color of the moment—during focused work, deep game sessions, and late-night idea sorting.',
+    palette: ['Dreamy / Future Bass', 'Lo-fi / Focus', 'Game Soundtrack', 'Anime Opening Energy'],
+    note: 'The Spotify playlist is a replaceable public embed and loads only after explicit user action.',
+    home: 'Back home',
+  },
+  ko: {
+    label: 'FAVORITE WORLD',
+    title: 'Favorites / 좋아하는 것',
+    description:
+      '자주 찾는 페이지, 좋아하는 음악, 마음을 움직이는 세계관을 모은 개인 아카이브입니다.',
+    collection: '좋아하는 페이지와 장소',
+    collectionIntro: '만들고, 플레이하고, 듣고, 연결되는 시간을 지지하는 장소입니다.',
+    music: '좋아하는 음악',
+    musicTitle: '주변 세계를 바꾸는 사운드트랙.',
+    musicBody:
+      '집중해서 작업할 때, 게임에 몰입할 때, 밤에 아이디어를 정리할 때 음악이 순간의 색을 바꿉니다.',
+    palette: ['Dreamy / Future Bass', 'Lo-fi / Focus', 'Game Soundtrack', 'Anime Opening Energy'],
+    note: 'Spotify 플레이리스트는 교체 가능한 공개 임베드이며, 사용자가 직접 불러온 뒤에만 연결됩니다.',
+    home: '홈으로 돌아가기',
+  },
+}[locale];
+---
+
+<BaseLayout
+  title={`${copy.title} — ${siteConfig.name} / ${siteConfig.idName}`}
+  description={copy.description}
+  locale={locale}
+  image="/assets/video/games/prism-arena-poster.webp"
+  chapter={{ code: '05', title: 'FAVORITE ARCHIVE', world: 'CREATIVE WORLD' }}
+>
+  <ImmersiveWorldHero
+    code="CHAPTER 05"
+    label={copy.label}
+    title={copy.title}
+    description={copy.description}
+    tone="favorites"
+  >
+    <a class="immersive-hero-action" href={localePath(locale, '/')}>{copy.home}</a>
+  </ImmersiveWorldHero>
+
+  <section class="favorite-links-section section" data-world-zone="creative">
+    <div class="section-inner">
+      <div class="section-heading" data-reveal>
+        <div>
+          <p class="section-kicker">PERSONAL BOOKMARK CONSTELLATION</p><h2>{copy.collection}</h2>
+        </div>
+        <p class="section-intro">{copy.collectionIntro}</p>
+      </div>
+      <div class="favorite-constellation">
+        {
+          favoriteLinks.map((item, index) => (
+            <a
+              class={`favorite-node favorite-${item.kind}`}
+              href={item.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-reveal
+              data-enter-side={index % 2 === 0 ? 'left' : 'right'}
+            >
+              <small>NODE / {String(index + 1).padStart(2, '0')}</small>
+              <h3>{item.title}</h3>
+              <strong>{item.label[locale]}</strong>
+              <p>{item.description[locale]}</p>
+              <span>OPEN ↗</span>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="favorite-music-section section" data-world-zone="night">
+    <div class="section-inner favorite-music-grid">
+      <div class="music-visual" data-reveal aria-hidden="true">
+        <img
+          src="/assets/visuals/hero-anime-keyvisual.svg"
+          alt=""
+          width="960"
+          height="600"
+          loading="lazy"
+        />
+        <div class="music-rings"><i></i><i></i><i></i></div>
+        <span>FAVORITE SOUND / 001</span>
+      </div>
+      <div data-reveal>
+        <p class="section-kicker">{copy.music}</p>
+        <h2>{copy.musicTitle}</h2>
+        <p>{copy.musicBody}</p>
+        <div class="music-palette">{copy.palette.map((item) => <span>{item}</span>)}</div>
+        <DeferredSpotify client:visible locale={locale} embedUrl={spotifyEmbedUrl} />
+        <small class="spotify-note">{copy.note}</small>
+      </div>
+    </div>
+  </section>
+  <ScrollEffects client:idle />
+</BaseLayout>

@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">ivuru anime world gate key visual</title>
+  <desc id="desc">An original anime-inspired white-haired traveler standing before a colorful game world portal.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#6be7ff"/>
+      <stop offset=".42" stop-color="#a78cff"/>
+      <stop offset=".72" stop-color="#ff8fcd"/>
+      <stop offset="1" stop-color="#ffd98b"/>
+    </linearGradient>
+    <radialGradient id="portal" cx="50%" cy="50%" r="50%">
+      <stop stop-color="#fffef1"/>
+      <stop offset=".22" stop-color="#bdf8ff"/>
+      <stop offset=".52" stop-color="#8d8cff" stop-opacity=".86"/>
+      <stop offset=".78" stop-color="#ff75c3" stop-opacity=".45"/>
+      <stop offset="1" stop-color="#43216e" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#67f6ff"/>
+      <stop offset=".32" stop-color="#fff39a"/>
+      <stop offset=".62" stop-color="#ff78ca"/>
+      <stop offset="1" stop-color="#997cff"/>
+    </linearGradient>
+    <linearGradient id="coat" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#e9fbff"/>
+      <stop offset=".45" stop-color="#b8b8ff"/>
+      <stop offset="1" stop-color="#7149a7"/>
+    </linearGradient>
+    <linearGradient id="ribbon" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#5ff5ff" stop-opacity="0"/>
+      <stop offset=".25" stop-color="#5ff5ff" stop-opacity=".9"/>
+      <stop offset=".55" stop-color="#fff18c" stop-opacity=".92"/>
+      <stop offset=".8" stop-color="#ff76c8" stop-opacity=".9"/>
+      <stop offset="1" stop-color="#ff76c8" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="18" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="32"/>
+    </filter>
+    <clipPath id="ground"><path d="M0 640C260 560 430 695 720 630s470-50 880 35v235H0z"/></clipPath>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <circle cx="800" cy="390" r="420" fill="url(#portal)" opacity=".96"/>
+  <circle cx="800" cy="390" r="282" fill="none" stroke="url(#ring)" stroke-width="34" opacity=".78" filter="url(#glow)"/>
+  <circle cx="800" cy="390" r="230" fill="#fff" opacity=".18" filter="url(#soft)"/>
+
+  <g opacity=".38" fill="none" stroke="#fff">
+    <ellipse cx="800" cy="390" rx="520" ry="230" stroke-width="3"/>
+    <ellipse cx="800" cy="390" rx="610" ry="310" stroke-width="2" transform="rotate(-12 800 390)"/>
+    <ellipse cx="800" cy="390" rx="680" ry="360" stroke-width="2" transform="rotate(15 800 390)"/>
+  </g>
+
+  <path d="M-120 610C240 430 470 730 810 520s570-150 930 20" fill="none" stroke="url(#ribbon)" stroke-width="62" opacity=".62" filter="url(#glow)"/>
+  <path d="M-80 730C260 535 505 775 845 610s520-95 850-260" fill="none" stroke="url(#ribbon)" stroke-width="24" opacity=".8"/>
+  <path d="M90 180C390 360 560 70 850 230s410 210 690 20" fill="none" stroke="url(#ribbon)" stroke-width="18" opacity=".55"/>
+
+  <g clip-path="url(#ground)">
+    <rect y="570" width="1600" height="330" fill="#262064" opacity=".58"/>
+    <path d="M0 760L250 590l160 105 190-180 190 175 180-145 220 180 170-140 240 175v160H0z" fill="#43337e" opacity=".72"/>
+    <path d="M0 800L270 675l190 95 210-120 210 105 190-88 245 115 285-135v253H0z" fill="#281d58" opacity=".86"/>
+  </g>
+
+  <g opacity=".86" fill="#fff">
+    <path d="M190 175l10 29 30 10-30 10-10 29-10-29-30-10 30-10z"/>
+    <path d="M1320 160l7 20 21 7-21 7-7 20-7-20-21-7 21-7z"/>
+    <path d="M1225 595l12 34 35 12-35 12-12 34-12-34-35-12 35-12z"/>
+    <path d="M360 620l8 23 24 8-24 8-8 23-8-23-24-8 24-8z"/>
+    <circle cx="260" cy="420" r="5"/><circle cx="1370" cy="390" r="7"/><circle cx="1080" cy="150" r="4"/>
+  </g>
+
+  <!-- Original anime-inspired traveler silhouette -->
+  <g transform="translate(800 465)">
+    <ellipse cx="0" cy="250" rx="176" ry="38" fill="#1a1647" opacity=".36" filter="url(#soft)"/>
+    <path d="M-92 4C-126-46-80-118-20-122c53-4 102 49 91 103-5 26-24 51-48 64-44 24-90 5-115-41z" fill="#fff"/>
+    <path d="M-113-12c14-87 85-145 161-104 25 14 46 41 51 71-29-17-55-17-79-7-16-37-55-52-89-31-22 14-37 39-44 71z" fill="#f3fbff"/>
+    <path d="M-96-28c-14-38 8-79 43-96-8 31 6 49 27 64-28-2-48 8-70 32z" fill="#c8eaff"/>
+    <path d="M-53-33c18-12 38-12 58 0" fill="none" stroke="#34285f" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="-30" cy="-13" r="7" fill="#5d4fc9"/><circle cx="26" cy="-13" r="7" fill="#ff6ebd"/>
+    <path d="M-10 15c8 5 17 5 25 0" fill="none" stroke="#a84f8d" stroke-width="5" stroke-linecap="round"/>
+    <path d="M-80 46C-143 79-162 188-135 267l87-16 44-103 47 103 93 16c25-83 2-188-63-222-45 38-105 39-153 1z" fill="url(#coat)"/>
+    <path d="M-25 57l25 34 27-34 34 52-61 148-65-148z" fill="#26205b" opacity=".88"/>
+    <path d="M-126 112l-84 86 38 31 89-63zM128 112l84 86-38 31-89-63z" fill="#b3c8ff"/>
+    <path d="M-133 254l-61 145 70 8 83-149zM134 254l61 145-70 8-83-149z" fill="#4b397e"/>
+    <path d="M-72 250l-25 157 68 1 29-153 30 153 69-1-27-157z" fill="#29204f"/>
+    <path d="M-190 186c-22 4-36 22-31 40 5 17 25 26 45 19l22-13-25-52zM190 186c22 4 36 22 31 40-5 17-25 26-45 19l-22-13 25-52z" fill="#fff"/>
+    <path d="M-80 65c-18 74-13 134 17 189M79 65c18 74 13 134-17 189" fill="none" stroke="#fff" stroke-width="8" opacity=".45"/>
+  </g>
+
+  <g fill="#ffd1eb" opacity=".78">
+    <path d="M280 340c20-31 52-13 41 16-10 23-34 36-53 49 2-25 0-47 12-65z"/>
+    <path d="M1390 405c15-26 43-10 33 14-8 20-29 30-45 41 2-21 2-38 12-55z"/>
+    <path d="M1120 205c16-25 42-6 30 16-9 18-28 26-45 35 4-19 6-35 15-51z"/>
+  </g>
+
+  <g font-family="ui-monospace, SFMono-Regular, Consolas, monospace" fill="#fff" opacity=".78">
+    <text x="70" y="90" font-size="18" letter-spacing="8">IVURU / WORLD GATE</text>
+    <text x="1260" y="830" font-size="15" letter-spacing="5">SCENE 02 / AWAKEN</text>
+  </g>
+</svg>

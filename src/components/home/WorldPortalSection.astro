@@ -1,0 +1,81 @@
+---
+import { localePath, type Locale } from '@/data/site-config';
+
+const { locale } = Astro.props as { locale: Locale };
+const copy = {
+  ja: {
+    kicker: 'EXPLORE THE NEXT WORLDS',
+    title: '物語の続きを、好きな入口から。',
+    intro:
+      '更新情報、ゲームクリップ、好きなもの。3つの新しいワールドをアニメ作品のチャプターとして巡れます。',
+    news: ['News', 'サイトとプロジェクトの更新記録'],
+    games: ['Games', '左右から現れるオリジナルゲームクリップ'],
+    favorites: ['Favorites', '好きなページ、音楽、世界観のコレクション'],
+    enter: 'ワールドへ入る',
+  },
+  en: {
+    kicker: 'EXPLORE THE NEXT WORLDS',
+    title: 'Continue the story from any gateway.',
+    intro: 'News, game clips, and favorite things become three new chapters in the ivuru world.',
+    news: ['News', 'Updates from the site and ongoing projects'],
+    games: ['Games', 'Original game clips entering from both sides'],
+    favorites: ['Favorites', 'A collection of pages, music, and visual worlds'],
+    enter: 'Enter world',
+  },
+  ko: {
+    kicker: 'EXPLORE THE NEXT WORLDS',
+    title: '좋아하는 게이트에서 이야기를 이어가세요.',
+    intro: '업데이트, 게임 클립, 좋아하는 것들을 세 개의 새로운 챕터로 탐험할 수 있습니다.',
+    news: ['News', '사이트와 프로젝트의 업데이트 기록'],
+    games: ['Games', '좌우에서 등장하는 오리지널 게임 클립'],
+    favorites: ['Favorites', '좋아하는 페이지, 음악, 세계관 컬렉션'],
+    enter: '월드 입장',
+  },
+}[locale];
+
+const worlds = [
+  { key: 'news', index: '03', href: '/news', media: '/assets/video/games/sky-raid-poster.webp' },
+  { key: 'games', index: '04', href: '/games', media: '/assets/video/games/neon-rift-poster.webp' },
+  {
+    key: 'favorites',
+    index: '05',
+    href: '/favorites',
+    media: '/assets/video/games/prism-arena-poster.webp',
+  },
+] as const;
+---
+
+<section class="world-portal-section section" data-world-zone="creative">
+  <div class="section-inner">
+    <div class="section-heading" data-reveal>
+      <div><p class="section-kicker">{copy.kicker}</p><h2>{copy.title}</h2></div>
+      <p class="section-intro">{copy.intro}</p>
+    </div>
+    <div class="world-portal-grid">
+      {
+        worlds.map((world, index) => {
+          const item = copy[world.key];
+          return (
+            <a
+              class={`world-portal-card portal-${world.key}`}
+              href={localePath(locale, world.href)}
+              data-reveal
+              data-enter-side={index % 2 === 0 ? 'left' : 'right'}
+              data-analytics-event="world_portal_open"
+              data-analytics-target={world.key}
+              data-analytics-surface="home_world_portal"
+              data-analytics-position={String(index + 1)}
+            >
+              <img src={world.media} alt="" width="960" height="540" loading="lazy" />
+              <div class="world-portal-glow" aria-hidden="true" />
+              <small>CHAPTER / {world.index}</small>
+              <h3>{item[0]}</h3>
+              <p>{item[1]}</p>
+              <span>{copy.enter} ↗</span>
+            </a>
+          );
+        })
+      }
+    </div>
+  </div>
+</section>
