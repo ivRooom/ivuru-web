@@ -34,7 +34,10 @@ test.describe('restrained home motion', () => {
     await expect(page.locator('[data-hero-video]')).toHaveCount(0);
     await expect(page.locator('.home-editorial-sketch')).toBeVisible();
     await expect(
-      page.locator('[data-editorial-hero]').getByRole('link', { name: /Works|制作|작업/i }).first(),
+      page
+        .locator('[data-editorial-hero]')
+        .getByRole('link', { name: /Works|制作|작업/i })
+        .first(),
     ).toBeVisible();
   });
 
