@@ -11,6 +11,7 @@ import {
   RetryableDeliveryError,
   withRetry,
 } from './worker/delivery';
+import { buildResendPayload } from './worker/email-delivery';
 import {
   calculateSpamScore,
   createStatusToken,
@@ -64,6 +65,8 @@ interface Env {
   CONTACT_DELIVERY_QUEUE?: QueueBinding<ContactQueueMessage>;
   CONTACT_TO_EMAIL?: string;
   CONTACT_FROM_EMAIL?: string;
+  CONTACT_RECEIPT_FROM_EMAIL?: string;
+  CONTACT_RECEIPT_BCC_EMAIL?: string;
   CONTACT_RETENTION_DAYS?: string;
   ALLOWED_ORIGINS?: string;
   TURNSTILE_SITE_KEY?: string;
@@ -178,11 +181,13 @@ const sendResendEmail = async (
     subject: string;
     html: string;
     replyTo?: string;
+    from?: string;
+    bcc?: string;
     idempotencyKey: string;
   },
 ) => {
-  if (!env.RESEND_API_KEY || !env.CONTACT_FROM_EMAIL)
-    throw new Error('Email provider is not configured.');
+  const from = options.from || env.CONTACT_FROM_EMAIL;
+  if (!env.RESEND_API_KEY || !from) throw new Error('Email provider is not configured.');
   const response = await fetchDelivery('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
@@ -190,13 +195,16 @@ const sendResendEmail = async (
       'content-type': 'application/json',
       'idempotency-key': options.idempotencyKey,
     },
-    body: JSON.stringify({
-      from: env.CONTACT_FROM_EMAIL,
-      to: [options.to],
-      subject: options.subject,
-      html: options.html,
-      reply_to: options.replyTo,
-    }),
+    body: JSON.stringify(
+      buildResendPayload({
+        from,
+        to: options.to,
+        subject: options.subject,
+        html: options.html,
+        replyTo: options.replyTo,
+        bcc: options.bcc,
+      }),
+    ),
   });
   if (!response.ok) {
     console.error('Resend request failed', { status: response.status });
@@ -218,7 +226,7 @@ const getConfig = (env: Env) =>
   json({
     ready: Boolean(env.TURNSTILE_SITE_KEY && env.TURNSTILE_SECRET_KEY && env.RESEND_API_KEY),
     turnstileSiteKey: env.TURNSTILE_SITE_KEY || null,
-    recipient: env.CONTACT_TO_EMAIL || 'contact@ivrm.jp',
+    recipient: env.CONTACT_TO_EMAIL || 'contact.ivuru@ivrm.jp',
     discordEnabled: Boolean(env.DISCORD_WEBHOOK_URL),
     queueEnabled: Boolean(env.CONTACT_DB && env.CONTACT_DELIVERY_QUEUE),
     statusEnabled: Boolean(env.CONTACT_DB),
@@ -230,7 +238,7 @@ const parseRetentionDays = (env: Env) => {
 };
 
 const deliverContact = async (env: Env, message: ContactQueueMessage) => {
-  const recipient = env.CONTACT_TO_EMAIL || 'contact@ivrm.jp';
+  const recipient = env.CONTACT_TO_EMAIL || 'contact.ivuru@ivrm.jp';
   const adminEmail = buildAdminEmail(message.payload, message.requestId);
   const receipt = buildReceiptEmail(message.payload, message.requestId);
 
@@ -247,6 +255,8 @@ const deliverContact = async (env: Env, message: ContactQueueMessage) => {
       to: message.payload.email,
       subject: receipt.subject,
       html: receipt.html,
+      from: env.CONTACT_RECEIPT_FROM_EMAIL || env.CONTACT_FROM_EMAIL,
+      bcc: env.CONTACT_RECEIPT_BCC_EMAIL,
       idempotencyKey: `${message.requestId}:receipt`,
     }),
     sendDiscord(env, message.payload, message.requestId),
