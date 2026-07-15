@@ -15,6 +15,7 @@ import CustomCursor from '@/components/common/CustomCursor';
 import { localePath, siteConfig, type Locale } from '@/data/site-config';
 import { getDictionary } from '@/i18n/dictionaries';
 import '@/styles/hero-motion.css';
+import '@/styles/hero-color-bloom.css';
 const { locale } = Astro.props as { locale: Locale };
 const d = getDictionary(locale);
 const descriptions = {
@@ -36,7 +37,7 @@ const sceneCopy = {
   chapter={{ code: '00', title: 'WORLD GATE', world: 'NEXUS' }}
 >
   <CustomCursor client:load />
-  <section class="hero anime-world-hero" data-hero data-page-intro>
+  <section class="hero anime-world-hero" data-hero data-page-intro data-colorful-anime-hero>
     <div class="hero-cinematic-intro" data-cinematic-intro aria-hidden="true">
       <div class="hero-cinematic-shutter hero-cinematic-shutter-top"></div>
       <div class="hero-cinematic-shutter hero-cinematic-shutter-bottom"></div>
@@ -47,6 +48,16 @@ const sceneCopy = {
       </div>
     </div>
     <div class="hero-film-grain" data-hero-depth="grain" aria-hidden="true"></div>
+    <div class="hero-anime-bloom" data-hero-depth="bloom" aria-hidden="true">
+      <img src="/assets/visuals/hero-anime-bloom.svg" alt="" width="1600" height="900" />
+    </div>
+    <div class="hero-prism-rays" data-hero-depth="ribbons" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="hero-spark-field" data-hero-depth="sparkles" aria-hidden="true">
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+    </div>
+    <div class="hero-petal-field" data-hero-depth="petals" aria-hidden="true">
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+    </div>
     <div class="hero-orbit-lines" data-hero-depth="orbit" aria-hidden="true">
       <i></i><i></i><i></i>
     </div>
