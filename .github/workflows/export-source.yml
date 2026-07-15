@@ -3,6 +3,8 @@ name: Export source snapshot
 on:
   push:
     branches: [chore/source-export-temp]
+  pull_request:
+    branches: [main]
 
 permissions:
   contents: read
