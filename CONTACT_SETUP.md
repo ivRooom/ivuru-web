@@ -22,10 +22,10 @@ ivurugg.ivrm.jp
 
 Workerへ次を設定します。
 
-| Name | Type | Value |
-| --- | --- | --- |
-| `TURNSTILE_SITE_KEY` | Variable | Turnstile WidgetのSite Key |
-| `TURNSTILE_SECRET_KEY` | Secret | Turnstile WidgetのSecret Key |
+| Name                   | Type     | Value                        |
+| ---------------------- | -------- | ---------------------------- |
+| `TURNSTILE_SITE_KEY`   | Variable | Turnstile WidgetのSite Key   |
+| `TURNSTILE_SECRET_KEY` | Secret   | Turnstile WidgetのSecret Key |
 
 CLIでSecretを設定する場合:
 
