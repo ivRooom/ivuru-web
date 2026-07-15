@@ -6,19 +6,21 @@
   "keep_vars": true,
 
   "vars": {
-    "CONTACT_TO_EMAIL": "contact@ivrm.jp",
-    "CONTACT_FROM_EMAIL": "ivuru Contact <contact@ivrm.jp>",
+    "CONTACT_TO_EMAIL": "contact.ivuru@ivrm.jp",
+    "CONTACT_FROM_EMAIL": "ivuru Contact <info.ivuru@ivrm.jp>",
+    "CONTACT_RECEIPT_FROM_EMAIL": "ivuru Contact <info.ivuru@ivrm.jp>",
+    "CONTACT_RECEIPT_BCC_EMAIL": "ivuruGG.info@gmail.com",
     "CONTACT_RETENTION_DAYS": "90",
-    "ALLOWED_ORIGINS": "https://ivurugg.ivrm.jp",
+    "ALLOWED_ORIGINS": "https://ivurugg.ivrm.jp"
   },
 
   "observability": {
     "enabled": true,
-    "head_sampling_rate": 1,
+    "head_sampling_rate": 1
   },
 
   "triggers": {
-    "crons": ["17 18 * * *"],
+    "crons": ["17 18 * * *"]
   },
 
   "d1_databases": [
@@ -26,16 +28,16 @@
       "binding": "CONTACT_DB",
       "database_name": "ivuru-contact-production",
       "database_id": "985dee82-e9bd-4e7d-b18c-1fb8f4777968",
-      "migrations_dir": "migrations",
-    },
+      "migrations_dir": "migrations"
+    }
   ],
 
   "queues": {
     "producers": [
       {
         "binding": "CONTACT_DELIVERY_QUEUE",
-        "queue": "ivuru-contact-delivery",
-      },
+        "queue": "ivuru-contact-delivery"
+      }
     ],
     "consumers": [
       {
@@ -44,9 +46,9 @@
         "max_batch_timeout": 5,
         "max_retries": 5,
         "dead_letter_queue": "ivuru-contact-delivery-dlq",
-        "retry_delay": 60,
-      },
-    ],
+        "retry_delay": 60
+      }
+    ]
   },
 
   "ratelimits": [
@@ -55,9 +57,9 @@
       "namespace_id": "1661",
       "simple": {
         "limit": 3,
-        "period": 60,
-      },
-    },
+        "period": 60
+      }
+    }
   ],
 
   "assets": {
@@ -65,6 +67,6 @@
     "binding": "ASSETS",
     "run_worker_first": ["/api/*"],
     "not_found_handling": "404-page",
-    "html_handling": "auto-trailing-slash",
-  },
+    "html_handling": "auto-trailing-slash"
+  }
 }
