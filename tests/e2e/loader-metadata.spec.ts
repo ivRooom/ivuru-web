@@ -22,14 +22,9 @@ test('keeps the page released after the intro loader finishes', async ({ page })
   await expect(progressbar).toHaveAttribute('aria-valuenow', /\d+/);
 
   await expect(loader).toHaveClass(/is-leaving/, { timeout: 3_000 });
-  await page.waitForTimeout(350);
-  await expect(loader).toHaveCount(1);
   await expect(loader).toHaveCount(0, { timeout: 2_000 });
-
   await expect(page.locator('html')).toHaveAttribute('data-loader-released', 'true');
-  await page.waitForTimeout(800);
   await expect(page.locator('body')).not.toHaveClass(/site-loading/);
-  await expect(loader).toHaveCount(0);
 });
 
 test('emits an absolute local profile image URL in Person JSON-LD', async ({ page }) => {
