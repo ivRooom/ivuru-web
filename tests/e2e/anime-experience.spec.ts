@@ -24,7 +24,7 @@ test.describe('blue signal loading experience', () => {
     const heroGate = new Promise<void>((resolve) => {
       releaseHero = resolve;
     });
-    await page.route('**/assets/visuals/blue-anime/ivuru-hero-blue.svg', async (route) => {
+    await page.route('**/assets/images/ivuru-hero-character.png', async (route) => {
       heroRequestStarted = true;
       await heroGate;
       await route.continue();
