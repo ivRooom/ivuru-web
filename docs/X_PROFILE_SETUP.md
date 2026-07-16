@@ -45,6 +45,12 @@ npx wrangler secret put X_BEARER_TOKEN
 - `X_PROFILE_USERNAME`: 先頭の`@`なし
 - `X_PROFILE_CACHE_TTL_SECONDS`: Cloudflare Cache APIの保持時間。300〜86400秒へ制限されます
 
+## キャッシュ階層
+
+- ブラウザ内では同一ページ内の重複取得をまとめ、5分後の再マウントから再取得できるようにする
+- Cloudflare Workerでは既定6時間、X APIの正常レスポンスをキャッシュする
+- X未設定・失敗時のフォールバックは5分だけキャッシュし、一時障害から自動復旧できるようにする
+
 ## ローカル確認
 
 ローカルの`.dev.vars`へ次を追加します。`.dev.vars`はGitへコミットしません。
