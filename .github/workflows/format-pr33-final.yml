@@ -25,7 +25,7 @@ jobs:
       - name: PR変更ファイルを整形
         run: |
           git fetch origin main
-          git diff --name-only -z origin/main...HEAD -- '*.astro' '*.tsx' '*.ts' '*.css' '*.md' '*.svg' | xargs -0 --no-run-if-empty npx prettier --write
+          git diff --name-only --diff-filter=ACMRT -z origin/main...HEAD -- '*.astro' '*.tsx' '*.ts' '*.css' '*.md' '*.svg' | xargs -0 -r npx prettier --write
       - name: 整形結果をコミット
         run: |
           rm .github/workflows/format-pr33-final.yml
