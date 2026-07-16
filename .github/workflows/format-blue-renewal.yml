@@ -1,0 +1,39 @@
+name: Format Blue Renewal
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    if: github.head_ref == 'feat/blue-anime-renewal' && github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/blue-anime-renewal
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: 変更ファイルを整形
+        shell: bash
+        run: |
+          mapfile -d '' files < <(git diff --diff-filter=ACMR --name-only -z origin/main -- '*.astro' '*.css' '*.js' '*.json' '*.jsonc' '*.md' '*.mjs' '*.ts' '*.tsx' '*.yml' '*.yaml')
+          if (( ${#files[@]} > 0 )); then
+            npx prettier --write "${files[@]}"
+          fi
+      - name: 整形結果をコミット
+        run: |
+          rm .github/workflows/format-blue-renewal.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -A
+          git commit -m "青白リニューアルの変更ファイルを整形"
+          git push origin HEAD:feat/blue-anime-renewal
