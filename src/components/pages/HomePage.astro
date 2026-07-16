@@ -16,31 +16,31 @@ import { getDictionary } from '@/i18n/dictionaries';
 const { locale } = Astro.props as { locale: Locale };
 const d = getDictionary(locale);
 const descriptions = {
-  ja: 'DeveloperとGamer、2つの世界をつなぐ「いゔる。」の公式サイト。個人開発、ゲーム、ivRmコミュニティ、創作活動を発信します。',
-  en: 'The official site of ivuru, connecting Developer and Gamer worlds through projects, games, the ivRm community, and creative work.',
-  ko: 'Developer와 Gamer의 두 세계를 연결하는 ivuru 공식 사이트입니다. 개인 개발, 게임, ivRm 커뮤니티, 창작 활동을 소개합니다.',
+  ja: 'DeveloperとGamer、2つの世界を青と白のアニメエンタメ表現でつなぐ「いゔる。」の公式サイト。',
+  en: 'The official ivuru site connecting Developer and Gamer worlds through a blue-and-white anime entertainment experience.',
+  ko: 'Developer와 Gamer의 두 세계를 파랑과 흰색의 애니메이션 엔터테인먼트 경험으로 연결하는 ivuru 공식 사이트입니다.',
 };
 const heroCopy = {
   ja: {
-    kicker: 'IVURU / NEW ANIME SCENE',
-    role: 'Webをつくり、ゲームで遊び、好きな世界を少しずつ広げる。',
-    body: '個人開発、クラウド、ゲーム、ivRmコミュニティの記録を、かわいいアニメ作品のような一つの物語としてまとめています。',
-    caption: 'original character / developer · gamer · community',
-    scroll: 'SCROLL TO NEXT SCENE',
+    index: 'IVURU / BLUE MEDIA UNIVERSE',
+    role: 'つくる。遊ぶ。つながる。好きな世界を、もっと鮮やかに。',
+    body: 'Web開発、ゲーム、クラウド、ivRmコミュニティの記録を、青と白のアニメ作品のような一つのメディア体験にまとめています。',
+    caption: 'ORIGINAL CHARACTER / BLUE SIGNAL',
+    scroll: 'SCROLL TO THE NEXT SIGNAL',
   },
   en: {
-    kicker: 'IVURU / NEW ANIME SCENE',
-    role: 'Building for the web, playing games, and growing the worlds I love.',
-    body: 'Personal development, cloud work, games, and the ivRm community are collected as one playful anime-inspired story.',
-    caption: 'original character / developer · gamer · community',
-    scroll: 'SCROLL TO NEXT SCENE',
+    index: 'IVURU / BLUE MEDIA UNIVERSE',
+    role: 'Build. Play. Connect. Make every world more vivid.',
+    body: 'Web development, games, cloud work, and the ivRm community are connected as one blue-and-white anime media experience.',
+    caption: 'ORIGINAL CHARACTER / BLUE SIGNAL',
+    scroll: 'SCROLL TO THE NEXT SIGNAL',
   },
   ko: {
-    kicker: 'IVURU / NEW ANIME SCENE',
-    role: '웹을 만들고, 게임을 즐기며, 좋아하는 세계를 조금씩 넓혀 갑니다.',
-    body: '개인 개발, 클라우드, 게임, ivRm 커뮤니티의 기록을 귀여운 애니메이션 작품 같은 하나의 이야기로 담았습니다.',
-    caption: 'original character / developer · gamer · community',
-    scroll: 'SCROLL TO NEXT SCENE',
+    index: 'IVURU / BLUE MEDIA UNIVERSE',
+    role: '만들고, 즐기고, 이어지며 좋아하는 세계를 더 선명하게.',
+    body: '웹 개발, 게임, 클라우드, ivRm 커뮤니티의 기록을 파랑과 흰색의 애니메이션 미디어 경험으로 연결합니다.',
+    caption: 'ORIGINAL CHARACTER / BLUE SIGNAL',
+    scroll: 'SCROLL TO THE NEXT SIGNAL',
   },
 }[locale];
 ---
@@ -49,38 +49,45 @@ const heroCopy = {
   title={siteConfig.title}
   description={descriptions[locale]}
   locale={locale}
-  chapter={{ code: '00', title: 'HOME', world: 'IVURU' }}
+  image="/assets/visuals/blue-anime/ivuru-hero-blue.svg"
+  chapter={{ code: '00', title: 'HOME', world: 'BLUE MEDIA' }}
 >
   <section
-    class="home-anime-hero"
+    class="blue-media-hero"
     data-hero
     data-page-intro
-    data-anime-scene="pink"
+    data-anime-scene="ice"
     data-anime-hero
   >
-    <span class="home-anime-ribbon" data-anime-parallax="-6" aria-hidden="true"></span>
-    <span class="home-anime-ribbon" data-anime-parallax="5" aria-hidden="true"></span>
-    <div class="home-anime-hero-inner">
-      <div class="home-anime-copy" data-hero-copy data-anime-reveal="hero-copy">
-        <p class="home-anime-kicker">{heroCopy.kicker}</p>
-        <h1 class="home-anime-title">
-          いゔる。<span>ivuru / Developer · Gamer · Community</span>
+    <span class="blue-hero-slash is-top" data-anime-parallax="-5" aria-hidden="true"></span>
+    <span class="blue-hero-slash is-bottom" data-anime-parallax="4" aria-hidden="true"></span>
+    <span class="blue-hero-orbit" data-blue-orbit aria-hidden="true"></span>
+    <svg class="blue-hero-path" viewBox="0 0 1600 320" preserveAspectRatio="none" aria-hidden="true">
+      <path data-blue-path d="M-40 286C248 44 514 365 780 135S1278 46 1640 224" />
+    </svg>
+
+    <div class="blue-media-hero-inner">
+      <div class="blue-media-copy" data-hero-copy data-blue-reveal>
+        <p class="blue-media-index">{heroCopy.index}</p>
+        <h1 class="blue-media-title" data-blue-split>
+          <span>いゔる。</span><span>ivuru / Developer · Gamer · Community</span>
         </h1>
-        <p class="home-anime-role">
+        <p class="blue-media-lede">
           <strong>{heroCopy.role}</strong><br />{heroCopy.body}
         </p>
-        <div class="home-anime-actions" data-anime-stagger>
+        <div class="blue-media-actions" data-anime-stagger>
           <a href={localePath(locale, '/works')}>{d.hero.works}</a>
           <a href={localePath(locale, '/profile')}>{d.hero.profile}</a>
           <a href={siteConfig.xUrl} target="_blank" rel="noopener noreferrer">X ↗</a>
         </div>
-        <div class="home-anime-topics" aria-label="Site topics" data-anime-stagger>
+        <div class="blue-media-meta" aria-label="Site topics" data-anime-stagger>
           <span>WEB DEVELOPMENT</span><span>GAME</span><span>COMMUNITY</span>
         </div>
       </div>
-      <figure class="home-anime-character" data-anime-visual data-anime-parallax="-3">
+
+      <figure class="blue-media-character" data-anime-visual data-blue-visual data-anime-parallax="-3">
         <img
-          src="/assets/visuals/anime/ivuru-hero-girl.svg"
+          src="/assets/visuals/blue-anime/ivuru-hero-blue.svg"
           alt=""
           width="1600"
           height="1200"
@@ -90,24 +97,24 @@ const heroCopy = {
         <figcaption>{heroCopy.caption}</figcaption>
       </figure>
     </div>
-    <div class="home-anime-scroll-note" aria-hidden="true"><i></i>{heroCopy.scroll}</div>
+    <div class="blue-media-scroll-note" aria-hidden="true"><i></i>{heroCopy.scroll}</div>
   </section>
 
-  <div class="anime-scene-anchor" data-anime-scene="purple">
+  <div class="anime-scene-anchor" data-anime-scene="sky">
     <ActivityCommandCenter locale={locale} />
   </div>
-  <div class="anime-scene-anchor" data-anime-scene="blue">
+  <div class="anime-scene-anchor" data-anime-scene="deep">
     <WorldPortalSection locale={locale} />
   </div>
-  <div class="anime-scene-anchor" data-anime-scene="pink">
+  <div class="anime-scene-anchor" data-anime-scene="ice">
     <IdentitySection locale={locale} />
     <FeaturedWorks locale={locale} />
   </div>
-  <div class="anime-scene-anchor" data-anime-scene="purple">
+  <div class="anime-scene-anchor" data-anime-scene="sky">
     <CommunitySection locale={locale} />
     <ActivitySection locale={locale} />
   </div>
-  <section class="media-section section" data-world-zone="creative" data-anime-scene="blue">
+  <section class="media-section section" data-world-zone="creative" data-anime-scene="deep">
     <div class="section-heading section-inner" data-reveal>
       <div><p class="section-kicker">VISUAL LOG</p><h2>{d.sections.media}</h2></div>
       <p class="section-intro">Development / Gaming / Community / Creative</p>
