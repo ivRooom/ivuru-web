@@ -73,7 +73,9 @@ test.describe('blue media scroll motion', () => {
       .not.toBe('0deg');
   });
 
-  test('keeps every scene visible and disables added motion for reduced motion', async ({ page }) => {
+  test('keeps every scene visible and disables added motion for reduced motion', async ({
+    page,
+  }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await prepareHome(page);
     await page.goto('/');
@@ -85,10 +87,11 @@ test.describe('blue media scroll motion', () => {
     await expect(page.locator('.blue-media-character')).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('data-motion-ready', 'reduced');
     await expect(page.locator('.cinematic-scan-beam')).toHaveCSS('animation-name', 'none');
-    await expect(page.locator('.cinematic-signal-ring').first()).toHaveCSS('animation-name', 'none');
-    await expect(
-      hero.getByRole('link', { name: /Works|制作|작업/i }).first(),
-    ).toBeVisible();
+    await expect(page.locator('.cinematic-signal-ring').first()).toHaveCSS(
+      'animation-name',
+      'none',
+    );
+    await expect(hero.getByRole('link', { name: /Works|制作|작업/i }).first()).toBeVisible();
   });
 
   test('changes the ambient scene while scrolling through blue channel cards', async ({ page }) => {
