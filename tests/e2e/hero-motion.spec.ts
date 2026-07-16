@@ -40,6 +40,7 @@ test.describe('blue media scroll motion', () => {
 
     const hero = page.locator('[data-anime-hero]');
     await expect(hero).toBeVisible();
+    await expect(hero).toHaveAttribute('data-cinematic-pointer', 'active');
     const heroBox = await hero.boundingBox();
     expect(heroBox).not.toBeNull();
     if (!heroBox) return;
@@ -48,15 +49,16 @@ test.describe('blue media scroll motion', () => {
     await expect
       .poll(() =>
         hero.evaluate((element) =>
-          getComputedStyle(element).getPropertyValue('--hero-pointer-x').trim(),
+          getComputedStyle(element).getPropertyValue('--hero-shift-x').trim(),
         ),
       )
-      .not.toBe('0');
+      .not.toBe('0px');
 
     const portal = page.locator('.anime-portal-section');
     await portal.scrollIntoViewIfNeeded();
     const card = portal.locator('[data-cinematic-card]').first();
     await expect(card).toBeVisible();
+    await expect(card.locator('.cinematic-card-surface')).toHaveCount(1);
     const cardBox = await card.boundingBox();
     expect(cardBox).not.toBeNull();
     if (!cardBox) return;
@@ -76,17 +78,16 @@ test.describe('blue media scroll motion', () => {
     await prepareHome(page);
     await page.goto('/');
 
-    await expect(page.locator('[data-anime-hero]')).toBeVisible();
+    const hero = page.locator('[data-anime-hero]');
+    await expect(hero).toBeVisible();
+    await expect(hero).not.toHaveAttribute('data-cinematic-pointer', 'active');
     await expect(page.locator('[data-hero-video]')).toHaveCount(0);
     await expect(page.locator('.blue-media-character')).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('data-motion-ready', 'reduced');
     await expect(page.locator('.cinematic-scan-beam')).toHaveCSS('animation-name', 'none');
     await expect(page.locator('.cinematic-signal-ring').first()).toHaveCSS('animation-name', 'none');
     await expect(
-      page
-        .locator('[data-anime-hero]')
-        .getByRole('link', { name: /Works|制作|작업/i })
-        .first(),
+      hero.getByRole('link', { name: /Works|制作|작업/i }).first(),
     ).toBeVisible();
   });
 
