@@ -1,6 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 720" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 720" role="img" aria-labelledby="title desc" data-asset-version="2026-07">
   <title id="title">Ivuru blue profile character</title>
   <desc id="desc">An original cel-shaded anime profile character in a blue and white jacket.</desc>
+  <metadata>Original artwork for the ivuru Blue Media Universe profile surface.</metadata>
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop stop-color="#ffffff"/>
