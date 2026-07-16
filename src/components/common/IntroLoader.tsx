@@ -5,7 +5,7 @@ type Locale = 'ja' | 'en' | 'ko';
 const loaderCopy = {
   ja: {
     label: 'いゔる。を読み込んでいます',
-    tagline: 'つくる。遊ぶ。つなげる。',
+    tagline: 'つくる。遊ぶ。つながる。',
     status: 'ページを読み込んでいます。',
   },
   en: {
@@ -15,7 +15,7 @@ const loaderCopy = {
   },
   ko: {
     label: 'ivuru를 불러오는 중입니다',
-    tagline: '만들고, 즐기고, 이어 갑니다.',
+    tagline: '만들고, 즐기고, 이어집니다.',
     status: '페이지를 불러오는 중입니다. ',
   },
 } as const;
@@ -112,6 +112,7 @@ export default function IntroLoader({ locale = 'ja' }: { locale?: Locale }) {
     'intro-loader',
     'world-loader',
     'anime-intro-loader',
+    'blue-signal-loader',
     compact && 'is-compact',
     leaving && 'is-leaving',
   ]
@@ -126,6 +127,11 @@ export default function IntroLoader({ locale = 'ja' }: { locale?: Locale }) {
       <div className={classNames} role="status" aria-live="polite" aria-label={copy.label}>
         <div className="anime-loader-curtain anime-loader-curtain-left" aria-hidden="true" />
         <div className="anime-loader-curtain anime-loader-curtain-right" aria-hidden="true" />
+        <div className="blue-loader-signal" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </div>
         <div className="anime-loader-sparkles" aria-hidden="true">
           <i />
           <i />
@@ -136,19 +142,19 @@ export default function IntroLoader({ locale = 'ja' }: { locale?: Locale }) {
         </div>
         <div className="anime-loader-card">
           <div className="anime-loader-sticker" aria-hidden="true">
-            NEW SCENE
+            BLUE SIGNAL
           </div>
           <div className="anime-loader-mascot" aria-hidden="true">
             <span className="anime-loader-halo" />
             <img
-              src="/assets/visuals/anime/ivuru-loader-mascot.svg"
+              src="/assets/visuals/blue-anime/ivuru-loader-blue.svg"
               alt=""
               width="720"
               height="720"
             />
           </div>
           <div className="anime-loader-copy">
-            <p>WELCOME TO MY LITTLE WORLD</p>
+            <p>WELCOME TO THE BLUE MEDIA UNIVERSE</p>
             <strong>いゔる。</strong>
             <span>{copy.tagline}</span>
           </div>
