@@ -61,7 +61,7 @@ ivuru公式サイトを、青・白・濃紺を基調としたアニメ・ゲー
 - `prefers-reduced-motion: reduce`ではスクロールアニメーションと常時ループを停止する
 - reduced motionでも全コンテンツを即時表示し、透明状態を残さない
 - JavaScriptが読み込めない場合も本文とリンクを表示する
-- 装飾SVGはローカル配信し、外部画像APIへの通信を発生させない
+- 装飾SVGとProfileアバターはローカル配信し、外部画像サービスの可用性へ依存しない
 - 動画はData Saver、低速回線、画面外停止を維持する
 - PC、Tablet、Mobile、Light、Dark、日英韓で同じ情報構造を提供する
 - モバイルメニューはキーボード操作、Escape、フォーカストラップに対応する
@@ -70,6 +70,7 @@ ivuru公式サイトを、青・白・濃紺を基調としたアニメ・ゲー
 ## Illustration assets
 
 - `ivuru-hero-blue.svg`: トップ用セル塗りキャラクター
+- `ivuru-profile-blue.svg`: Profile用の正方形アバター
 - `ivuru-loader-blue.svg`: ローダー用フローティングマスコット
 - `ivuru-news-blue.svg`: Newsチャンネル
 - `ivuru-games-blue.svg`: Gamesチャンネル
@@ -90,6 +91,7 @@ Blue Media Universeを変更するPRでは、次の品質ゲートを通過さ�
 - JavaScript無効時は本文とリンクへアクセスできること
 - ローダーとモバイルメニューのラベルが日本語、英語、韓国語へ切り替わること
 - モバイルメニューでEscape、フォーカストラップ、背景スクロール抑制が動作すること
+- Profileアバターが日英韓の全ルートでローカル画像として読み込まれること
 - 日本語、英語、韓国語とPC、Tablet、Mobileの主要表示
 - ライトモードとダークモードで本文、CTA、キャラクターが判読可能であること
 
