@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import DeferredSpotify from '@/components/common/DeferredSpotify';
+import XProfileIdentity from '@/components/profile/XProfileIdentity';
 import { profile } from '@/data/profile';
 import { favoriteLinks, spotifyEmbedUrl } from '@/data/favorites';
 import { gameClips } from '@/data/game-clips';
@@ -40,7 +41,7 @@ const copy = {
     musicBody:
       'Spotifyは操作するまで外部通信を開始しません。集中したい時間や、ゲームのあとに余韻を残したい時間に流す音楽です。',
     musicPalette: ['Future Bass', 'Lo-fi', 'Game Soundtrack', 'Anime Songs'],
-    illustrationCaption: 'personal shelf / sketch 01',
+    illustrationCaption: 'personal shelf / anime cyber scene 01',
     skills: 'スキル',
     timeline: 'これまでと、これから',
   },
@@ -67,7 +68,7 @@ const copy = {
     musicBody:
       'Spotify does not connect until you choose to load it. This is music for focused work and the quiet time after a game.',
     musicPalette: ['Future Bass', 'Lo-fi', 'Game Soundtrack', 'Anime Songs'],
-    illustrationCaption: 'personal shelf / sketch 01',
+    illustrationCaption: 'personal shelf / anime cyber scene 01',
     skills: 'Skills',
     timeline: 'Past and next',
   },
@@ -94,7 +95,7 @@ const copy = {
     musicBody:
       'Spotify는 직접 불러오기 전까지 외부 통신을 시작하지 않습니다. 집중할 때와 게임이 끝난 뒤의 여운을 위한 음악입니다.',
     musicPalette: ['Future Bass', 'Lo-fi', 'Game Soundtrack', 'Anime Songs'],
-    illustrationCaption: 'personal shelf / sketch 01',
+    illustrationCaption: 'personal shelf / anime cyber scene 01',
     skills: '기술',
     timeline: '지금까지와 앞으로',
   },
@@ -111,21 +112,14 @@ const copy = {
     <div class="editorial-page-hero-inner">
       <div class="editorial-page-hero-copy">
         <p class="editorial-kicker">{copy.heroKicker}</p>
-        <h1>{profile.name}<span>{copy.heroSubtitle}</span></h1>
+        <h1 data-glitch={profile.name}>{profile.name}<span>{copy.heroSubtitle}</span></h1>
         <p class="editorial-lede">{about}</p>
         <div class="editorial-hero-note" aria-label="Profile focus">
           <span>WEB DEVELOPMENT</span><span>GAME</span><span>COMMUNITY</span>
         </div>
       </div>
       <figure class="editorial-hero-illustration profile-editorial-avatar">
-        <img
-          src={siteConfig.profileImageUrl}
-          alt={`${siteConfig.name} / ${siteConfig.idName}`}
-          width="720"
-          height="720"
-          loading="eager"
-          referrerpolicy="no-referrer"
-        />
+        <XProfileIdentity client:load variant="hero" priority />
       </figure>
     </div>
   </header>
@@ -135,19 +129,12 @@ const copy = {
       <header class="character-sheet-bar">
         <span>PROFILE / IVURU</span>
         <span class="character-online"><i></i>ONLINE</span>
-        <span>UPDATED / 2026</span>
+        <span>UPDATED / LIVE</span>
       </header>
 
       <div class="character-portrait profile-avatar-stage">
         <div class="character-portrait-frame profile-avatar-frame">
-          <img
-            src={siteConfig.profileImageUrl}
-            alt={`${siteConfig.name} / ${siteConfig.idName} original blue profile character`}
-            width="720"
-            height="720"
-            loading="lazy"
-          />
-          <span class="avatar-source">{siteConfig.xHandle}</span>
+          <XProfileIdentity client:load variant="passport" showDescription />
         </div>
         <div class="character-portrait-data">
           <span>ID</span><strong>{profile.id}</strong><small>Developer / Gamer</small>
@@ -200,7 +187,7 @@ const copy = {
     <div class="section-inner profile-favorites-layout">
       <figure class="profile-favorites-visual" data-reveal>
         <img
-          src="/assets/visuals/editorial/favorites-desk-sketch.svg"
+          src="/assets/images/ivuru-profile-scene.png"
           alt=""
           width="1200"
           height="800"
@@ -211,7 +198,7 @@ const copy = {
 
       <div class="profile-favorites-copy">
         <p class="editorial-kicker">{copy.favoritesKicker}</p>
-        <h2>{copy.favoritesTitle}</h2>
+        <h2 data-glitch={copy.favoritesTitle}>{copy.favoritesTitle}</h2>
         <p>{copy.favoritesIntro}</p>
 
         <div class="profile-favorite-links">
@@ -276,7 +263,7 @@ const copy = {
     </div>
   </section>
 
-  <section class="game-clip-archive section" data-world-zone="gamer">
+  <section id="game-clips" class="game-clip-archive section" data-world-zone="gamer">
     <div class="section-inner">
       <div class="section-heading" data-reveal>
         <div><p class="section-kicker">GAME CLIPS</p><h2>{copy.clips}</h2></div>
