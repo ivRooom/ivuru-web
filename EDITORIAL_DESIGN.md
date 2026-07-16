@@ -73,6 +73,8 @@
 - Performance Budget、Cloudflare Durable Mode、Wrangler dry-run
 - Playwright Chromium E2E、Visual Regression、Netlify Deploy Preview
 - 初回ローダー、再訪ローダー、`prefers-reduced-motion`の3条件
+- `window.load`前はローダーを維持し、JavaScript無効時は本文とリンクを妨げないこと
+- ローダーの読み上げラベルと状態文が日本語、英語、韓国語へ切り替わること
 - 日本語、英語、韓国語とPC、Tablet、Mobileの主要表示
 - ライトモードとダークモードで本文、CTA、キャラクターが判読可能であること
 
