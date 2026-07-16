@@ -28,21 +28,21 @@ const heroCopy = {
     index: 'IVURU / BLUE MEDIA UNIVERSE',
     role: 'つくる。遊ぶ。つながる。好きな世界を、もっと鮮やかに。',
     body: 'Web開発、ゲーム、クラウド、ivRmコミュニティの記録を、青と白のアニメ作品のような一つのメディア体験にまとめています。',
-    caption: 'ORIGINAL CHARACTER / BLUE SIGNAL',
+    caption: 'BLUE MEDIA SIGNAL / NODE 00',
     scroll: 'SCROLL TO THE NEXT SIGNAL',
   },
   en: {
     index: 'IVURU / BLUE MEDIA UNIVERSE',
     role: 'Build. Play. Connect. Make every world more vivid.',
     body: 'Web development, games, cloud work, and the ivRm community are connected as one blue-and-white anime media experience.',
-    caption: 'ORIGINAL CHARACTER / BLUE SIGNAL',
+    caption: 'BLUE MEDIA SIGNAL / NODE 00',
     scroll: 'SCROLL TO THE NEXT SIGNAL',
   },
   ko: {
     index: 'IVURU / BLUE MEDIA UNIVERSE',
     role: '만들고, 즐기고, 이어지며 좋아하는 세계를 더 선명하게.',
     body: '웹 개발, 게임, 클라우드, ivRm 커뮤니티의 기록을 파랑과 흰색 애니메이션 미디어 경험으로 연결합니다.',
-    caption: 'ORIGINAL CHARACTER / BLUE SIGNAL',
+    caption: 'BLUE MEDIA SIGNAL / NODE 00',
     scroll: 'SCROLL TO THE NEXT SIGNAL',
   },
 }[locale];
@@ -111,25 +111,31 @@ const heroCopy = {
       </div>
 
       <figure
-        class="blue-media-character cyber-character-stage"
+        class="blue-media-character signal-key-visual"
         data-anime-visual
         data-blue-visual
         data-anime-parallax="-3"
         data-cinematic-character
       >
         <span class="cinematic-character-aura" aria-hidden="true"></span>
-        <span class="cyber-character-tag" aria-hidden="true">
-          <b>CHARACTER SIGNAL / 01</b>
-          ORIGINAL BLUE UNIT
-        </span>
-        <img
-          src="/assets/images/ivuru-hero-character.png"
-          alt=""
-          width="1600"
-          height="1200"
-          loading="eager"
-          fetchpriority="high"
-        />
+        <div class="signal-key-frame" aria-hidden="true">
+          <span class="signal-key-grid"></span>
+          <span class="signal-key-orbit orbit-a"></span>
+          <span class="signal-key-orbit orbit-b"></span>
+          <span class="signal-key-orbit orbit-c"></span>
+          <span class="signal-key-scan"></span>
+          <div class="signal-key-mark">
+            <small>IVURU</small>
+            <strong>IV</strong>
+            <span>BLUE MEDIA UNIT / 00</span>
+          </div>
+          <div class="signal-key-readout">
+            <span><b>BUILD</b><i>ONLINE</i></span>
+            <span><b>PLAY</b><i>ONLINE</i></span>
+            <span><b>CONNECT</b><i>SYNC</i></span>
+          </div>
+          <div class="signal-key-corners"><i></i><i></i><i></i><i></i></div>
+        </div>
         <figcaption>{heroCopy.caption}</figcaption>
       </figure>
     </div>
