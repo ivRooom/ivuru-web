@@ -41,10 +41,10 @@ export default function IntroLoader({ locale = 'ja' }: { locale?: Locale }) {
         return true;
       }
     })();
-    const minDuration = reduced ? 0 : seen ? 480 : 1180;
-    const maxDuration = reduced ? 40 : seen ? 720 : 2100;
-    const exitDelay = reduced ? 30 : seen ? 240 : 380;
-    const completionDuration = reduced ? 0 : 280;
+    const minDuration = reduced ? 0 : seen ? 260 : 720;
+    const maxDuration = reduced ? 20 : seen ? 520 : 1250;
+    const exitDelay = reduced ? 20 : seen ? 140 : 220;
+    const completionDuration = reduced ? 0 : 180;
     const startedAt = performance.now();
     let readyAt: number | null = document.readyState === 'complete' ? startedAt : null;
     let finished = false;
