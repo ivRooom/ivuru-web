@@ -13,37 +13,22 @@ const prepareLocale = async (page: import('@playwright/test').Page, seen = false
 };
 
 test.describe('blue signal loading experience', () => {
-  test('stays visible until load and then finishes with the original blue mascot', async ({
+  test('shows the title sequence without a placeholder mascot and then releases the page', async ({
     page,
   }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await prepareLocale(page, false);
-
-    let releaseHero: () => void = () => undefined;
-    let heroRequestStarted = false;
-    const heroGate = new Promise<void>((resolve) => {
-      releaseHero = resolve;
-    });
-    await page.route('**/assets/images/ivuru-hero-character.png', async (route) => {
-      heroRequestStarted = true;
-      await heroGate;
-      await route.continue();
-    });
-
     await page.goto('/', { waitUntil: 'domcontentloaded' });
-    await expect.poll(() => heroRequestStarted).toBe(true);
 
     const loader = page.locator('.anime-intro-loader');
     await expect(loader).toBeVisible();
-    await expect(loader).toHaveClass(/blue-signal-loader/);
-    await expect(loader.locator('.anime-loader-mascot img')).toHaveAttribute(
-      'src',
-      '/assets/visuals/blue-anime/ivuru-loader-blue.svg',
-    );
+    await expect(loader).toHaveClass(/signal-title-loader/);
+    await expect(loader.locator('.anime-loader-mascot')).toHaveCount(0);
+    await expect(loader.locator('.signal-loader-core')).toBeVisible();
+    await expect(loader.locator('.signal-loader-copy strong')).toHaveText('いゔる。');
     await expect(loader.locator('.blue-loader-signal')).toBeVisible();
     await expect(loader.locator('.anime-loader-meter')).toBeVisible();
 
-    releaseHero();
     await page.waitForLoadState('load');
     await expect(loader).toBeHidden({ timeout: 4_000 });
     await expect(page.locator('body')).not.toHaveClass(/site-loading/);
