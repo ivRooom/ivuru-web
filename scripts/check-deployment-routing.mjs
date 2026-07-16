@@ -19,23 +19,17 @@ const requiredWranglerFragments = [
   '"ALLOWED_ORIGINS": "https://ivurugg.ivrm.jp,https://ivuru.ivrm.jp"',
 ];
 
-const missingNetlify = requiredNetlifyFragments.filter(
-  (fragment) => !netlify.includes(fragment),
-);
+const missingNetlify = requiredNetlifyFragments.filter((fragment) => !netlify.includes(fragment));
 const missingWrangler = requiredWranglerFragments.filter(
   (fragment) => !wrangler.includes(fragment),
 );
 
 if (missingNetlify.length > 0) {
-  throw new Error(
-    `NetlifyのContact API経路設定が不足しています: ${missingNetlify.join(', ')}`,
-  );
+  throw new Error(`NetlifyのContact API経路設定が不足しています: ${missingNetlify.join(', ')}`);
 }
 
 if (missingWrangler.length > 0) {
-  throw new Error(
-    `CloudflareのContact API経路設定が不足しています: ${missingWrangler.join(', ')}`,
-  );
+  throw new Error(`CloudflareのContact API経路設定が不足しています: ${missingWrangler.join(', ')}`);
 }
 
 if (!siteConfig.includes("import.meta.env.SITE_URL ?? 'https://ivuru.ivrm.jp'")) {

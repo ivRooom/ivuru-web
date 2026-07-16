@@ -4,12 +4,12 @@
 
 `ivuru-web`は、公開フロントエンドとContact APIで異なる配信基盤を利用します。
 
-| 役割 | URL | 基盤 |
-|---|---|---|
-| 公開フロントエンド | `https://ivuru.ivrm.jp` | Netlify |
-| Contact API / Static mirror | `https://ivurugg.ivrm.jp` | Cloudflare Workers + Static Assets |
-| Contact API | `https://ivurugg.ivrm.jp/api/contact` | Cloudflare Worker |
-| Contact状態照会API | `https://ivurugg.ivrm.jp/api/contact/status` | Cloudflare Worker |
+| 役割                        | URL                                          | 基盤                               |
+| --------------------------- | -------------------------------------------- | ---------------------------------- |
+| 公開フロントエンド          | `https://ivuru.ivrm.jp`                      | Netlify                            |
+| Contact API / Static mirror | `https://ivurugg.ivrm.jp`                    | Cloudflare Workers + Static Assets |
+| Contact API                 | `https://ivurugg.ivrm.jp/api/contact`        | Cloudflare Worker                  |
+| Contact状態照会API          | `https://ivurugg.ivrm.jp/api/contact/status` | Cloudflare Worker                  |
 
 ## リクエスト経路
 
@@ -51,8 +51,8 @@ force = true
 {
   "main": "./src/worker-entry.ts",
   "vars": {
-    "ALLOWED_ORIGINS": "https://ivurugg.ivrm.jp,https://ivuru.ivrm.jp"
-  }
+    "ALLOWED_ORIGINS": "https://ivurugg.ivrm.jp,https://ivuru.ivrm.jp",
+  },
 }
 ```
 
