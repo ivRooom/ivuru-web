@@ -55,6 +55,10 @@
   box-shadow: 0 0 18px rgb(34 191 255 / 70%);
 }
 
+.anime-intro-loader[data-failsafe-hidden='true'] {
+  display: none !important;
+}
+
 .menu-trigger > span {
   display: grid;
   place-items: center;
