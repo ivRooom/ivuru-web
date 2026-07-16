@@ -57,7 +57,12 @@ const worlds = [
 ] as const;
 ---
 
-<section class="anime-portal-section section" data-world-zone="creative" data-anime-scene="deep">
+<section
+  class="anime-portal-section section"
+  data-world-zone="creative"
+  data-anime-scene="deep"
+  data-cinematic-section
+>
   <div class="section-inner">
     <div class="anime-portal-heading" data-anime-reveal="heading" data-blue-reveal>
       <div>
@@ -75,6 +80,7 @@ const worlds = [
               class="anime-portal-card"
               href={localePath(locale, world.href)}
               data-anime-card
+              data-cinematic-card
               data-analytics-event="world_portal_open"
               data-analytics-target={world.key}
               data-analytics-surface="home_blue_channel"
