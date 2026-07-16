@@ -20,7 +20,10 @@ const parseConfiguredOrigins = (value: string | undefined) =>
  * これにより既存WorkerのOrigin検証とTurnstile hostname検証を維持したまま、
  * ivuru.ivrm.jpからivurugg.ivrm.jpのWorkerを利用できる。
  */
-export const normalizeApiProxyRequest = (request: Request, env: Pick<WorkerEnv, 'ALLOWED_ORIGINS'>) => {
+export const normalizeApiProxyRequest = (
+  request: Request,
+  env: Pick<WorkerEnv, 'ALLOWED_ORIGINS'>,
+) => {
   const requestUrl = new URL(request.url);
   if (!requestUrl.pathname.startsWith('/api/')) return request;
 
