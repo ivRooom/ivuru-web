@@ -38,6 +38,6 @@ test('emits an absolute local profile image URL in Person JSON-LD', async ({ pag
   expect(jsonLd).not.toBeNull();
   const person = JSON.parse(jsonLd ?? '{}') as { image?: string };
   expect(person.image).toBe(
-    'https://ivurugg.ivrm.jp/assets/visuals/blue-anime/ivuru-profile-blue.svg',
+    'https://ivuru.ivrm.jp/assets/visuals/blue-anime/ivuru-profile-blue.svg',
   );
 });

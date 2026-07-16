@@ -2,7 +2,7 @@ export const siteConfig = {
   name: 'いゔる。',
   idName: 'ivuru',
   title: 'いゔる。 / ivuru — Developer / Gamer',
-  siteUrl: import.meta.env.SITE_URL ?? 'https://ivurugg.ivrm.jp',
+  siteUrl: import.meta.env.SITE_URL ?? 'https://ivuru.ivrm.jp',
   defaultOgImage: '/assets/og/ivuru-brand-og.svg',
   fallbackOgImage: '/assets/og/og-background.png',
   profileImageUrl: '/assets/visuals/blue-anime/ivuru-profile-blue.svg',
