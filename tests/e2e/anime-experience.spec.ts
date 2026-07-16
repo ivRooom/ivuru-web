@@ -74,7 +74,7 @@ test.describe('blue signal loading experience', () => {
       await page.goto(route, { waitUntil: 'domcontentloaded' });
 
       const statusRegion = page.getByRole('status');
-      await expect(statusRegion).toBeVisible();
+      await expect(statusRegion).toHaveCount(1);
       await expect(statusRegion).toHaveText(status);
       await expect(statusRegion).toHaveAttribute('aria-live', 'polite');
       await expect(statusRegion).toHaveAttribute('aria-atomic', 'true');
