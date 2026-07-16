@@ -82,14 +82,15 @@ test.describe('anime scroll story', () => {
     await page.goto('/');
 
     const story = page.locator('[data-anime-scroll-story]');
+    const stage = story.locator('[data-anime-scroll-stage]');
     await expect(story).toHaveAttribute('data-cinematic-pointer', 'active');
-    const storyBox = await story.boundingBox();
-    expect(storyBox).not.toBeNull();
-    if (!storyBox) return;
+    const stageBox = await stage.boundingBox();
+    expect(stageBox).not.toBeNull();
+    if (!stageBox) return;
 
-    await story.dispatchEvent('pointermove', {
-      clientX: storyBox.x + storyBox.width * 0.82,
-      clientY: storyBox.y + storyBox.height * 0.24,
+    await stage.dispatchEvent('pointermove', {
+      clientX: stageBox.x + stageBox.width * 0.82,
+      clientY: stageBox.y + stageBox.height * 0.24,
       pointerType: 'mouse',
     });
     await expect
@@ -98,7 +99,7 @@ test.describe('anime scroll story', () => {
           getComputedStyle(element).getPropertyValue('--story-pointer-x').trim(),
         ),
       )
-      .not.toBe('0');
+      .not.toBe('0px');
 
     await moveToChapter(page, '03');
     const card = story.locator('[data-cinematic-card]').first();
