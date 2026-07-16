@@ -10,6 +10,7 @@ import MediaReel from '@/components/home/MediaReel';
 import LatestPosts from '@/components/blog/LatestPosts.astro';
 import ContactCTA from '@/components/home/ContactCTA.astro';
 import SocialDock from '@/components/social/SocialDock.astro';
+import CinematicPointerEffects from '@/components/effects/CinematicPointerEffects';
 import { localePath, siteConfig, type Locale } from '@/data/site-config';
 import { getDictionary } from '@/i18n/dictionaries';
 
@@ -51,6 +52,7 @@ const heroCopy = {
   locale={locale}
   chapter={{ code: '00', title: 'HOME', world: 'BLUE MEDIA' }}
 >
+  <CinematicPointerEffects client:idle />
   <section
     class="blue-media-hero cinematic-hero"
     data-hero
