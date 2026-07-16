@@ -13,7 +13,10 @@ const normalizePath = (path: string) => path.replace(/\/$/, '') || '/';
 const currentPath = normalizePath(Astro.url.pathname);
 const items = navigation(locale).map((item) => {
   const target = normalizePath(item.href);
-  const active = target === '/' ? currentPath === '/' : currentPath === target || currentPath.startsWith(`${target}/`);
+  const active =
+    target === '/'
+      ? currentPath === '/'
+      : currentPath === target || currentPath.startsWith(`${target}/`);
   return {
     ...item,
     active,
@@ -27,7 +30,11 @@ const items = navigation(locale).map((item) => {
   <nav class="desktop-nav" aria-label="Primary navigation">
     {
       items.map((item) => (
-        <a class:list={{ active: item.active }} href={item.href} aria-current={item.active ? 'page' : undefined}>
+        <a
+          class:list={{ active: item.active }}
+          href={item.href}
+          aria-current={item.active ? 'page' : undefined}
+        >
           {item.label}
         </a>
       ))

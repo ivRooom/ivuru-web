@@ -9,7 +9,9 @@ const prepareHome = async (page: import('@playwright/test').Page) => {
 };
 
 test.describe('blue media scroll motion', () => {
-  test('reveals the blue anime hero and path without retired cinematic layers', async ({ page }) => {
+  test('reveals the blue anime hero and path without retired cinematic layers', async ({
+    page,
+  }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await prepareHome(page);
     await page.goto('/');

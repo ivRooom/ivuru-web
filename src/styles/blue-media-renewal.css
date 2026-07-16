@@ -271,7 +271,13 @@ body.menu-open .site-header {
   width: 128%;
   height: clamp(84px, 11vw, 160px);
   rotate: -8deg;
-  background: linear-gradient(90deg, transparent, rgb(13 102 189 / 18%), rgb(34 191 255 / 20%), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(13 102 189 / 18%),
+    rgb(34 191 255 / 20%),
+    transparent
+  );
   transform-origin: center;
 }
 
@@ -335,7 +341,11 @@ body.menu-open .site-header {
   gap: 12px;
   margin: 0 0 1.15rem;
   color: var(--blue-700);
-  font: 850 0.68rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  font:
+    850 0.68rem/1 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
   letter-spacing: 0.16em;
 }
 
@@ -361,7 +371,11 @@ body.menu-open .site-header {
 .blue-media-title span:last-child {
   margin-top: 0.7em;
   color: var(--blue-700);
-  font: 850 0.095em/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+  font:
+    850 0.095em/1.5 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
   letter-spacing: 0.2em;
   text-transform: uppercase;
 }
@@ -435,7 +449,11 @@ body.menu-open .site-header {
   border-radius: 999px;
   background: rgb(255 255 255 / 50%);
   color: #56708a;
-  font: 760 0.64rem/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+  font:
+    760 0.64rem/1.2 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
   letter-spacing: 0.08em;
 }
 
@@ -472,7 +490,11 @@ body.menu-open .site-header {
   border-radius: 8px;
   background: var(--blue-500);
   color: #fff;
-  font: 820 0.62rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  font:
+    820 0.62rem/1 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
   letter-spacing: 0.1em;
 }
 
@@ -485,7 +507,11 @@ body.menu-open .site-header {
   align-items: center;
   gap: 11px;
   color: #57728d;
-  font: 820 0.62rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  font:
+    820 0.62rem/1 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
   letter-spacing: 0.14em;
 }
 
@@ -536,7 +562,12 @@ body.menu-open .site-header {
   inset: 2% -18% auto;
   height: 72%;
   rotate: -4deg;
-  background: linear-gradient(90deg, rgb(226 244 255 / 68%), rgb(142 220 255 / 34%), rgb(13 102 189 / 14%));
+  background: linear-gradient(
+    90deg,
+    rgb(226 244 255 / 68%),
+    rgb(142 220 255 / 34%),
+    rgb(13 102 189 / 14%)
+  );
 }
 
 .anime-portal-heading h2 {

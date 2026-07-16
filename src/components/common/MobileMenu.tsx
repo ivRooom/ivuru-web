@@ -158,20 +158,33 @@ export default function MobileMenu({
             initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 28, scale: 0.985 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 18, scale: 0.99 }}
-            transition={{ duration: reduceMotion ? 0.12 : 0.56, delay: reduceMotion ? 0 : 0.12, ease: [0.22, 1, 0.36, 1] }}
+            transition={{
+              duration: reduceMotion ? 0.12 : 0.56,
+              delay: reduceMotion ? 0 : 0.12,
+              ease: [0.22, 1, 0.36, 1],
+            }}
           >
             <div className="menu-atmosphere" aria-hidden="true">
-              <i></i><i></i><i></i>
+              <i></i>
+              <i></i>
+              <i></i>
             </div>
             <div className="mobile-menu-signal" aria-hidden="true" />
             <div className="mobile-menu-visual" aria-hidden="true">
-              <img src="/assets/visuals/blue-anime/ivuru-hero-blue.svg" alt="" width="1600" height="1200" />
+              <img
+                src="/assets/visuals/blue-anime/ivuru-hero-blue.svg"
+                alt=""
+                width="1600"
+                height="1200"
+              />
             </div>
 
             <header className="mobile-menu-topbar">
               <div className="mobile-menu-brand">
                 <strong>{displayName}</strong>
-                <span>{idName} / {copy.signal}</span>
+                <span>
+                  {idName} / {copy.signal}
+                </span>
               </div>
               <button
                 className="menu-close"
@@ -194,7 +207,9 @@ export default function MobileMenu({
                 <span>{copy.developer}</span>
                 <small>BUILD / 01</small>
               </motion.div>
-              <div className="menu-world-signal"><Radio /></div>
+              <div className="menu-world-signal">
+                <Radio />
+              </div>
               <motion.div
                 className="menu-world-card gamer"
                 initial={reduceMotion ? false : { opacity: 0, x: 20 }}
@@ -217,7 +232,11 @@ export default function MobileMenu({
                   onClick={() => setOpen(false)}
                   initial={reduceMotion ? false : { opacity: 0, y: 28, skewY: 3 }}
                   animate={{ opacity: 1, y: 0, skewY: 0 }}
-                  transition={{ delay: reduceMotion ? 0 : 0.22 + index * 0.055, duration: 0.46, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{
+                    delay: reduceMotion ? 0 : 0.22 + index * 0.055,
+                    duration: 0.46,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
                 >
                   <small>{String(index + 1).padStart(2, '0')}</small>
                   <span>{item.label}</span>

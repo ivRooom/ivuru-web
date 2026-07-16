@@ -13,7 +13,9 @@ const prepareLocale = async (page: import('@playwright/test').Page, seen = false
 };
 
 test.describe('blue signal loading experience', () => {
-  test('stays visible until load and then finishes with the original blue mascot', async ({ page }) => {
+  test('stays visible until load and then finishes with the original blue mascot', async ({
+    page,
+  }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await prepareLocale(page, false);
 

@@ -1,11 +1,14 @@
 import { expect, test } from '@playwright/test';
 
 const prepare = async (page: import('@playwright/test').Page, locale = 'ja') => {
-  await page.addInitScript(({ locale }) => {
-    localStorage.setItem('ivuru-theme', 'dark');
-    localStorage.setItem('ivuru-locale', locale);
-    sessionStorage.setItem('ivuru-intro-seen', '1');
-  }, { locale });
+  await page.addInitScript(
+    ({ locale }) => {
+      localStorage.setItem('ivuru-theme', 'dark');
+      localStorage.setItem('ivuru-locale', locale);
+      sessionStorage.setItem('ivuru-intro-seen', '1');
+    },
+    { locale },
+  );
 };
 
 test.describe('blue mobile navigation', () => {
