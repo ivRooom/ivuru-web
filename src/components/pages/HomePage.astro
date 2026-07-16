@@ -13,6 +13,7 @@ import SocialDock from '@/components/social/SocialDock.astro';
 import CinematicPointerEffects from '@/components/effects/CinematicPointerEffects';
 import { localePath, siteConfig, type Locale } from '@/data/site-config';
 import { getDictionary } from '@/i18n/dictionaries';
+import '@/styles/cinematic-motion-overrides.css';
 
 const { locale } = Astro.props as { locale: Locale };
 const d = getDictionary(locale);
