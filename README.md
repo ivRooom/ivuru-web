@@ -73,7 +73,7 @@ npm run deploy:preview  # デプロイせず新しいWorker Versionをアップ�
 
 全ページは次の共通体験へ統合しています。
 
-- 初回アクセス・リロード: アニメマスコット、カーテン、進捗バーによるロード演出
+- 初回アクセス・リロード: 青白マスコット、円形シグナル、カーテン、進捗バーによるロード演出
 - 内部ページ遷移: Chapter Cut
 - Profile: Character Profile
 - Works: World Select / Mission Select
@@ -81,10 +81,10 @@ npm run deploy:preview  # デプロイせず新しいWorker Versionをアップ�
 - Portfolio: Developer World System Console
 - Blog: Digital Archive Terminal
 - News: Signal Archive / Update Timeline
-- Games: 手描きビジュアルと短いローカル動画を組み合わせたエディトリアル記録
+- Games: 青白のセル塗りビジュアルと短いローカル動画を組み合わせたプレイ記録
 - Profile: Favoritesセクション / 明示読み込み型Spotifyプレイヤー
 - ivRm: Digital Room
-- スクロール進行: Dawn / Day / Sunset / NightのWorld State
+- スクロール進行: Ice / Sky / DeepのBlue Media SceneとSVGパス描画
 - Works一覧と詳細: View Transition共有要素
 - `prefers-reduced-motion`では主要アニメーションを短縮・停止
 
@@ -92,9 +92,9 @@ npm run deploy:preview  # デプロイせず新しいWorker Versionをアップ�
 
 ## Visual direction
 
-トップは、大胆なタイポグラフィ、オリジナルのアニメキャラクター、パステルカラーを中心としたAnime Editorial表現へ統一しています。News、Games、Profile / Favoritesのシーンイラストとローダーマスコットは`public/assets/visuals/anime/`で管理し、外部画像生成APIや第三者キャラクター素材へ依存しません。
+トップは、大胆なタイポグラフィ、青・白・濃紺、セル塗りのオリジナルキャラクターを中心としたBlue Media Universe表現へ統一しています。News、Games、Profile / Favoritesのシーンイラストとローダーマスコットは`public/assets/visuals/blue-anime/`で管理し、外部画像生成APIや第三者キャラクター素材へ依存しません。
 
-GamesとFavoritesはグローバルナビゲーションへ常設せず、HomeのアニメシーンカードとProfile内の導線からアクセスします。スクロール演出はマスクReveal、軽量パララックス、カードスタッガー、背景トーン切り替えで構成し、`prefers-reduced-motion`では全情報を即時表示します。動画はData Saver、低速回線、低性能端末を尊重します。
+GamesとFavoritesはグローバルナビゲーションへ常設せず、HomeのBlue ChannelsとProfile内の導線からアクセスします。スクロール演出は斜めマスクReveal、軽量パララックス、SVGパス描画、カードスタッガー、Ice / Sky / Deepの背景切り替えで構成します。モバイルメニューは右上を起点とした円形マスクで展開し、Escape、フォーカストラップ、背景スクロール抑制を維持します。`prefers-reduced-motion`では全情報を即時表示し、動画はData Saver、低速回線、低性能端末を尊重します。
 
 ## Updating site data
 
