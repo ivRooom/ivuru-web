@@ -11,12 +11,12 @@ const loaderCopy = {
   en: {
     label: 'Loading ivuru',
     tagline: 'Build. Play. Connect.',
-    status: 'Loading the page. ',
+    status: 'Loading the page.',
   },
   ko: {
     label: 'ivuru를 불러오는 중입니다',
     tagline: '만들고, 즐기고, 이어집니다.',
-    status: '페이지를 불러오는 중입니다. ',
+    status: '페이지를 불러오는 중입니다.',
   },
 } as const;
 
@@ -49,7 +49,9 @@ export default function IntroLoader({ locale = 'ja' }: { locale?: Locale }) {
     })();
     const minDuration = reduced ? 0 : seen ? 260 : 720;
     const maxDuration = reduced ? 20 : seen ? 520 : 1250;
-    const exitDelay = reduced ? 20 : seen ? 140 : 220;
+    // blue-media-renewal.css keeps the scene-cut transition active for up to 680ms.
+    // Preserve the loader DOM until that visual transition has completed.
+    const exitDelay = reduced ? 20 : 720;
     const completionDuration = reduced ? 0 : 180;
     const startedAt = performance.now();
     let readyAt: number | null = document.readyState === 'complete' ? startedAt : null;
@@ -131,7 +133,10 @@ export default function IntroLoader({ locale = 'ja' }: { locale?: Locale }) {
       <noscript>
         <style>{'.anime-intro-loader { display: none !important; }'}</style>
       </noscript>
-      <div className={classNames} role="status" aria-live="polite" aria-label={copy.label}>
+      <div className={classNames}>
+        <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+          {copy.status}
+        </span>
         <div className="anime-loader-curtain anime-loader-curtain-left" aria-hidden="true" />
         <div className="anime-loader-curtain anime-loader-curtain-right" aria-hidden="true" />
         <div className="blue-loader-signal" aria-hidden="true">
@@ -165,17 +170,21 @@ export default function IntroLoader({ locale = 'ja' }: { locale?: Locale }) {
             <strong>いゔる。</strong>
             <span>{copy.tagline}</span>
           </div>
-          <div className="anime-loader-meter" style={progressStyle} aria-hidden="true">
-            <span>
+          <div
+            className="anime-loader-meter"
+            style={progressStyle}
+            role="progressbar"
+            aria-label={copy.label}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={progress}
+          >
+            <span aria-hidden="true">
               <i />
             </span>
-            <b>{String(progress).padStart(2, '0')}</b>
+            <b aria-hidden="true">{String(progress).padStart(2, '0')}</b>
           </div>
         </div>
-        <span className="sr-only">
-          {copy.status}
-          {progress}%
-        </span>
       </div>
     </>
   );

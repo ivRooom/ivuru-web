@@ -72,9 +72,18 @@ test.describe('blue signal loading experience', () => {
       ['/ko', 'ivuru를 불러오는 중입니다', '페이지를 불러오는 중입니다.'],
     ]) {
       await page.goto(route, { waitUntil: 'domcontentloaded' });
-      const loader = page.getByRole('status', { name: label });
-      await expect(loader).toBeVisible();
-      await expect(loader.locator('.sr-only')).toContainText(status);
+
+      const statusRegion = page.getByRole('status');
+      await expect(statusRegion).toHaveCount(1);
+      await expect(statusRegion).toHaveText(status);
+      await expect(statusRegion).toHaveAttribute('aria-live', 'polite');
+      await expect(statusRegion).toHaveAttribute('aria-atomic', 'true');
+
+      const progressbar = page.getByRole('progressbar', { name: label });
+      await expect(progressbar).toBeVisible();
+      await expect(progressbar).toHaveAttribute('aria-valuemin', '0');
+      await expect(progressbar).toHaveAttribute('aria-valuemax', '100');
+      await expect(progressbar).toHaveAttribute('aria-valuenow', /\d+/);
     }
   });
 
