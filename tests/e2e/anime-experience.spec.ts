@@ -12,8 +12,8 @@ const prepareLocale = async (page: import('@playwright/test').Page, seen = false
   );
 };
 
-test.describe('anime loading experience', () => {
-  test('stays visible until load and then finishes with the original mascot', async ({ page }) => {
+test.describe('blue signal loading experience', () => {
+  test('stays visible until load and then finishes with the original blue mascot', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await prepareLocale(page, false);
 
@@ -22,7 +22,7 @@ test.describe('anime loading experience', () => {
     const heroGate = new Promise<void>((resolve) => {
       releaseHero = resolve;
     });
-    await page.route('**/assets/visuals/anime/ivuru-hero-girl.svg', async (route) => {
+    await page.route('**/assets/visuals/blue-anime/ivuru-hero-blue.svg', async (route) => {
       heroRequestStarted = true;
       await heroGate;
       await route.continue();
@@ -33,10 +33,12 @@ test.describe('anime loading experience', () => {
 
     const loader = page.locator('.anime-intro-loader');
     await expect(loader).toBeVisible();
+    await expect(loader).toHaveClass(/blue-signal-loader/);
     await expect(loader.locator('.anime-loader-mascot img')).toHaveAttribute(
       'src',
-      '/assets/visuals/anime/ivuru-loader-mascot.svg',
+      '/assets/visuals/blue-anime/ivuru-loader-blue.svg',
     );
+    await expect(loader.locator('.blue-loader-signal')).toBeVisible();
     await expect(loader.locator('.anime-loader-meter')).toBeVisible();
 
     releaseHero();
