@@ -1,0 +1,95 @@
+name: Direct Contact API PR36
+
+on:
+  push:
+    branches: [fix/contact-api-routing]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/contact-api-routing
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Contact UIとTurnstile検証を直接CORS構成へ更新
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          changed = []
+          import_line = "import { contactApiUrl } from '@/lib/contact-api';\n"
+
+          for path in Path('src').rglob('*.tsx'):
+              text = path.read_text(encoding='utf-8')
+              original = text
+              for quote in ("'", '"'):
+                  text = text.replace(
+                      f"fetch({quote}/api/contact/status{quote}",
+                      f"fetch(contactApiUrl({quote}/api/contact/status{quote})",
+                  )
+                  text = text.replace(
+                      f"fetch({quote}/api/contact{quote}",
+                      f"fetch(contactApiUrl({quote}/api/contact{quote})",
+                  )
+              if text != original:
+                  if import_line.strip() not in text:
+                      text = import_line + text
+                  path.write_text(text, encoding='utf-8')
+                  changed.append(str(path))
+
+          worker_path = Path('src/worker.ts')
+          worker = worker_path.read_text(encoding='utf-8')
+          marker = "const verifyTurnstile = async (token: string, request: Request, env: Env) => {"
+          helper = """export const expectedTurnstileHostname = (request: Request, env: Env) => {
+            const origin = request.headers.get('origin');
+            if (origin && allowedOrigins(env, request).has(origin)) {
+              try {
+                return new URL(origin).hostname;
+              } catch {
+                // Invalid origins are rejected by the existing origin validation.
+              }
+            }
+            return new URL(request.url).hostname;
+          };
+
+          """
+          if 'export const expectedTurnstileHostname' not in worker:
+              if marker not in worker:
+                  raise SystemExit('Turnstile verifier marker was not found.')
+              worker = worker.replace(marker, helper + marker, 1)
+          old_hostname = 'const expectedHostname = new URL(request.url).hostname;'
+          if old_hostname in worker:
+              worker = worker.replace(
+                  old_hostname,
+                  'const expectedHostname = expectedTurnstileHostname(request, env);',
+                  1,
+              )
+          worker_path.write_text(worker, encoding='utf-8')
+          changed.append(str(worker_path))
+
+          if not any(path.endswith('.tsx') for path in changed):
+              raise SystemExit('Contact API fetch call was not found in TSX files.')
+
+          print('Updated files:')
+          print('\n'.join(changed))
+          PY
+          npx prettier --write src/worker.ts src/lib/contact-api.ts src/worker-entry.ts src/worker-entry.test.ts $(grep -rl "contactApiUrl" src --include='*.tsx')
+      - name: 変更をコミット
+        run: |
+          rm .github/workflows/direct-contact-api-pr36.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -A
+          git commit -m "Contact APIをクライアントIP保持の直接CORS構成へ変更"
+          git push origin HEAD:fix/contact-api-routing
