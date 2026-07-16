@@ -41,6 +41,7 @@ export default function CinematicPointerEffects() {
         hero.style.setProperty('--hero-shift-y-deep', `${y * 18}px`);
       };
 
+      // Pointer events are coalesced into one visual update per animation frame.
       const schedule = (nextX: number, nextY: number) => {
         x = nextX;
         y = nextY;
