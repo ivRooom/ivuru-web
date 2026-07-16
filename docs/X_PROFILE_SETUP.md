@@ -114,3 +114,9 @@ npm run deploy
 ```
 
 Netlify側にはBearer Tokenは不要です。`/api/*`がCloudflare Workerへproxyされる既存構成を使用します。
+
+本番反映後はレスポンスヘッダーの`x-profile-cache`が`MISS`から`HIT`へ変わることも確認します。
+
+```bash
+curl -I https://ivuru.ivrm.jp/api/x-profile
+```
