@@ -18,6 +18,7 @@ import '@/styles/contact-terminal.css';
 import '@/styles/layout-fixes.css';
 import '@/styles/activity-command-center.css';
 import '@/styles/anime-experience.css';
+import '@/styles/blue-media-renewal.css';
 
 type Chapter = {
   code: string;
@@ -80,7 +81,7 @@ const pageWorld = chapter.world
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="theme-color" content="#060817" />
+    <meta name="theme-color" content="#061a39" />
     <title>{resolvedTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
@@ -197,7 +198,7 @@ const pageWorld = chapter.world
     />
     <ClientRouter />
   </head>
-  <body data-page-world={pageWorld} data-anime-scene="pink">
+  <body data-page-world={pageWorld} data-anime-scene="ice">
     <a class="skip-link" href="#main-content">Skip to content</a>
     <IntroLoader locale={locale} client:load transition:persist="intro-loader" />
     <ChapterCut client:load transition:persist="chapter-cut" />
