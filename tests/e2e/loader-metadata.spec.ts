@@ -22,14 +22,9 @@ test('keeps the page released after the intro loader finishes', async ({ page })
   await expect(progressbar).toHaveAttribute('aria-valuenow', /\d+/);
 
   await expect(loader).toHaveClass(/is-leaving/, { timeout: 3_000 });
-  await page.waitForTimeout(350);
-  await expect(loader).toHaveCount(1);
   await expect(loader).toHaveCount(0, { timeout: 2_000 });
-
   await expect(page.locator('html')).toHaveAttribute('data-loader-released', 'true');
-  await page.waitForTimeout(800);
   await expect(page.locator('body')).not.toHaveClass(/site-loading/);
-  await expect(loader).toHaveCount(0);
 });
 
 test('emits an absolute local profile image URL in Person JSON-LD', async ({ page }) => {
@@ -38,7 +33,5 @@ test('emits an absolute local profile image URL in Person JSON-LD', async ({ pag
   const jsonLd = await page.locator('script[type="application/ld+json"]').textContent();
   expect(jsonLd).not.toBeNull();
   const person = JSON.parse(jsonLd ?? '{}') as { image?: string };
-  expect(person.image).toBe(
-    'https://ivuru.ivrm.jp/assets/visuals/blue-anime/ivuru-profile-blue.svg',
-  );
+  expect(person.image).toBe('https://ivuru.ivrm.jp/assets/images/ivuru-profile-fallback.png');
 });

@@ -17,8 +17,9 @@ test('blue media hero keeps the original character and primary actions clear', a
   await expect(hero).toHaveClass(/blue-media-hero/);
   await expect(hero.locator('.blue-media-character img')).toHaveAttribute(
     'src',
-    '/assets/visuals/blue-anime/ivuru-hero-blue.svg',
+    '/assets/images/ivuru-hero-character.png',
   );
+  await expect(hero.locator('.cyber-character-tag')).toBeVisible();
   await expect(hero.locator('.hero-spark-field')).toHaveCount(0);
   await expect(hero.locator('.hero-petal-field')).toHaveCount(0);
   await expect(hero.getByRole('link', { name: /Works|制作|작업/i }).first()).toBeVisible();
@@ -49,6 +50,9 @@ test('localized routes share the blue and white anime composition', async ({ pag
   for (const route of ['/en', '/ko']) {
     await page.goto(route);
     await expect(page.locator('[data-anime-hero]')).toBeVisible();
-    await expect(page.locator('.blue-media-character img')).toBeVisible();
+    await expect(page.locator('.blue-media-character img')).toHaveAttribute(
+      'src',
+      '/assets/images/ivuru-hero-character.png',
+    );
   }
 });

@@ -45,7 +45,11 @@ test.describe('blue media scroll motion', () => {
     expect(heroBox).not.toBeNull();
     if (!heroBox) return;
 
-    await page.mouse.move(heroBox.x + heroBox.width * 0.82, heroBox.y + heroBox.height * 0.24);
+    await hero.dispatchEvent('pointermove', {
+      clientX: heroBox.x + heroBox.width * 0.82,
+      clientY: heroBox.y + heroBox.height * 0.24,
+      pointerType: 'mouse',
+    });
     await expect
       .poll(() =>
         hero.evaluate((element) =>
@@ -63,7 +67,11 @@ test.describe('blue media scroll motion', () => {
     expect(cardBox).not.toBeNull();
     if (!cardBox) return;
 
-    await page.mouse.move(cardBox.x + cardBox.width * 0.78, cardBox.y + cardBox.height * 0.28);
+    await card.dispatchEvent('pointermove', {
+      clientX: cardBox.x + cardBox.width * 0.78,
+      clientY: cardBox.y + cardBox.height * 0.28,
+      pointerType: 'mouse',
+    });
     await expect
       .poll(() =>
         card.evaluate((element) =>

@@ -174,7 +174,7 @@ export default function MobileMenu({
             <div className="mobile-menu-signal" aria-hidden="true" />
             <div className="mobile-menu-visual" aria-hidden="true">
               <img
-                src="/assets/visuals/blue-anime/ivuru-hero-blue.svg"
+                src="/assets/images/ivuru-hero-character.png"
                 alt=""
                 width="1600"
                 height="1200"

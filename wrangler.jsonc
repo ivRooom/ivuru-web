@@ -12,6 +12,8 @@
     "CONTACT_RECEIPT_BCC_EMAIL": "ivuruGG.info@gmail.com",
     "CONTACT_RETENTION_DAYS": "90",
     "ALLOWED_ORIGINS": "https://ivurugg.ivrm.jp,https://ivuru.ivrm.jp",
+    "X_PROFILE_USERNAME": "ivuruGG",
+    "X_PROFILE_CACHE_TTL_SECONDS": "21600",
   },
 
   "observability": {

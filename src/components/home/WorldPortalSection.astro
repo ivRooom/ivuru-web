@@ -40,19 +40,19 @@ const worlds = [
     key: 'news',
     index: '01',
     href: '/news',
-    media: '/assets/visuals/blue-anime/ivuru-news-blue.svg',
+    media: '/assets/images/channel-news.png',
   },
   {
     key: 'games',
     index: '02',
     href: '/games',
-    media: '/assets/visuals/blue-anime/ivuru-games-blue.svg',
+    media: '/assets/images/channel-games.png',
   },
   {
     key: 'favorites',
     index: '03',
     href: '/profile#favorites',
-    media: '/assets/visuals/blue-anime/ivuru-favorites-blue.svg',
+    media: '/assets/images/channel-favorites.png',
   },
 ] as const;
 ---
@@ -62,7 +62,7 @@ const worlds = [
     <div class="anime-portal-heading" data-anime-reveal="heading" data-blue-reveal>
       <div>
         <p class="editorial-kicker">{copy.kicker}</p>
-        <h2>{copy.title}</h2>
+        <h2 data-glitch={copy.title}>{copy.title}</h2>
       </div>
       <p>{copy.intro}</p>
     </div>
