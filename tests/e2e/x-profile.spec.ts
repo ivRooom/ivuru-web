@@ -70,4 +70,38 @@ test.describe('X profile identity', () => {
     await expect(identities.first().locator('.x-profile-avatar')).toHaveCount(0);
     await expect(identities.first().locator('.x-profile-avatar-fallback')).toContainText('IV');
   });
+
+  test('Xユーザーに画像がない場合も旧PNGを表示せずブランドへ切り替える', async ({ page }) => {
+    await prepareProfile(page);
+    await page.route('**/api/x-profile', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          ok: true,
+          source: 'x',
+          username: 'ivuruGG',
+          name: 'いゔる。 from X',
+          description: 'Developer / Gamer / Community',
+          profileImageUrl: '/assets/images/ivuru-profile-fallback.png',
+          profileBannerUrl: null,
+          profileUrl: 'https://x.com/ivuruGG',
+          verified: false,
+          fetchedAt: new Date().toISOString(),
+        }),
+      });
+    });
+
+    await page.goto('/profile');
+
+    const identities = page.locator(
+      '.x-profile-identity[data-x-profile-source="x"][data-x-profile-visual="brand"]',
+    );
+    await expect(identities).toHaveCount(2);
+    await expect(identities.first().locator('.x-profile-avatar')).toHaveCount(0);
+    await expect(identities.first().locator('.x-profile-avatar-fallback')).toContainText('IV');
+    await expect(identities.first().locator('.x-profile-source-badge')).toHaveText(
+      'BRAND FALLBACK',
+    );
+  });
 });
