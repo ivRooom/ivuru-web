@@ -202,6 +202,17 @@ const pageWorld = chapter.world
   <body data-page-world={pageWorld} data-anime-scene="ice">
     <a class="skip-link" href="#main-content">Skip to content</a>
     <IntroLoader locale={locale} client:load transition:persist="intro-loader" />
+    <script is:inline>
+      (() => {
+        const delay = matchMedia('(prefers-reduced-motion: reduce)').matches ? 350 : 2400;
+        window.setTimeout(() => {
+          const loader = document.querySelector('.world-loader');
+          if (!(loader instanceof HTMLElement)) return;
+          loader.dataset.failsafeHidden = 'true';
+          document.body.classList.remove('site-loading');
+        }, delay);
+      })();
+    </script>
     <ChapterCut client:load transition:persist="chapter-cut" />
     <WorldState client:load transition:persist="world-state" />
     <AnalyticsBridge />
