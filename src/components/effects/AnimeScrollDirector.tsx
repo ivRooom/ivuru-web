@@ -7,6 +7,7 @@ const setSceneState = (scenes: HTMLElement[], activeIndex: number) => {
     const active = index === activeIndex;
     scene.dataset.active = active ? 'true' : 'false';
     scene.setAttribute('aria-hidden', active ? 'false' : 'true');
+    scene.inert = !active;
   });
 };
 
@@ -43,13 +44,14 @@ export default function AnimeScrollDirector() {
 
       if (!root || !stage || scenes.length === 0) return;
 
-      root.style.setProperty('--story-pointer-x', '0');
-      root.style.setProperty('--story-pointer-y', '0');
+      root.style.setProperty('--story-pointer-x', '0px');
+      root.style.setProperty('--story-pointer-y', '0px');
       root.style.setProperty('--story-progress', '0');
 
       const activate = (index: number) => {
         const nextIndex = Math.max(0, Math.min(scenes.length - 1, index));
         root.dataset.storyChapter = String(nextIndex + 1).padStart(2, '0');
+        document.body.dataset.animeScene = scenes[nextIndex]?.dataset.animeScene ?? 'ice';
         setSceneState(scenes, nextIndex);
         dots.forEach((dot, dotIndex) => {
           dot.dataset.active = dotIndex === nextIndex ? 'true' : 'false';
@@ -65,11 +67,15 @@ export default function AnimeScrollDirector() {
         root.dataset.storyMode = 'static';
         scenes.forEach((scene) => {
           scene.removeAttribute('aria-hidden');
+          scene.inert = false;
           scene.dataset.active = 'true';
           gsap.set(scene, { clearProps: 'all' });
-          gsap.set(scene.querySelectorAll('[data-story-copy], [data-story-visual], [data-story-pop]'), {
-            clearProps: 'all',
-          });
+          gsap.set(
+            scene.querySelectorAll('[data-story-copy], [data-story-visual], [data-story-pop]'),
+            {
+              clearProps: 'all',
+            },
+          );
         });
         dots.forEach((dot) => (dot.dataset.active = 'true'));
         return;
@@ -119,7 +125,8 @@ export default function AnimeScrollDirector() {
           scrollTrigger: {
             trigger: root,
             start: 'top top',
-            end: () => `+=${Math.round(window.innerHeight * (window.innerWidth < 768 ? 3.5 : 4.4))}`,
+            end: () =>
+              `+=${Math.round(window.innerHeight * (window.innerWidth < 768 ? 3.5 : 4.4))}`,
             scrub: window.innerWidth < 768 ? 0.58 : 0.82,
             pin: stage,
             pinSpacing: true,
@@ -229,8 +236,8 @@ export default function AnimeScrollDirector() {
         let pointerY = 0;
         const renderPointer = () => {
           pointerFrame = 0;
-          root.style.setProperty('--story-pointer-x', pointerX.toFixed(4));
-          root.style.setProperty('--story-pointer-y', pointerY.toFixed(4));
+          root.style.setProperty('--story-pointer-x', `${(pointerX * 14).toFixed(2)}px`);
+          root.style.setProperty('--story-pointer-y', `${(pointerY * 10).toFixed(2)}px`);
         };
         const onPointerMove = (event: PointerEvent) => {
           const rect = stage.getBoundingClientRect();

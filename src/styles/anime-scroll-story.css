@@ -7,8 +7,8 @@
   --story-cyan: #9cecff;
   --story-white: #f7fcff;
   --story-violet: #7767ff;
-  --story-pointer-x: 0;
-  --story-pointer-y: 0;
+  --story-pointer-x: 0px;
+  --story-pointer-y: 0px;
   --story-progress: 0;
   position: relative;
   z-index: 1;
@@ -63,7 +63,11 @@
   align-items: center;
   justify-content: space-between;
   color: rgb(235 249 255 / 72%);
-  font: 700 clamp(0.58rem, 0.75vw, 0.72rem) / 1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  font:
+    700 clamp(0.58rem, 0.75vw, 0.72rem) / 1 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
   letter-spacing: 0.22em;
   pointer-events: none;
 }
@@ -75,7 +79,12 @@
   left: 0;
   height: 1px;
   content: '';
-  background: linear-gradient(90deg, rgb(152 232 255 / 65%), rgb(255 255 255 / 12%) 42%, transparent 82%);
+  background: linear-gradient(
+    90deg,
+    rgb(152 232 255 / 65%),
+    rgb(255 255 255 / 12%) 42%,
+    transparent 82%
+  );
   transform: scaleX(calc(0.12 + var(--story-progress) * 0.88));
   transform-origin: left center;
 }
@@ -97,7 +106,11 @@
   height: 34px;
   place-items: center;
   color: rgb(224 246 255 / 38%);
-  font: 700 0.55rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  font:
+    700 0.55rem/1 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
   font-style: normal;
   border: 1px solid rgb(183 235 255 / 14%);
   border-radius: 50%;
@@ -159,11 +172,7 @@
   position: relative;
   z-index: 30;
   max-width: 720px;
-  transform: translate3d(
-    calc(var(--story-pointer-x) * -8px),
-    calc(var(--story-pointer-y) * -5px),
-    90px
-  );
+  transform: translate3d(var(--story-pointer-x), var(--story-pointer-y), 90px);
   transform-style: preserve-3d;
 }
 
@@ -173,7 +182,11 @@
   gap: 13px;
   margin: 0 0 24px;
   color: var(--story-cyan);
-  font: 800 clamp(0.68rem, 0.9vw, 0.82rem) / 1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+  font:
+    800 clamp(0.68rem, 0.9vw, 0.82rem) / 1.2 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
   letter-spacing: 0.18em;
   text-transform: uppercase;
 }
@@ -296,7 +309,11 @@
   align-items: center;
   gap: 14px;
   color: rgb(236 249 255 / 64%);
-  font: 700 0.58rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  font:
+    700 0.58rem/1 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
   letter-spacing: 0.18em;
   pointer-events: none;
 }
@@ -319,8 +336,7 @@
 
 /* Opening scene ---------------------------------------------------------- */
 .is-opening {
-  background:
-    linear-gradient(180deg, #9fe9ff 0%, #69cfff 34%, #3487e8 65%, #092858 100%);
+  background: linear-gradient(180deg, #9fe9ff 0%, #69cfff 34%, #3487e8 65%, #092858 100%);
 }
 
 .anime-scene-sky,
@@ -354,11 +370,7 @@
   box-shadow:
     0 0 0 28px rgb(255 255 255 / 10%),
     0 0 110px 48px rgb(214 248 255 / 52%);
-  transform: translate3d(
-    calc(var(--story-pointer-x) * 8px),
-    calc(var(--story-pointer-y) * 6px),
-    -260px
-  );
+  transform: translate3d(var(--story-pointer-x), var(--story-pointer-y), -260px);
 }
 
 .anime-cloud {
@@ -394,7 +406,7 @@
   left: -8%;
   width: 32%;
   opacity: 0.42;
-  transform: translate3d(calc(var(--story-pointer-x) * 4px), 0, -300px);
+  transform: translate3d(var(--story-pointer-x), 0, -300px);
 }
 
 .anime-cloud.cloud-b {
@@ -402,7 +414,7 @@
   right: -12%;
   width: 36%;
   opacity: 0.68;
-  transform: translate3d(calc(var(--story-pointer-x) * -8px), 0, -80px);
+  transform: translate3d(var(--story-pointer-x), 0, -80px);
 }
 
 .anime-cloud.cloud-c {
@@ -410,7 +422,7 @@
   left: 24%;
   width: 22%;
   opacity: 0.26;
-  transform: translate3d(calc(var(--story-pointer-x) * 14px), 0, 120px);
+  transform: translate3d(var(--story-pointer-x), 0, 120px);
 }
 
 .anime-sea-line {
@@ -444,11 +456,7 @@
   right: 7%;
   width: min(62vw, 880px);
   aspect-ratio: 1;
-  transform: translate3d(
-      calc(var(--story-pointer-x) * 20px),
-      calc(-50% + var(--story-pointer-y) * 12px),
-      -40px
-    )
+  transform: translate3d(var(--story-pointer-x), calc(-50% + var(--story-pointer-y)), -40px)
     rotateX(62deg);
   opacity: 0.4;
 }
@@ -486,21 +494,15 @@
   z-index: 32;
   width: min(43vw, 640px);
   margin-left: auto;
-  transform: translate3d(
-      calc(var(--story-pointer-x) * 22px),
-      calc(var(--story-pointer-y) * 14px),
-      160px
-    )
-    rotateY(calc(var(--story-pointer-x) * -4deg)) rotateX(calc(var(--story-pointer-y) * 3deg));
+  transform: translate3d(var(--story-pointer-x), var(--story-pointer-y), 160px) rotateY(-2deg)
+    rotateX(1deg);
   transform-style: preserve-3d;
 }
 
 .anime-opening-emblem .signal-key-frame {
   aspect-ratio: 0.88;
   border-color: rgb(224 250 255 / 48%);
-  background:
-    linear-gradient(145deg, rgb(4 28 72 / 76%), rgb(10 82 162 / 36%)),
-    rgb(4 24 60 / 55%);
+  background: linear-gradient(145deg, rgb(4 28 72 / 76%), rgb(10 82 162 / 36%)), rgb(4 24 60 / 55%);
   box-shadow:
     inset 0 0 80px rgb(104 220 255 / 10%),
     0 60px 120px rgb(0 22 60 / 34%);
@@ -568,13 +570,65 @@
     #2563a6 90% 97%,
     transparent 97%
   );
-  clip-path: polygon(0 56%, 5% 56%, 5% 25%, 12% 25%, 12% 44%, 22% 44%, 22% 14%, 29% 14%, 29% 50%, 40% 50%, 40% 8%, 47% 8%, 47% 42%, 57% 42%, 57% 20%, 64% 20%, 64% 48%, 75% 48%, 75% 10%, 83% 10%, 83% 38%, 91% 38%, 91% 18%, 100% 18%, 100% 100%, 0 100%);
+  clip-path: polygon(
+    0 56%,
+    5% 56%,
+    5% 25%,
+    12% 25%,
+    12% 44%,
+    22% 44%,
+    22% 14%,
+    29% 14%,
+    29% 50%,
+    40% 50%,
+    40% 8%,
+    47% 8%,
+    47% 42%,
+    57% 42%,
+    57% 20%,
+    64% 20%,
+    64% 48%,
+    75% 48%,
+    75% 10%,
+    83% 10%,
+    83% 38%,
+    91% 38%,
+    91% 18%,
+    100% 18%,
+    100% 100%,
+    0 100%
+  );
 }
 
 .anime-city.city-front {
   height: 31%;
   background: linear-gradient(180deg, #103b79, #061b3e);
-  clip-path: polygon(0 45%, 8% 45%, 8% 15%, 17% 15%, 17% 52%, 26% 52%, 26% 27%, 36% 27%, 36% 5%, 45% 5%, 45% 45%, 55% 45%, 55% 18%, 66% 18%, 66% 54%, 76% 54%, 76% 8%, 86% 8%, 86% 38%, 94% 38%, 94% 19%, 100% 19%, 100% 100%, 0 100%);
+  clip-path: polygon(
+    0 45%,
+    8% 45%,
+    8% 15%,
+    17% 15%,
+    17% 52%,
+    26% 52%,
+    26% 27%,
+    36% 27%,
+    36% 5%,
+    45% 5%,
+    45% 45%,
+    55% 45%,
+    55% 18%,
+    66% 18%,
+    66% 54%,
+    76% 54%,
+    76% 8%,
+    86% 8%,
+    86% 38%,
+    94% 38%,
+    94% 19%,
+    100% 19%,
+    100% 100%,
+    0 100%
+  );
   box-shadow: 0 -28px 70px rgb(8 69 138 / 22%);
 }
 
@@ -616,9 +670,7 @@
   color: #fff;
   border: 1px solid rgb(231 250 255 / 58%);
   border-radius: clamp(24px, 3vw, 42px);
-  background:
-    linear-gradient(135deg, rgb(4 23 57 / 92%), rgb(7 64 132 / 76%)),
-    #061b3e;
+  background: linear-gradient(135deg, rgb(4 23 57 / 92%), rgb(7 64 132 / 76%)), #061b3e;
   box-shadow:
     inset 0 1px rgb(255 255 255 / 18%),
     0 60px 130px rgb(3 37 87 / 38%);
@@ -654,10 +706,21 @@
   box-shadow: 0 0 18px rgb(88 207 255 / 22%);
 }
 
-.anime-code-line.line-a { width: 76%; }
-.anime-code-line.line-b { width: 52%; margin-left: 11%; }
-.anime-code-line.line-c { width: 64%; margin-left: 4%; }
-.anime-code-line.line-d { width: 38%; margin-left: 18%; }
+.anime-code-line.line-a {
+  width: 76%;
+}
+.anime-code-line.line-b {
+  width: 52%;
+  margin-left: 11%;
+}
+.anime-code-line.line-c {
+  width: 64%;
+  margin-left: 4%;
+}
+.anime-code-line.line-d {
+  width: 38%;
+  margin-left: 18%;
+}
 
 .anime-code-orbit {
   position: absolute;
@@ -688,7 +751,11 @@
   z-index: 2;
   margin-top: 18px;
   color: var(--story-cyan);
-  font: 800 0.68rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  font:
+    800 0.68rem/1 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
   letter-spacing: 0.2em;
 }
 
@@ -763,9 +830,18 @@
   transform-origin: right center;
 }
 
-.anime-speed-line.speed-a { top: 27%; rotate: -18deg; }
-.anime-speed-line.speed-b { top: 48%; rotate: 4deg; }
-.anime-speed-line.speed-c { top: 68%; rotate: 19deg; }
+.anime-speed-line.speed-a {
+  top: 27%;
+  rotate: -18deg;
+}
+.anime-speed-line.speed-b {
+  top: 48%;
+  rotate: 4deg;
+}
+.anime-speed-line.speed-c {
+  top: 68%;
+  rotate: 19deg;
+}
 
 .anime-game-portal {
   position: relative;
@@ -783,7 +859,12 @@
   inset: 18%;
   content: '';
   border-radius: 50%;
-  background: radial-gradient(circle, rgb(113 231 255 / 35%), rgb(31 92 220 / 14%) 45%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgb(113 231 255 / 35%),
+    rgb(31 92 220 / 14%) 45%,
+    transparent 70%
+  );
   box-shadow: 0 0 100px rgb(66 166 255 / 24%);
 }
 
@@ -794,9 +875,21 @@
   box-shadow: 0 0 34px rgb(44 188 255 / 20%);
 }
 
-.anime-game-ring.ring-one { inset: 5%; border-style: dashed; animation: anime-ring 18s linear infinite; }
-.anime-game-ring.ring-two { inset: 17%; border-color: rgb(129 110 255 / 74%); animation: anime-ring-reverse 12s linear infinite; }
-.anime-game-ring.ring-three { inset: 29%; border-width: 8px; border-color: rgb(222 250 255 / 70%); }
+.anime-game-ring.ring-one {
+  inset: 5%;
+  border-style: dashed;
+  animation: anime-ring 18s linear infinite;
+}
+.anime-game-ring.ring-two {
+  inset: 17%;
+  border-color: rgb(129 110 255 / 74%);
+  animation: anime-ring-reverse 12s linear infinite;
+}
+.anime-game-ring.ring-three {
+  inset: 29%;
+  border-width: 8px;
+  border-color: rgb(222 250 255 / 70%);
+}
 
 .anime-game-portal strong {
   position: relative;
@@ -812,7 +905,11 @@
   position: absolute;
   bottom: 24%;
   color: var(--story-cyan);
-  font: 800 0.6rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  font:
+    800 0.6rem/1 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
   letter-spacing: 0.18em;
 }
 
@@ -858,7 +955,11 @@
   position: absolute;
   inset: 0;
   content: '';
-  background: radial-gradient(circle at var(--card-glow-x, 50%) var(--card-glow-y, 50%), rgb(121 226 255 / 22%), transparent 42%);
+  background: radial-gradient(
+    circle at var(--card-glow-x, 50%) var(--card-glow-y, 50%),
+    rgb(121 226 255 / 22%),
+    transparent 42%
+  );
 }
 
 .anime-portal-card .signal-channel-visual span,
@@ -869,7 +970,11 @@
 
 .anime-portal-card .signal-channel-visual span {
   color: var(--story-cyan);
-  font: 700 0.58rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  font:
+    700 0.58rem/1 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
 }
 
 .anime-portal-card .signal-channel-visual strong {
@@ -893,13 +998,22 @@
   background-image:
     radial-gradient(circle, rgb(255 255 255 / 75%) 0 1px, transparent 1.5px),
     radial-gradient(circle, rgb(95 215 255 / 60%) 0 1px, transparent 1.5px);
-  background-position: 0 0, 31px 26px;
-  background-size: 74px 74px, 96px 96px;
+  background-position:
+    0 0,
+    31px 26px;
+  background-size:
+    74px 74px,
+    96px 96px;
   opacity: 0.48;
 }
 
 .anime-community-world::after {
-  background: radial-gradient(circle at 50% 45%, transparent 0 20%, rgb(48 116 210 / 12%) 42%, transparent 68%);
+  background: radial-gradient(
+    circle at 50% 45%,
+    transparent 0 20%,
+    rgb(48 116 210 / 12%) 42%,
+    transparent 68%
+  );
 }
 
 .anime-community-aurora {
@@ -908,7 +1022,13 @@
   right: -12%;
   left: -12%;
   height: 70%;
-  background: linear-gradient(120deg, transparent 9%, rgb(72 219 255 / 21%) 28%, rgb(102 90 255 / 23%) 51%, transparent 78%);
+  background: linear-gradient(
+    120deg,
+    transparent 9%,
+    rgb(72 219 255 / 21%) 28%,
+    rgb(102 90 255 / 23%) 51%,
+    transparent 78%
+  );
   filter: blur(28px);
   transform: rotate(-8deg);
 }
@@ -936,10 +1056,24 @@
     0 0 42px 8px rgb(75 199 255 / 35%);
 }
 
-.anime-community-light.light-a { top: 24%; right: 24%; }
-.anime-community-light.light-b { top: 53%; right: 12%; background: #8c7aff; }
-.anime-community-light.light-c { top: 67%; right: 38%; }
-.anime-community-light.light-d { top: 35%; right: 47%; background: #fff; }
+.anime-community-light.light-a {
+  top: 24%;
+  right: 24%;
+}
+.anime-community-light.light-b {
+  top: 53%;
+  right: 12%;
+  background: #8c7aff;
+}
+.anime-community-light.light-c {
+  top: 67%;
+  right: 38%;
+}
+.anime-community-light.light-d {
+  top: 35%;
+  right: 47%;
+  background: #fff;
+}
 
 .anime-community-link {
   position: absolute;
@@ -950,9 +1084,19 @@
   transform-origin: right center;
 }
 
-.anime-community-link.link-a { top: 38%; rotate: 22deg; }
-.anime-community-link.link-b { top: 52%; rotate: -14deg; }
-.anime-community-link.link-c { top: 63%; right: 31%; rotate: 47deg; }
+.anime-community-link.link-a {
+  top: 38%;
+  rotate: 22deg;
+}
+.anime-community-link.link-b {
+  top: 52%;
+  rotate: -14deg;
+}
+.anime-community-link.link-c {
+  top: 63%;
+  right: 31%;
+  rotate: 47deg;
+}
 
 .anime-community-emblem {
   position: relative;
@@ -964,7 +1108,12 @@
   place-items: center;
   border: 1px solid rgb(162 229 255 / 28%);
   border-radius: 50%;
-  background: radial-gradient(circle, rgb(41 133 218 / 22%), rgb(19 42 94 / 20%) 48%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgb(41 133 218 / 22%),
+    rgb(19 42 94 / 20%) 48%,
+    transparent 70%
+  );
   box-shadow:
     inset 0 0 100px rgb(79 184 255 / 8%),
     0 0 110px rgb(59 147 255 / 15%);
@@ -990,7 +1139,11 @@
   position: absolute;
   bottom: 29%;
   color: var(--story-cyan);
-  font: 800 0.62rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  font:
+    800 0.62rem/1 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
   letter-spacing: 0.17em;
 }
 
@@ -1019,16 +1172,25 @@
 
 /* Animation -------------------------------------------------------------- */
 @keyframes anime-story-cue {
-  0% { transform: translateX(-110%); }
-  55%, 100% { transform: translateX(110%); }
+  0% {
+    transform: translateX(-110%);
+  }
+  55%,
+  100% {
+    transform: translateX(110%);
+  }
 }
 
 @keyframes anime-ring {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes anime-ring-reverse {
-  to { transform: rotate(-360deg); }
+  to {
+    transform: rotate(-360deg);
+  }
 }
 
 /* Responsive ------------------------------------------------------------- */
@@ -1104,7 +1266,8 @@
     grid-template-rows: auto minmax(220px, 1fr);
     align-content: center;
     gap: 22px;
-    padding: max(126px, calc(env(safe-area-inset-top) + 108px)) 22px max(82px, calc(env(safe-area-inset-bottom) + 68px));
+    padding: max(126px, calc(env(safe-area-inset-top) + 108px)) 22px
+      max(82px, calc(env(safe-area-inset-bottom) + 68px));
   }
 
   .anime-story-copy {
@@ -1191,9 +1354,19 @@
     width: 34vw;
   }
 
-  .anime-cloud.cloud-a { top: 25%; width: 48%; }
-  .anime-cloud.cloud-b { top: 48%; width: 52%; }
-  .anime-cloud.cloud-c { bottom: 18%; left: 3%; width: 39%; }
+  .anime-cloud.cloud-a {
+    top: 25%;
+    width: 48%;
+  }
+  .anime-cloud.cloud-b {
+    top: 48%;
+    width: 52%;
+  }
+  .anime-cloud.cloud-c {
+    bottom: 18%;
+    left: 3%;
+    width: 39%;
+  }
 
   .anime-build-device {
     width: min(82vw, 430px);
@@ -1236,10 +1409,22 @@
     width: min(72vw, 350px);
   }
 
-  .anime-community-light.light-a { top: 27%; right: 16%; }
-  .anime-community-light.light-b { top: 56%; right: 5%; }
-  .anime-community-light.light-c { top: 72%; right: 44%; }
-  .anime-community-light.light-d { top: 42%; right: 55%; }
+  .anime-community-light.light-a {
+    top: 27%;
+    right: 16%;
+  }
+  .anime-community-light.light-b {
+    top: 56%;
+    right: 5%;
+  }
+  .anime-community-light.light-c {
+    top: 72%;
+    right: 44%;
+  }
+  .anime-community-light.light-d {
+    top: 42%;
+    right: 55%;
+  }
 }
 
 @media (max-height: 720px) and (min-width: 768px) {
