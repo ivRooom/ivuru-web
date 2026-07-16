@@ -6,12 +6,13 @@ test('keeps the page released after the intro loader finishes', async ({ page })
     localStorage.setItem('ivuru-theme', 'light');
     sessionStorage.removeItem('ivuru-intro-seen');
   });
-  await page.goto('/');
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
 
   const loader = page.locator('.anime-intro-loader');
   const status = loader.locator('[role="status"]');
   const progressbar = loader.locator('[role="progressbar"]');
 
+  await expect(loader).toHaveCount(1);
   await expect(status).toHaveText('ページを読み込んでいます。');
   await expect(status).toHaveAttribute('aria-live', 'polite');
   await expect(status).toHaveAttribute('aria-atomic', 'true');

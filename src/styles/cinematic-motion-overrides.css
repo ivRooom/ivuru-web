@@ -1,0 +1,80 @@
+/* Compatibility and composition fixes for cinematic motion --------------- */
+.cinematic-hero {
+  --hero-shift-x: 0px;
+  --hero-shift-y: 0px;
+  --hero-shift-x-soft: 0px;
+  --hero-shift-y-soft: 0px;
+  --hero-shift-x-deep: 0px;
+  --hero-shift-y-deep: 0px;
+}
+
+.cinematic-glow {
+  transform: translate3d(var(--hero-shift-x), var(--hero-shift-y), 0);
+}
+
+.cinematic-signal-ring.ring-outer {
+  transform: translate3d(var(--hero-shift-x-soft), var(--hero-shift-y-soft), 0);
+}
+
+.cinematic-signal-ring.ring-middle {
+  transform: translate3d(var(--hero-shift-x), var(--hero-shift-y), 0);
+}
+
+.cinematic-signal-ring.ring-inner,
+.cinematic-crosshair {
+  transform: translate3d(var(--hero-shift-x-deep), var(--hero-shift-y-deep), 0);
+}
+
+.cinematic-shards i:nth-child(odd) {
+  transform: translate3d(var(--hero-shift-x), var(--hero-shift-y), 0)
+    rotate(var(--shard-rotate, 0deg));
+}
+
+.cinematic-shards i:nth-child(even) {
+  transform: translate3d(var(--hero-shift-x-deep), var(--hero-shift-y-deep), 0)
+    rotate(var(--shard-rotate, 0deg));
+}
+
+[data-cinematic-card] {
+  transform-style: flat;
+}
+
+[data-cinematic-card] > .cinematic-card-surface {
+  display: block;
+  transform: perspective(1100px) rotateX(var(--card-tilt-x)) rotateY(var(--card-tilt-y));
+  transform-style: preserve-3d;
+  transition: transform 420ms var(--cinematic-ease);
+  will-change: transform;
+}
+
+.cinematic-card-surface > div:first-child {
+  transform: translateZ(18px);
+}
+
+.cinematic-card-surface > .anime-portal-card-copy {
+  transform: translateZ(34px);
+}
+
+@media (max-width: 720px), (hover: none), (pointer: coarse) {
+  [data-cinematic-card] > .cinematic-card-surface,
+  .cinematic-card-surface > div:first-child,
+  .cinematic-card-surface > .anime-portal-card-copy {
+    transform: none;
+    transition: none;
+    will-change: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cinematic-glow,
+  .cinematic-signal-ring,
+  .cinematic-crosshair,
+  .cinematic-shards i,
+  [data-cinematic-card] > .cinematic-card-surface,
+  .cinematic-card-surface > div:first-child,
+  .cinematic-card-surface > .anime-portal-card-copy {
+    transform: none !important;
+    transition: none !important;
+    will-change: auto;
+  }
+}

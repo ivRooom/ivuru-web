@@ -75,21 +75,24 @@ const worlds = [
               class="anime-portal-card"
               href={localePath(locale, world.href)}
               data-anime-card
+              data-cinematic-card
               data-analytics-event="world_portal_open"
               data-analytics-target={world.key}
               data-analytics-surface="home_blue_channel"
               data-analytics-position={String(index + 1)}
             >
-              <div data-anime-visual data-blue-visual>
-                <img src={world.media} alt="" width="1200" height="800" loading="lazy" />
-              </div>
-              <div class="anime-portal-card-copy">
-                <small>
-                  {world.index} / {world.key.toUpperCase()}
-                </small>
-                <h3>{item[0]}</h3>
-                <p>{item[1]}</p>
-                <span>{copy.enter} ↗</span>
+              <div class="cinematic-card-surface">
+                <div data-anime-visual data-blue-visual>
+                  <img src={world.media} alt="" width="1200" height="800" loading="lazy" />
+                </div>
+                <div class="anime-portal-card-copy">
+                  <small>
+                    {world.index} / {world.key.toUpperCase()}
+                  </small>
+                  <h3>{item[0]}</h3>
+                  <p>{item[1]}</p>
+                  <span>{copy.enter} ↗</span>
+                </div>
               </div>
             </a>
           );

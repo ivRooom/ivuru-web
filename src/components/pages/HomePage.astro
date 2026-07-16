@@ -10,8 +10,11 @@ import MediaReel from '@/components/home/MediaReel';
 import LatestPosts from '@/components/blog/LatestPosts.astro';
 import ContactCTA from '@/components/home/ContactCTA.astro';
 import SocialDock from '@/components/social/SocialDock.astro';
+import CinematicPointerEffects from '@/components/effects/CinematicPointerEffects';
+import CinematicScrollEffects from '@/components/effects/CinematicScrollEffects';
 import { localePath, siteConfig, type Locale } from '@/data/site-config';
 import { getDictionary } from '@/i18n/dictionaries';
+import '@/styles/cinematic-motion-overrides.css';
 
 const { locale } = Astro.props as { locale: Locale };
 const d = getDictionary(locale);
@@ -38,7 +41,7 @@ const heroCopy = {
   ko: {
     index: 'IVURU / BLUE MEDIA UNIVERSE',
     role: '만들고, 즐기고, 이어지며 좋아하는 세계를 더 선명하게.',
-    body: '웹 개발, 게임, 클라우드, ivRm 커뮤니티의 기록을 파랑과 흰색의 애니메이션 미디어 경험으로 연결합니다.',
+    body: '웹 개발, 게임, 클라우드, ivRm 커뮤니티의 기록을 파랑과 흰색 애니메이션 미디어 경험으로 연결합니다.',
     caption: 'ORIGINAL CHARACTER / BLUE SIGNAL',
     scroll: 'SCROLL TO THE NEXT SIGNAL',
   },
@@ -51,10 +54,34 @@ const heroCopy = {
   locale={locale}
   chapter={{ code: '00', title: 'HOME', world: 'BLUE MEDIA' }}
 >
-  <section class="blue-media-hero" data-hero data-page-intro data-anime-scene="ice" data-anime-hero>
+  <CinematicPointerEffects client:idle />
+  <CinematicScrollEffects client:idle />
+  <section
+    class="blue-media-hero cinematic-hero"
+    data-hero
+    data-page-intro
+    data-anime-scene="ice"
+    data-anime-hero
+    data-cinematic-section
+  >
     <span class="blue-hero-slash is-top" data-anime-parallax="-5" aria-hidden="true"></span>
     <span class="blue-hero-slash is-bottom" data-anime-parallax="4" aria-hidden="true"></span>
     <span class="blue-hero-orbit" data-blue-orbit aria-hidden="true"></span>
+
+    <div class="cinematic-signal-field" data-cinematic-field aria-hidden="true">
+      <span class="cinematic-glow"></span>
+      <span class="cinematic-scan-beam" data-cinematic-scan></span>
+      <span class="cinematic-signal-ring ring-outer" data-cinematic-ring></span>
+      <span class="cinematic-signal-ring ring-middle" data-cinematic-ring></span>
+      <span class="cinematic-signal-ring ring-inner" data-cinematic-ring></span>
+      <span class="cinematic-crosshair"></span>
+      <div class="cinematic-shards">
+        <i data-cinematic-shard></i><i data-cinematic-shard></i><i data-cinematic-shard></i>
+        <i data-cinematic-shard></i><i data-cinematic-shard></i><i data-cinematic-shard></i>
+        <i data-cinematic-shard></i><i data-cinematic-shard></i>
+      </div>
+    </div>
+
     <svg
       class="blue-hero-path"
       viewBox="0 0 1600 320"
@@ -88,7 +115,9 @@ const heroCopy = {
         data-anime-visual
         data-blue-visual
         data-anime-parallax="-3"
+        data-cinematic-character
       >
+        <span class="cinematic-character-aura" aria-hidden="true"></span>
         <img
           src="/assets/visuals/blue-anime/ivuru-hero-blue.svg"
           alt=""
@@ -103,21 +132,26 @@ const heroCopy = {
     <div class="blue-media-scroll-note" aria-hidden="true"><i></i>{heroCopy.scroll}</div>
   </section>
 
-  <div class="anime-scene-anchor" data-anime-scene="sky">
+  <div class="anime-scene-anchor" data-anime-scene="sky" data-cinematic-section>
     <ActivityCommandCenter locale={locale} />
   </div>
-  <div class="anime-scene-anchor" data-anime-scene="deep">
+  <div class="anime-scene-anchor" data-anime-scene="deep" data-cinematic-section>
     <WorldPortalSection locale={locale} />
   </div>
-  <div class="anime-scene-anchor" data-anime-scene="ice">
+  <div class="anime-scene-anchor" data-anime-scene="ice" data-cinematic-section>
     <IdentitySection locale={locale} />
     <FeaturedWorks locale={locale} />
   </div>
-  <div class="anime-scene-anchor" data-anime-scene="sky">
+  <div class="anime-scene-anchor" data-anime-scene="sky" data-cinematic-section>
     <CommunitySection locale={locale} />
     <ActivitySection locale={locale} />
   </div>
-  <section class="media-section section" data-world-zone="creative" data-anime-scene="deep">
+  <section
+    class="media-section section"
+    data-world-zone="creative"
+    data-anime-scene="deep"
+    data-cinematic-section
+  >
     <div class="section-heading section-inner" data-reveal>
       <div><p class="section-kicker">VISUAL LOG</p><h2>{d.sections.media}</h2></div>
       <p class="section-intro">Development / Gaming / Community / Creative</p>
