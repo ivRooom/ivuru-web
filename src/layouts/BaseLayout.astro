@@ -208,6 +208,7 @@ const pageWorld = chapter.world
         window.setTimeout(() => {
           const loader = document.querySelector('.world-loader');
           if (!(loader instanceof HTMLElement)) return;
+          document.documentElement.dataset.loaderReleased = 'true';
           loader.dataset.failsafeHidden = 'true';
           document.body.classList.remove('site-loading');
         }, delay);
