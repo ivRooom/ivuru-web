@@ -1,0 +1,63 @@
+name: Update Blue Renewal README
+
+on:
+  push:
+    branches: [feat/blue-anime-renewal]
+
+permissions:
+  contents: write
+
+jobs:
+  update-readme:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/blue-anime-renewal
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: READMEを更新
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('README.md')
+          text = path.read_text()
+          text = text.replace(
+              '- 初回アクセス・リロード: アニメマスコット、カーテン、進捗バーによるロード演出',
+              '- 初回アクセス・リロード: 青白マスコット、円形シグナル、カーテン、進捗バーによるロード演出',
+          )
+          text = text.replace(
+              '- Games: 手描きビジュアルと短いローカル動画を組み合わせたエディトリアル記録',
+              '- Games: 青白のセル塗りビジュアルと短いローカル動画を組み合わせたプレイ記録',
+          )
+          text = text.replace(
+              '- スクロール進行: Dawn / Day / Sunset / NightのWorld State',
+              '- スクロール進行: Ice / Sky / DeepのBlue Media SceneとSVGパス描画',
+          )
+          text = text.replace(
+              'トップは、大胆なタイポグラフィ、オリジナルのアニメキャラクター、パステルカラーを中心としたAnime Editorial表現へ統一しています。News、Games、Profile / Favoritesのシーンイラストとローダーマスコットは`public/assets/visuals/anime/`で管理し、外部画像生成APIや第三者キャラクター素材へ依存しません。',
+              'トップは、大胆なタイポグラフィ、青・白・濃紺、セル塗りのオリジナルキャラクターを中心としたBlue Media Universe表現へ統一しています。News、Games、Profile / Favoritesのシーンイラストとローダーマスコットは`public/assets/visuals/blue-anime/`で管理し、外部画像生成APIや第三者キャラクター素材へ依存しません。',
+          )
+          text = text.replace(
+              'GamesとFavoritesはグローバルナビゲーションへ常設せず、HomeのアニメシーンカードとProfile内の導線からアクセスします。スクロール演出はマスクReveal、軽量パララックス、カードスタッガー、背景トーン切り替えで構成し、`prefers-reduced-motion`では全情報を即時表示します。動画はData Saver、低速回線、低性能端末を尊重します。',
+              'GamesとFavoritesはグローバルナビゲーションへ常設せず、HomeのBlue ChannelsとProfile内の導線からアクセスします。スクロール演出は斜めマスクReveal、軽量パララックス、SVGパス描画、カードスタッガー、Ice / Sky / Deepの背景切り替えで構成します。モバイルメニューは右上を起点とした円形マスクで展開し、Escape、フォーカストラップ、背景スクロール抑制を維持します。`prefers-reduced-motion`では全情報を即時表示し、動画はData Saver、低速回線、低性能端末を尊重します。',
+          )
+          path.write_text(text)
+          PY
+          npx prettier --write README.md
+      - name: README更新と一時ワークフロー削除をコミット
+        run: |
+          rm .github/workflows/update-blue-readme.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -A
+          git commit -m "READMEを青白リニューアルの設計へ更新"
+          git push origin HEAD:feat/blue-anime-renewal
