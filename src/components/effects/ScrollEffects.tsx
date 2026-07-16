@@ -3,11 +3,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 const uniqueElements = (selectors: string[]) =>
-  Array.from(
-    new Set(
-      selectors.flatMap((selector) => Array.from(document.querySelectorAll<HTMLElement>(selector))),
-    ),
-  );
+  Array.from(document.querySelectorAll<HTMLElement>(selectors.join(',')));
 
 export default function ScrollEffects() {
   useEffect(() => {
