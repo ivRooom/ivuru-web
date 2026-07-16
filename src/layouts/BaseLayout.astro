@@ -199,7 +199,7 @@ const pageWorld = chapter.world
   </head>
   <body data-page-world={pageWorld} data-anime-scene="pink">
     <a class="skip-link" href="#main-content">Skip to content</a>
-    <IntroLoader client:load transition:persist="intro-loader" />
+    <IntroLoader locale={locale} client:load transition:persist="intro-loader" />
     <ChapterCut client:load transition:persist="chapter-cut" />
     <WorldState client:load transition:persist="world-state" />
     <AnalyticsBridge />

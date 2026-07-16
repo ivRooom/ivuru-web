@@ -13,10 +13,23 @@ const prepareLocale = async (page: import('@playwright/test').Page, seen = false
 };
 
 test.describe('anime loading experience', () => {
-  test('shows the original mascot and finishes after the page is ready', async ({ page }) => {
+  test('stays visible until load and then finishes with the original mascot', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await prepareLocale(page, false);
-    await page.goto('/');
+
+    let releaseHero: () => void = () => undefined;
+    let heroRequestStarted = false;
+    const heroGate = new Promise<void>((resolve) => {
+      releaseHero = resolve;
+    });
+    await page.route('**/assets/visuals/anime/ivuru-hero-girl.svg', async (route) => {
+      heroRequestStarted = true;
+      await heroGate;
+      await route.continue();
+    });
+
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await expect.poll(() => heroRequestStarted).toBe(true);
 
     const loader = page.locator('.anime-intro-loader');
     await expect(loader).toBeVisible();
@@ -25,6 +38,9 @@ test.describe('anime loading experience', () => {
       '/assets/visuals/anime/ivuru-loader-mascot.svg',
     );
     await expect(loader.locator('.anime-loader-meter')).toBeVisible();
+
+    releaseHero();
+    await page.waitForLoadState('load');
     await expect(loader).toBeHidden({ timeout: 4_000 });
     await expect(page.locator('body')).not.toHaveClass(/site-loading/);
   });
@@ -37,6 +53,43 @@ test.describe('anime loading experience', () => {
     const loader = page.locator('.anime-intro-loader');
     await expect(loader).toHaveClass(/is-compact/);
     await expect(loader).toBeHidden({ timeout: 2_000 });
+  });
+
+  test('localizes the accessible loading status', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await page.addInitScript(() => {
+      localStorage.setItem('ivuru-theme', 'light');
+      sessionStorage.removeItem('ivuru-intro-seen');
+    });
+
+    for (const [route, label, status] of [
+      ['/', 'いゔる。を読み込んでいます', 'ページを読み込んでいます。'],
+      ['/en', 'Loading ivuru', 'Loading the page.'],
+      ['/ko', 'ivuru를 불러오는 중입니다', '페이지를 불러오는 중입니다.'],
+    ]) {
+      await page.goto(route, { waitUntil: 'domcontentloaded' });
+      const loader = page.getByRole('status', { name: label });
+      await expect(loader).toBeVisible();
+      await expect(loader.locator('.sr-only')).toContainText(status);
+    }
+  });
+
+  test('keeps the main content reachable when JavaScript is disabled', async ({ browser }) => {
+    const context = await browser.newContext({
+      javaScriptEnabled: false,
+      baseURL: 'http://127.0.0.1:4321',
+    });
+    const page = await context.newPage();
+
+    try {
+      await page.goto('/');
+      await expect(page.locator('.anime-intro-loader')).toBeHidden();
+      const main = page.locator('#main-content');
+      await expect(main).toBeVisible();
+      await expect(main.getByRole('link', { name: /Works|制作|작업/i }).first()).toBeVisible();
+    } finally {
+      await context.close();
+    }
   });
 
   test('reduced motion completes quickly and leaves content accessible', async ({ page }) => {
