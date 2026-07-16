@@ -16,9 +16,9 @@ type Props = {
 
 const menuCopy = {
   ja: {
-    open: 'メニューを開く',
-    close: 'メニューを閉じる',
-    navigation: 'モバイルナビゲーション',
+    open: 'Open menu / メニューを開く',
+    close: 'Close menu / メニューを閉じる',
+    navigation: 'Mobile navigation / モバイルナビゲーション',
     developer: 'Developer World',
     gamer: 'Gamer World',
     signal: 'BLUE MEDIA NAVIGATION',
@@ -32,9 +32,9 @@ const menuCopy = {
     signal: 'BLUE MEDIA NAVIGATION',
   },
   ko: {
-    open: '메뉴 열기',
-    close: '메뉴 닫기',
-    navigation: '모바일 내비게이션',
+    open: 'Open menu / 메뉴 열기',
+    close: 'Close menu / 메뉴 닫기',
+    navigation: 'Mobile navigation / 모바일 내비게이션',
     developer: 'Developer World',
     gamer: 'Gamer World',
     signal: 'BLUE MEDIA NAVIGATION',
@@ -50,13 +50,10 @@ export default function MobileMenu({
   locale = 'ja',
 }: Props) {
   const [open, setOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const panel = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const reduceMotion = useReducedMotion();
   const copy = menuCopy[locale];
-
-  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     const closeForNavigation = () => setOpen(false);
@@ -277,7 +274,7 @@ export default function MobileMenu({
           {open ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
         </motion.span>
       </button>
-      {mounted ? createPortal(overlay, document.body) : null}
+      {typeof document === 'undefined' ? null : createPortal(overlay, document.body)}
     </>
   );
 }
