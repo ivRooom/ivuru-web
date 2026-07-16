@@ -19,6 +19,8 @@ interface XProfileIdentityProps {
   showDescription?: boolean;
 }
 
+const LEGACY_PROFILE_FALLBACK = '/assets/images/ivuru-profile-fallback.png';
+
 const fallbackProfile: XProfilePayload = {
   ok: false,
   source: 'fallback',
@@ -52,6 +54,15 @@ const requestProfile = () => {
   return profileRequest;
 };
 
+const isKnownFallbackImage = (value: string) => {
+  if (!value) return true;
+  try {
+    return new URL(value, 'https://ivuru.invalid').pathname === LEGACY_PROFILE_FALLBACK;
+  } catch {
+    return false;
+  }
+};
+
 export default function XProfileIdentity({
   variant = 'hero',
   priority = false,
@@ -74,7 +85,8 @@ export default function XProfileIdentity({
     };
   }, []);
 
-  const useBrandFallback = profile.source !== 'x' || !profile.profileImageUrl || imageFailed;
+  const useBrandFallback =
+    profile.source !== 'x' || isKnownFallbackImage(profile.profileImageUrl) || imageFailed;
 
   return (
     <div
