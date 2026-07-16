@@ -62,3 +62,17 @@
 - `ivuru-favorites-scene.svg`: Favoritesシーン
 
 すべてのSVGは`public/assets/visuals/anime/`で管理します。
+
+## QA baseline
+
+アニメ体験を変更するPRでは、次の品質ゲートをすべて通過させます。
+
+- Production dependency audit
+- Astro / TypeScript、ESLint、Prettier、Unit test、Production Build
+- Performance Budget、Cloudflare Durable Mode、Wrangler dry-run
+- Playwright Chromium E2E、Visual Regression、Netlify Deploy Preview
+- 初回ローダー、再訪ローダー、`prefers-reduced-motion`の3条件
+- 日本語、英語、韓国語とPC、Tablet、Mobileの主要表示
+- ライトモードとダークモードで本文、CTA、キャラクターが判読可能であること
+
+実機SafariとAndroid Chromeは自動テストだけで完結させず、本番反映前のリリース確認で補完します。
