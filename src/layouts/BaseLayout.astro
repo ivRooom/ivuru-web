@@ -5,6 +5,7 @@ import IntroLoader from '@/components/common/IntroLoader';
 import ChapterCut from '@/components/common/ChapterCut';
 import WorldState from '@/components/common/WorldState';
 import ScrollProgress from '@/components/common/ScrollProgress';
+import ScrollEffects from '@/components/effects/ScrollEffects';
 import AnalyticsBridge from '@/components/common/AnalyticsBridge.astro';
 import { siteConfig, localePath, type Locale } from '@/data/site-config';
 import { ClientRouter } from 'astro:transitions';
@@ -16,6 +17,7 @@ import '@/styles/profile-hub.css';
 import '@/styles/contact-terminal.css';
 import '@/styles/layout-fixes.css';
 import '@/styles/activity-command-center.css';
+import '@/styles/anime-experience.css';
 
 type Chapter = {
   code: string;
@@ -195,7 +197,7 @@ const pageWorld = chapter.world
     />
     <ClientRouter />
   </head>
-  <body data-page-world={pageWorld}>
+  <body data-page-world={pageWorld} data-anime-scene="pink">
     <a class="skip-link" href="#main-content">Skip to content</a>
     <IntroLoader client:load transition:persist="intro-loader" />
     <ChapterCut client:load transition:persist="chapter-cut" />
@@ -203,6 +205,7 @@ const pageWorld = chapter.world
     <AnalyticsBridge />
     <div class="world-atmosphere" aria-hidden="true"><i></i><i></i><i></i></div>
     <ScrollProgress client:load />
+    <ScrollEffects client:idle />
     <Header locale={locale} />
     <main id="main-content"><slot /></main>
     <Footer locale={locale} />
