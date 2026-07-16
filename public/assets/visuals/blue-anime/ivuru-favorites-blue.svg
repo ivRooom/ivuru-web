@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Ivuru blue favorites scene</title>
+  <desc id="desc">An original cel-shaded anime girl wearing headphones at a blue and white desk with music, books, and favorite media.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#d7efff"/></linearGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#78bff2"/></linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="170%" height="180%"><feDropShadow dx="0" dy="18" stdDeviation="16" flood-color="#082e61" flood-opacity="0.21"/></filter>
+    <pattern id="dots" width="17" height="17" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="2" fill="#0d66bd" opacity="0.16"/></pattern>
+  </defs>
+  <rect width="1200" height="800" rx="48" fill="url(#bg)"/>
+  <path d="M-90 710 610 10h240L150 800H-90z" fill="#0d66bd" opacity="0.12"/>
+  <path d="M650 0h550v800H420z" fill="url(#dots)"/>
+  <g fill="none" stroke="#0a356c" stroke-width="7" stroke-linecap="round">
+    <path d="M72 112h320M72 158h216M962 104h178" opacity="0.2"/>
+    <circle cx="1012" cy="188" r="82" opacity="0.16"/>
+  </g>
+
+  <g filter="url(#shadow)" stroke="#08264f" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M54 548h448l71 132H0z" fill="#fff"/>
+    <circle cx="233" cy="419" r="112" fill="#071f46"/>
+    <circle cx="233" cy="419" r="61" fill="#22c0ff"/>
+    <circle cx="233" cy="419" r="14" fill="#fff"/>
+    <path d="M102 245h188v82H102z" fill="#fff"/>
+    <path d="M130 274h108m-108 25h72" fill="none"/>
+    <path d="M353 314h112v224H353z" fill="#ccecff"/>
+    <path d="M379 352h62m-62 40h62m-62 40h62" fill="none"/>
+
+    <path d="M697 126c87-15 171 31 207 109 26 57 22 123-10 175 31 42 39 96 23 144-13 39-40 72-77 93-12-34-21-70-25-107-36 22-79 33-123 30-58-4-110-31-141-74-34-47-43-109-24-165-27-43-30-98-9-142 32-64 106-95 179-63z" fill="url(#hair)"/>
+    <ellipse cx="696" cy="286" rx="121" ry="111" fill="#ffece5"/>
+    <path d="M580 269c9-82 66-136 135-141 67-5 131 32 156 89-54-16-103 1-139 49-33-29-70-37-109-25-19 6-33 15-43 28z" fill="url(#hair)"/>
+    <path d="M609 299c17-21 44-21 60 0-4 32-17 48-30 48s-26-16-30-48z" fill="#fff"/>
+    <ellipse cx="639" cy="313" rx="13" ry="20" fill="#0d66bd"/>
+    <path d="M725 299c17-21 44-21 60 0-4 32-17 48-30 48s-26-16-30-48z" fill="#fff"/>
+    <ellipse cx="755" cy="313" rx="13" ry="20" fill="#22c0ff"/>
+    <path d="M663 372c16 12 34 12 50 0" fill="none"/>
+    <path d="M586 395c-17 0-30 7-41 19m304-19c17 0 30 7 41 19" stroke="#f0a2aa" fill="none"/>
+
+    <path d="M583 273c5-76 58-132 118-139 68-8 136 31 162 91" fill="none"/>
+    <path d="M575 277c-29 18-47 49-48 84-1 32 14 62 39 82" fill="none"/>
+    <path d="M861 273c30 18 49 49 51 84 2 34-13 66-39 87" fill="none"/>
+    <rect x="528" y="338" width="54" height="108" rx="27" fill="#22c0ff"/>
+    <rect x="857" y="337" width="54" height="108" rx="27" fill="#0d66bd"/>
+
+    <path d="M562 429c86-40 185-39 270 6l60 245H502z" fill="#fff"/>
+    <path d="M628 428c18 28 42 42 74 42 31 0 56-14 75-43l26 50c-28 32-62 48-101 48-40 0-74-16-102-48z" fill="#ccecff"/>
+    <path d="M526 557c37 28 70 65 99 111m228-112c-37 28-70 65-99 112" fill="none"/>
+    <path d="M619 550h165l24 118H596z" fill="#0d66bd"/>
+    <path d="M654 583h94m-94 34h70" stroke="#fff"/>
+    <circle cx="769" cy="617" r="11" fill="#22c0ff"/>
+  </g>
+
+  <g filter="url(#shadow)" stroke="#08264f" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M963 254h171v193H963z" fill="#fff"/>
+    <path d="M998 292c34-24 70-24 104 0-7 55-24 94-52 117-29-23-46-62-52-117z" fill="#22c0ff"/>
+    <path d="M988 512h126v130H988z" fill="#ccecff"/>
+    <path d="M1016 546h70m-70 32h70m-70 32h46" fill="none"/>
+  </g>
+</svg>
