@@ -8,16 +8,19 @@ const prepareHome = async (page: import('@playwright/test').Page) => {
   });
 };
 
-test.describe('anime scroll motion', () => {
-  test('reveals the anime hero without the retired cinematic layers', async ({ page }) => {
+test.describe('blue media scroll motion', () => {
+  test('reveals the blue anime hero and path without retired cinematic layers', async ({
+    page,
+  }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await prepareHome(page);
     await page.goto('/');
 
     const hero = page.locator('[data-anime-hero]');
     await expect(hero).toBeVisible();
+    await expect(hero.locator('[data-blue-path]')).toHaveCount(1);
+    await expect(hero.locator('[data-blue-orbit]')).toBeVisible();
     await expect(page.locator('[data-cinematic-intro]')).toHaveCount(0);
-    await expect(page.locator('[data-hero-depth="orbit"]')).toHaveCount(0);
     await expect(page.locator('[data-hero-depth="grain"]')).toHaveCount(0);
     await expect(page.locator('[data-hero-video]')).toHaveCount(0);
 
@@ -34,7 +37,7 @@ test.describe('anime scroll motion', () => {
 
     await expect(page.locator('[data-anime-hero]')).toBeVisible();
     await expect(page.locator('[data-hero-video]')).toHaveCount(0);
-    await expect(page.locator('.home-anime-character')).toBeVisible();
+    await expect(page.locator('.blue-media-character')).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('data-motion-ready', 'reduced');
     await expect(
       page
@@ -44,7 +47,7 @@ test.describe('anime scroll motion', () => {
     ).toBeVisible();
   });
 
-  test('changes the ambient scene while scrolling through portal cards', async ({ page }) => {
+  test('changes the ambient scene while scrolling through blue channel cards', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await prepareHome(page);
     await page.goto('/');
@@ -53,10 +56,10 @@ test.describe('anime scroll motion', () => {
     await portal.scrollIntoViewIfNeeded();
     await expect(portal).toBeVisible();
     await expect(portal.locator('.anime-portal-card')).toHaveCount(3);
-    await expect(page.locator('body')).toHaveAttribute('data-anime-scene', 'blue');
+    await expect(page.locator('body')).toHaveAttribute('data-anime-scene', 'deep');
   });
 
-  test('provides the same anime motion structure in every locale', async ({ page }) => {
+  test('provides the same blue media structure in every locale', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await page.addInitScript(() => {
       localStorage.setItem('ivuru-theme', 'dark');
@@ -66,7 +69,7 @@ test.describe('anime scroll motion', () => {
     for (const route of ['/', '/en', '/ko']) {
       await page.goto(route);
       await expect(page.locator('[data-anime-hero]')).toBeVisible();
-      await expect(page.locator('.home-anime-character img')).toBeVisible();
+      await expect(page.locator('.blue-media-character img')).toBeVisible();
       await expect(page.locator('.anime-portal-card')).toHaveCount(3);
     }
   });

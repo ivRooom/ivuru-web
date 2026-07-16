@@ -18,6 +18,8 @@ import '@/styles/contact-terminal.css';
 import '@/styles/layout-fixes.css';
 import '@/styles/activity-command-center.css';
 import '@/styles/anime-experience.css';
+import '@/styles/blue-media-renewal.css';
+import '@/styles/blue-media-motion.css';
 
 type Chapter = {
   code: string;
@@ -80,7 +82,7 @@ const pageWorld = chapter.world
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="theme-color" content="#060817" />
+    <meta name="theme-color" content="#061a39" />
     <title>{resolvedTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
@@ -189,7 +191,7 @@ const pageWorld = chapter.world
         alternateName: siteConfig.idName,
         url: siteConfig.siteUrl,
         sameAs,
-        image: siteConfig.profileImageUrl,
+        image: new URL(siteConfig.profileImageUrl, siteConfig.siteUrl).href,
         email: `mailto:${siteConfig.email}`,
         jobTitle: 'Developer / Gamer',
         description,
@@ -197,9 +199,21 @@ const pageWorld = chapter.world
     />
     <ClientRouter />
   </head>
-  <body data-page-world={pageWorld} data-anime-scene="pink">
+  <body data-page-world={pageWorld} data-anime-scene="ice">
     <a class="skip-link" href="#main-content">Skip to content</a>
     <IntroLoader locale={locale} client:load transition:persist="intro-loader" />
+    <script is:inline>
+      (() => {
+        const delay = matchMedia('(prefers-reduced-motion: reduce)').matches ? 350 : 2400;
+        window.setTimeout(() => {
+          const loader = document.querySelector('.world-loader');
+          if (!(loader instanceof HTMLElement)) return;
+          document.documentElement.dataset.loaderReleased = 'true';
+          loader.dataset.failsafeHidden = 'true';
+          document.body.classList.remove('site-loading');
+        }, delay);
+      })();
+    </script>
     <ChapterCut client:load transition:persist="chapter-cut" />
     <WorldState client:load transition:persist="world-state" />
     <AnalyticsBridge />

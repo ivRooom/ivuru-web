@@ -1,0 +1,124 @@
+/* Blue Media motion details --------------------------------------------- */
+.blue-loader-signal {
+  position: absolute;
+  z-index: 1;
+  width: min(78vw, 900px);
+  aspect-ratio: 1;
+  pointer-events: none;
+  border: 1px solid rgb(13 102 189 / 18%);
+  border-radius: 50%;
+  animation: blue-loader-signal-spin 18s linear infinite;
+}
+
+.blue-loader-signal::before,
+.blue-loader-signal::after,
+.blue-loader-signal i {
+  content: '';
+  position: absolute;
+  border: 1px solid rgb(13 102 189 / 16%);
+  border-radius: 50%;
+}
+
+.blue-loader-signal::before {
+  inset: 11%;
+}
+
+.blue-loader-signal::after {
+  inset: 28%;
+  border-style: dashed;
+}
+
+.blue-loader-signal i:nth-child(1) {
+  inset: 3% 50% auto;
+  width: 14px;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border: 0;
+  background: #22bfff;
+  box-shadow: 0 0 22px rgb(34 191 255 / 80%);
+}
+
+.blue-loader-signal i:nth-child(2) {
+  inset: auto 8% 18% auto;
+  width: 10px;
+  aspect-ratio: 1;
+  border: 0;
+  background: #0d66bd;
+}
+
+.blue-loader-signal i:nth-child(3) {
+  inset: 24% auto auto 5%;
+  width: 8px;
+  aspect-ratio: 1;
+  border: 0;
+  background: #fff;
+  box-shadow: 0 0 18px rgb(34 191 255 / 70%);
+}
+
+.anime-intro-loader[data-failsafe-hidden='true'] {
+  display: none !important;
+}
+
+.menu-trigger > span {
+  display: grid;
+  place-items: center;
+}
+
+.menu-trigger > span,
+.menu-trigger > span svg {
+  width: 100%;
+  height: 100%;
+}
+
+.mobile-menu-layer,
+.mobile-menu-panel {
+  will-change: clip-path, opacity, transform;
+}
+
+.mobile-menu-panel {
+  box-sizing: border-box;
+  max-height: calc(100dvh - 16px) !important;
+}
+
+.mobile-menu-panel nav a span {
+  text-wrap: balance;
+}
+
+@keyframes blue-loader-signal-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@media (max-width: 720px) {
+  .blue-loader-signal {
+    width: 112vw;
+  }
+
+  .mobile-menu-panel {
+    max-height: calc(100dvh - 12px) !important;
+  }
+}
+
+@supports not (height: 100dvh) {
+  .mobile-menu-panel {
+    max-height: calc(100vh - 16px) !important;
+  }
+
+  @media (max-width: 720px) {
+    .mobile-menu-panel {
+      max-height: calc(100vh - 12px) !important;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blue-loader-signal {
+    animation: none !important;
+  }
+
+  .mobile-menu-layer,
+  .mobile-menu-panel {
+    will-change: auto;
+  }
+}

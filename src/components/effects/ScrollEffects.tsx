@@ -3,11 +3,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 const uniqueElements = (selectors: string[]) =>
-  Array.from(
-    new Set(
-      selectors.flatMap((selector) => Array.from(document.querySelectorAll<HTMLElement>(selector))),
-    ),
-  );
+  Array.from(document.querySelectorAll<HTMLElement>(selectors.join(',')));
 
 export default function ScrollEffects() {
   useEffect(() => {
@@ -24,10 +20,15 @@ export default function ScrollEffects() {
         '[data-reveal]',
         '[data-anime-visual]',
         '[data-anime-card]',
+        '[data-blue-reveal]',
+        '[data-blue-visual]',
       ]).forEach((element) => {
         gsap.set(element, {
           clearProps: 'opacity,transform,clipPath,filter,visibility',
         });
+      });
+      document.querySelectorAll<SVGGeometryElement>('[data-blue-path]').forEach((path) => {
+        gsap.set(path, { clearProps: 'strokeDasharray,strokeDashoffset' });
       });
     };
 
@@ -47,9 +48,13 @@ export default function ScrollEffects() {
         const hero = document.querySelector<HTMLElement>('[data-anime-hero]');
         const heroCopy = hero?.querySelector<HTMLElement>('[data-hero-copy]');
         const heroVisual = hero?.querySelector<HTMLElement>('[data-anime-visual]');
+        const heroTitleLines = hero
+          ? Array.from(hero.querySelectorAll<HTMLElement>('[data-blue-split] > span'))
+          : [];
         const heroActions = hero
           ? Array.from(hero.querySelectorAll<HTMLElement>('[data-anime-stagger] > *'))
           : [];
+        const heroOrbit = hero?.querySelector<HTMLElement>('[data-blue-orbit]');
 
         if (hero) {
           const intro = gsap.timeline({ defaults: { ease: 'power3.out' } });
@@ -57,7 +62,7 @@ export default function ScrollEffects() {
           if (heroCopy) {
             intro.fromTo(
               heroCopy,
-              { opacity: 0, y: 34, clipPath: 'inset(0 0 18% 0)' },
+              { opacity: 0, y: 38, clipPath: 'inset(0 0 20% 0)' },
               {
                 opacity: 1,
                 y: 0,
@@ -67,49 +72,66 @@ export default function ScrollEffects() {
             );
           }
 
+          if (heroTitleLines.length > 0) {
+            intro.fromTo(
+              heroTitleLines,
+              { yPercent: 118, rotate: 2 },
+              {
+                yPercent: 0,
+                rotate: 0,
+                duration: 0.78,
+                stagger: 0.09,
+                ease: 'power4.out',
+              },
+              '-=0.72',
+            );
+          }
+
           if (heroVisual) {
             intro.fromTo(
               heroVisual,
               {
                 opacity: 0,
-                x: 42,
+                x: 70,
+                scale: 0.94,
                 rotate: 1.8,
-                clipPath: 'inset(8% 0 18% 0 round 44px)',
+                clipPath: 'polygon(18% 0, 100% 0, 86% 100%, 0 100%)',
               },
               {
                 opacity: 1,
                 x: 0,
+                scale: 1,
                 rotate: 0,
-                clipPath: 'inset(0% 0 0% 0 round 44px)',
-                duration: 1.05,
+                clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)',
+                duration: 1.12,
               },
-              '-=0.68',
+              '-=0.64',
             );
           }
 
           if (heroActions.length > 0) {
             intro.fromTo(
               heroActions,
-              { opacity: 0, y: 14, scale: 0.97 },
+              { opacity: 0, y: 16, scale: 0.96 },
               {
                 opacity: 1,
                 y: 0,
                 scale: 1,
-                duration: 0.42,
-                stagger: 0.055,
+                duration: 0.46,
+                stagger: 0.06,
               },
-              '-=0.55',
+              '-=0.58',
             );
           }
 
           if (heroCopy) {
             gsap.to(heroCopy, {
-              yPercent: 10,
-              opacity: 0.4,
+              yPercent: 11,
+              opacity: 0.42,
               ease: 'none',
               scrollTrigger: {
                 trigger: hero,
-                start: '32% top',
+                start: '30% top',
                 end: 'bottom top',
                 scrub: 0.65,
               },
@@ -118,36 +140,53 @@ export default function ScrollEffects() {
 
           if (heroVisual) {
             gsap.to(heroVisual, {
-              yPercent: -7,
+              yPercent: -9,
+              xPercent: 3,
               rotate: -1.2,
               ease: 'none',
               scrollTrigger: {
                 trigger: hero,
                 start: 'top top',
                 end: 'bottom top',
-                scrub: 0.7,
+                scrub: 0.75,
+              },
+            });
+          }
+
+          if (heroOrbit) {
+            gsap.to(heroOrbit, {
+              rotate: 120,
+              scale: 1.08,
+              ease: 'none',
+              scrollTrigger: {
+                trigger: hero,
+                start: 'top top',
+                end: 'bottom top',
+                scrub: 1,
               },
             });
           }
         }
 
-        const revealNodes = uniqueElements(['[data-anime-reveal]', '[data-reveal]']).filter(
-          (element) => !hero?.contains(element),
-        );
+        const revealNodes = uniqueElements([
+          '[data-anime-reveal]',
+          '[data-reveal]',
+          '[data-blue-reveal]',
+        ]).filter((element) => !hero?.contains(element));
 
         revealNodes.forEach((element, index) => {
           gsap.fromTo(
             element,
             {
               opacity: 0,
-              y: 34,
-              clipPath: 'inset(0 0 16% 0)',
+              y: 36,
+              clipPath: 'inset(0 0 18% 0)',
             },
             {
               opacity: 1,
               y: 0,
               clipPath: 'inset(0 0 0% 0)',
-              duration: 0.82,
+              duration: 0.86,
               delay: (index % 3) * 0.04,
               ease: 'power3.out',
               scrollTrigger: {
@@ -159,23 +198,25 @@ export default function ScrollEffects() {
           );
         });
 
-        document.querySelectorAll<HTMLElement>('[data-anime-visual]').forEach((element) => {
+        uniqueElements(['[data-anime-visual]', '[data-blue-visual]']).forEach((element) => {
           if (hero?.contains(element)) return;
 
           gsap.fromTo(
             element,
             {
               opacity: 0,
-              scale: 0.965,
-              rotate: 1.2,
-              clipPath: 'inset(9% 0 15% 0 round 36px)',
+              scale: 0.95,
+              x: 42,
+              rotate: 1.1,
+              clipPath: 'polygon(14% 0, 100% 0, 88% 100%, 0 100%)',
             },
             {
               opacity: 1,
               scale: 1,
+              x: 0,
               rotate: 0,
-              clipPath: 'inset(0% 0 0% 0 round 36px)',
-              duration: 0.95,
+              clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)',
+              duration: 0.98,
               ease: 'power3.out',
               scrollTrigger: {
                 trigger: element,
@@ -198,14 +239,14 @@ export default function ScrollEffects() {
             children,
             {
               opacity: 0,
-              y: 28,
+              y: 30,
               rotate: (index) => (index % 2 === 0 ? -0.7 : 0.7),
             },
             {
               opacity: 1,
               y: 0,
               rotate: 0,
-              duration: 0.72,
+              duration: 0.74,
               stagger: 0.1,
               ease: 'power3.out',
               scrollTrigger: {
@@ -251,6 +292,21 @@ export default function ScrollEffects() {
               },
             },
           );
+        });
+
+        document.querySelectorAll<SVGGeometryElement>('[data-blue-path]').forEach((path) => {
+          const length = path.getTotalLength();
+          gsap.set(path, { strokeDasharray: length, strokeDashoffset: length });
+          gsap.to(path, {
+            strokeDashoffset: 0,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: path.closest('section') ?? path,
+              start: 'top 78%',
+              end: 'bottom 30%',
+              scrub: 0.9,
+            },
+          });
         });
 
         document.querySelectorAll<HTMLElement>('[data-anime-scene]').forEach((section) => {

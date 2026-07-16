@@ -4,34 +4,34 @@ import { localePath, type Locale } from '@/data/site-config';
 const { locale } = Astro.props as { locale: Locale };
 const copy = {
   ja: {
-    kicker: 'NEXT SCENES',
-    title: 'スクロールするたび、次の物語へ。',
+    kicker: 'BLUE CHANNELS',
+    title: 'スクロールの先に、次のチャンネルがひらく。',
     intro:
-      'News、Games、Profile内のFavoritesを、同じオリジナルキャラクターが案内する3つのアニメシーンとしてまとめました。',
-    news: ['News', 'サイトとプロジェクトの更新をノートに記録'],
-    games: ['Games', 'ゲームクリップとプレイの思い出'],
-    favorites: ['Profile / Favorites', '好きな音楽、ページ、コミュニティ'],
-    enter: 'シーンを開く',
+      'News、Games、Profile内のFavoritesを、同じ青白アニメ世界からつながる3つのメディアチャンネルとしてまとめました。',
+    news: ['News', '開発とプロジェクトの更新を記録するシグナルノート'],
+    games: ['Games', 'ゲームクリップとプレイの熱量を残すチャンネル'],
+    favorites: ['Profile / Favorites', '音楽、ページ、コミュニティを集めたお気に入りアーカイブ'],
+    enter: 'チャンネルを開く',
   },
   en: {
-    kicker: 'NEXT SCENES',
-    title: 'Scroll into the next little story.',
+    kicker: 'BLUE CHANNELS',
+    title: 'Every scroll opens the next channel.',
     intro:
-      'News, Games, and Favorites inside Profile are presented as three anime scenes guided by the same original character.',
-    news: ['News', 'Notes from the site and ongoing projects'],
-    games: ['Games', 'Game clips and memorable sessions'],
-    favorites: ['Profile / Favorites', 'Music, pages, and communities I love'],
-    enter: 'Open scene',
+      'News, Games, and Favorites inside Profile are connected as three media channels from the same blue-and-white anime world.',
+    news: ['News', 'A signal note for development and project updates'],
+    games: ['Games', 'A channel for clips and the energy of play'],
+    favorites: ['Profile / Favorites', 'An archive of music, pages, and communities'],
+    enter: 'Open channel',
   },
   ko: {
-    kicker: 'NEXT SCENES',
-    title: '스크롤할 때마다 다음 이야기로.',
+    kicker: 'BLUE CHANNELS',
+    title: '스크롤 너머에서 다음 채널이 열립니다.',
     intro:
-      'News, Games, Profile 안의 Favorites를 같은 오리지널 캐릭터가 안내하는 세 개의 애니메이션 장면으로 구성했습니다.',
-    news: ['News', '사이트와 프로젝트의 업데이트 노트'],
-    games: ['Games', '게임 클립과 플레이의 추억'],
-    favorites: ['Profile / Favorites', '좋아하는 음악, 페이지, 커뮤니티'],
-    enter: '장면 열기',
+      'News, Games, Profile의 Favorites를 같은 파랑과 흰색 애니메이션 세계에서 이어지는 세 개의 미디어 채널로 구성했습니다.',
+    news: ['News', '개발과 프로젝트 업데이트를 기록하는 시그널 노트'],
+    games: ['Games', '게임 클립과 플레이의 열기를 남기는 채널'],
+    favorites: ['Profile / Favorites', '음악, 페이지, 커뮤니티를 모은 즐겨찾기 아카이브'],
+    enter: '채널 열기',
   },
 }[locale];
 
@@ -40,26 +40,26 @@ const worlds = [
     key: 'news',
     index: '01',
     href: '/news',
-    media: '/assets/visuals/anime/ivuru-news-scene.svg',
+    media: '/assets/visuals/blue-anime/ivuru-news-blue.svg',
   },
   {
     key: 'games',
     index: '02',
     href: '/games',
-    media: '/assets/visuals/anime/ivuru-games-scene.svg',
+    media: '/assets/visuals/blue-anime/ivuru-games-blue.svg',
   },
   {
     key: 'favorites',
     index: '03',
     href: '/profile#favorites',
-    media: '/assets/visuals/anime/ivuru-favorites-scene.svg',
+    media: '/assets/visuals/blue-anime/ivuru-favorites-blue.svg',
   },
 ] as const;
 ---
 
-<section class="anime-portal-section section" data-world-zone="creative" data-anime-scene="blue">
+<section class="anime-portal-section section" data-world-zone="creative" data-anime-scene="deep">
   <div class="section-inner">
-    <div class="anime-portal-heading" data-anime-reveal="heading">
+    <div class="anime-portal-heading" data-anime-reveal="heading" data-blue-reveal>
       <div>
         <p class="editorial-kicker">{copy.kicker}</p>
         <h2>{copy.title}</h2>
@@ -77,10 +77,10 @@ const worlds = [
               data-anime-card
               data-analytics-event="world_portal_open"
               data-analytics-target={world.key}
-              data-analytics-surface="home_anime_portal"
+              data-analytics-surface="home_blue_channel"
               data-analytics-position={String(index + 1)}
             >
-              <div data-anime-visual>
+              <div data-anime-visual data-blue-visual>
                 <img src={world.media} alt="" width="1200" height="800" loading="lazy" />
               </div>
               <div class="anime-portal-card-copy">

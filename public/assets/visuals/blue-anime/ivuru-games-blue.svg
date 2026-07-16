@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Ivuru blue games scene</title>
+  <desc id="desc">An original cel-shaded anime girl with a controller in a blue and white gaming scene with a monitor and motion lines.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#eef8ff"/><stop offset="1" stop-color="#bfe2ff"/></linearGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#79bff2"/></linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="170%" height="180%"><feDropShadow dx="0" dy="18" stdDeviation="16" flood-color="#082e61" flood-opacity="0.22"/></filter>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0v40" fill="none" stroke="#0d66bd" stroke-width="2" opacity="0.11"/></pattern>
+  </defs>
+  <rect width="1200" height="800" rx="48" fill="url(#bg)"/>
+  <rect width="1200" height="800" rx="48" fill="url(#grid)"/>
+  <path d="M-40 700 620 40h260L220 800H-40z" fill="#0d66bd" opacity="0.12"/>
+  <g fill="none" stroke="#0a356c" stroke-width="7" stroke-linecap="round">
+    <path d="M75 112h308M75 158h202M928 118h208" opacity="0.2"/>
+    <path d="M925 182h174M955 220h144" opacity="0.16"/>
+  </g>
+
+  <g filter="url(#shadow)" stroke="#08264f" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M66 208h382v278H66z" fill="#fff"/>
+    <path d="M105 247h304v195H105z" fill="#071f46"/>
+    <path d="M193 370 247 315l56 54 79-94" fill="none" stroke="#22c0ff"/>
+    <circle cx="146" cy="298" r="12" fill="#22c0ff"/>
+    <circle cx="369" cy="399" r="12" fill="#0d66bd"/>
+    <path d="M257 486v62m-98 0h196" fill="none"/>
+
+    <path d="M691 128c86-16 170 29 207 107 27 57 24 125-8 178 31 42 40 96 24 145-13 39-40 73-77 94-12-35-21-71-25-108-36 22-80 33-123 30-58-4-109-32-140-75-34-47-43-109-23-165-27-43-31-98-10-143 32-64 105-96 175-83z" fill="url(#hair)"/>
+    <ellipse cx="690" cy="286" rx="121" ry="111" fill="#ffece5"/>
+    <path d="M574 269c9-82 66-137 135-142 66-5 130 32 155 89-54-16-102 1-138 49-33-29-70-37-109-25-18 6-33 15-43 29z" fill="url(#hair)"/>
+    <path d="M603 299c17-21 44-21 60 0-4 32-17 48-30 48s-26-16-30-48z" fill="#fff"/>
+    <ellipse cx="633" cy="313" rx="13" ry="20" fill="#0d66bd"/>
+    <path d="M719 299c17-21 44-21 60 0-4 32-17 48-30 48s-26-16-30-48z" fill="#fff"/>
+    <ellipse cx="749" cy="313" rx="13" ry="20" fill="#22c0ff"/>
+    <path d="M657 372c16 12 34 12 50 0" fill="none"/>
+    <path d="M580 395c-17 0-30 7-41 19m304-19c17 0 30 7 41 19" stroke="#f0a2aa" fill="none"/>
+
+    <path d="M558 430c85-41 183-40 267 5l60 245H499z" fill="#fff"/>
+    <path d="M623 428c18 28 42 42 73 42 31 0 56-14 75-43l26 50c-28 32-62 48-101 48-40 0-74-16-102-48z" fill="#ccecff"/>
+    <path d="M520 559c37 29 70 66 99 111m227-111c-37 29-70 66-99 111" fill="none"/>
+    <path d="M603 556c58-35 133-36 193-2 37 21 62 58 67 100-43 25-86 39-132 41-52 2-100-12-146-43 4-41 23-75 58-99z" fill="#0d66bd"/>
+    <path d="M649 593h58m-29-29v58" fill="none" stroke="#fff"/>
+    <circle cx="779" cy="594" r="14" fill="#22c0ff"/>
+    <circle cx="811" cy="566" r="14" fill="#fff"/>
+  </g>
+
+  <g filter="url(#shadow)" fill="none" stroke="#08264f" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M936 298c47-40 117-37 158 7 42 43 42 112 0 154-41 43-111 46-157 9-46-37-56-103-24-152 6-8 14-14 23-18z" fill="#fff"/>
+    <path d="M985 356h62m-31-31v62"/>
+    <circle cx="1066" cy="349" r="11" fill="#22c0ff"/>
+    <circle cx="1093" cy="375" r="11" fill="#0d66bd"/>
+    <path d="M981 438c39 18 78 18 117 0"/>
+  </g>
+</svg>

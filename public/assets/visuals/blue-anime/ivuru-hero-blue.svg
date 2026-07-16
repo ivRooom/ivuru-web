@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1200" role="img" aria-labelledby="title desc">
+  <title id="title">Ivuru blue anime hero</title>
+  <desc id="desc">An original cel-shaded anime girl in a blue and white tech jacket holding a game controller in a dynamic media poster composition.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#ffffff"/>
+      <stop offset="0.52" stop-color="#eaf6ff"/>
+      <stop offset="1" stop-color="#c8e7ff"/>
+    </linearGradient>
+    <linearGradient id="hair" x1="0.2" y1="0" x2="0.9" y2="1">
+      <stop stop-color="#f8fcff"/>
+      <stop offset="0.48" stop-color="#cbe9ff"/>
+      <stop offset="1" stop-color="#6fb8f2"/>
+    </linearGradient>
+    <linearGradient id="jacket" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#d6efff"/>
+    </linearGradient>
+    <pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse">
+      <circle cx="4" cy="4" r="2.5" fill="#175ea8" opacity="0.18"/>
+    </pattern>
+    <filter id="shadow" x="-30%" y="-30%" width="180%" height="190%">
+      <feDropShadow dx="0" dy="26" stdDeviation="24" flood-color="#071c3c" flood-opacity="0.22"/>
+    </filter>
+    <clipPath id="posterClip"><rect x="0" y="0" width="1600" height="1200" rx="64"/></clipPath>
+  </defs>
+
+  <g clip-path="url(#posterClip)">
+    <rect width="1600" height="1200" fill="url(#sky)"/>
+    <path d="M-60 920 840 38h830v1162H-60z" fill="#0a2d61" opacity="0.055"/>
+    <path d="M-120 1080 930 30h260L148 1200H-120z" fill="#1a83df" opacity="0.16"/>
+    <path d="M845-90h855v240L560 1280H260z" fill="url(#dots)"/>
+
+    <g fill="none" stroke="#0b376d" stroke-width="6" opacity="0.2">
+      <path d="M58 192h515M35 240h386M1156 100h378M1244 148h290"/>
+      <path d="M115 983 1014 84M190 1090 1168 112"/>
+      <circle cx="1298" cy="302" r="184"/>
+      <circle cx="1298" cy="302" r="226" stroke-dasharray="18 22"/>
+    </g>
+
+    <g aria-hidden="true">
+      <path d="M126 128h340l40 40H166z" fill="#0d66bd"/>
+      <text x="176" y="159" fill="#fff" font-family="Arial, sans-serif" font-size="30" font-weight="800" letter-spacing="8">IVURU / BLUE SIGNAL</text>
+      <path d="M1290 896h250v142h-250z" fill="#fff" stroke="#082e61" stroke-width="7"/>
+      <path d="M1320 928h126m-126 34h172m-172 34h86" stroke="#0b5fb2" stroke-width="9" stroke-linecap="round"/>
+      <path d="M115 836h86v86h-86z" fill="#21b8ff" stroke="#082e61" stroke-width="7"/>
+      <path d="m137 880 18 18 36-44" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <g filter="url(#shadow)" stroke="#08264f" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M767 222c-112 21-192 103-206 215-9 69 8 137 42 193-24 63-26 132-4 192 18 50 53 93 99 121 18-43 34-91 42-142 48 28 106 42 164 38 62-5 119-30 163-70 29 48 49 100 58 157 45-33 76-79 91-130 18-64 7-131-29-185 23-58 28-124 13-186-30-124-143-204-274-204-53 0-106 9-159 31z" fill="url(#hair)"/>
+      <path d="M683 426c4-121 95-211 220-211 127 0 220 91 219 214-1 120-92 212-218 213-128 1-225-92-221-216z" fill="#ffece5"/>
+      <path d="M677 411c-9-88 41-168 116-198 78-31 178-10 230 52-61-10-111 11-148 63-43-34-91-45-143-31-28 8-48 46-55 114z" fill="url(#hair)"/>
+      <path d="M710 359c32-41 78-68 128-78m78-44c57 19 105 61 134 116" fill="none"/>
+
+      <path d="M760 454c22-28 62-28 84 0-4 46-24 69-42 69-19 0-38-23-42-69z" fill="#fff"/>
+      <ellipse cx="802" cy="477" rx="20" ry="31" fill="#1467c1"/>
+      <ellipse cx="808" cy="466" rx="7" ry="12" fill="#fff" stroke="none"/>
+      <path d="M954 454c22-28 62-28 84 0-4 46-24 69-42 69-19 0-38-23-42-69z" fill="#fff"/>
+      <ellipse cx="996" cy="477" rx="20" ry="31" fill="#21b8ff"/>
+      <ellipse cx="1002" cy="466" rx="7" ry="12" fill="#fff" stroke="none"/>
+      <path d="M782 419c20-14 43-14 66 0m89 0c21-14 44-14 67 0" fill="none"/>
+      <path d="M861 548c22 17 47 17 69 0" fill="none"/>
+      <path d="M746 553c-20 0-36 8-49 24m355-24c20 0 36 8 49 24" stroke="#f2a5aa" fill="none"/>
+
+      <path d="M730 664c69-41 139-56 211-46 69 10 130 38 182 84l70 360H651z" fill="url(#jacket)"/>
+      <path d="M781 650c21 39 51 59 89 59 41 0 73-22 96-64l37 68c-38 45-82 68-133 68-54 0-99-23-135-68z" fill="#fff"/>
+      <path d="M652 747 535 944c-24 40-27 88-10 132 48 12 97 9 145-10l113-179" fill="#ffece5"/>
+      <path d="m1118 751 128 180c27 38 36 85 23 130-47 16-96 16-145 0l-127-173" fill="#ffece5"/>
+      <path d="M757 698c-19 95-20 194-2 297m350-296c19 96 20 195 4 296" fill="none" opacity="0.42"/>
+      <path d="M664 1059c49 12 99 8 146-12m316 15c48 15 97 15 145 0" fill="none"/>
+
+      <path d="M740 819c48-34 105-52 164-52 64 0 124 20 174 58l-30 224H759z" fill="#0d66bd"/>
+      <path d="M806 837c58-24 121-24 181 0l-15 151H823z" fill="#eaf6ff"/>
+      <path d="M874 864h62m-31-31v62" fill="none"/>
+      <circle cx="1005" cy="870" r="17" fill="#21b8ff"/>
+      <circle cx="1038" cy="837" r="17" fill="#0b4c98"/>
+      <path d="M825 943c48 26 102 34 159 23" fill="none"/>
+    </g>
+
+    <g fill="none" stroke="#08264f" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" filter="url(#shadow)">
+      <path d="M1150 310h264c27 0 48 21 48 48v174c0 27-21 48-48 48h-264c-27 0-48-21-48-48V358c0-27 21-48 48-48z" fill="#fff"/>
+      <path d="M1132 612h299l43 54h-385z" fill="#bfe7ff"/>
+      <path d="M1192 357h180v133h-180z" fill="#071f46"/>
+      <path d="m1233 394 37 31-37 31m76 0h34" stroke="#21b8ff"/>
+      <circle cx="1419" cy="358" r="9" fill="#21b8ff"/>
+    </g>
+
+    <g fill="#0d66bd" opacity="0.75">
+      <circle cx="182" cy="329" r="9"/>
+      <circle cx="293" cy="690" r="7"/>
+      <circle cx="1375" cy="760" r="8"/>
+      <circle cx="1233" cy="1030" r="6"/>
+    </g>
+  </g>
+</svg>

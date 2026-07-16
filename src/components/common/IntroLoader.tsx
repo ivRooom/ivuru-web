@@ -5,7 +5,7 @@ type Locale = 'ja' | 'en' | 'ko';
 const loaderCopy = {
   ja: {
     label: 'いゔる。を読み込んでいます',
-    tagline: 'つくる。遊ぶ。つなげる。',
+    tagline: 'つくる。遊ぶ。つながる。',
     status: 'ページを読み込んでいます。',
   },
   en: {
@@ -15,7 +15,7 @@ const loaderCopy = {
   },
   ko: {
     label: 'ivuru를 불러오는 중입니다',
-    tagline: '만들고, 즐기고, 이어 갑니다.',
+    tagline: '만들고, 즐기고, 이어집니다.',
     status: '페이지를 불러오는 중입니다. ',
   },
 } as const;
@@ -31,6 +31,12 @@ export default function IntroLoader({ locale = 'ja' }: { locale?: Locale }) {
   const copy = loaderCopy[locale];
 
   useEffect(() => {
+    if (document.documentElement.dataset.loaderReleased === 'true') {
+      setVisible(false);
+      document.body.classList.remove('site-loading');
+      return;
+    }
+
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const seen = (() => {
       try {
@@ -41,10 +47,10 @@ export default function IntroLoader({ locale = 'ja' }: { locale?: Locale }) {
         return true;
       }
     })();
-    const minDuration = reduced ? 0 : seen ? 480 : 1180;
-    const maxDuration = reduced ? 40 : seen ? 720 : 2100;
-    const exitDelay = reduced ? 30 : seen ? 240 : 380;
-    const completionDuration = reduced ? 0 : 280;
+    const minDuration = reduced ? 0 : seen ? 260 : 720;
+    const maxDuration = reduced ? 20 : seen ? 520 : 1250;
+    const exitDelay = reduced ? 20 : seen ? 140 : 220;
+    const completionDuration = reduced ? 0 : 180;
     const startedAt = performance.now();
     let readyAt: number | null = document.readyState === 'complete' ? startedAt : null;
     let finished = false;
@@ -62,6 +68,7 @@ export default function IntroLoader({ locale = 'ja' }: { locale?: Locale }) {
       setLeaving(true);
       timers.current.push(
         window.setTimeout(() => {
+          document.documentElement.dataset.loaderReleased = 'true';
           setVisible(false);
           document.body.classList.remove('site-loading');
         }, exitDelay),
@@ -112,6 +119,7 @@ export default function IntroLoader({ locale = 'ja' }: { locale?: Locale }) {
     'intro-loader',
     'world-loader',
     'anime-intro-loader',
+    'blue-signal-loader',
     compact && 'is-compact',
     leaving && 'is-leaving',
   ]
@@ -126,6 +134,11 @@ export default function IntroLoader({ locale = 'ja' }: { locale?: Locale }) {
       <div className={classNames} role="status" aria-live="polite" aria-label={copy.label}>
         <div className="anime-loader-curtain anime-loader-curtain-left" aria-hidden="true" />
         <div className="anime-loader-curtain anime-loader-curtain-right" aria-hidden="true" />
+        <div className="blue-loader-signal" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </div>
         <div className="anime-loader-sparkles" aria-hidden="true">
           <i />
           <i />
@@ -136,19 +149,19 @@ export default function IntroLoader({ locale = 'ja' }: { locale?: Locale }) {
         </div>
         <div className="anime-loader-card">
           <div className="anime-loader-sticker" aria-hidden="true">
-            NEW SCENE
+            BLUE SIGNAL
           </div>
           <div className="anime-loader-mascot" aria-hidden="true">
             <span className="anime-loader-halo" />
             <img
-              src="/assets/visuals/anime/ivuru-loader-mascot.svg"
+              src="/assets/visuals/blue-anime/ivuru-loader-blue.svg"
               alt=""
               width="720"
               height="720"
             />
           </div>
           <div className="anime-loader-copy">
-            <p>WELCOME TO MY LITTLE WORLD</p>
+            <p>WELCOME TO THE BLUE MEDIA UNIVERSE</p>
             <strong>いゔる。</strong>
             <span>{copy.tagline}</span>
           </div>

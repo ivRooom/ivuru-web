@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 720" role="img" aria-labelledby="title desc">
+  <title id="title">Ivuru blue loader mascot</title>
+  <desc id="desc">An original blue and white floating mascot with cat-ear fins, a bright visor, and a game controller core.</desc>
+  <defs>
+    <linearGradient id="shell" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#bfe6ff"/></linearGradient>
+    <linearGradient id="visor" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#56d8ff"/><stop offset="1" stop-color="#0d66bd"/></linearGradient>
+    <filter id="shadow" x="-40%" y="-40%" width="180%" height="200%"><feDropShadow dx="0" dy="20" stdDeviation="18" flood-color="#062753" flood-opacity="0.24"/></filter>
+    <pattern id="dots" width="16" height="16" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="2.3" fill="#0b5fab" opacity="0.18"/></pattern>
+  </defs>
+  <circle cx="360" cy="360" r="298" fill="#e9f7ff"/>
+  <circle cx="360" cy="360" r="270" fill="url(#dots)" opacity="0.85"/>
+  <circle cx="360" cy="360" r="244" fill="#fff" stroke="#082e61" stroke-width="8" stroke-dasharray="18 20"/>
+
+  <g filter="url(#shadow)" stroke="#08264f" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m242 214 58-94 38 112m140-18-58-94-38 112" fill="#8fd8ff"/>
+    <path d="M197 328c0-99 73-178 163-178s163 79 163 178v98c0 89-73 161-163 161s-163-72-163-161z" fill="url(#shell)"/>
+    <path d="M236 317c11-70 60-115 124-115s113 45 124 115c-31 37-72 56-124 56s-93-19-124-56z" fill="url(#visor)"/>
+    <path d="M275 314c18-22 48-22 66 0-5 31-18 48-33 48s-28-17-33-48z" fill="#fff"/>
+    <ellipse cx="308" cy="327" rx="12" ry="18" fill="#073f82"/>
+    <path d="M379 314c18-22 48-22 66 0-5 31-18 48-33 48s-28-17-33-48z" fill="#fff"/>
+    <ellipse cx="412" cy="327" rx="12" ry="18" fill="#073f82"/>
+    <path d="M337 385c15 11 31 11 46 0" fill="none"/>
+
+    <path d="M257 453c29-25 63-38 103-38s74 13 103 38l42 101c-44 39-92 58-145 58s-101-19-145-58z" fill="#0d66bd"/>
+    <path d="M290 470c44-25 96-25 140 0l-13 75c-37 19-77 19-114 0z" fill="#e9f7ff"/>
+    <path d="M324 495h47m-24-24v47" fill="none"/>
+    <circle cx="399" cy="500" r="12" fill="#22c0ff"/>
+    <circle cx="422" cy="480" r="12" fill="#0b4c98"/>
+
+    <path d="M213 419c-50 12-82 46-96 100 39 26 80 37 123 34m267-134c50 12 82 46 96 100-39 26-80 37-123 34" fill="#fff"/>
+  </g>
+
+  <g fill="none" stroke="#0b5fab" stroke-width="7" stroke-linecap="round">
+    <path d="M97 190h83m-41-41v83M548 158h72m-36-36v72M580 523h66m-33-33v66"/>
+    <path d="M122 558c25-18 53-17 79 2"/>
+  </g>
+</svg>

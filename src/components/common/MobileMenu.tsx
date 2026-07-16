@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { Code2, Gamepad2, Menu, Radio, Sparkles, X } from 'lucide-react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { createPortal } from 'react-dom';
 
+type Locale = 'ja' | 'en' | 'ko';
 type Item = { label: string; href: string; active?: boolean };
 type Props = {
   items: Item[];
@@ -10,15 +11,54 @@ type Props = {
   xHandle: string;
   displayName: string;
   idName: string;
+  locale?: Locale;
 };
 
-export default function MobileMenu({ items, xUrl, xHandle, displayName, idName }: Props) {
+const menuCopy = {
+  ja: {
+    open: 'Open menu / メニューを開く',
+    close: 'Close menu / メニューを閉じる',
+    navigation: 'Mobile navigation / モバイルナビゲーション',
+    developer: 'Developer World',
+    gamer: 'Gamer World',
+    signal: 'BLUE MEDIA NAVIGATION',
+  },
+  en: {
+    open: 'Open menu',
+    close: 'Close menu',
+    navigation: 'Mobile navigation',
+    developer: 'Developer World',
+    gamer: 'Gamer World',
+    signal: 'BLUE MEDIA NAVIGATION',
+  },
+  ko: {
+    open: 'Open menu / 메뉴 열기',
+    close: 'Close menu / 메뉴 닫기',
+    navigation: 'Mobile navigation / 모바일 내비게이션',
+    developer: 'Developer World',
+    gamer: 'Gamer World',
+    signal: 'BLUE MEDIA NAVIGATION',
+  },
+} as const;
+
+export default function MobileMenu({
+  items,
+  xUrl,
+  xHandle,
+  displayName,
+  idName,
+  locale = 'ja',
+}: Props) {
   const [open, setOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const [ready, setReady] = useState(false);
   const panel = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
+  const reduceMotion = useReducedMotion();
+  const copy = menuCopy[locale];
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    setReady(true);
+  }, []);
 
   useEffect(() => {
     const closeForNavigation = () => setOpen(false);
@@ -93,15 +133,21 @@ export default function MobileMenu({ items, xUrl, xHandle, displayName, idName }
     [],
   );
 
+  const layerMotion = reduceMotion
+    ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } }
+    : {
+        initial: { clipPath: 'circle(0% at calc(100% - 48px) 48px)' },
+        animate: { clipPath: 'circle(150% at calc(100% - 48px) 48px)' },
+        exit: { clipPath: 'circle(0% at calc(100% - 48px) 48px)' },
+      };
+
   const overlay = (
     <AnimatePresence>
       {open && (
         <motion.div
           className="mobile-menu-layer"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
+          {...layerMotion}
+          transition={{ duration: reduceMotion ? 0.12 : 0.72, ease: [0.76, 0, 0.24, 1] }}
           onPointerDown={(event) => event.target === event.currentTarget && setOpen(false)}
         >
           <motion.div
@@ -110,46 +156,75 @@ export default function MobileMenu({ items, xUrl, xHandle, displayName, idName }
             className="mobile-menu-panel"
             role="dialog"
             aria-modal="true"
-            aria-label="Navigation"
-            initial={{ opacity: 0, y: 12, scale: 0.99 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.995 }}
-            transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+            aria-label={copy.navigation}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{
+              duration: reduceMotion ? 0.12 : 0.4,
+              delay: reduceMotion ? 0 : 0.12,
+              ease: [0.22, 1, 0.36, 1],
+            }}
           >
             <div className="menu-atmosphere" aria-hidden="true">
-              <i></i><i></i><i></i>
+              <i></i>
+              <i></i>
+              <i></i>
+            </div>
+            <div className="mobile-menu-signal" aria-hidden="true" />
+            <div className="mobile-menu-visual" aria-hidden="true">
+              <img
+                src="/assets/visuals/blue-anime/ivuru-hero-blue.svg"
+                alt=""
+                width="1600"
+                height="1200"
+              />
             </div>
 
             <header className="mobile-menu-topbar">
               <div className="mobile-menu-brand">
                 <strong>{displayName}</strong>
-                <span>{idName} / WORLD NAVIGATOR</span>
+                <span>
+                  {idName} / {copy.signal}
+                </span>
               </div>
               <button
                 className="menu-close"
                 type="button"
                 onClick={() => setOpen(false)}
-                aria-label="Close menu"
+                aria-label={copy.close}
               >
                 <X aria-hidden="true" />
               </button>
             </header>
 
             <div className="mobile-menu-worlds" aria-hidden="true">
-              <div className="menu-world-card developer">
+              <motion.div
+                className="menu-world-card developer"
+                initial={reduceMotion ? false : { opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: reduceMotion ? 0 : 0.24, duration: 0.42 }}
+              >
                 <Code2 />
-                <span>Developer World</span>
+                <span>{copy.developer}</span>
                 <small>BUILD / 01</small>
+              </motion.div>
+              <div className="menu-world-signal">
+                <Radio />
               </div>
-              <div className="menu-world-signal"><Radio /></div>
-              <div className="menu-world-card gamer">
+              <motion.div
+                className="menu-world-card gamer"
+                initial={reduceMotion ? false : { opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: reduceMotion ? 0 : 0.29, duration: 0.42 }}
+              >
                 <Gamepad2 />
-                <span>Gamer World</span>
+                <span>{copy.gamer}</span>
                 <small>PLAY / 02</small>
-              </div>
+              </motion.div>
             </div>
 
-            <nav aria-label="Mobile navigation">
+            <nav aria-label={copy.navigation}>
               {items.map((item, index) => (
                 <motion.a
                   key={item.href}
@@ -157,9 +232,13 @@ export default function MobileMenu({ items, xUrl, xHandle, displayName, idName }
                   className={item.active ? 'active' : undefined}
                   aria-current={item.active ? 'page' : undefined}
                   onClick={() => setOpen(false)}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.08 + index * 0.035, duration: 0.3 }}
+                  initial={reduceMotion ? false : { opacity: 0, y: 28, skewY: 3 }}
+                  animate={{ opacity: 1, y: 0, skewY: 0 }}
+                  transition={{
+                    delay: reduceMotion ? 0 : 0.22 + index * 0.055,
+                    duration: 0.46,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
                 >
                   <small>{String(index + 1).padStart(2, '0')}</small>
                   <span>{item.label}</span>
@@ -169,7 +248,7 @@ export default function MobileMenu({ items, xUrl, xHandle, displayName, idName }
             </nav>
 
             <footer className="mobile-menu-footer">
-              <span>BUILD. PLAY. CREATE.</span>
+              <span>BUILD. PLAY. CONNECT.</span>
               <a href={xUrl} target="_blank" rel="noopener noreferrer">
                 X / {xHandle} ↗
               </a>
@@ -186,14 +265,22 @@ export default function MobileMenu({ items, xUrl, xHandle, displayName, idName }
         ref={trigger}
         className="menu-trigger"
         type="button"
+        disabled={!ready}
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
         aria-controls="mobile-menu"
-        aria-label={open ? 'Close menu' : 'Open menu'}
+        aria-label={open ? copy.close : copy.open}
       >
-        {open ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
+        <motion.span
+          key={open ? 'close' : 'open'}
+          initial={reduceMotion ? false : { opacity: 0, rotate: -90, scale: 0.7 }}
+          animate={{ opacity: 1, rotate: 0, scale: 1 }}
+          transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+        >
+          {open ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
+        </motion.span>
       </button>
-      {mounted ? createPortal(overlay, document.body) : null}
+      {typeof document === 'undefined' ? null : createPortal(overlay, document.body)}
     </>
   );
 }
