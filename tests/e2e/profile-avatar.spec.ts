@@ -17,7 +17,9 @@ for (const route of profileRoutes) {
       '/assets/visuals/blue-anime/ivuru-profile-blue.svg',
     );
     await expect
-      .poll(() => avatar.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0))
+      .poll(() =>
+        avatar.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0),
+      )
       .toBe(true);
   });
 }
