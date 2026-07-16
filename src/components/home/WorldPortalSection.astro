@@ -40,19 +40,22 @@ const worlds = [
     key: 'news',
     index: '01',
     href: '/news',
-    media: '/assets/images/channel-news.png',
+    monogram: 'N',
+    signal: 'LOG / UPDATE',
   },
   {
     key: 'games',
     index: '02',
     href: '/games',
-    media: '/assets/images/channel-games.png',
+    monogram: 'G',
+    signal: 'PLAY / CLIP',
   },
   {
     key: 'favorites',
     index: '03',
     href: '/profile#favorites',
-    media: '/assets/images/channel-favorites.png',
+    monogram: 'F',
+    signal: 'SAVE / MEMORY',
   },
 ] as const;
 ---
@@ -72,18 +75,28 @@ const worlds = [
           const item = copy[world.key];
           return (
             <a
-              class="anime-portal-card"
+              class="anime-portal-card signal-channel-card"
               href={localePath(locale, world.href)}
               data-anime-card
               data-cinematic-card
+              data-channel={world.key}
               data-analytics-event="world_portal_open"
               data-analytics-target={world.key}
               data-analytics-surface="home_blue_channel"
               data-analytics-position={String(index + 1)}
             >
               <div class="cinematic-card-surface">
-                <div data-anime-visual data-blue-visual>
-                  <img src={world.media} alt="" width="1200" height="800" loading="lazy" />
+                <div class="signal-channel-visual" data-anime-visual data-blue-visual aria-hidden="true">
+                  <span class="signal-channel-grid"></span>
+                  <span class="signal-channel-orbit orbit-a"></span>
+                  <span class="signal-channel-orbit orbit-b"></span>
+                  <span class="signal-channel-scan"></span>
+                  <strong>{world.monogram}</strong>
+                  <small>{world.signal}</small>
+                  <div class="signal-channel-spectrum">
+                    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                  </div>
+                  <span class="signal-channel-index">CH / {world.index}</span>
                 </div>
                 <div class="anime-portal-card-copy">
                   <small>
