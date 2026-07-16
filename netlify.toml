@@ -5,9 +5,4 @@ publish = "dist"
 [build.environment]
 NODE_VERSION = "22.22.3"
 SITE_URL = "https://ivuru.ivrm.jp"
-
-[[redirects]]
-from = "/api/*"
-to = "https://ivurugg.ivrm.jp/api/:splat"
-status = 200
-force = true
+PUBLIC_CONTACT_API_ORIGIN = "https://ivurugg.ivrm.jp"
