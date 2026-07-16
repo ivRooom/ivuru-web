@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">News notebook editorial sketch</title>
+  <desc id="desc">A hand-drawn open notebook with loose notes, a pen, and clipped paper.</desc>
+  <defs>
+    <filter id="rough" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="13" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.9" />
+    </filter>
+    <filter id="paper" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.82" numOctaves="3" seed="9" result="grain" />
+      <feColorMatrix in="grain" type="saturate" values="0" />
+      <feComponentTransfer><feFuncA type="table" tableValues="0 0.05" /></feComponentTransfer>
+    </filter>
+  </defs>
+  <rect width="1200" height="800" fill="#f2eee5" />
+  <rect width="1200" height="800" fill="#182033" opacity="0.14" filter="url(#paper)" />
+  <g filter="url(#rough)" fill="none" stroke="#1d2638" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M94 633c176-5 349 0 520 2 177 2 345-4 496-9" />
+    <path d="M225 211c123-19 239-12 349 26v365c-110-39-226-45-349-25z" fill="#fffdf8" />
+    <path d="M574 237c109-38 225-45 349-26v366c-123-20-239-14-349 25z" fill="#fffdf8" />
+    <path d="M574 237v365" />
+    <path d="M275 292h214m-214 58h244m-244 58h198m-198 58h229m-229 58h174" stroke-width="4" />
+    <path d="M636 294h216m-216 58h165m-165 58h221m-221 58h189m-189 58h226" stroke-width="4" />
+    <path d="M171 181l163-64 45 112-163 65z" fill="#f0c7c2" />
+    <path d="M217 169l96-38m-82 73 96-37" stroke-width="4" />
+    <path d="M897 135l137 44-37 116-137-44z" fill="#d8e5e1" />
+    <path d="M918 188l80 26m-90 7 75 24" stroke-width="4" />
+    <path d="M865 578l177-236 37 28-178 237z" fill="#f5d97e" />
+    <path d="M1022 354l36 27m-179 196 37 28" />
+    <path d="M908 593l-49 22 8-53" fill="#fffdf8" />
+    <path d="M154 474c-18-54 9-114 63-140" />
+    <path d="M130 445c-3-59 31-113 86-132" />
+    <path d="M995 496c35-37 82-57 133-55" />
+    <path d="M1005 533c37-28 80-41 126-37" />
+  </g>
+  <g filter="url(#rough)" fill="none" stroke="#315f63" stroke-width="5" stroke-linecap="round">
+    <path d="M300 322c42-16 83-18 123-6" />
+    <path d="M647 442c46-16 91-16 136 0" />
+    <path d="M647 500c32 10 67 11 105 3" />
+    <path d="M458 547c28-12 56-13 86-5" />
+  </g>
+  <g fill="#1d2638">
+    <circle cx="131" cy="388" r="6" />
+    <circle cx="1098" cy="319" r="6" />
+    <circle cx="1046" cy="623" r="5" />
+    <circle cx="164" cy="622" r="5" />
+  </g>
+</svg>

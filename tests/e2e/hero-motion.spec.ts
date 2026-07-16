@@ -8,21 +8,21 @@ const prepareHome = async (page: import('@playwright/test').Page) => {
   });
 };
 
-test.describe('cinematic motion', () => {
-  test('renders the cinematic layers without blocking hero actions', async ({ page }) => {
+test.describe('restrained home motion', () => {
+  test('keeps the local movie without decorative cinematic layers', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await prepareHome(page);
     await page.goto('/');
 
-    await expect(page.locator('[data-cinematic-intro]')).toHaveCount(1);
-    await expect(page.locator('[data-hero-depth="orbit"]')).toBeVisible();
-    await expect(page.locator('[data-hero-depth="grain"]')).toBeVisible();
+    const hero = page.locator('[data-editorial-hero]');
+    await expect(hero).toBeVisible();
+    await expect(page.locator('[data-cinematic-intro]')).toHaveCount(0);
+    await expect(page.locator('[data-hero-depth="orbit"]')).toHaveCount(0);
+    await expect(page.locator('[data-hero-depth="grain"]')).toHaveCount(0);
 
-    const works = page.locator('.hero-actions .primary-button');
+    const works = hero.getByRole('link', { name: /Works|制作|작업/i }).first();
     await expect(works).toBeVisible();
     await expect(works).toHaveCSS('pointer-events', 'auto');
-
-    await expect(page.locator('[data-cinematic-intro]')).toBeHidden({ timeout: 5_000 });
   });
 
   test('keeps a static accessible hero for reduced motion', async ({ page }) => {
@@ -30,20 +30,28 @@ test.describe('cinematic motion', () => {
     await prepareHome(page);
     await page.goto('/');
 
-    await expect(page.locator('[data-cinematic-intro]')).toBeHidden();
-    await expect(page.locator('[data-hero-depth="orbit"]')).toBeVisible();
-    await expect(page.locator('.hero-actions .primary-button')).toBeVisible();
+    await expect(page.locator('[data-editorial-hero]')).toBeVisible();
+    await expect(page.locator('[data-hero-video]')).toHaveCount(0);
+    await expect(page.locator('.home-editorial-sketch')).toBeVisible();
+    await expect(
+      page
+        .locator('[data-editorial-hero]')
+        .getByRole('link', { name: /Works|制作|작업/i })
+        .first(),
+    ).toBeVisible();
   });
 
-  test('provides localized title cards', async ({ page }) => {
+  test('provides the same restrained composition in every locale', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await page.addInitScript(() => {
       localStorage.setItem('ivuru-theme', 'dark');
       sessionStorage.setItem('ivuru-intro-seen', '1');
     });
-    await page.goto('/en');
-    await expect(page.locator('.hero-cinematic-title-card')).toContainText(
-      'Two worlds become one.',
-    );
+
+    for (const route of ['/', '/en', '/ko']) {
+      await page.goto(route);
+      await expect(page.locator('[data-editorial-hero]')).toBeVisible();
+      await expect(page.locator('.home-editorial-sketch img')).toBeVisible();
+    }
   });
 });

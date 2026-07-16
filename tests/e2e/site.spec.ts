@@ -95,7 +95,9 @@ test('mobile menu remains viewport-bound and reachable at mobile and tablet widt
     await expect(dialog).toBeVisible();
     await expect(page.locator('body')).toHaveClass(/menu-open/);
     await expect(layer).toHaveCSS('position', 'fixed');
-    await expect(links).toHaveCount(8);
+    await expect(links).toHaveCount(6);
+    await expect(panel.locator('nav a[href$="/games"]')).toHaveCount(0);
+    await expect(panel.locator('nav a[href$="/favorites"]')).toHaveCount(0);
     await expect(panel.locator('nav a[href$="/contact"]')).toBeVisible();
     const layerBox = await layer.boundingBox();
     const panelBox = await panel.boundingBox();
@@ -224,7 +226,7 @@ test('developer portfolio stays within the viewport and links to Contact', async
   }
 });
 
-test('profile renders X avatar, social nodes, contact email, and game clip archive', async ({
+test('profile renders X avatar, social nodes, contact email, game clips, and Favorites', async ({
   page,
 }) => {
   await page.goto('/profile');
@@ -238,6 +240,7 @@ test('profile renders X avatar, social nodes, contact email, and game clip archi
   ).toBeVisible();
   await expect(page.locator('.game-clip-archive')).toBeVisible();
   await expect(page.locator('.clip-card')).toHaveCount(3);
+  await expect(page.locator('#favorites .profile-favorite-card')).toHaveCount(4);
 });
 
 test('social embeds require an explicit action before third-party scripts load', async ({

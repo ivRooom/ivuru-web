@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Favorites desk editorial sketch</title>
+  <desc id="desc">A hand-drawn desk with headphones, a record, books, a mug, and a small plant.</desc>
+  <defs>
+    <filter id="rough" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.011" numOctaves="2" seed="11" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="2" />
+    </filter>
+    <filter id="paper" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" seed="5" result="grain" />
+      <feColorMatrix in="grain" type="saturate" values="0" />
+      <feComponentTransfer><feFuncA type="table" tableValues="0 0.055" /></feComponentTransfer>
+    </filter>
+  </defs>
+  <rect width="1200" height="800" fill="#f4efe6" />
+  <rect width="1200" height="800" fill="#1b2130" opacity="0.14" filter="url(#paper)" />
+  <g filter="url(#rough)" fill="none" stroke="#1c2537" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M80 639c206-9 392-4 563 1 160 4 318 3 476-4" />
+    <path d="M152 581h905l58 58H88z" fill="#fffdf8" />
+    <path d="M233 639v86m703-86v86" />
+    <path d="M213 724h41m663 0h43" />
+    <circle cx="437" cy="391" r="143" fill="#d7dde3" />
+    <circle cx="437" cy="391" r="83" fill="#f5d97e" />
+    <circle cx="437" cy="391" r="19" fill="#fffdf8" />
+    <path d="M564 483c-33-32-50-76-50-122 0-83 67-150 150-150s150 67 150 150c0 47-22 91-58 119" />
+    <path d="M591 462c-23-25-36-58-36-92 0-61 49-110 110-110s110 49 110 110c0 36-17 69-45 90" />
+    <rect x="544" y="450" width="55" height="111" rx="25" fill="#e9c2bc" />
+    <rect x="728" y="448" width="55" height="111" rx="25" fill="#e9c2bc" />
+    <path d="M797 543h91c24 0 43-19 43-43v-4c0-24-19-43-43-43h-91" />
+    <path d="M794 437v124h99c36 0 65-29 65-65s-29-65-65-65h-17" fill="#dfe8e5" />
+    <path d="M839 468c17 12 23 35 13 54" />
+    <path d="M215 293h104v260H215z" fill="#d9e5e2" />
+    <path d="M201 553h134" />
+    <path d="M229 326h76m-76 44h76m-76 44h76" stroke-width="4" />
+    <path d="M889 225c14-42 59-64 99-48 34 13 54 47 48 83-7 39-41 67-81 65" />
+    <path d="M953 326v94m-56 0h116" />
+    <path d="M950 322c-43-13-73-52-73-97 42 7 74 33 90 69 15-37 48-65 91-72 2 47-27 89-70 104" fill="#c9d8c4" />
+    <path d="M118 226l97-56 56 96-97 56z" fill="#f0c7c2" />
+    <path d="M143 218l70 40m-51-62 70 40" stroke-width="4" />
+  </g>
+  <g filter="url(#rough)" fill="none" stroke="#9b5c4e" stroke-width="5" stroke-linecap="round">
+    <path d="M365 389c31-12 61-18 91-17" />
+    <path d="M370 423c42 14 85 13 128-2" />
+    <path d="M610 195c18-20 39-36 64-48" />
+    <path d="M700 157c19 8 36 19 52 34" />
+    <path d="M1033 382c19-10 38-14 58-13" />
+  </g>
+  <g fill="#1c2537">
+    <circle cx="109" cy="188" r="6" />
+    <circle cx="1120" cy="334" r="6" />
+    <circle cx="1069" cy="419" r="5" />
+    <circle cx="1019" cy="181" r="5" />
+  </g>
+</svg>

@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Game room editorial sketch</title>
+  <desc id="desc">A hand-drawn desk with a monitor, controller, headphones, and notes.</desc>
+  <defs>
+    <filter id="rough" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="7" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.8" />
+    </filter>
+    <filter id="paper" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" seed="3" result="grain" />
+      <feColorMatrix in="grain" type="saturate" values="0" />
+      <feComponentTransfer>
+        <feFuncA type="table" tableValues="0 0.06" />
+      </feComponentTransfer>
+    </filter>
+  </defs>
+  <rect width="1200" height="800" fill="#f3efe7" />
+  <rect width="1200" height="800" fill="#121826" opacity="0.16" filter="url(#paper)" />
+  <g filter="url(#rough)" fill="none" stroke="#182033" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M92 639c198-16 336-10 520-6 178 4 325-13 492-1" />
+    <path d="M184 568h744l62 70H120z" fill="#fffdf8" />
+    <path d="M245 175h456l41 322H218z" fill="#e7e1d6" />
+    <path d="M286 214h371l22 238H262z" fill="#dfe8ec" />
+    <path d="M448 497v65m-89 9h269" />
+    <path d="M739 255c67 13 128 52 160 111" />
+    <path d="M807 280c44 12 82 39 108 76" />
+    <path d="M780 508c61-6 115 12 147 48" />
+    <path d="M814 529c28-2 50 8 67 27" />
+    <path d="M929 455c15-49 8-105-19-148" />
+    <path d="M901 326c30-19 67-20 100-2 33 18 53 52 53 89 0 22-7 42-21 60" />
+    <path d="M931 472c13 8 23 21 28 36" />
+    <path d="M1014 472c-11 8-20 20-25 33" />
+    <path d="M864 472v56m131-56v56" />
+    <path d="M107 264l76-49 44 69-77 49z" fill="#f0c7c2" />
+    <path d="M133 250l43 65m-21-86 43 64" stroke-width="4" />
+    <path d="M770 143l93-19 15 73-92 20z" fill="#f5d97e" />
+    <path d="M794 158l57-11m-52 31 43-9" stroke-width="4" />
+    <path d="M333 651v72m544-72v72" />
+    <path d="M316 722h33m510 0h34" />
+  </g>
+  <g filter="url(#rough)" fill="none" stroke="#182033" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M353 608c-20-36 14-72 53-60l46 14c17 5 34 5 51 0l46-14c40-12 73 24 53 60l-31 56c-12 21-38 28-59 16l-31-18c-15-9-34-9-49 0l-31 18c-21 12-47 5-59-16z" fill="#cfdde1" />
+    <path d="M408 592v41m-21-20h42" />
+    <circle cx="554" cy="602" r="13" fill="#f0c7c2" />
+    <circle cx="585" cy="626" r="13" fill="#f5d97e" />
+    <path d="M314 518c-36 12-60 45-60 83m104-83c37 11 63 45 63 84" />
+    <path d="M272 520c-23 17-37 45-37 75m106-74c25 17 40 45 40 75" />
+    <rect x="236" y="586" width="35" height="64" rx="16" fill="#f0c7c2" />
+    <rect x="350" y="585" width="35" height="64" rx="16" fill="#f0c7c2" />
+  </g>
+  <g filter="url(#rough)" fill="none" stroke="#2f6b68" stroke-width="6" stroke-linecap="round">
+    <path d="M322 263c58 22 107 9 149-39 48 59 103 71 167 36" />
+    <path d="M324 348c54-50 110-60 166-30 48 26 95 17 141-29" />
+    <path d="M312 401c45-30 92-32 139-7 56 30 112 20 170-30" />
+  </g>
+  <g fill="#182033">
+    <circle cx="306" cy="259" r="6" />
+    <circle cx="638" cy="259" r="6" />
+    <circle cx="312" cy="402" r="6" />
+    <circle cx="620" cy="365" r="6" />
+  </g>
+</svg>
