@@ -27,7 +27,7 @@ test.describe('blue mobile navigation', () => {
     await expect(page.locator('body')).toHaveClass(/menu-open/);
     await expect(dialog.locator('.mobile-menu-visual img')).toHaveAttribute(
       'src',
-      '/assets/visuals/blue-anime/ivuru-hero-blue.svg',
+      '/assets/images/ivuru-hero-character.png',
     );
     await expect(dialog.locator('nav a')).toHaveCount(6);
 

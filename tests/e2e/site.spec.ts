@@ -232,7 +232,7 @@ test('profile renders local avatar, social nodes, contact email, game clips, and
   await page.goto('/profile');
   await expect(page.locator('.profile-avatar-frame img')).toHaveAttribute(
     'src',
-    '/assets/visuals/blue-anime/ivuru-profile-blue.svg',
+    '/assets/images/ivuru-profile-fallback.png',
   );
   await expect(page.locator('.social-node-grid a[href="https://x.com/ivuruGG"]')).toBeVisible();
   await expect(
@@ -269,7 +269,7 @@ test('brand OGP and Twitter fallback metadata are present', async ({ page }) => 
   );
   await expect(page.locator('meta[property="og:image"]').first()).toHaveAttribute(
     'content',
-    /\/assets\/og\/ivuru-brand-og\.svg$/,
+    /\/assets\/og\/og-background\.png$/,
   );
   await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
     'content',
