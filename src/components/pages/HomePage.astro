@@ -11,6 +11,7 @@ import LatestPosts from '@/components/blog/LatestPosts.astro';
 import ContactCTA from '@/components/home/ContactCTA.astro';
 import SocialDock from '@/components/social/SocialDock.astro';
 import CinematicPointerEffects from '@/components/effects/CinematicPointerEffects';
+import CinematicScrollEffects from '@/components/effects/CinematicScrollEffects';
 import { localePath, siteConfig, type Locale } from '@/data/site-config';
 import { getDictionary } from '@/i18n/dictionaries';
 import '@/styles/cinematic-motion-overrides.css';
@@ -54,6 +55,7 @@ const heroCopy = {
   chapter={{ code: '00', title: 'HOME', world: 'BLUE MEDIA' }}
 >
   <CinematicPointerEffects client:idle />
+  <CinematicScrollEffects client:idle />
   <section
     class="blue-media-hero cinematic-hero"
     data-hero
