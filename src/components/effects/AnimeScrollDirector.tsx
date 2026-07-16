@@ -48,8 +48,12 @@ export default function AnimeScrollDirector() {
       root.style.setProperty('--story-pointer-y', '0px');
       root.style.setProperty('--story-progress', '0');
 
+      let activeIndex = -1;
       const activate = (index: number) => {
         const nextIndex = Math.max(0, Math.min(scenes.length - 1, index));
+        if (nextIndex === activeIndex) return;
+
+        activeIndex = nextIndex;
         root.dataset.storyChapter = String(nextIndex + 1).padStart(2, '0');
         document.body.dataset.animeScene = scenes[nextIndex]?.dataset.animeScene ?? 'ice';
         setSceneState(scenes, nextIndex);
@@ -72,9 +76,7 @@ export default function AnimeScrollDirector() {
           gsap.set(scene, { clearProps: 'all' });
           gsap.set(
             scene.querySelectorAll('[data-story-copy], [data-story-visual], [data-story-pop]'),
-            {
-              clearProps: 'all',
-            },
+            { clearProps: 'all' },
           );
         });
         dots.forEach((dot) => (dot.dataset.active = 'true'));
@@ -120,6 +122,8 @@ export default function AnimeScrollDirector() {
           });
         });
 
+        const segment = 1.55;
+        const storyDuration = segment * (scenes.length - 1) + 1.18;
         const timeline = gsap.timeline({
           defaults: { ease: 'power3.inOut' },
           scrollTrigger: {
@@ -134,12 +138,11 @@ export default function AnimeScrollDirector() {
             invalidateOnRefresh: true,
             onUpdate: (self) => {
               root.style.setProperty('--story-progress', self.progress.toFixed(4));
-              activate(Math.round(self.progress * (scenes.length - 1)));
+              const storyTime = self.progress * storyDuration;
+              activate(Math.floor((storyTime + 0.001) / segment));
             },
           },
         });
-
-        const segment = 1.55;
 
         scenes.forEach((scene, sceneIndex) => {
           const at = sceneIndex * segment;
