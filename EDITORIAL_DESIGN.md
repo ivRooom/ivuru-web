@@ -64,6 +64,7 @@ ivuru公式サイトを、青・白・濃紺を基調としたアニメ・ゲー
 - 動画はData Saver、低速回線、画面外停止を維持する
 - PC、Tablet、Mobile、Light、Dark、日英韓で同じ情報構造を提供する
 - モバイルメニューはキーボード操作、Escape、フォーカストラップに対応する
+- 青い背景には白またはIce Blue、白い背景にはDeep Navyを使用し、本文とCTAの判読性を確認する
 
 ## Illustration assets
 
