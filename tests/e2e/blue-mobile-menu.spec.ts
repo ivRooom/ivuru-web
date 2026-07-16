@@ -12,7 +12,7 @@ const prepare = async (page: import('@playwright/test').Page, locale = 'ja') => 
 };
 
 test.describe('blue mobile navigation', () => {
-  test('opens with the blue scene and closes with Escape', async ({ page }) => {
+  test('opens with the blue signal core and closes with Escape', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await prepare(page);
     await page.goto('/');
@@ -25,10 +25,9 @@ test.describe('blue mobile navigation', () => {
     const dialog = page.getByRole('dialog', { name: 'モバイルナビゲーション' });
     await expect(dialog).toBeVisible();
     await expect(page.locator('body')).toHaveClass(/menu-open/);
-    await expect(dialog.locator('.mobile-menu-visual img')).toHaveAttribute(
-      'src',
-      '/assets/images/ivuru-hero-character.png',
-    );
+    await expect(dialog.locator('.mobile-menu-visual img')).toHaveCount(0);
+    await expect(dialog.locator('.mobile-menu-signal-core')).toBeVisible();
+    await expect(dialog.locator('.mobile-menu-core-mark')).toContainText('IV');
     await expect(dialog.locator('nav a')).toHaveCount(6);
 
     await page.keyboard.press('Escape');
