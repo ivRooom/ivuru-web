@@ -34,10 +34,11 @@ ivuru公式サイトを、青・白・濃紺を基調としたアニメ・ゲー
 
 ### Loader
 
-- 初回は最大2.7秒、再訪は最大1.05秒で完了する
+- 初回は通常約1.5秒以内、再訪は通常約0.7秒以内で本編へ移行する
 - 実際の`window.load`と最小表示時間を組み合わせる
 - カーテン、円形シグナル、マスコット、タイトル、進捗バーを順に表示する
 - ロード完了後は斜めカットで本編へつなぐ
+- Hydrationが遅延または失敗した場合も2.4秒後に本文を解放する
 - JavaScript無効時はローダーを非表示にし、本文を妨げない
 
 ### Hero
@@ -85,7 +86,8 @@ Blue Media Universeを変更するPRでは、次の品質ゲートを通過さ�
 - Performance Budget、Cloudflare Durable Mode、Wrangler dry-run
 - Playwright Chromium E2E、Visual Regression、Netlify Deploy Preview
 - 初回ローダー、再訪ローダー、`prefers-reduced-motion`の3条件
-- `window.load`前はローダーを維持し、JavaScript無効時は本文とリンクを妨げないこと
+- `window.load`前はローダーを維持し、Hydration失敗時も本文を妨げ続けないこと
+- JavaScript無効時は本文とリンクへアクセスできること
 - ローダーとモバイルメニューのラベルが日本語、英語、韓国語へ切り替わること
 - モバイルメニューでEscape、フォーカストラップ、背景スクロール抑制が動作すること
 - 日本語、英語、韓国語とPC、Tablet、Mobileの主要表示
