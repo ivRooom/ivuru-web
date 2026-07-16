@@ -144,6 +144,18 @@ const fetchDelivery = (input: RequestInfo | URL, init: RequestInit) =>
     { attempts: 3, baseDelayMs: 250, maxDelayMs: 2_000 },
   );
 
+export const expectedTurnstileHostname = (request: Request, env: Env) => {
+  const origin = request.headers.get('origin');
+  if (origin && allowedOrigins(env, request).has(origin)) {
+    try {
+      return new URL(origin).hostname;
+    } catch {
+      // Invalid origins are rejected by the existing origin validation.
+    }
+  }
+  return new URL(request.url).hostname;
+};
+
 const verifyTurnstile = async (token: string, request: Request, env: Env) => {
   if (!env.TURNSTILE_SECRET_KEY) return false;
   const body = new FormData();
@@ -163,7 +175,7 @@ const verifyTurnstile = async (token: string, request: Request, env: Env) => {
       hostname?: string;
       action?: string;
     };
-    const expectedHostname = new URL(request.url).hostname;
+    const expectedHostname = expectedTurnstileHostname(request, env);
     return (
       result.success === true &&
       result.hostname === expectedHostname &&

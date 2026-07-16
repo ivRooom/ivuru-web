@@ -1,3 +1,4 @@
+import { contactApiUrl } from '@/lib/contact-api';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { emitAnalyticsEvent } from '@/lib/analytics';
 import '@/styles/contact-validation.css';
@@ -169,7 +170,9 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
 
     const loadConfig = async () => {
       try {
-        const response = await fetch('/api/contact', { headers: { accept: 'application/json' } });
+        const response = await fetch(contactApiUrl('/api/contact'), {
+          headers: { accept: 'application/json' },
+        });
         if (!response.ok) throw new Error('contact_config_failed');
         const value = (await response.json()) as Config;
         if (!cancelled) setConfig(value);
@@ -279,7 +282,7 @@ export default function ContactTerminal({ locale }: { locale: Locale }) {
     emitAnalyticsEvent('contact_submit', { category: form.category, surface: 'contact_terminal' });
 
     try {
-      const response = await fetch('/api/contact', {
+      const response = await fetch(contactApiUrl('/api/contact'), {
         method: 'POST',
         headers: { 'content-type': 'application/json', accept: 'application/json' },
         body: JSON.stringify({ ...form, locale, turnstileToken: token }),

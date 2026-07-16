@@ -13,19 +13,13 @@ const parseConfiguredOrigins = (value: string | undefined) =>
       .filter(Boolean),
   );
 
-export const allowedCorsOrigin = (
-  request: Request,
-  env: Pick<WorkerEnv, 'ALLOWED_ORIGINS'>,
-) => {
+export const allowedCorsOrigin = (request: Request, env: Pick<WorkerEnv, 'ALLOWED_ORIGINS'>) => {
   const origin = request.headers.get('origin');
   if (!origin) return null;
   return parseConfiguredOrigins(env.ALLOWED_ORIGINS).has(origin) ? origin : null;
 };
 
-export const buildCorsHeaders = (
-  request: Request,
-  env: Pick<WorkerEnv, 'ALLOWED_ORIGINS'>,
-) => {
+export const buildCorsHeaders = (request: Request, env: Pick<WorkerEnv, 'ALLOWED_ORIGINS'>) => {
   const origin = allowedCorsOrigin(request, env);
   if (!origin) return null;
 

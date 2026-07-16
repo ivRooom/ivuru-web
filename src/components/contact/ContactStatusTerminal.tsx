@@ -1,3 +1,4 @@
+import { contactApiUrl } from '@/lib/contact-api';
 import { useEffect, useState, type FormEvent } from 'react';
 
 type Locale = 'ja' | 'en' | 'ko';
@@ -76,7 +77,7 @@ export default function ContactStatusTerminal({ locale }: { locale: Locale }) {
     setError('');
     setResult(null);
     try {
-      const response = await fetch('/api/contact/status', {
+      const response = await fetch(contactApiUrl('/api/contact/status'), {
         method: 'POST',
         headers: { 'content-type': 'application/json', accept: 'application/json' },
         body: JSON.stringify({ requestId: requestId.trim(), token: token.trim() }),
