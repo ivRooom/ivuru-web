@@ -5,7 +5,7 @@ export const siteConfig = {
   siteUrl: import.meta.env.SITE_URL ?? 'https://ivurugg.ivrm.jp',
   defaultOgImage: '/assets/og/ivuru-brand-og.svg',
   fallbackOgImage: '/assets/og/og-background.png',
-  profileImageUrl: 'https://unavatar.io/x/ivuruGG',
+  profileImageUrl: '/assets/visuals/blue-anime/ivuru-profile-blue.svg',
   xUrl: 'https://x.com/ivuruGG',
   xHandle: '@ivuruGG',
   instagramUrl: '',
