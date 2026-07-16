@@ -43,6 +43,7 @@
 - 複数カードは100ms間隔で順に表示する
 - セクションに応じて背景をPink / Purple / Blueへ緩やかに切り替える
 - 大きな横移動、強いぼかし、連続3D回転を使用しない
+- `ScrollEffects`は`BaseLayout`で1回だけマウントし、個別ページでは重複してマウントしない
 
 ## Performance and accessibility
 
