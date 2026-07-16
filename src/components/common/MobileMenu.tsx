@@ -50,10 +50,15 @@ export default function MobileMenu({
   locale = 'ja',
 }: Props) {
   const [open, setOpen] = useState(false);
+  const [ready, setReady] = useState(false);
   const panel = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const reduceMotion = useReducedMotion();
   const copy = menuCopy[locale];
+
+  useEffect(() => {
+    setReady(true);
+  }, []);
 
   useEffect(() => {
     const closeForNavigation = () => setOpen(false);
@@ -152,11 +157,11 @@ export default function MobileMenu({
             role="dialog"
             aria-modal="true"
             aria-label={copy.navigation}
-            initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 28, scale: 0.985 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 18, scale: 0.99 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{
-              duration: reduceMotion ? 0.12 : 0.56,
+              duration: reduceMotion ? 0.12 : 0.4,
               delay: reduceMotion ? 0 : 0.12,
               ease: [0.22, 1, 0.36, 1],
             }}
@@ -260,6 +265,7 @@ export default function MobileMenu({
         ref={trigger}
         className="menu-trigger"
         type="button"
+        disabled={!ready}
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
         aria-controls="mobile-menu"
