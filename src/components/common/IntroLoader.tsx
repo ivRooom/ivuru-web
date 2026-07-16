@@ -31,6 +31,12 @@ export default function IntroLoader({ locale = 'ja' }: { locale?: Locale }) {
   const copy = loaderCopy[locale];
 
   useEffect(() => {
+    if (document.documentElement.dataset.loaderReleased === 'true') {
+      setVisible(false);
+      document.body.classList.remove('site-loading');
+      return;
+    }
+
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const seen = (() => {
       try {
@@ -62,6 +68,7 @@ export default function IntroLoader({ locale = 'ja' }: { locale?: Locale }) {
       setLeaving(true);
       timers.current.push(
         window.setTimeout(() => {
+          document.documentElement.dataset.loaderReleased = 'true';
           setVisible(false);
           document.body.classList.remove('site-loading');
         }, exitDelay),
