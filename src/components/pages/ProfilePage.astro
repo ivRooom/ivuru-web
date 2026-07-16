@@ -142,11 +142,10 @@ const copy = {
         <div class="character-portrait-frame profile-avatar-frame">
           <img
             src={siteConfig.profileImageUrl}
-            alt={`${siteConfig.name} / ${siteConfig.idName} profile icon from X`}
+            alt={`${siteConfig.name} / ${siteConfig.idName} original blue profile character`}
             width="720"
             height="720"
             loading="lazy"
-            referrerpolicy="no-referrer"
           />
           <span class="avatar-source">{siteConfig.xHandle}</span>
         </div>
@@ -244,7 +243,7 @@ const copy = {
           <div class="profile-music-palette">
             {copy.musicPalette.map((item) => <span>{item}</span>)}
           </div>
-          <DeferredSpotify client:visible locale={locale} embedUrl={spotifyEmbedUrl} />
+          <DeferredSpotify client:load locale={locale} embedUrl={spotifyEmbedUrl} />
         </div>
       </div>
     </div>

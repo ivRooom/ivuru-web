@@ -226,13 +226,13 @@ test('developer portfolio stays within the viewport and links to Contact', async
   }
 });
 
-test('profile renders X avatar, social nodes, contact email, game clips, and Favorites', async ({
+test('profile renders local avatar, social nodes, contact email, game clips, and Favorites', async ({
   page,
 }) => {
   await page.goto('/profile');
   await expect(page.locator('.profile-avatar-frame img')).toHaveAttribute(
     'src',
-    /unavatar\.io\/x\/ivuruGG/,
+    '/assets/visuals/blue-anime/ivuru-profile-blue.svg',
   );
   await expect(page.locator('.social-node-grid a[href="https://x.com/ivuruGG"]')).toBeVisible();
   await expect(
