@@ -1,0 +1,505 @@
+/* Cinematic Blue Media motion pass --------------------------------------- */
+:root {
+  --cinematic-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --cinematic-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.cinematic-hero {
+  --hero-pointer-x: 0;
+  --hero-pointer-y: 0;
+  --hero-tilt-x: 0deg;
+  --hero-tilt-y: 0deg;
+}
+
+.cinematic-signal-field {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  perspective: 1200px;
+}
+
+.cinematic-glow {
+  position: absolute;
+  width: min(72vw, 980px);
+  aspect-ratio: 1;
+  right: -14%;
+  top: -4%;
+  border-radius: 50%;
+  opacity: 0.74;
+  background:
+    radial-gradient(circle, rgb(255 255 255 / 88%) 0 6%, rgb(34 191 255 / 32%) 24%, transparent 67%),
+    conic-gradient(from 30deg, transparent 0 12%, rgb(142 220 255 / 22%) 14%, transparent 22% 54%, rgb(13 102 189 / 16%) 58%, transparent 68%);
+  filter: blur(2px) saturate(130%);
+  transform: translate3d(calc(var(--hero-pointer-x) * 14px), calc(var(--hero-pointer-y) * 10px), 0);
+  transition: transform 500ms var(--cinematic-ease);
+  animation: cinematic-glow-breathe 5.8s ease-in-out infinite alternate;
+}
+
+.cinematic-scan-beam {
+  position: absolute;
+  z-index: 3;
+  left: -24%;
+  top: -12%;
+  width: 22%;
+  height: 130%;
+  rotate: 14deg;
+  opacity: 0;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 76%), rgb(34 191 255 / 18%), transparent);
+  filter: blur(8px);
+  mix-blend-mode: screen;
+  animation: cinematic-scan 7.2s ease-in-out infinite 1.8s;
+}
+
+.cinematic-signal-ring {
+  position: absolute;
+  right: 4%;
+  top: 12%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  transform: translate3d(calc(var(--hero-pointer-x) * 10px), calc(var(--hero-pointer-y) * 8px), 0);
+  transform-origin: center;
+  transition: transform 600ms var(--cinematic-ease);
+}
+
+.cinematic-signal-ring::before,
+.cinematic-signal-ring::after {
+  content: '';
+  position: absolute;
+  border-radius: inherit;
+}
+
+.cinematic-signal-ring::before {
+  inset: -2px;
+  border: 1px solid rgb(13 102 189 / 28%);
+  box-shadow:
+    inset 0 0 28px rgb(34 191 255 / 8%),
+    0 0 30px rgb(34 191 255 / 7%);
+}
+
+.cinematic-signal-ring::after {
+  inset: 9%;
+  border: 1px dashed rgb(13 102 189 / 24%);
+}
+
+.cinematic-signal-ring.ring-outer {
+  width: min(57vw, 820px);
+  animation: cinematic-ring-spin 32s linear infinite;
+}
+
+.cinematic-signal-ring.ring-middle {
+  width: min(43vw, 620px);
+  right: 8.5%;
+  top: 19%;
+  border: 12px solid rgb(255 255 255 / 16%);
+  animation: cinematic-ring-spin-reverse 24s linear infinite;
+}
+
+.cinematic-signal-ring.ring-inner {
+  width: min(27vw, 390px);
+  right: 14%;
+  top: 29%;
+  border: 1px solid rgb(34 191 255 / 48%);
+  box-shadow: 0 0 54px rgb(34 191 255 / 16%);
+  animation: cinematic-ring-pulse 3.6s ease-in-out infinite;
+}
+
+.cinematic-crosshair {
+  position: absolute;
+  right: 24%;
+  top: 42%;
+  width: 64px;
+  aspect-ratio: 1;
+  opacity: 0.58;
+  border: 1px solid rgb(13 102 189 / 36%);
+  border-radius: 50%;
+  transform: translate3d(calc(var(--hero-pointer-x) * 18px), calc(var(--hero-pointer-y) * 14px), 0);
+}
+
+.cinematic-crosshair::before,
+.cinematic-crosshair::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  background: rgb(13 102 189 / 42%);
+  translate: -50% -50%;
+}
+
+.cinematic-crosshair::before {
+  width: 96px;
+  height: 1px;
+}
+
+.cinematic-crosshair::after {
+  width: 1px;
+  height: 96px;
+}
+
+.cinematic-shards i {
+  --shard-depth: 1;
+  position: absolute;
+  display: block;
+  width: clamp(12px, 1.6vw, 26px);
+  aspect-ratio: 0.54;
+  border: 1px solid rgb(13 102 189 / 22%);
+  background: linear-gradient(160deg, rgb(255 255 255 / 88%), rgb(34 191 255 / 34%));
+  box-shadow: 0 12px 32px rgb(6 38 79 / 10%);
+  clip-path: polygon(50% 0, 100% 38%, 62% 100%, 0 72%);
+  transform: translate3d(
+      calc(var(--hero-pointer-x) * var(--shard-depth) * 12px),
+      calc(var(--hero-pointer-y) * var(--shard-depth) * 9px),
+      0
+    )
+    rotate(var(--shard-rotate, 0deg));
+  animation: cinematic-shard-float var(--shard-duration, 6s) ease-in-out infinite alternate;
+}
+
+.cinematic-shards i:nth-child(1) {
+  --shard-depth: 0.45;
+  --shard-rotate: 18deg;
+  --shard-duration: 5.4s;
+  left: 7%;
+  top: 22%;
+}
+
+.cinematic-shards i:nth-child(2) {
+  --shard-depth: 0.85;
+  --shard-rotate: -26deg;
+  --shard-duration: 7.2s;
+  left: 42%;
+  top: 12%;
+}
+
+.cinematic-shards i:nth-child(3) {
+  --shard-depth: 1.2;
+  --shard-rotate: 32deg;
+  --shard-duration: 5.8s;
+  right: 8%;
+  top: 18%;
+}
+
+.cinematic-shards i:nth-child(4) {
+  --shard-depth: 0.72;
+  --shard-rotate: 70deg;
+  --shard-duration: 6.8s;
+  left: 28%;
+  bottom: 18%;
+}
+
+.cinematic-shards i:nth-child(5) {
+  --shard-depth: 1.35;
+  --shard-rotate: -42deg;
+  --shard-duration: 5.2s;
+  right: 17%;
+  bottom: 16%;
+}
+
+.cinematic-shards i:nth-child(6) {
+  --shard-depth: 0.55;
+  --shard-rotate: 12deg;
+  --shard-duration: 7.7s;
+  right: 43%;
+  top: 48%;
+}
+
+.cinematic-shards i:nth-child(7) {
+  --shard-depth: 1.05;
+  --shard-rotate: -64deg;
+  --shard-duration: 6.1s;
+  left: 12%;
+  bottom: 8%;
+}
+
+.cinematic-shards i:nth-child(8) {
+  --shard-depth: 0.9;
+  --shard-rotate: 48deg;
+  --shard-duration: 5.9s;
+  right: 2%;
+  top: 58%;
+}
+
+.cinematic-character-aura {
+  position: absolute;
+  z-index: -2;
+  inset: 14% 12% 6%;
+  border-radius: 48% 52% 58% 42% / 46% 38% 62% 54%;
+  opacity: 0.62;
+  background:
+    radial-gradient(circle at 45% 45%, rgb(255 255 255 / 84%), transparent 34%),
+    conic-gradient(from 40deg, rgb(34 191 255 / 32%), transparent 28% 48%, rgb(13 102 189 / 22%), transparent 72%);
+  filter: blur(18px);
+  animation: cinematic-aura 4.8s ease-in-out infinite alternate;
+}
+
+.cinematic-hero .blue-media-character img {
+  transform: perspective(1300px) rotateX(var(--hero-tilt-x)) rotateY(var(--hero-tilt-y)) scale(1.025);
+  transform-origin: 50% 55%;
+  transition: transform 650ms var(--cinematic-ease);
+  will-change: transform;
+}
+
+[data-cinematic-section] {
+  --cinematic-sweep: -120%;
+  position: relative;
+  isolation: isolate;
+}
+
+[data-cinematic-section]::after {
+  content: '';
+  position: absolute;
+  z-index: 8;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.24;
+  background: linear-gradient(105deg, transparent 36%, rgb(255 255 255 / 58%) 48%, rgb(34 191 255 / 18%) 53%, transparent 64%);
+  transform: translate3d(var(--cinematic-sweep), 0, 0) skewX(-10deg);
+  mix-blend-mode: screen;
+  will-change: transform;
+}
+
+.anime-scene-anchor[data-cinematic-section]::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 3% -8%;
+  pointer-events: none;
+  opacity: 0.3;
+  background:
+    radial-gradient(circle at 18% 20%, rgb(34 191 255 / 16%), transparent 28%),
+    radial-gradient(circle at 86% 72%, rgb(13 102 189 / 12%), transparent 30%);
+  filter: blur(10px);
+}
+
+[data-cinematic-card] {
+  --card-tilt-x: 0deg;
+  --card-tilt-y: 0deg;
+  --card-glow-x: 50%;
+  --card-glow-y: 50%;
+  transform: perspective(1100px) rotateX(var(--card-tilt-x)) rotateY(var(--card-tilt-y));
+  transform-style: preserve-3d;
+  transition:
+    transform 420ms var(--cinematic-ease),
+    translate 240ms var(--cinematic-ease),
+    rotate 240ms var(--cinematic-ease),
+    box-shadow 240ms var(--cinematic-ease);
+  will-change: transform;
+}
+
+[data-cinematic-card]::before {
+  content: '';
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0;
+  background: radial-gradient(circle at var(--card-glow-x) var(--card-glow-y), rgb(255 255 255 / 68%), rgb(34 191 255 / 16%) 24%, transparent 56%);
+  mix-blend-mode: screen;
+  transition: opacity 220ms ease;
+}
+
+[data-cinematic-card]:hover::before,
+[data-cinematic-card]:focus-visible::before {
+  opacity: 1;
+}
+
+[data-cinematic-card] > div {
+  transform: translateZ(18px);
+}
+
+[data-cinematic-card] .anime-portal-card-copy {
+  transform: translateZ(34px);
+}
+
+html[data-theme='dark'] .cinematic-signal-ring::before {
+  border-color: rgb(142 220 255 / 28%);
+  box-shadow:
+    inset 0 0 32px rgb(34 191 255 / 10%),
+    0 0 38px rgb(34 191 255 / 10%);
+}
+
+html[data-theme='dark'] .cinematic-shards i {
+  border-color: rgb(142 220 255 / 20%);
+  background: linear-gradient(160deg, rgb(255 255 255 / 32%), rgb(34 191 255 / 22%));
+  box-shadow: 0 16px 36px rgb(0 0 0 / 18%);
+}
+
+@keyframes cinematic-glow-breathe {
+  from {
+    scale: 0.96;
+    opacity: 0.54;
+  }
+  to {
+    scale: 1.05;
+    opacity: 0.82;
+  }
+}
+
+@keyframes cinematic-scan {
+  0%,
+  12% {
+    translate: -140% 0;
+    opacity: 0;
+  }
+  22% {
+    opacity: 0.58;
+  }
+  44% {
+    translate: 720% 0;
+    opacity: 0;
+  }
+  100% {
+    translate: 720% 0;
+    opacity: 0;
+  }
+}
+
+@keyframes cinematic-ring-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@keyframes cinematic-ring-spin-reverse {
+  to {
+    rotate: -360deg;
+  }
+}
+
+@keyframes cinematic-ring-pulse {
+  0%,
+  100% {
+    scale: 0.92;
+    opacity: 0.42;
+  }
+  50% {
+    scale: 1.08;
+    opacity: 0.86;
+  }
+}
+
+@keyframes cinematic-shard-float {
+  from {
+    margin-top: -8px;
+    filter: blur(0);
+  }
+  to {
+    margin-top: 12px;
+    filter: drop-shadow(0 10px 12px rgb(13 102 189 / 16%));
+  }
+}
+
+@keyframes cinematic-aura {
+  from {
+    scale: 0.94;
+    rotate: -2deg;
+    opacity: 0.42;
+  }
+  to {
+    scale: 1.06;
+    rotate: 2deg;
+    opacity: 0.72;
+  }
+}
+
+@media (max-width: 1080px) {
+  .cinematic-signal-ring.ring-outer {
+    width: min(92vw, 760px);
+    right: -18%;
+    top: 34%;
+  }
+
+  .cinematic-signal-ring.ring-middle {
+    width: min(72vw, 580px);
+    right: -6%;
+    top: 42%;
+  }
+
+  .cinematic-signal-ring.ring-inner {
+    width: min(44vw, 360px);
+    right: 7%;
+    top: 51%;
+  }
+
+  .cinematic-crosshair {
+    right: 21%;
+    top: 59%;
+  }
+}
+
+@media (max-width: 720px) {
+  .cinematic-glow {
+    width: 132vw;
+    right: -52%;
+    top: 29%;
+  }
+
+  .cinematic-signal-ring.ring-outer {
+    width: 124vw;
+    right: -42%;
+    top: 42%;
+  }
+
+  .cinematic-signal-ring.ring-middle {
+    width: 92vw;
+    right: -24%;
+    top: 49%;
+  }
+
+  .cinematic-signal-ring.ring-inner {
+    width: 58vw;
+    right: -5%;
+    top: 57%;
+  }
+
+  .cinematic-crosshair,
+  .cinematic-shards i:nth-child(n + 5) {
+    display: none;
+  }
+
+  [data-cinematic-card] {
+    transform: none;
+    will-change: auto;
+  }
+
+  [data-cinematic-card] > div,
+  [data-cinematic-card] .anime-portal-card-copy {
+    transform: none;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  [data-cinematic-card] {
+    transform: none;
+    will-change: auto;
+  }
+
+  [data-cinematic-card]::before {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cinematic-glow,
+  .cinematic-scan-beam,
+  .cinematic-signal-ring,
+  .cinematic-shards i,
+  .cinematic-character-aura {
+    animation: none !important;
+  }
+
+  .cinematic-hero .blue-media-character img,
+  [data-cinematic-card],
+  [data-cinematic-card] > div,
+  [data-cinematic-card] .anime-portal-card-copy {
+    transform: none !important;
+    transition: none !important;
+    will-change: auto;
+  }
+
+  [data-cinematic-section]::after {
+    display: none;
+  }
+}
