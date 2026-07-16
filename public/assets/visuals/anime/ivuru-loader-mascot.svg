@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 720" role="img" aria-labelledby="title desc">
+  <title id="title">Ivuru loader mascot</title>
+  <desc id="desc">An original chibi anime mascot with pastel hair, a hoodie, a small game controller, and sparkling stars.</desc>
+  <defs>
+    <linearGradient id="halo" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#ffd7e6"/>
+      <stop offset="0.52" stop-color="#dfd4ff"/>
+      <stop offset="1" stop-color="#cceeff"/>
+    </linearGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#fffaff"/>
+      <stop offset="0.56" stop-color="#d8ccff"/>
+      <stop offset="1" stop-color="#b7a4ed"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#5e527d" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+  <circle cx="360" cy="360" r="292" fill="url(#halo)" opacity="0.5"/>
+  <circle cx="360" cy="360" r="248" fill="#fffaf8" stroke="#5b536e" stroke-width="8" stroke-dasharray="16 18"/>
+  <g filter="url(#shadow)" stroke="#494257" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M243 274c-14-86 39-170 124-191 91-23 187 26 218 113 18 51 14 108-11 157 31 51 39 113 18 169-17 44-49 82-90 105-12-37-21-76-25-116-37 24-80 37-125 37-45 0-88-13-125-37-5 42-14 81-27 116-43-22-75-61-91-107-20-58-10-121 22-170-17-23-25-49-28-76z" fill="url(#hair)"/>
+    <ellipse cx="359" cy="327" rx="160" ry="145" fill="#fff0e9"/>
+    <path d="M207 291c7-98 76-171 169-180 81-8 160 35 196 103-72-20-132 1-178 64-37-37-82-53-135-46-23 3-40 22-52 59z" fill="url(#hair)"/>
+    <path d="M245 313c25-18 55-19 82-2m67 0c26-17 56-16 81 2" fill="none"/>
+    <path d="M250 337c19-24 51-24 69 0-4 38-19 56-34 56-16 0-31-18-35-56z" fill="#fff"/>
+    <ellipse cx="285" cy="353" rx="17" ry="25" fill="#6d5cdf"/>
+    <ellipse cx="290" cy="345" rx="6" ry="10" fill="#fff" stroke="none"/>
+    <path d="M399 337c19-24 51-24 69 0-4 38-19 56-34 56-16 0-31-18-35-56z" fill="#fff"/>
+    <ellipse cx="434" cy="353" rx="17" ry="25" fill="#ff6f9f"/>
+    <ellipse cx="439" cy="345" rx="6" ry="10" fill="#fff" stroke="none"/>
+    <path d="M330 417c19 16 40 16 59 0" fill="none"/>
+    <path d="M223 406c-20 0-37 8-50 24m373-24c20 0 37 8 50 24" fill="none" stroke="#f3a3b8"/>
+
+    <path d="M238 458c37-26 77-38 121-38 45 0 87 13 124 40l54 183H181z" fill="#fff"/>
+    <path d="M275 458c19 31 47 47 84 47 38 0 67-17 88-50l29 56c-34 37-73 55-117 55-46 0-84-18-115-55z" fill="#f6d9ef"/>
+    <path d="M261 545c52-34 132-35 188-2l-19 100H278z" fill="#dcd5ff"/>
+    <path d="M304 560c34-20 76-20 110-1l-8 54h-94z" fill="#fff"/>
+    <path d="M335 574h48m-24-24v48" fill="none"/>
+    <circle cx="391" cy="580" r="10" fill="#ff8db7"/>
+    <circle cx="412" cy="562" r="10" fill="#8877f0"/>
+  </g>
+
+  <g fill="none" stroke="#5b536e" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M100 191l14 31 34 5-25 23 6 34-29-16-30 16 6-34-25-23 34-5z" fill="#ffd56d"/>
+    <path d="M603 173l10 23 25 3-18 17 4 25-21-12-22 12 5-25-19-17 25-3z" fill="#ff9ec4"/>
+    <path d="M602 492c29-3 54 15 59 41 5 28-17 54-48 57-30 3-55-17-57-45-2-27 18-50 46-53z" fill="#d6f5ee"/>
+    <path d="M585 542h55m-28-28v55"/>
+    <path d="M104 514c28-14 61-7 76 17 15 22 10 53-11 70-24 19-59 16-78-6-20-24-14-63 13-81z" fill="#eadcff"/>
+    <path d="M120 533c13 4 24 13 27 26m-6 21c-14 7-31 4-42-7"/>
+  </g>
+</svg>

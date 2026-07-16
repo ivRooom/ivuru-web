@@ -1,7 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import ImmersiveWorldHero from '@/components/common/ImmersiveWorldHero.astro';
-import ScrollEffects from '@/components/effects/ScrollEffects';
 import AdaptiveLoopVideo from '@/components/common/AdaptiveLoopVideo';
 import { newsCategoryLabels, newsItems } from '@/data/news';
 import { localePath, siteConfig, type Locale } from '@/data/site-config';
@@ -139,5 +138,4 @@ const formatter = new Intl.DateTimeFormat(
       </div>
     </div>
   </section>
-  <ScrollEffects client:idle />
 </BaseLayout>

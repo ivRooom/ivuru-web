@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import ScrollEffects from '@/components/effects/ScrollEffects';
 import AdaptiveLoopVideo from '@/components/common/AdaptiveLoopVideo';
 import { gameWorlds } from '@/data/game-worlds';
 import { localePath, siteConfig, type Locale } from '@/data/site-config';
@@ -148,6 +147,4 @@ const copy = {
       </aside>
     </div>
   </section>
-
-  <ScrollEffects client:idle />
 </BaseLayout>

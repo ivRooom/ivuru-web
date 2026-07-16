@@ -73,7 +73,7 @@ npm run deploy:preview  # デプロイせず新しいWorker Versionをアップ�
 
 全ページは次の共通体験へ統合しています。
 
-- 初回アクセス・リロード: World Gateロード演出
+- 初回アクセス・リロード: アニメマスコット、カーテン、進捗バーによるロード演出
 - 内部ページ遷移: Chapter Cut
 - Profile: Character Profile
 - Works: World Select / Mission Select
@@ -92,9 +92,9 @@ npm run deploy:preview  # デプロイせず新しいWorker Versionをアップ�
 
 ## Visual direction
 
-トップ、Games、Profile / Favoritesは、過度な光彩・花びら・軌道・左右スライド演出を避け、余白、タイポグラフィ、短い動画、手描き風のオリジナルSVGを中心としたエディトリアル表現へ統一しています。生成イラストは`public/assets/visuals/editorial/`で管理し、外部画像生成APIや第三者キャラクター素材へ依存しません。
+トップは、大胆なタイポグラフィ、オリジナルのアニメキャラクター、パステルカラーを中心としたAnime Editorial表現へ統一しています。News、Games、Profile / Favoritesのシーンイラストとローダーマスコットは`public/assets/visuals/anime/`で管理し、外部画像生成APIや第三者キャラクター素材へ依存しません。
 
-GamesとFavoritesはグローバルナビゲーションへ常設せず、HomeのExploreカードとProfile内の導線からアクセスします。動画はData Saver、低速回線、低性能端末、`prefers-reduced-motion`を尊重します。
+GamesとFavoritesはグローバルナビゲーションへ常設せず、HomeのアニメシーンカードとProfile内の導線からアクセスします。スクロール演出はマスクReveal、軽量パララックス、カードスタッガー、背景トーン切り替えで構成し、`prefers-reduced-motion`では全情報を即時表示します。動画はData Saver、低速回線、低性能端末を尊重します。
 
 ## Updating site data
 

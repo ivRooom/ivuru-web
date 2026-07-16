@@ -35,12 +35,13 @@ test('News and Games render in every locale', async ({ page }) => {
   }
 });
 
-test('home exposes editorial routes to News, Games, and Profile Favorites', async ({ page }) => {
+test('home exposes anime scenes to News, Games, and Profile Favorites', async ({ page }) => {
+  await page.addInitScript(() => sessionStorage.setItem('ivuru-intro-seen', '1'));
   await page.goto('/');
   await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
-  await expect(page.locator('.editorial-portal-card[href="/news"]')).toBeVisible();
-  await expect(page.locator('.editorial-portal-card[href="/games"]')).toBeVisible();
-  await expect(page.locator('.editorial-portal-card[href="/profile#favorites"]')).toBeVisible();
+  await expect(page.locator('.anime-portal-card[href="/news"]')).toBeVisible();
+  await expect(page.locator('.anime-portal-card[href="/games"]')).toBeVisible();
+  await expect(page.locator('.anime-portal-card[href="/profile#favorites"]')).toBeVisible();
 });
 
 test('games page presents three restrained motion studies', async ({ page }) => {
