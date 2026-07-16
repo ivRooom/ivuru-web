@@ -226,14 +226,17 @@ test('developer portfolio stays within the viewport and links to Contact', async
   }
 });
 
-test('profile renders local avatar, social nodes, contact email, game clips, and Favorites', async ({
+test('profile renders brand identity, social nodes, contact email, game clips, and Favorites', async ({
   page,
 }) => {
+  await page.route('**/api/x-profile', async (route) => {
+    await route.fulfill({ status: 503, contentType: 'application/json', body: '{}' });
+  });
   await page.goto('/profile');
-  await expect(page.locator('.profile-avatar-frame img')).toHaveAttribute(
-    'src',
-    '/assets/images/ivuru-profile-fallback.png',
-  );
+  const identity = page.locator('.profile-avatar-frame .x-profile-identity');
+  await expect(identity).toHaveAttribute('data-x-profile-visual', 'brand');
+  await expect(identity.locator('.x-profile-avatar')).toHaveCount(0);
+  await expect(identity.locator('.x-profile-avatar-fallback')).toContainText('IV');
   await expect(page.locator('.social-node-grid a[href="https://x.com/ivuruGG"]')).toBeVisible();
   await expect(
     page.locator('.social-node-grid a[href="mailto:contact.ivuru@ivrm.jp"]'),

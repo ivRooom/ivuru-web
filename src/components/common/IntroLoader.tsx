@@ -7,16 +7,19 @@ const loaderCopy = {
     label: 'いゔる。を読み込んでいます',
     tagline: 'つくる。遊ぶ。つながる。',
     status: 'ページを読み込んでいます。',
+    phase: '世界を同期しています',
   },
   en: {
     label: 'Loading ivuru',
     tagline: 'Build. Play. Connect.',
     status: 'Loading the page.',
+    phase: 'Synchronizing worlds',
   },
   ko: {
     label: 'ivuru를 불러오는 중입니다',
     tagline: '만들고, 즐기고, 이어집니다.',
     status: '페이지를 불러오는 중입니다.',
+    phase: '세계를 동기화하는 중',
   },
 } as const;
 
@@ -47,12 +50,10 @@ export default function IntroLoader({ locale = 'ja' }: { locale?: Locale }) {
         return true;
       }
     })();
-    const minDuration = reduced ? 0 : seen ? 260 : 720;
-    const maxDuration = reduced ? 20 : seen ? 520 : 1250;
-    // blue-media-renewal.css keeps the scene-cut transition active for up to 680ms.
-    // Preserve the loader DOM until that visual transition has completed.
-    const exitDelay = reduced ? 20 : 720;
-    const completionDuration = reduced ? 0 : 180;
+    const minDuration = reduced ? 0 : seen ? 180 : 780;
+    const maxDuration = reduced ? 20 : seen ? 420 : 1380;
+    const exitDelay = reduced ? 20 : 680;
+    const completionDuration = reduced ? 0 : 190;
     const startedAt = performance.now();
     let readyAt: number | null = document.readyState === 'complete' ? startedAt : null;
     let finished = false;
@@ -79,7 +80,7 @@ export default function IntroLoader({ locale = 'ja' }: { locale?: Locale }) {
 
     const tick = (now: number) => {
       const elapsed = now - startedAt;
-      const waitingProgress = clamp((elapsed / Math.max(minDuration, 1)) * 82, 0, 82);
+      const waitingProgress = clamp((elapsed / Math.max(minDuration, 1)) * 84, 0, 84);
       const completionRatio =
         readyAt === null ? 0 : clamp((now - readyAt) / Math.max(completionDuration, 1), 0, 1);
       const nextProgress = waitingProgress + (100 - waitingProgress) * completionRatio;
@@ -122,6 +123,7 @@ export default function IntroLoader({ locale = 'ja' }: { locale?: Locale }) {
     'world-loader',
     'anime-intro-loader',
     'blue-signal-loader',
+    'signal-title-loader',
     compact && 'is-compact',
     leaving && 'is-leaving',
   ]
@@ -133,57 +135,81 @@ export default function IntroLoader({ locale = 'ja' }: { locale?: Locale }) {
       <noscript>
         <style>{'.anime-intro-loader { display: none !important; }'}</style>
       </noscript>
-      <div className={classNames}>
+      <div className={classNames} style={progressStyle}>
         <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">
           {copy.status}
         </span>
-        <div className="anime-loader-curtain anime-loader-curtain-left" aria-hidden="true" />
-        <div className="anime-loader-curtain anime-loader-curtain-right" aria-hidden="true" />
-        <div className="blue-loader-signal" aria-hidden="true">
-          <i />
-          <i />
-          <i />
+
+        <div className="signal-loader-background" aria-hidden="true">
+          <span className="signal-loader-grid" />
+          <span className="signal-loader-horizon" />
+          <span className="signal-loader-sweep" />
+          <span className="signal-loader-rail rail-a" />
+          <span className="signal-loader-rail rail-b" />
+          <span className="signal-loader-rail rail-c" />
+          <div className="signal-loader-particles">
+            <i />
+            <i />
+            <i />
+            <i />
+            <i />
+            <i />
+            <i />
+            <i />
+          </div>
         </div>
-        <div className="anime-loader-sparkles" aria-hidden="true">
-          <i />
-          <i />
-          <i />
-          <i />
-          <i />
-          <i />
+
+        <div className="signal-loader-shell">
+          <header className="signal-loader-header" aria-hidden="true">
+            <span>IVURU / BOOT SEQUENCE</span>
+            <span>NODE 00 · BLUE MEDIA</span>
+          </header>
+
+          <div className="signal-loader-stage">
+            <div className="blue-loader-signal signal-loader-core" aria-hidden="true">
+              <span className="signal-loader-orbit orbit-a" />
+              <span className="signal-loader-orbit orbit-b" />
+              <span className="signal-loader-orbit orbit-c" />
+              <span className="signal-loader-crosshair horizontal" />
+              <span className="signal-loader-crosshair vertical" />
+              <div className="signal-loader-emblem">
+                <i />
+                <i />
+                <b>IV</b>
+              </div>
+              <small>SIGNAL / {String(progress).padStart(3, '0')}</small>
+            </div>
+
+            <div className="signal-loader-copy">
+              <p>WELCOME TO THE BLUE MEDIA UNIVERSE</p>
+              <strong data-text="いゔる。">いゔる。</strong>
+              <span>{copy.tagline}</span>
+            </div>
+          </div>
+
+          <footer className="signal-loader-footer">
+            <div className="signal-loader-phase">
+              <span>{copy.phase}</span>
+              <small>{progress < 100 ? 'CONNECTING' : 'READY'}</small>
+            </div>
+            <div
+              className="anime-loader-meter signal-loader-meter"
+              role="progressbar"
+              aria-label={copy.label}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={progress}
+            >
+              <span aria-hidden="true">
+                <i />
+              </span>
+              <b aria-hidden="true">{String(progress).padStart(2, '0')}</b>
+            </div>
+          </footer>
         </div>
-        <div className="anime-loader-card">
-          <div className="anime-loader-sticker" aria-hidden="true">
-            BLUE SIGNAL
-          </div>
-          <div className="anime-loader-mascot" aria-hidden="true">
-            <span className="anime-loader-halo" />
-            <img
-              src="/assets/visuals/blue-anime/ivuru-loader-blue.svg"
-              alt=""
-              width="720"
-              height="720"
-            />
-          </div>
-          <div className="anime-loader-copy">
-            <p>WELCOME TO THE BLUE MEDIA UNIVERSE</p>
-            <strong>いゔる。</strong>
-            <span>{copy.tagline}</span>
-          </div>
-          <div
-            className="anime-loader-meter"
-            style={progressStyle}
-            role="progressbar"
-            aria-label={copy.label}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={progress}
-          >
-            <span aria-hidden="true">
-              <i />
-            </span>
-            <b aria-hidden="true">{String(progress).padStart(2, '0')}</b>
-          </div>
+
+        <div className="signal-loader-release" aria-hidden="true">
+          <i />
         </div>
       </div>
     </>

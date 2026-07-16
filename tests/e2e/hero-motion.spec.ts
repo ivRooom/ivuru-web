@@ -9,7 +9,7 @@ const prepareHome = async (page: import('@playwright/test').Page) => {
 };
 
 test.describe('blue media scroll motion', () => {
-  test('reveals the cinematic blue anime hero with layered signal effects', async ({ page }) => {
+  test('reveals the cinematic blue signal hero with layered effects', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await prepareHome(page);
     await page.goto('/');
@@ -23,6 +23,7 @@ test.describe('blue media scroll motion', () => {
     await expect(hero.locator('[data-cinematic-shard]')).toHaveCount(8);
     await expect(hero.locator('[data-cinematic-scan]')).toBeVisible();
     await expect(hero.locator('.cinematic-character-aura')).toBeVisible();
+    await expect(hero.locator('.signal-key-frame')).toBeVisible();
     await expect(page.locator('[data-cinematic-intro]')).toHaveCount(0);
     await expect(page.locator('[data-hero-depth="grain"]')).toHaveCount(0);
     await expect(page.locator('[data-hero-video]')).toHaveCount(0);
@@ -92,7 +93,7 @@ test.describe('blue media scroll motion', () => {
     await expect(hero).toBeVisible();
     await expect(hero).not.toHaveAttribute('data-cinematic-pointer', 'active');
     await expect(page.locator('[data-hero-video]')).toHaveCount(0);
-    await expect(page.locator('.blue-media-character')).toBeVisible();
+    await expect(page.locator('.signal-key-visual')).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('data-motion-ready', 'reduced');
     await expect(page.locator('.cinematic-scan-beam')).toHaveCSS('animation-name', 'none');
     await expect(page.locator('.cinematic-signal-ring').first()).toHaveCSS(
@@ -112,6 +113,8 @@ test.describe('blue media scroll motion', () => {
     await expect(portal).toBeVisible();
     await expect(portal.locator('.anime-portal-card')).toHaveCount(3);
     await expect(portal.locator('[data-cinematic-card]')).toHaveCount(3);
+    await expect(portal.locator('.signal-channel-visual')).toHaveCount(3);
+    await expect(portal.locator('img')).toHaveCount(0);
     await expect(page.locator('body')).toHaveAttribute('data-anime-scene', 'deep');
   });
 
@@ -125,7 +128,7 @@ test.describe('blue media scroll motion', () => {
     for (const route of ['/', '/en', '/ko']) {
       await page.goto(route);
       await expect(page.locator('[data-anime-hero]')).toBeVisible();
-      await expect(page.locator('.blue-media-character img')).toBeVisible();
+      await expect(page.locator('.signal-key-visual')).toBeVisible();
       await expect(page.locator('[data-cinematic-ring]')).toHaveCount(3);
       await expect(page.locator('.anime-portal-card')).toHaveCount(3);
     }

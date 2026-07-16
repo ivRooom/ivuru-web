@@ -19,13 +19,15 @@ interface XProfileIdentityProps {
   showDescription?: boolean;
 }
 
+const LEGACY_PROFILE_FALLBACK = '/assets/images/ivuru-profile-fallback.png';
+
 const fallbackProfile: XProfilePayload = {
   ok: false,
   source: 'fallback',
   username: 'ivuruGG',
   name: 'いゔる。 / ivuru',
   description: 'Developer / Gamer / Community operator',
-  profileImageUrl: '/assets/images/ivuru-profile-fallback.png',
+  profileImageUrl: '',
   profileBannerUrl: null,
   profileUrl: 'https://x.com/ivuruGG',
   verified: false,
@@ -52,6 +54,15 @@ const requestProfile = () => {
   return profileRequest;
 };
 
+const isKnownFallbackImage = (value: string) => {
+  if (!value) return true;
+  try {
+    return new URL(value, 'https://ivuru.invalid').pathname === LEGACY_PROFILE_FALLBACK;
+  } catch {
+    return false;
+  }
+};
+
 export default function XProfileIdentity({
   variant = 'hero',
   priority = false,
@@ -59,12 +70,14 @@ export default function XProfileIdentity({
 }: XProfileIdentityProps) {
   const [profile, setProfile] = useState<XProfilePayload>(fallbackProfile);
   const [ready, setReady] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
 
   useEffect(() => {
     let active = true;
     requestProfile().then((result) => {
       if (!active) return;
       setProfile(result);
+      setImageFailed(false);
       setReady(true);
     });
     return () => {
@@ -72,14 +85,18 @@ export default function XProfileIdentity({
     };
   }, []);
 
+  const useBrandFallback =
+    profile.source !== 'x' || isKnownFallbackImage(profile.profileImageUrl) || imageFailed;
+
   return (
     <div
       className={`x-profile-identity is-${variant} ${ready ? 'is-ready' : 'is-loading'}`}
       data-x-profile-source={profile.source}
+      data-x-profile-visual={useBrandFallback ? 'brand' : 'x'}
       aria-busy={!ready}
     >
       <div className="x-profile-image-shell">
-        {profile.profileBannerUrl ? (
+        {!useBrandFallback && profile.profileBannerUrl ? (
           <img
             className="x-profile-banner"
             src={profile.profileBannerUrl}
@@ -89,22 +106,33 @@ export default function XProfileIdentity({
           />
         ) : null}
         <span className="x-profile-glitch-layer" aria-hidden="true"></span>
-        <img
-          className="x-profile-avatar"
-          src={profile.profileImageUrl}
-          alt={`${profile.name}（X: @${profile.username}）`}
-          width={720}
-          height={720}
-          loading={priority ? 'eager' : 'lazy'}
-          fetchPriority={priority ? 'high' : 'auto'}
-          referrerPolicy="no-referrer"
-          onError={(event) => {
-            event.currentTarget.src = fallbackProfile.profileImageUrl;
-          }}
-        />
+        {useBrandFallback ? (
+          <div
+            className="x-profile-avatar-fallback"
+            role="img"
+            aria-label={`${profile.name}（X: @${profile.username}）`}
+          >
+            <span className="x-profile-fallback-orbit orbit-a"></span>
+            <span className="x-profile-fallback-orbit orbit-b"></span>
+            <strong>IV</strong>
+            <small>PROFILE / SIGNAL</small>
+          </div>
+        ) : (
+          <img
+            className="x-profile-avatar"
+            src={profile.profileImageUrl}
+            alt={`${profile.name}（X: @${profile.username}）`}
+            width={720}
+            height={720}
+            loading={priority ? 'eager' : 'lazy'}
+            fetchPriority={priority ? 'high' : 'auto'}
+            referrerPolicy="no-referrer"
+            onError={() => setImageFailed(true)}
+          />
+        )}
         <span className="x-profile-scanline" aria-hidden="true"></span>
         <span className="x-profile-source-badge">
-          {profile.source === 'x' ? 'LIVE FROM X' : 'LOCAL FALLBACK'}
+          {useBrandFallback ? 'BRAND FALLBACK' : 'LIVE FROM X'}
         </span>
       </div>
 

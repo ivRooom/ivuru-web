@@ -172,13 +172,15 @@ export default function MobileMenu({
               <i></i>
             </div>
             <div className="mobile-menu-signal" aria-hidden="true" />
-            <div className="mobile-menu-visual" aria-hidden="true">
-              <img
-                src="/assets/images/ivuru-hero-character.png"
-                alt=""
-                width="1600"
-                height="1200"
-              />
+            <div className="mobile-menu-visual mobile-menu-signal-core" aria-hidden="true">
+              <span className="mobile-menu-core-grid" />
+              <span className="mobile-menu-core-orbit orbit-a" />
+              <span className="mobile-menu-core-orbit orbit-b" />
+              <span className="mobile-menu-core-scan" />
+              <div className="mobile-menu-core-mark">
+                <strong>IV</strong>
+                <small>NAV / NODE</small>
+              </div>
             </div>
 
             <header className="mobile-menu-topbar">
