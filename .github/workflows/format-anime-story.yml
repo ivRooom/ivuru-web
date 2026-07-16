@@ -1,0 +1,39 @@
+name: Format Anime Story
+
+on:
+  push:
+    branches:
+      - feat/anime-scroll-story
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/anime-scroll-story
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.3
+          cache: npm
+      - run: npm ci
+      - name: 変更ファイルを整形
+        run: |
+          npx prettier --write \
+            src/components/effects/AnimeScrollDirector.tsx \
+            src/components/home/AnimeScrollStory.astro \
+            src/components/pages/HomePage.astro \
+            src/styles/anime-scroll-story.css \
+            tests/e2e/hero-motion.spec.ts
+          rm .github/workflows/format-anime-story.yml
+      - name: 整形結果を反映
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -A
+          git commit -m "アニメストーリー変更を整形"
+          git push origin HEAD:feat/anime-scroll-story
