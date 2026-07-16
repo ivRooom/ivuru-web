@@ -50,7 +50,7 @@ jobs:
       - run: npm run build
         env:
           ASTRO_TELEMETRY_DISABLED: '1'
-          SITE_URL: https://ivurugg.ivrm.jp
+          SITE_URL: https://ivuru.ivrm.jp
       - name: 静的成果物を確認
         run: |
           test -f dist/index.html
@@ -66,6 +66,8 @@ jobs:
         run: npm run performance:check
       - name: Durable ModeのBinding設定を確認
         run: npm run cloudflare:durable:check
+      - name: NetlifyとCloudflareのAPI経路を確認
+        run: npm run deployment:routing:check
       - name: Wrangler設定をdry-runで検証
         run: npx wrangler deploy --dry-run --outdir .wrangler/dry-run
 
