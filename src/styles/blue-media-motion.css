@@ -75,6 +75,11 @@
   will-change: clip-path, opacity, transform;
 }
 
+.mobile-menu-panel {
+  box-sizing: border-box;
+  max-height: calc(100dvh - 16px) !important;
+}
+
 .mobile-menu-panel nav a span {
   text-wrap: balance;
 }
@@ -88,6 +93,22 @@
 @media (max-width: 720px) {
   .blue-loader-signal {
     width: 112vw;
+  }
+
+  .mobile-menu-panel {
+    max-height: calc(100dvh - 12px) !important;
+  }
+}
+
+@supports not (height: 100dvh) {
+  .mobile-menu-panel {
+    max-height: calc(100vh - 16px) !important;
+  }
+
+  @media (max-width: 720px) {
+    .mobile-menu-panel {
+      max-height: calc(100vh - 12px) !important;
+    }
   }
 }
 
