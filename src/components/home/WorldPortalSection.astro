@@ -86,15 +86,29 @@ const worlds = [
               data-analytics-position={String(index + 1)}
             >
               <div class="cinematic-card-surface">
-                <div class="signal-channel-visual" data-anime-visual data-blue-visual aria-hidden="true">
-                  <span class="signal-channel-grid"></span>
-                  <span class="signal-channel-orbit orbit-a"></span>
-                  <span class="signal-channel-orbit orbit-b"></span>
-                  <span class="signal-channel-scan"></span>
+                <div
+                  class="signal-channel-visual"
+                  data-anime-visual
+                  data-blue-visual
+                  aria-hidden="true"
+                >
+                  <span class="signal-channel-grid" />
+                  <span class="signal-channel-orbit orbit-a" />
+                  <span class="signal-channel-orbit orbit-b" />
+                  <span class="signal-channel-scan" />
                   <strong>{world.monogram}</strong>
                   <small>{world.signal}</small>
                   <div class="signal-channel-spectrum">
-                    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                    <>
+                      <i />
+                      <i />
+                      <i />
+                      <i />
+                      <i />
+                      <i />
+                      <i />
+                      <i />
+                    </>
                   </div>
                   <span class="signal-channel-index">CH / {world.index}</span>
                 </div>

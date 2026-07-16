@@ -148,7 +148,14 @@ export default function IntroLoader({ locale = 'ja' }: { locale?: Locale }) {
           <span className="signal-loader-rail rail-b" />
           <span className="signal-loader-rail rail-c" />
           <div className="signal-loader-particles">
-            <i /><i /><i /><i /><i /><i /><i /><i />
+            <i />
+            <i />
+            <i />
+            <i />
+            <i />
+            <i />
+            <i />
+            <i />
           </div>
         </div>
 
@@ -165,7 +172,11 @@ export default function IntroLoader({ locale = 'ja' }: { locale?: Locale }) {
               <span className="signal-loader-orbit orbit-c" />
               <span className="signal-loader-crosshair horizontal" />
               <span className="signal-loader-crosshair vertical" />
-              <div className="signal-loader-emblem"><i /><i /><b>IV</b></div>
+              <div className="signal-loader-emblem">
+                <i />
+                <i />
+                <b>IV</b>
+              </div>
               <small>SIGNAL / {String(progress).padStart(3, '0')}</small>
             </div>
 
@@ -189,13 +200,17 @@ export default function IntroLoader({ locale = 'ja' }: { locale?: Locale }) {
               aria-valuemax={100}
               aria-valuenow={progress}
             >
-              <span aria-hidden="true"><i /></span>
+              <span aria-hidden="true">
+                <i />
+              </span>
               <b aria-hidden="true">{String(progress).padStart(2, '0')}</b>
             </div>
           </footer>
         </div>
 
-        <div className="signal-loader-release" aria-hidden="true"><i /></div>
+        <div className="signal-loader-release" aria-hidden="true">
+          <i />
+        </div>
       </div>
     </>
   );
