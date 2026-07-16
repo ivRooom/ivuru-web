@@ -1,0 +1,56 @@
+name: PR33 Post Merge Cleanup
+
+on:
+  push:
+    branches: [fix/pr33-post-merge]
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/pr33-post-merge
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: PR #33変更ファイルを整形・診断
+        shell: bash
+        run: |
+          : > prettier-diagnostics-pr33.txt
+          status=0
+          while IFS= read -r -d '' file; do
+            printf '\n=== %s ===\n' "$file" | tee -a prettier-diagnostics-pr33.txt
+            if npx prettier --write "$file" 2>&1 | tee -a prettier-diagnostics-pr33.txt; then
+              echo 'OK' | tee -a prettier-diagnostics-pr33.txt
+            else
+              echo 'FAILED' | tee -a prettier-diagnostics-pr33.txt
+              status=1
+            fi
+          done < <(git diff --name-only --diff-filter=ACMRT -z 4dc03be4e52f8386200a3ffae8777656ec0d9731...HEAD -- '*.astro' '*.tsx' '*.ts' '*.css' '*.md' '*.svg')
+          echo "overall_status=$status" | tee -a prettier-diagnostics-pr33.txt
+      - name: Prettier診断を保存
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prettier-diagnostics-pr33-post-merge
+          path: prettier-diagnostics-pr33.txt
+          retention-days: 7
+      - name: 一時ワークフローと診断ファイルを削除してコミット
+        run: |
+          rm -f .github/workflows/format-pr33-final.yml
+          rm -f .github/workflows/pr33-post-merge-cleanup.yml
+          rm -f prettier-diagnostics-pr33.txt
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -A
+          git commit -m "PR #33の整形と一時ワークフローを整理"
+          git push origin HEAD:fix/pr33-post-merge
