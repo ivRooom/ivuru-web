@@ -1,6 +1,7 @@
 import worker from './worker';
+import { handleXProfile, type XProfileEnv } from './worker/x-profile';
 
-type WorkerEnv = Parameters<typeof worker.fetch>[1];
+type WorkerEnv = Parameters<typeof worker.fetch>[1] & XProfileEnv;
 type WorkerContext = Parameters<typeof worker.fetch>[2];
 type WorkerQueueBatch = Parameters<typeof worker.queue>[0];
 type WorkerScheduledController = Parameters<typeof worker.scheduled>[0];
@@ -47,7 +48,11 @@ export const normalizeApiProxyRequest = (
 
 export default {
   async fetch(request: Request, env: WorkerEnv, ctx: WorkerContext): Promise<Response> {
-    return worker.fetch(normalizeApiProxyRequest(request, env), env, ctx);
+    const normalizedRequest = normalizeApiProxyRequest(request, env);
+    if (new URL(normalizedRequest.url).pathname === '/api/x-profile') {
+      return handleXProfile(normalizedRequest, env, ctx);
+    }
+    return worker.fetch(normalizedRequest, env, ctx);
   },
 
   async queue(batch: WorkerQueueBatch, env: WorkerEnv): Promise<void> {
