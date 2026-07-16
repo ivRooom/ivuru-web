@@ -57,12 +57,7 @@ const worlds = [
 ] as const;
 ---
 
-<section
-  class="anime-portal-section section"
-  data-world-zone="creative"
-  data-anime-scene="deep"
-  data-cinematic-section
->
+<section class="anime-portal-section section" data-world-zone="creative" data-anime-scene="deep">
   <div class="section-inner">
     <div class="anime-portal-heading" data-anime-reveal="heading" data-blue-reveal>
       <div>
@@ -86,16 +81,18 @@ const worlds = [
               data-analytics-surface="home_blue_channel"
               data-analytics-position={String(index + 1)}
             >
-              <div data-anime-visual data-blue-visual>
-                <img src={world.media} alt="" width="1200" height="800" loading="lazy" />
-              </div>
-              <div class="anime-portal-card-copy">
-                <small>
-                  {world.index} / {world.key.toUpperCase()}
-                </small>
-                <h3>{item[0]}</h3>
-                <p>{item[1]}</p>
-                <span>{copy.enter} ↗</span>
+              <div class="cinematic-card-surface">
+                <div data-anime-visual data-blue-visual>
+                  <img src={world.media} alt="" width="1200" height="800" loading="lazy" />
+                </div>
+                <div class="anime-portal-card-copy">
+                  <small>
+                    {world.index} / {world.key.toUpperCase()}
+                  </small>
+                  <h3>{item[0]}</h3>
+                  <p>{item[1]}</p>
+                  <span>{copy.enter} ↗</span>
+                </div>
               </div>
             </a>
           );
