@@ -1,0 +1,94 @@
+name: Address Review Feedback
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: github.head_ref == 'feat/blue-anime-renewal' && github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/blue-anime-renewal
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: CodeRabbitレビュー指摘を修正
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          scroll = Path('src/components/effects/ScrollEffects.tsx')
+          text = scroll.read_text()
+          old = '''const uniqueElements = (selectors: string[]) =>
+            Array.from(
+              new Set(
+                selectors.flatMap((selector) => Array.from(document.querySelectorAll<HTMLElement>(selector))),
+              ),
+            );'''
+          new = '''const uniqueElements = (selectors: string[]) =>
+            Array.from(document.querySelectorAll<HTMLElement>(selectors.join(',')));'''
+          if old not in text:
+              raise SystemExit('uniqueElements pattern not found')
+          scroll.write_text(text.replace(old, new))
+
+          home = Path('src/components/pages/HomePage.astro')
+          text = home.read_text()
+          old = '<div class="blue-media-meta" aria-label="Site topics" data-anime-stagger>'
+          new = '<div class="blue-media-meta" role="group" aria-label="Site topics" data-anime-stagger>'
+          if old not in text:
+              raise SystemExit('blue-media-meta pattern not found')
+          home.write_text(text.replace(old, new))
+
+          layout = Path('src/layouts/BaseLayout.astro')
+          text = layout.read_text()
+          old = '''          loader.dataset.failsafeHidden = 'true';
+          document.body.classList.remove('site-loading');'''
+          new = '''          document.documentElement.dataset.loaderReleased = 'true';
+          loader.dataset.failsafeHidden = 'true';
+          document.body.classList.remove('site-loading');'''
+          if old not in text:
+              raise SystemExit('loader failsafe pattern not found')
+          layout.write_text(text.replace(old, new))
+
+          loader = Path('src/components/common/IntroLoader.tsx')
+          text = loader.read_text()
+          marker = '''  useEffect(() => {
+            const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;'''
+          replacement = '''  useEffect(() => {
+            if (document.documentElement.dataset.loaderReleased === 'true') {
+              setVisible(false);
+              document.body.classList.remove('site-loading');
+              return;
+            }
+
+            const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;'''
+          if marker not in text:
+              raise SystemExit('IntroLoader effect pattern not found')
+          text = text.replace(marker, replacement)
+          text = text.replace(
+              "          setVisible(false);\n          document.body.classList.remove('site-loading');",
+              "          document.documentElement.dataset.loaderReleased = 'true';\n          setVisible(false);\n          document.body.classList.remove('site-loading');",
+              1,
+          )
+          loader.write_text(text)
+          PY
+          npx prettier --write src/components/effects/ScrollEffects.tsx src/components/pages/HomePage.astro src/layouts/BaseLayout.astro src/components/common/IntroLoader.tsx
+      - name: 修正と一時ワークフロー削除をコミット
+        run: |
+          rm .github/workflows/address-review-feedback.yml
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -A
+          git commit -m "レビュー指摘のARIAとローダー競合を修正"
+          git push origin HEAD:feat/blue-anime-renewal
