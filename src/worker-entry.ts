@@ -13,41 +13,66 @@ const parseConfiguredOrigins = (value: string | undefined) =>
       .filter(Boolean),
   );
 
-/**
- * Netlifyの同一オリジンproxyからCloudflare Workerへ届いたAPIリクエストを、
- * ブラウザが実際に表示している許可済みOriginへ正規化する。
- *
- * これにより既存WorkerのOrigin検証とTurnstile hostname検証を維持したまま、
- * ivuru.ivrm.jpからivurugg.ivrm.jpのWorkerを利用できる。
- */
-export const normalizeApiProxyRequest = (
+export const allowedCorsOrigin = (
   request: Request,
   env: Pick<WorkerEnv, 'ALLOWED_ORIGINS'>,
 ) => {
-  const requestUrl = new URL(request.url);
-  if (!requestUrl.pathname.startsWith('/api/')) return request;
+  const origin = request.headers.get('origin');
+  if (!origin) return null;
+  return parseConfiguredOrigins(env.ALLOWED_ORIGINS).has(origin) ? origin : null;
+};
 
-  const browserOrigin = request.headers.get('origin');
-  if (!browserOrigin || browserOrigin === requestUrl.origin) return request;
+export const buildCorsHeaders = (
+  request: Request,
+  env: Pick<WorkerEnv, 'ALLOWED_ORIGINS'>,
+) => {
+  const origin = allowedCorsOrigin(request, env);
+  if (!origin) return null;
 
-  const configuredOrigins = parseConfiguredOrigins(env.ALLOWED_ORIGINS);
-  if (!configuredOrigins.has(browserOrigin)) return request;
+  return {
+    'access-control-allow-origin': origin,
+    'access-control-allow-methods': 'GET, POST, OPTIONS',
+    'access-control-allow-headers': 'accept, content-type',
+    'access-control-max-age': '86400',
+    vary: 'Origin',
+  } satisfies Record<string, string>;
+};
 
-  let publicOrigin: URL;
-  try {
-    publicOrigin = new URL(browserOrigin);
-  } catch {
-    return request;
+const withCors = (response: Response, corsHeaders: Record<string, string> | null) => {
+  if (!corsHeaders) return response;
+
+  const headers = new Headers(response.headers);
+  for (const [name, value] of Object.entries(corsHeaders)) {
+    if (name !== 'vary') headers.set(name, value);
   }
 
-  requestUrl.protocol = publicOrigin.protocol;
-  requestUrl.host = publicOrigin.host;
-  return new Request(requestUrl, request);
+  const currentVary = headers.get('vary');
+  if (!currentVary) headers.set('vary', 'Origin');
+  else if (!currentVary.split(',').some((value) => value.trim().toLowerCase() === 'origin')) {
+    headers.set('vary', `${currentVary}, Origin`);
+  }
+
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
 };
 
 export default {
   async fetch(request: Request, env: WorkerEnv, ctx: WorkerContext): Promise<Response> {
-    return worker.fetch(normalizeApiProxyRequest(request, env), env, ctx);
+    const url = new URL(request.url);
+    const isApiRequest = url.pathname.startsWith('/api/');
+    const corsHeaders = isApiRequest ? buildCorsHeaders(request, env) : null;
+
+    if (isApiRequest && request.method === 'OPTIONS') {
+      return corsHeaders
+        ? new Response(null, { status: 204, headers: corsHeaders })
+        : new Response(null, { status: 403 });
+    }
+
+    const response = await worker.fetch(request, env, ctx);
+    return isApiRequest ? withCors(response, corsHeaders) : response;
   },
 
   async queue(batch: WorkerQueueBatch, env: WorkerEnv): Promise<void> {
