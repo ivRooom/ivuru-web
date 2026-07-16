@@ -40,7 +40,9 @@ test.describe('X profile identity', () => {
 
     await page.goto('/profile');
 
-    const identities = page.locator('.x-profile-identity[data-x-profile-source="x"]');
+    const identities = page.locator(
+      '.x-profile-identity[data-x-profile-source="x"][data-x-profile-visual="x"]',
+    );
     await expect(identities).toHaveCount(2);
     await expect(identities.first().locator('.x-profile-source-badge')).toHaveText('LIVE FROM X');
     await expect(identities.first().locator('.x-profile-avatar')).toHaveAttribute(
@@ -50,7 +52,7 @@ test.describe('X profile identity', () => {
     await expect(page.getByText('いゔる。 from X')).toBeVisible();
   });
 
-  test('API障害時はローカルPNGへフォールバックする', async ({ page }) => {
+  test('API障害時はブランドモノグラムへフォールバックする', async ({ page }) => {
     await prepareProfile(page);
     await page.route('**/api/x-profile', async (route) => {
       await route.fulfill({ status: 503, contentType: 'application/json', body: '{}' });
@@ -58,14 +60,14 @@ test.describe('X profile identity', () => {
 
     await page.goto('/profile');
 
-    const identities = page.locator('.x-profile-identity[data-x-profile-source="fallback"]');
+    const identities = page.locator(
+      '.x-profile-identity[data-x-profile-source="fallback"][data-x-profile-visual="brand"]',
+    );
     await expect(identities).toHaveCount(2);
     await expect(identities.first().locator('.x-profile-source-badge')).toHaveText(
-      'LOCAL FALLBACK',
+      'BRAND FALLBACK',
     );
-    await expect(identities.first().locator('.x-profile-avatar')).toHaveAttribute(
-      'src',
-      '/assets/images/ivuru-profile-fallback.png',
-    );
+    await expect(identities.first().locator('.x-profile-avatar')).toHaveCount(0);
+    await expect(identities.first().locator('.x-profile-avatar-fallback')).toContainText('IV');
   });
 });
