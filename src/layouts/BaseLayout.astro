@@ -191,7 +191,7 @@ const pageWorld = chapter.world
         alternateName: siteConfig.idName,
         url: siteConfig.siteUrl,
         sameAs,
-        image: siteConfig.profileImageUrl,
+        image: new URL(siteConfig.profileImageUrl, siteConfig.siteUrl).href,
         email: `mailto:${siteConfig.email}`,
         jobTitle: 'Developer / Gamer',
         description,
