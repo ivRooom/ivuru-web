@@ -32,17 +32,23 @@ const fallbackProfile: XProfilePayload = {
   fetchedAt: '',
 };
 
+const PROFILE_REQUEST_CACHE_MS = 300_000;
 let profileRequest: Promise<XProfilePayload> | undefined;
+let profileRequestStartedAt = 0;
 
 const requestProfile = () => {
-  profileRequest ??= fetch('/api/x-profile', {
-    headers: { accept: 'application/json' },
-  })
-    .then(async (response) => {
-      if (!response.ok) throw new Error(`X profile request failed: ${response.status}`);
-      return (await response.json()) as XProfilePayload;
+  const now = Date.now();
+  if (!profileRequest || now - profileRequestStartedAt >= PROFILE_REQUEST_CACHE_MS) {
+    profileRequestStartedAt = now;
+    profileRequest = fetch('/api/x-profile', {
+      headers: { accept: 'application/json' },
     })
-    .catch(() => fallbackProfile);
+      .then(async (response) => {
+        if (!response.ok) throw new Error(`X profile request failed: ${response.status}`);
+        return (await response.json()) as XProfilePayload;
+      })
+      .catch(() => fallbackProfile);
+  }
   return profileRequest;
 };
 
