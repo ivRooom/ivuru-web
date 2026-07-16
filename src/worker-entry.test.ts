@@ -6,7 +6,7 @@ const env = {
 };
 
 describe('normalizeApiProxyRequest', () => {
-  it('許可済みのNetlify公開OriginへAPIリクエストURLを正規化する', () => {
+  it('許可済みのNetlify公開OriginへAPIリクエストURLを正規化する', async () => {
     const request = new Request('https://ivurugg.ivrm.jp/api/contact', {
       method: 'POST',
       headers: {
@@ -22,6 +22,7 @@ describe('normalizeApiProxyRequest', () => {
     expect(normalized.method).toBe('POST');
     expect(normalized.headers.get('origin')).toBe('https://ivuru.ivrm.jp');
     expect(normalized.headers.get('content-type')).toBe('application/json');
+    await expect(normalized.json()).resolves.toEqual({ test: true });
   });
 
   it('未許可OriginのURLは書き換えない', () => {
