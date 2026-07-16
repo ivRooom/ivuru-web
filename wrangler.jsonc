@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "ivrm-ivurugg",
-  "main": "./src/worker.ts",
+  "main": "./src/worker-entry.ts",
   "compatibility_date": "2026-07-13",
   "keep_vars": true,
 
@@ -11,7 +11,7 @@
     "CONTACT_RECEIPT_FROM_EMAIL": "ivuru Contact <info.ivuru@ivrm.jp>",
     "CONTACT_RECEIPT_BCC_EMAIL": "ivuruGG.info@gmail.com",
     "CONTACT_RETENTION_DAYS": "90",
-    "ALLOWED_ORIGINS": "https://ivurugg.ivrm.jp",
+    "ALLOWED_ORIGINS": "https://ivurugg.ivrm.jp,https://ivuru.ivrm.jp",
   },
 
   "observability": {
