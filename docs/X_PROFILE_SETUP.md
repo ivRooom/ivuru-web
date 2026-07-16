@@ -37,8 +37,8 @@ npx wrangler secret put X_BEARER_TOKEN
 {
   "vars": {
     "X_PROFILE_USERNAME": "ivuruGG",
-    "X_PROFILE_CACHE_TTL_SECONDS": "21600"
-  }
+    "X_PROFILE_CACHE_TTL_SECONDS": "21600",
+  },
 }
 ```
 

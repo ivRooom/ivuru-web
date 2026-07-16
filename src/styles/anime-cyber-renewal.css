@@ -122,8 +122,16 @@
   inset: 8% -4% 5% 8%;
   border: 1px solid var(--cyber-line);
   background:
-    linear-gradient(130deg, color-mix(in srgb, var(--cyber-blue) 13%, transparent), transparent 44%),
-    repeating-linear-gradient(90deg, transparent 0 39px, color-mix(in srgb, var(--cyber-blue) 11%, transparent) 40px);
+    linear-gradient(
+      130deg,
+      color-mix(in srgb, var(--cyber-blue) 13%, transparent),
+      transparent 44%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 39px,
+      color-mix(in srgb, var(--cyber-blue) 11%, transparent) 40px
+    );
   clip-path: polygon(14% 0, 100% 0, 88% 100%, 0 86%);
   animation: cyber-frame-pulse 4.8s ease-in-out infinite;
 }
@@ -218,7 +226,12 @@
   inset: -70% -25%;
   z-index: -1;
   pointer-events: none;
-  background: linear-gradient(105deg, transparent 38%, color-mix(in srgb, white 72%, transparent) 50%, transparent 62%);
+  background: linear-gradient(
+    105deg,
+    transparent 38%,
+    color-mix(in srgb, white 72%, transparent) 50%,
+    transparent 62%
+  );
   translate: -72% 0;
   transition: translate 0.68s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -253,8 +266,16 @@
   z-index: 2;
   pointer-events: none;
   background:
-    repeating-linear-gradient(0deg, transparent 0 5px, color-mix(in srgb, var(--cyber-blue) 8%, transparent) 6px),
-    linear-gradient(135deg, color-mix(in srgb, var(--cyber-violet) 17%, transparent), transparent 52%);
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 5px,
+      color-mix(in srgb, var(--cyber-blue) 8%, transparent) 6px
+    ),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--cyber-violet) 17%, transparent),
+      transparent 52%
+    );
   mix-blend-mode: screen;
 }
 
@@ -286,8 +307,16 @@
   aspect-ratio: 1;
   border: 1px solid var(--cyber-line);
   background:
-    radial-gradient(circle at 50% 38%, color-mix(in srgb, var(--cyber-blue) 23%, transparent), transparent 46%),
-    linear-gradient(145deg, color-mix(in srgb, var(--cyber-night) 94%, transparent), color-mix(in srgb, var(--cyber-violet) 12%, var(--cyber-night)));
+    radial-gradient(
+      circle at 50% 38%,
+      color-mix(in srgb, var(--cyber-blue) 23%, transparent),
+      transparent 46%
+    ),
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--cyber-night) 94%, transparent),
+      color-mix(in srgb, var(--cyber-violet) 12%, var(--cyber-night))
+    );
   clip-path: polygon(10% 0, 100% 0, 100% 88%, 88% 100%, 0 100%, 0 12%);
 }
 
@@ -352,8 +381,17 @@
   z-index: 1;
   opacity: 0.5;
   background:
-    linear-gradient(90deg, transparent 48%, color-mix(in srgb, var(--cyber-blue) 22%, transparent) 50%, transparent 52%),
-    repeating-linear-gradient(0deg, transparent 0 7px, color-mix(in srgb, white 5%, transparent) 8px);
+    linear-gradient(
+      90deg,
+      transparent 48%,
+      color-mix(in srgb, var(--cyber-blue) 22%, transparent) 50%,
+      transparent 52%
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 7px,
+      color-mix(in srgb, white 5%, transparent) 8px
+    );
 }
 
 .x-profile-scanline {
@@ -364,7 +402,14 @@
   height: 2px;
   top: 14%;
   opacity: 0.68;
-  background: linear-gradient(90deg, transparent, var(--cyber-blue), white, var(--cyber-blue), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--cyber-blue),
+    white,
+    var(--cyber-blue),
+    transparent
+  );
   box-shadow: 0 0 22px var(--cyber-blue);
   animation: x-profile-scan 4.2s ease-in-out infinite;
 }
