@@ -500,6 +500,13 @@
         }
       }
     </style>
+    <noscript>
+      <style>
+        .loader {
+          display: none !important;
+        }
+      </style>
+    </noscript>
   </head>
   <body>
     <div class="loader" data-loader style="--progress: 0%">
@@ -537,7 +544,7 @@
       </div>
 
       <div class="copy">
-        <p>空間エンジンを起動しています</p>
+        <p role="status" aria-live="polite" aria-atomic="true">空間エンジンを起動しています</p>
         <strong>いゔる。</strong>
         <span>BUILD. PLAY. CONNECT.</span>
       </div>
@@ -547,6 +554,7 @@
         <div
           class="progress"
           role="progressbar"
+          aria-label="いゔる。を読み込んでいます"
           aria-valuemin="0"
           aria-valuemax="100"
           aria-valuenow="0"
