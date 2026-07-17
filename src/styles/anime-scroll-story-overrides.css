@@ -1,0 +1,31 @@
+/* Motion-mode corrections loaded after the main story stylesheet. */
+.anime-scroll-story[data-story-mode='motion'] .anime-scroll-stage {
+  min-height: 0;
+}
+
+.anime-scroll-story[data-story-mode='motion'] .anime-portal-card {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+@media (max-height: 679px) {
+  .anime-scroll-story[data-story-mode='motion'] .anime-story-scene {
+    padding-top: max(104px, calc(env(safe-area-inset-top) + 82px));
+    padding-bottom: max(52px, calc(env(safe-area-inset-bottom) + 36px));
+  }
+
+  .anime-scroll-story[data-story-mode='motion'] .anime-story-copy h2 {
+    font-size: clamp(2.1rem, 5.1vw, 4.7rem);
+  }
+
+  .anime-scroll-story[data-story-mode='motion'] .anime-story-lede {
+    margin-top: 16px;
+    font-size: 0.88rem;
+    line-height: 1.55;
+  }
+
+  .anime-scroll-story[data-story-mode='motion'] .anime-portal-cards {
+    bottom: max(20px, calc(env(safe-area-inset-bottom) + 12px));
+  }
+}
