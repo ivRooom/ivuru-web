@@ -35,7 +35,7 @@ test.describe('anime scroll story', () => {
     await expect(story.locator('[data-anime-story-scene]')).toHaveCount(4);
     await expect(story.locator('[data-story-progress-dot]')).toHaveCount(4);
     await expect(story).toHaveAttribute('data-story-chapter', '01');
-    await expect(story.locator('[data-blue-path]')).toHaveCount(1);
+    await expect(story.locator('[data-story-flight-path]')).toHaveCount(1);
     await expect(story.locator('[data-blue-orbit]')).toBeVisible();
     await expect(story.locator('[data-cinematic-ring]')).toHaveCount(3);
     await expect(story.locator('[data-cinematic-shard]')).toHaveCount(8);
