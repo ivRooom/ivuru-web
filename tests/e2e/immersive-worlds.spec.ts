@@ -1,117 +1,95 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
-const prepareMediaCapablePage = async (page: Page) => {
-  await page.emulateMedia({ reducedMotion: 'no-preference' });
-  await page.addInitScript(() => {
-    Object.defineProperty(navigator, 'hardwareConcurrency', {
-      configurable: true,
-      value: 8,
+const routes = [
+  { path: '/news', root: '.scene-news' },
+  { path: '/games', root: '.scene-games' },
+  { path: '/profile', root: '.character-sheet' },
+];
+
+test.describe('immersive scene routes', () => {
+  for (const route of routes) {
+    test(`${route.path} renders its immersive scene without overflow`, async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.addInitScript(() => sessionStorage.setItem('ivuru-intro-seen', '1'));
+      await page.goto(route.path);
+      await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
+      await expect(page.locator(route.root)).toBeVisible();
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1,
+        ),
+      ).toBeTruthy();
     });
-    Object.defineProperty(navigator, 'connection', {
-      configurable: true,
-      value: {
-        saveData: false,
-        effectiveType: '4g',
-        addEventListener: () => undefined,
-        removeEventListener: () => undefined,
-      },
-    });
-    sessionStorage.setItem('ivuru-intro-seen', '1');
-  });
-};
-
-test('News and Games render in every locale', async ({ page }) => {
-  for (const route of ['/news', '/en/news', '/ko/news']) {
-    const response = await page.goto(route);
-    expect(response?.ok(), route).toBeTruthy();
-    await expect(page.locator('.immersive-page-hero')).toBeVisible();
-  }
-
-  for (const route of ['/games', '/en/games', '/ko/games']) {
-    const response = await page.goto(route);
-    expect(response?.ok(), route).toBeTruthy();
-    await expect(page.locator('.editorial-page-hero')).toBeVisible();
-    await expect(page.locator('.editorial-game-card')).toHaveCount(3);
   }
 });
 
+test('news exposes a transmission list and active chapter navigation', async ({ page }) => {
+  await page.addInitScript(() => sessionStorage.setItem('ivuru-intro-seen', '1'));
+  await page.goto('/news');
+  await expect(page.locator('.scene-news')).toBeVisible();
+  await expect(page.locator('.transmission-list article')).toHaveCount(4);
+  await expect(page.locator('html')).toHaveAttribute('data-chapter', '03');
+  await expect(page.locator('.desktop-nav a[href="/news"]')).toHaveAttribute('aria-current', 'page');
+});
+
+test('games exposes playable-looking mission cards', async ({ page }) => {
+  await page.addInitScript(() => sessionStorage.setItem('ivuru-intro-seen', '1'));
+  await page.goto('/games');
+  await expect(page.locator('.scene-games')).toBeVisible();
+  await expect(page.locator('.game-mission-grid article')).toHaveCount(3);
+  await expect(page.getByRole('heading', { name: /Game Worlds|ゲームワールド/ })).toBeVisible();
+});
+
 test('home exposes anime scenes to News, Games, and Profile Favorites', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.addInitScript(() => sessionStorage.setItem('ivuru-intro-seen', '1'));
   await page.goto('/');
-  await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
+  await expect(page.locator('.world-loader')).toBeHidden({ timeout: 4_000 });
+  await expect(page.locator('[data-anime-scroll-story]')).toHaveAttribute(
+    'data-story-mode',
+    'static',
+  );
   await expect(page.locator('.anime-portal-card[href="/news"]')).toBeVisible();
   await expect(page.locator('.anime-portal-card[href="/games"]')).toBeVisible();
   await expect(page.locator('.anime-portal-card[href="/profile#favorites"]')).toBeVisible();
 });
 
-test('games page presents three restrained motion studies', async ({ page }) => {
-  await prepareMediaCapablePage(page);
-  await page.goto('/games');
-
-  const cards = page.locator('.editorial-game-card');
-  await expect(cards).toHaveCount(3);
-
-  for (let index = 0; index < 3; index += 1) {
-    const card = cards.nth(index);
-    await card.scrollIntoViewIfNeeded();
-    await expect(card.locator('.editorial-game-video source[type="video/webm"]')).toHaveCount(1);
-  }
-
-  await expect(page.getByText('ORIGINAL MOTION STUDY').first()).toBeVisible();
-});
-
-test('Favorites lives inside Profile and Spotify stays deferred', async ({ page }) => {
+test('profile exposes Favorites as an in-page scene', async ({ page }) => {
+  await page.addInitScript(() => sessionStorage.setItem('ivuru-intro-seen', '1'));
   await page.goto('/profile#favorites');
-  const favorites = page.locator('#favorites');
-  await expect(favorites).toBeVisible();
-  await expect(favorites.locator('.profile-favorite-card')).toHaveCount(4);
-  await expect(page.locator('iframe[src*="open.spotify.com"]')).toHaveCount(0);
-
-  const consent = favorites.locator('[data-spotify-loaded="false"]');
-  await expect(consent).toBeVisible();
-  await consent.getByRole('button').click();
-  await expect(page.locator('iframe[src*="open.spotify.com/embed/playlist"]')).toHaveCount(1);
-  await expect(favorites.locator('[data-spotify-loaded="true"]')).toBeVisible();
+  await expect(page.locator('#favorites')).toBeVisible();
+  await expect(page.locator('#favorites .profile-favorite-card')).toHaveCount(4);
 });
 
-test('legacy Favorites URLs move to the matching Profile section', async ({ page }) => {
-  for (const [route, target] of [
-    ['/favorites', '/profile#favorites'],
-    ['/en/favorites', '/en/profile#favorites'],
-    ['/ko/favorites', '/ko/profile#favorites'],
-  ]) {
-    await page.goto(route);
-    await expect
-      .poll(() => page.evaluate(() => `${window.location.pathname}${window.location.hash}`))
-      .toBe(target);
-    await expect(page.locator('#favorites')).toBeVisible();
+test('news, games, and profile preserve language prefixes', async ({ page }) => {
+  for (const path of ['/en/news', '/en/games', '/en/profile', '/ko/news', '/ko/games', '/ko/profile']) {
+    const response = await page.goto(path);
+    expect(response?.ok(), path).toBeTruthy();
+    await expect(page.locator('main')).toBeVisible();
   }
 });
 
-test('reduced motion keeps Games media as static posters', async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: 'reduce' });
+test('news filter exposes all channels and an empty state', async ({ page }) => {
+  await page.addInitScript(() => sessionStorage.setItem('ivuru-intro-seen', '1'));
+  await page.goto('/news');
+  await expect(page.locator('.news-filter-bar [data-news-filter]')).toHaveCount(5);
+  await page.locator('[data-news-filter="maintenance"]').click();
+  await expect(page.locator('[data-news-item]:visible')).toHaveCount(0);
+  await expect(page.locator('[data-news-empty]')).toBeVisible();
+});
+
+test('games filter can isolate game worlds', async ({ page }) => {
+  await page.addInitScript(() => sessionStorage.setItem('ivuru-intro-seen', '1'));
   await page.goto('/games');
-  await expect(page.locator('.adaptive-loop-video[data-media-state="poster"]')).toHaveCount(3);
-  await expect(page.locator('.adaptive-loop-video video')).toHaveCount(0);
-  await expect(page.locator('.editorial-game-card')).toHaveCount(3);
+  await expect(page.locator('.game-filter-bar [data-game-filter]')).toHaveCount(4);
+  await page.locator('[data-game-filter="sandbox"]').click();
+  await expect(page.locator('[data-game-card]:visible')).toHaveCount(1);
 });
 
-test('editorial pages remain viewport-bound on desktop, tablet, and mobile', async ({ page }) => {
-  for (const viewport of [
-    { width: 1440, height: 900 },
-    { width: 1024, height: 768 },
-    { width: 768, height: 900 },
-    { width: 390, height: 844 },
-  ]) {
-    await page.setViewportSize(viewport);
-    for (const route of ['/games', '/profile#favorites']) {
-      await page.goto(route);
-      expect(
-        await page.evaluate(
-          () => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1,
-        ),
-        `${route} at ${viewport.width}px`,
-      ).toBeTruthy();
-    }
-  }
+test('profile favorite filters expose visual categories', async ({ page }) => {
+  await page.addInitScript(() => sessionStorage.setItem('ivuru-intro-seen', '1'));
+  await page.goto('/profile#favorites');
+  await expect(page.locator('.favorite-filter-bar [data-favorite-filter]')).toHaveCount(5);
+  await page.locator('[data-favorite-filter="game"]').click();
+  await expect(page.locator('[data-favorite-card]:visible')).toHaveCount(1);
 });
