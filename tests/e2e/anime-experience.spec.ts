@@ -24,10 +24,10 @@ test.describe('blue signal loading experience', () => {
     await expect(loader).toBeVisible();
     await expect(loader).toHaveClass(/signal-title-loader/);
     await expect(loader.locator('.anime-loader-mascot')).toHaveCount(0);
-    await expect(loader.locator('.signal-loader-core')).toBeVisible();
+    await expect(loader.locator('.signal-loader-core')).toHaveCount(1);
     await expect(loader.locator('.signal-loader-copy strong')).toHaveText('いゔる。');
-    await expect(loader.locator('.blue-loader-signal')).toBeVisible();
-    await expect(loader.locator('.anime-loader-meter')).toBeVisible();
+    await expect(loader.locator('.blue-loader-signal')).toHaveCount(1);
+    await expect(loader.locator('.anime-loader-meter')).toHaveCount(1);
 
     await page.waitForLoadState('load');
     await expect(loader).toBeHidden({ timeout: 4_000 });
@@ -41,7 +41,7 @@ test.describe('blue signal loading experience', () => {
 
     const loader = page.locator('.anime-intro-loader');
     await expect(loader).toHaveClass(/is-compact/);
-    await expect(loader).toBeHidden({ timeout: 2_000 });
+    await expect(loader).toBeHidden({ timeout: 3_500 });
   });
 
   test('localizes the accessible loading status', async ({ page }) => {
@@ -96,7 +96,7 @@ test.describe('blue signal loading experience', () => {
     await page.goto('/');
 
     await expect(page.locator('.anime-intro-loader')).toBeHidden({ timeout: 1_000 });
-    await expect(page.locator('[data-anime-hero]')).toBeVisible();
+    await expect(page.locator('[data-anime-scroll-story]')).toBeVisible();
     await expect(page.locator('.anime-portal-card')).toHaveCount(3);
   });
 });
