@@ -4,14 +4,21 @@ import { describe, expect, it } from 'vitest';
 const readSource = (relativePath: string) =>
   readFileSync(new URL(`../../${relativePath}`, import.meta.url), 'utf8');
 
-describe('orbital intro loader contract', () => {
-  it('Vanilla HTML/CSS/JSだけで単一のOrbital Coreを提供する', () => {
+describe('spatial engine intro loader contract', () => {
+  it('Vanilla HTML/CSS/JSだけで明確な立体構造を提供する', () => {
     const source = readSource('src/components/common/IntroLoader.astro');
 
-    expect(source).toContain('IVURU / ORBITAL CORE');
-    expect(source).toContain('orbital-system');
-    expect(source).toContain('orbital-core');
-    expect(source).toContain('orbital-ring--outer');
+    expect(source).toContain('IVURU / SPATIAL ENGINE');
+    expect(source).toContain('CSS PERSPECTIVE · 12 FACES');
+    expect(source).toContain('spatial-scene');
+    expect(source).toContain('glass-cube');
+    expect(source).toContain('energy-cube');
+    expect(source.match(/class="cube-face cube-face--/g)).toHaveLength(6);
+    expect(source.match(/class="energy-face energy-face--/g)).toHaveLength(6);
+    expect(source.match(/class="gyro gyro--/g)).toHaveLength(3);
+    expect(source).toContain('transform-style: preserve-3d');
+    expect(source).toContain('perspective: 1100px');
+    expect(source).toContain('translateZ(54px)');
     expect(source).not.toContain('LOW-POLY DRIVE');
     expect(source).not.toContain('low-poly-car');
     expect(source).not.toContain("from 'react'");
@@ -23,7 +30,7 @@ describe('orbital intro loader contract', () => {
     const source = readSource('src/components/common/IntroLoader.astro');
 
     expect(source).toContain("loader.classList.add('loaded')");
-    expect(source).toContain('.orbital-loader.loaded');
+    expect(source).toContain('.spatial-loader.loaded');
     expect(source).toContain('opacity: 0');
     expect(source).toContain('visibility: hidden');
     expect(source).toContain("document.body.classList.remove('site-loading')");
@@ -48,6 +55,7 @@ describe('orbital intro loader contract', () => {
     expect(source).toContain("html[data-document-active='false']");
     expect(source).toContain('animation-play-state: paused');
     expect(source).toContain('transform: translate3d');
+    expect(source).toContain('scale3d');
     expect(source).toContain('opacity:');
     expect(source).not.toMatch(/addEventListener\(\s*['"]scroll['"]/);
   });
