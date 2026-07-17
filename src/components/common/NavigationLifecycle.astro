@@ -2,22 +2,42 @@
   type PreparationEvent = Event & { navigationType?: 'push' | 'replace' | 'traverse' };
 
   const root = document.documentElement;
+  const disabledLinkSelector = 'a[aria-disabled="true"], a[data-state="disabled"]';
 
   const setDocumentActivity = () => {
     root.dataset.documentActive = document.hidden ? 'false' : 'true';
   };
 
   const markExternalLinks = () => {
-    document.querySelectorAll<HTMLAnchorElement>('a[target="_blank"]').forEach((link) => {
-      const alreadyCommunicated = /[↗→]/.test(link.textContent ?? '');
-      if (link.dataset.uiExternal !== 'true') {
-        link.dataset.uiExternal = alreadyCommunicated ? 'semantic' : 'true';
+    document.querySelectorAll('a[target="_blank"]').forEach((node) => {
+      if (!(node instanceof HTMLAnchorElement)) return;
+      const alreadyCommunicated = /[↗→]/.test(node.textContent ?? '');
+      if (node.dataset.uiExternal !== 'true') {
+        node.dataset.uiExternal = alreadyCommunicated ? 'semantic' : 'true';
       }
 
-      const rel = new Set((link.rel || '').split(/\s+/).filter(Boolean));
+      const rel = new Set((node.rel || '').split(/\s+/).filter(Boolean));
       rel.add('noopener');
       rel.add('noreferrer');
-      link.rel = Array.from(rel).join(' ');
+      node.rel = Array.from(rel).join(' ');
+    });
+  };
+
+  const syncDisabledLinks = () => {
+    document.querySelectorAll(disabledLinkSelector).forEach((node) => {
+      if (!(node instanceof HTMLAnchorElement)) return;
+      if (!node.hasAttribute('data-disabled-tabindex')) {
+        node.dataset.disabledTabindex = node.getAttribute('tabindex') ?? '';
+      }
+      node.setAttribute('tabindex', '-1');
+    });
+
+    document.querySelectorAll('a[data-disabled-tabindex]').forEach((node) => {
+      if (!(node instanceof HTMLAnchorElement) || node.matches(disabledLinkSelector)) return;
+      const previousTabindex = node.dataset.disabledTabindex;
+      if (previousTabindex) node.setAttribute('tabindex', previousTabindex);
+      else node.removeAttribute('tabindex');
+      delete node.dataset.disabledTabindex;
     });
   };
 
@@ -36,8 +56,8 @@
       }
     }
 
-    const title = document.querySelector<HTMLElement>('#main-content h1');
-    if (!title) return;
+    const title = document.querySelector('#main-content h1');
+    if (!(title instanceof HTMLElement)) return;
     if (!title.hasAttribute('tabindex')) title.setAttribute('tabindex', '-1');
     title.focus({ preventScroll: true });
   };
@@ -55,6 +75,15 @@
       else body.removeAttribute('aria-busy');
     };
 
+    document.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const disabledLink = target.closest(disabledLinkSelector);
+      if (!(disabledLink instanceof HTMLAnchorElement)) return;
+      event.preventDefault();
+      event.stopPropagation();
+    });
+
     document.addEventListener('astro:before-preparation', (event) => {
       const navigationEvent = event as PreparationEvent;
       shouldFocusAfterNavigation = navigationEvent.navigationType !== 'traverse';
@@ -71,12 +100,14 @@
       setRouteState('prepared');
       setDocumentActivity();
       markExternalLinks();
+      syncDisabledLinks();
     });
 
     document.addEventListener('astro:page-load', () => {
       setRouteState('complete');
       setDocumentActivity();
       markExternalLinks();
+      syncDisabledLinks();
 
       if (shouldFocusAfterNavigation) {
         shouldFocusAfterNavigation = false;
@@ -93,4 +124,5 @@
 
   setDocumentActivity();
   markExternalLinks();
+  syncDisabledLinks();
 </script>
