@@ -44,12 +44,7 @@
 .anime-scroll-story .anime-story-copy h2,
 .anime-scroll-story .anime-story-copy .blue-media-title > small {
   font-family:
-    Inter,
-    'Noto Sans JP',
-    'Hiragino Kaku Gothic ProN',
-    'Yu Gothic',
-    system-ui,
-    sans-serif;
+    Inter, 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', system-ui, sans-serif;
   font-feature-settings: 'palt' 1;
 }
 
@@ -139,7 +134,9 @@
 
 @media (max-width: 767px) {
   .anime-scroll-story[data-story-mode='motion'] .anime-scroll-stage::before {
-    background-size: 24vw 100%, 100% 24vw;
+    background-size:
+      24vw 100%,
+      100% 24vw;
     opacity: 0.09;
   }
 
