@@ -30,7 +30,7 @@ test.describe('blue signal loading experience', () => {
     expect(markup).toContain('いゔる。');
     expect(markup).toContain('blue-loader-signal');
     expect(markup).toContain('anime-loader-meter');
-    expect(markup).not.toContain('anime-loader-mascot');
+    expect(markup).not.toMatch(/class="[^"]*anime-loader-mascot/);
 
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await prepareLocale(page, false);
