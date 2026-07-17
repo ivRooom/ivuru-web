@@ -2,6 +2,12 @@ import { useEffect } from 'react';
 
 type RevertibleContext = { revert: () => void };
 
+type MutableTriggerVars = {
+  trigger?: Element | string;
+  pin?: Element | string | boolean;
+  end?: string | (() => string);
+};
+
 const cameraPath = [
   { x: 34, y: -18, z: 90, rotateX: -4, rotateY: 8, rotateZ: 1.5, px: 58, py: 42 },
   { x: -52, y: 24, z: 150, rotateX: 7, rotateY: -13, rotateZ: -2.5, px: 42, py: 48 },
@@ -14,9 +20,11 @@ export default function SpatialCameraEnhancer() {
     const compactViewport = matchMedia('(max-width: 767px)');
     let context: RevertibleContext | undefined;
     let generation = 0;
+    let syncTimer = 0;
 
     const cleanup = () => {
       generation += 1;
+      window.clearTimeout(syncTimer);
       context?.revert();
       context = undefined;
     };
@@ -40,6 +48,7 @@ export default function SpatialCameraEnhancer() {
       const ScrollTrigger = triggerModule.ScrollTrigger;
       const compact = compactViewport.matches;
       const distance = compact ? 0.46 : 1;
+      const scrollLength = () => `+=${Math.round(innerHeight * (compact ? 2.35 : 3.05))}`;
       gsap.registerPlugin(ScrollTrigger);
 
       root.dataset.storyCamera = 'orbital-flythrough';
@@ -51,7 +60,7 @@ export default function SpatialCameraEnhancer() {
           scrollTrigger: {
             trigger: root,
             start: 'top top',
-            end: () => `+=${Math.round(innerHeight * (compact ? 2.35 : 3.05))}`,
+            end: scrollLength,
             scrub: compact ? 0.14 : 0.3,
             invalidateOnRefresh: true,
           },
@@ -147,6 +156,16 @@ export default function SpatialCameraEnhancer() {
           timeline.to(flyby, { autoAlpha: 0, duration: 0.1 }, start + (compact ? 0.32 : 0.43));
         });
       }, root);
+
+      syncTimer = window.setTimeout(() => {
+        const pinnedStory = ScrollTrigger.getAll().find((trigger) => {
+          const vars = trigger.vars as MutableTriggerVars;
+          return vars.trigger === root && vars.pin === root;
+        });
+        if (!pinnedStory) return;
+        (pinnedStory.vars as MutableTriggerVars).end = scrollLength;
+        pinnedStory.refresh();
+      }, 280);
     };
 
     const onChange = () => void setup();
