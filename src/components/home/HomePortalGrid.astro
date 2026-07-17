@@ -1,0 +1,74 @@
+---
+import { ArrowUpRight, Code2, NotebookText, UserRound, UsersRound } from 'lucide-react';
+import { localePath, siteConfig, type Locale } from '@/data/site-config';
+
+const { locale } = Astro.props as { locale: Locale };
+
+const copy = {
+  ja: {
+    title: '必要な場所へ、すぐに。',
+    body: 'トップでは概要だけを伝え、制作物・プロフィール・活動記録・コミュニティの詳細は専用ページに整理しました。',
+    items: [
+      { label: 'Works', title: '制作物を見る', body: 'Web・API・クラウドの開発記録。', href: localePath(locale, '/works'), icon: Code2 },
+      { label: 'Profile', title: 'いゔる。を知る', body: 'スキル、好きなもの、活動の背景。', href: localePath(locale, '/profile'), icon: UserRound },
+      { label: 'Journal', title: '活動記録を読む', body: '開発とコミュニティの最新ログ。', href: localePath(locale, '/blog'), icon: NotebookText },
+      { label: 'ivRm', title: 'コミュニティへ', body: 'ゲーム・雑談・創作が集まる場所。', href: siteConfig.ivrmUrl, icon: UsersRound, external: true },
+    ],
+  },
+  en: {
+    title: 'Go straight to what matters.',
+    body: 'The home page now stays concise. Projects, profile, updates, and community details live on focused pages.',
+    items: [
+      { label: 'Works', title: 'Explore projects', body: 'Web, API, and cloud development.', href: localePath(locale, '/works'), icon: Code2 },
+      { label: 'Profile', title: 'Meet ivuru', body: 'Skills, interests, and background.', href: localePath(locale, '/profile'), icon: UserRound },
+      { label: 'Journal', title: 'Read updates', body: 'Recent development and community logs.', href: localePath(locale, '/blog'), icon: NotebookText },
+      { label: 'ivRm', title: 'Enter the community', body: 'Games, conversation, and creation.', href: siteConfig.ivrmUrl, icon: UsersRound, external: true },
+    ],
+  },
+  ko: {
+    title: '필요한 곳으로 바로 이동하세요.',
+    body: '홈은 핵심만 보여 주고 프로젝트, 프로필, 활동 기록, 커뮤니티 정보는 전용 페이지로 정리했습니다.',
+    items: [
+      { label: 'Works', title: '프로젝트 보기', body: 'Web, API, Cloud 개발 기록.', href: localePath(locale, '/works'), icon: Code2 },
+      { label: 'Profile', title: 'ivuru 알아보기', body: '기술, 취향, 활동 배경.', href: localePath(locale, '/profile'), icon: UserRound },
+      { label: 'Journal', title: '활동 기록 읽기', body: '개발과 커뮤니티 최신 로그.', href: localePath(locale, '/blog'), icon: NotebookText },
+      { label: 'ivRm', title: '커뮤니티 입장', body: '게임, 대화, 창작이 모이는 곳.', href: siteConfig.ivrmUrl, icon: UsersRound, external: true },
+    ],
+  },
+}[locale];
+---
+
+<section class="home-portals section" aria-labelledby="home-portals-title" data-cinematic-section>
+  <div class="section-inner home-portals-shell">
+    <header class="home-portals-heading" data-reveal>
+      <h2 id="home-portals-title">{copy.title}</h2>
+      <p>{copy.body}</p>
+    </header>
+
+    <nav class="home-portals-list" aria-label={copy.title} data-anime-stagger>
+      {
+        copy.items.map(({ label, title, body, href, icon: Icon, external }, index) => (
+          <a
+            class="home-portal-link"
+            href={href}
+            target={external ? '_blank' : undefined}
+            rel={external ? 'noopener noreferrer' : undefined}
+            data-anime-parallax={String(2 + index)}
+            data-analytics-event="home_portal_open"
+            data-analytics-target={label.toLowerCase()}
+            data-analytics-position={String(index + 1)}
+          >
+            <span class="home-portal-index">0{index + 1}</span>
+            <Icon aria-hidden="true" />
+            <span class="home-portal-copy">
+              <small>{label}</small>
+              <strong>{title}</strong>
+              <span>{body}</span>
+            </span>
+            <ArrowUpRight class="home-portal-arrow" aria-hidden="true" />
+          </a>
+        ))
+      }
+    </nav>
+  </div>
+</section>
