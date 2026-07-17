@@ -82,11 +82,11 @@ const channels = [
             target="_blank"
             rel="noopener noreferrer"
             data-cinematic-card
-            data-analytics-event="external_profile_open"
+            data-analytics-event="social_open"
             data-analytics-target={channel.name.toLowerCase()}
             data-analytics-surface="home_signal_links"
           >
-            <span>{channel.code}</span>
+            <span aria-hidden="true">{channel.code}</span>
             <div class="cinematic-card-surface">
               <strong>{channel.name}</strong>
               <small>{channel.id}</small>
