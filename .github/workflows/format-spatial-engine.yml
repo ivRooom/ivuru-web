@@ -1,0 +1,55 @@
+name: Format Spatial Engine
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/format-spatial-engine.yml
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/dual-3d-loading-experience
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Spatial Engine関連ファイルを整形
+        run: |
+          npx prettier --write \
+            src/components/common/IntroLoader.astro \
+            docs/demos/spatial-engine-loader.html \
+            tests/unit/orbital-loader-contract.test.ts \
+            tests/e2e/loader-metadata.spec.ts
+      - name: LintとUnitを確認
+        run: |
+          npm run lint
+          npm test -- --run tests/unit/orbital-loader-contract.test.ts
+      - name: 整形結果をContents APIで反映
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          BRANCH: feat/dual-3d-loading-experience
+        run: |
+          for file in \
+            src/components/common/IntroLoader.astro \
+            docs/demos/spatial-engine-loader.html \
+            tests/unit/orbital-loader-contract.test.ts \
+            tests/e2e/loader-metadata.spec.ts
+          do
+            sha=$(gh api "repos/$REPO/contents/$file?ref=$BRANCH" --jq .sha)
+            content=$(base64 -w 0 "$file")
+            gh api --method PUT "repos/$REPO/contents/$file" \
+              -f message="Spatial Engine関連ファイルを整形" \
+              -f content="$content" \
+              -f branch="$BRANCH" \
+              -f sha="$sha"
+          done
