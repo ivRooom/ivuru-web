@@ -1,0 +1,87 @@
+<script>
+  type PreparationEvent = Event & { navigationType?: 'push' | 'replace' | 'traverse' };
+
+  const root = document.documentElement;
+
+  const setDocumentActivity = () => {
+    root.dataset.documentActive = document.hidden ? 'false' : 'true';
+  };
+
+  const markExternalLinks = () => {
+    document.querySelectorAll<HTMLAnchorElement>('a[target="_blank"]').forEach((link) => {
+      link.dataset.uiExternal = 'true';
+      const rel = new Set((link.rel || '').split(/\s+/).filter(Boolean));
+      rel.add('noopener');
+      rel.add('noreferrer');
+      link.rel = Array.from(rel).join(' ');
+    });
+  };
+
+  const focusRouteTarget = () => {
+    if (location.hash) {
+      const id = decodeURIComponent(location.hash.slice(1));
+      const target = document.getElementById(id);
+      if (target) {
+        if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
+        target.focus({ preventScroll: false });
+        return;
+      }
+    }
+
+    const title = document.querySelector<HTMLElement>('#main-content h1');
+    if (!title) return;
+    if (!title.hasAttribute('tabindex')) title.setAttribute('tabindex', '-1');
+    title.focus({ preventScroll: true });
+  };
+
+  if (root.dataset.ivuruNavigationBound !== 'true') {
+    root.dataset.ivuruNavigationBound = 'true';
+    let shouldFocusAfterNavigation = false;
+    let completionFrame = 0;
+
+    const setRouteState = (state: 'idle' | 'loading' | 'prepared' | 'complete') => {
+      const body = document.body;
+      if (!body) return;
+      body.dataset.routeState = state;
+      if (state === 'loading' || state === 'prepared') body.setAttribute('aria-busy', 'true');
+      else body.removeAttribute('aria-busy');
+    };
+
+    document.addEventListener('astro:before-preparation', (event) => {
+      const navigationEvent = event as PreparationEvent;
+      shouldFocusAfterNavigation = navigationEvent.navigationType !== 'traverse';
+      cancelAnimationFrame(completionFrame);
+      setRouteState('loading');
+      document.dispatchEvent(new CustomEvent('ivuru:route-start'));
+    });
+
+    document.addEventListener('astro:after-preparation', () => {
+      setRouteState('prepared');
+    });
+
+    document.addEventListener('astro:after-swap', () => {
+      setDocumentActivity();
+      markExternalLinks();
+    });
+
+    document.addEventListener('astro:page-load', () => {
+      setRouteState('complete');
+      setDocumentActivity();
+      markExternalLinks();
+
+      if (shouldFocusAfterNavigation) {
+        shouldFocusAfterNavigation = false;
+        requestAnimationFrame(focusRouteTarget);
+      }
+
+      completionFrame = requestAnimationFrame(() => {
+        requestAnimationFrame(() => setRouteState('idle'));
+      });
+    });
+
+    document.addEventListener('visibilitychange', setDocumentActivity, { passive: true });
+  }
+
+  setDocumentActivity();
+  markExternalLinks();
+</script>
