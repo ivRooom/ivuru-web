@@ -11,7 +11,11 @@ const prepareHome = async (page: import('@playwright/test').Page) => {
 test('Spotifyは操作後だけ読み込み、確認済み公開リンクを表示する', async ({ page }) => {
   await prepareHome(page);
   await page.route('https://open.spotify.com/**', async (route) => {
-    await route.fulfill({ status: 200, contentType: 'text/html', body: '<html><body>Spotify</body></html>' });
+    await route.fulfill({
+      status: 200,
+      contentType: 'text/html',
+      body: '<html><body>Spotify</body></html>',
+    });
   });
   await page.goto('/');
 
@@ -22,10 +26,7 @@ test('Spotifyは操作後だけ読み込み、確認済み公開リンクを表�
   await expect(section.locator('iframe')).toHaveCount(0);
   await expect(
     section.getByRole('link', { name: /Spotifyで開く|Open in Spotify|Spotify에서 열기/i }),
-  ).toHaveAttribute(
-    'href',
-    'https://open.spotify.com/playlist/37i9dQZEVXdgE4Qkd43TnK',
-  );
+  ).toHaveAttribute('href', 'https://open.spotify.com/playlist/37i9dQZEVXdgE4Qkd43TnK');
 
   await section
     .getByRole('button', { name: /プレイリストを表示|Show playlist|플레이리스트 표시/i })
