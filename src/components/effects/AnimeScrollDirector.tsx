@@ -20,6 +20,15 @@ export default function AnimeScrollDirector() {
     let gsapContext: ReturnType<typeof gsap.context> | undefined;
     let refreshFrame = 0;
     let removePointer: (() => void) | undefined;
+    let bodySceneBeforeStory: string | undefined;
+    let bodySceneCaptured = false;
+
+    const restoreBodyScene = () => {
+      if (!bodySceneCaptured) return;
+      if (bodySceneBeforeStory) document.body.dataset.animeScene = bodySceneBeforeStory;
+      else delete document.body.dataset.animeScene;
+      bodySceneCaptured = false;
+    };
 
     const cleanup = () => {
       cancelAnimationFrame(refreshFrame);
@@ -27,6 +36,7 @@ export default function AnimeScrollDirector() {
       removePointer = undefined;
       gsapContext?.revert();
       gsapContext = undefined;
+      restoreBodyScene();
     };
 
     const setup = () => {
@@ -44,6 +54,9 @@ export default function AnimeScrollDirector() {
 
       if (!root || !stage || scenes.length === 0) return;
 
+      bodySceneBeforeStory = document.body.dataset.animeScene;
+      bodySceneCaptured = true;
+      delete root.dataset.cinematicPointer;
       root.style.setProperty('--story-pointer-x', '0px');
       root.style.setProperty('--story-pointer-y', '0px');
       root.style.setProperty('--story-progress', '0');
@@ -55,7 +68,7 @@ export default function AnimeScrollDirector() {
 
         activeIndex = nextIndex;
         root.dataset.storyChapter = String(nextIndex + 1).padStart(2, '0');
-        document.body.dataset.animeScene = scenes[nextIndex]?.dataset.animeScene ?? 'ice';
+        document.body.dataset.animeScene = scenes[nextIndex]?.dataset.storyScene ?? 'ice';
         setSceneState(scenes, nextIndex);
         dots.forEach((dot, dotIndex) => {
           dot.dataset.active = dotIndex === nextIndex ? 'true' : 'false';
@@ -237,6 +250,8 @@ export default function AnimeScrollDirector() {
         let pointerFrame = 0;
         let pointerX = 0;
         let pointerY = 0;
+        root.dataset.cinematicPointer = 'active';
+
         const renderPointer = () => {
           pointerFrame = 0;
           root.style.setProperty('--story-pointer-x', `${(pointerX * 14).toFixed(2)}px`);
@@ -260,6 +275,7 @@ export default function AnimeScrollDirector() {
           cancelAnimationFrame(pointerFrame);
           stage.removeEventListener('pointermove', onPointerMove);
           stage.removeEventListener('pointerleave', onPointerLeave);
+          delete root.dataset.cinematicPointer;
         };
       }
 
