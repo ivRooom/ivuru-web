@@ -7,102 +7,78 @@ const d = getDictionary(locale);
 
 const copy = {
   ja: {
-    label: 'いゔる。の世界をめぐるスクロールストーリー',
-    scroll: 'SCROLL TO CROSS THE BLUE',
+    label: 'いゔる。の世界をめぐる3Dスクロールストーリー',
+    scroll: 'SCROLL THROUGH THE BLUE',
     scenes: [
       {
         number: '01',
         chapter: '青の境界',
         title: '好きな世界の、\nその先へ。',
-        body: 'つくる。遊ぶ。つながる。いゔる。は、DeveloperとGamerの間に広がる青い物語です。',
+        body: 'つくる。遊ぶ。つながる。いゔる。の世界へ。',
       },
       {
         number: '02',
-        chapter: 'つくる世界',
-        title: 'アイデアが、\n光になって動き出す。',
-        body: 'Web、クラウド、API。小さなひらめきを積み重ね、触れられる体験へ変えていきます。',
+        chapter: 'Build & Play',
+        title: 'つくることと、\n遊ぶことをひとつに。',
+        body: 'Web、クラウド、ゲーム。アイデアを動く体験へ変えていきます。',
       },
       {
         number: '03',
-        chapter: '遊ぶ世界',
-        title: '一瞬の熱が、\n忘れられない物語になる。',
-        body: 'ゲーム、配信、好きな作品。遊ぶ時間の高揚を、次の創作とコミュニケーションへつなげます。',
-      },
-      {
-        number: '04',
-        chapter: 'つながる世界',
-        title: 'ひとつの光から、\n新しい世界が広がる。',
-        body: 'ivRmコミュニティと発信を通して、好きなものを安心して共有できる居場所を育てています。',
+        chapter: 'Connect',
+        title: '好きがつながる、\n次の場所へ。',
+        body: '作品とコミュニティから、新しい体験を広げます。',
       },
     ],
   },
   en: {
-    label: 'An interactive scroll story through the world of ivuru',
-    scroll: 'SCROLL TO CROSS THE BLUE',
+    label: 'A three-dimensional scroll story through the world of ivuru',
+    scroll: 'SCROLL THROUGH THE BLUE',
     scenes: [
       {
         number: '01',
         chapter: 'Beyond the Blue',
         title: 'Go beyond the worlds\nyou already love.',
-        body: 'Build. Play. Connect. ivuru is a blue story unfolding between Developer and Gamer worlds.',
+        body: 'Build. Play. Connect. Step into the world of ivuru.',
       },
       {
         number: '02',
-        chapter: 'World of Creation',
-        title: 'Ideas become light,\nthen start to move.',
-        body: 'Web, cloud, and APIs. Small sparks become tangible experiences people can explore.',
+        chapter: 'Build & Play',
+        title: 'Creation and play,\ninside one experience.',
+        body: 'Web, cloud, and games turn ideas into experiences that move.',
       },
       {
         number: '03',
-        chapter: 'World of Play',
-        title: 'A brief rush becomes\na story worth remembering.',
-        body: 'Games, streams, and favorite works turn the energy of play into creation and conversation.',
-      },
-      {
-        number: '04',
-        chapter: 'World of Connection',
-        title: 'One light opens\na whole new world.',
-        body: 'Through the ivRm community, we grow a place where people can safely share what they love.',
+        chapter: 'Connect',
+        title: 'Where everything you love\nconnects next.',
+        body: 'Projects and community open the way to new experiences.',
       },
     ],
   },
   ko: {
-    label: 'ivuru의 세계를 여행하는 스크롤 스토리',
-    scroll: 'SCROLL TO CROSS THE BLUE',
+    label: 'ivuru의 세계를 여행하는 입체 스크롤 스토리',
+    scroll: 'SCROLL THROUGH THE BLUE',
     scenes: [
       {
         number: '01',
         chapter: '푸른 경계',
         title: '좋아하는 세계의\n그 너머로.',
-        body: '만들고, 즐기고, 이어집니다. ivuru는 Developer와 Gamer 사이에 펼쳐지는 푸른 이야기입니다.',
+        body: '만들고, 즐기고, 이어지는 ivuru의 세계로.',
       },
       {
         number: '02',
-        chapter: '만드는 세계',
-        title: '아이디어가 빛이 되어\n움직이기 시작합니다.',
-        body: '웹, 클라우드, API. 작은 영감을 쌓아 손으로 느낄 수 있는 경험으로 바꿉니다.',
+        chapter: 'Build & Play',
+        title: '만드는 것과 즐기는 것을\n하나의 경험으로.',
+        body: 'Web, Cloud, Game의 아이디어를 움직이는 경험으로 바꿉니다.',
       },
       {
         number: '03',
-        chapter: '즐기는 세계',
-        title: '순간의 열기가\n잊을 수 없는 이야기가 됩니다.',
-        body: '게임, 방송, 좋아하는 작품의 설렘을 다음 창작과 커뮤니케이션으로 연결합니다.',
-      },
-      {
-        number: '04',
-        chapter: '이어지는 세계',
-        title: '하나의 빛에서\n새로운 세계가 펼쳐집니다.',
-        body: 'ivRm 커뮤니티와 발신을 통해 좋아하는 것을 안심하고 나눌 수 있는 공간을 키웁니다.',
+        chapter: 'Connect',
+        title: '좋아하는 것이 이어지는\n다음 장소로.',
+        body: '프로젝트와 커뮤니티에서 새로운 경험을 확장합니다.',
       },
     ],
   },
 }[locale];
-
-const portalLinks = [
-  { label: 'NEWS', href: localePath(locale, '/news') },
-  { label: 'GAMES', href: localePath(locale, '/games') },
-  { label: 'FAVORITES', href: localePath(locale, '/profile#favorites') },
-];
 ---
 
 <section
@@ -115,7 +91,7 @@ const portalLinks = [
   <div class="anime-scroll-stage" data-anime-scroll-stage>
     <div class="anime-story-chrome" aria-hidden="true">
       <span>IVURU / BLUE STORY</span>
-      <span class="anime-story-chapter-readout" data-story-chapter-readout>01 / 04</span>
+      <span class="anime-story-chapter-readout" data-story-chapter-readout>01 / 03</span>
       <span class="anime-story-progress-line" data-story-progress-line></span>
     </div>
 
@@ -129,186 +105,158 @@ const portalLinks = [
       }
     </div>
 
-    <article class="anime-story-scene is-opening" data-anime-story-scene="0" data-story-scene="ice">
-      <div class="anime-scene-sky" aria-hidden="true">
-        <span class="anime-sun" data-story-depth="far"></span>
-        <span class="anime-cloud cloud-a" data-story-depth="far"></span>
-        <span class="anime-cloud cloud-b" data-story-depth="mid"></span>
-        <span class="anime-cloud cloud-c" data-story-depth="near"></span>
-        <span class="anime-sea-line" data-story-depth="far"></span>
-        <span class="anime-light-road" data-story-depth="mid"></span>
-      </div>
-
-      <div
-        class="cinematic-signal-field anime-opening-rings"
-        data-cinematic-field
-        aria-hidden="true"
+    <div class="anime-story-camera" data-story-camera-rig>
+      <article
+        class="anime-story-scene is-opening"
+        data-anime-story-scene="0"
+        data-story-scene="ice"
       >
-        <span class="cinematic-glow"></span>
-        <span class="cinematic-scan-beam" data-cinematic-scan></span>
-        <span class="cinematic-signal-ring ring-outer" data-cinematic-ring></span>
-        <span class="cinematic-signal-ring ring-middle" data-cinematic-ring></span>
-        <span class="cinematic-signal-ring ring-inner" data-cinematic-ring></span>
-        <span class="cinematic-crosshair"></span>
-        <div class="cinematic-shards">
-          <i data-cinematic-shard></i><i data-cinematic-shard></i><i data-cinematic-shard></i>
-          <i data-cinematic-shard></i><i data-cinematic-shard></i><i data-cinematic-shard></i>
-          <i data-cinematic-shard></i><i data-cinematic-shard></i>
+        <div class="anime-scene-sky" aria-hidden="true">
+          <span class="anime-sun" data-story-depth="far"></span>
+          <span class="anime-cloud cloud-a" data-story-depth="far"></span>
+          <span class="anime-cloud cloud-b" data-story-depth="mid"></span>
+          <span class="anime-cloud cloud-c" data-story-depth="near"></span>
+          <span class="anime-sea-line" data-story-depth="far"></span>
+          <span class="anime-light-road" data-story-depth="mid"></span>
+          <span class="anime-depth-plane plane-a" data-story-depth="front"></span>
         </div>
-      </div>
 
-      <svg
-        class="anime-flight-path"
-        viewBox="0 0 1600 320"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
-        <path data-story-flight-path d="M-40 286C248 44 514 365 780 135S1278 46 1640 224"></path>
-      </svg>
-      <span class="anime-orbit-proxy" data-blue-orbit aria-hidden="true"></span>
-
-      <div class="anime-story-copy" data-story-copy>
-        <p>{copy.scenes[0].number} / {copy.scenes[0].chapter}</p>
-        <h1 class="blue-media-title" data-glitch="いゔる。">
-          <span>いゔる。</span>
-          <small>{copy.scenes[0].title}</small>
-        </h1>
-        <p class="anime-story-lede">{copy.scenes[0].body}</p>
-        <div class="anime-story-actions">
-          <a href={localePath(locale, '/works')}>{d.hero.works}</a>
-          <a href={localePath(locale, '/profile')}>{d.hero.profile}</a>
-          <a href={siteConfig.xUrl} target="_blank" rel="noopener noreferrer">X ↗</a>
-        </div>
-      </div>
-
-      <figure class="signal-key-visual anime-opening-emblem" data-story-visual>
-        <span class="cinematic-character-aura" aria-hidden="true"></span>
-        <div class="signal-key-frame" aria-hidden="true">
-          <span class="signal-key-grid"></span>
-          <span class="signal-key-orbit orbit-a"></span>
-          <span class="signal-key-orbit orbit-b"></span>
-          <span class="signal-key-orbit orbit-c"></span>
-          <span class="signal-key-scan"></span>
-          <div class="signal-key-mark">
-            <small>IVURU</small>
-            <strong>IV</strong>
-            <span>BLUE STORY / 01</span>
-          </div>
-          <div class="signal-key-readout">
-            <span><b>BUILD</b><i>ONLINE</i></span>
-            <span><b>PLAY</b><i>ONLINE</i></span>
-            <span><b>CONNECT</b><i>SYNC</i></span>
+        <div
+          class="cinematic-signal-field anime-opening-rings"
+          data-cinematic-field
+          data-story-depth="near"
+          aria-hidden="true"
+        >
+          <span class="cinematic-glow"></span>
+          <span class="cinematic-scan-beam" data-cinematic-scan></span>
+          <span class="cinematic-signal-ring ring-outer" data-cinematic-ring></span>
+          <span class="cinematic-signal-ring ring-middle" data-cinematic-ring></span>
+          <span class="cinematic-signal-ring ring-inner" data-cinematic-ring></span>
+          <span class="cinematic-crosshair"></span>
+          <div class="cinematic-shards">
+            <i data-cinematic-shard data-story-pop></i><i data-cinematic-shard data-story-pop></i
+            ><i data-cinematic-shard data-story-pop></i><i data-cinematic-shard data-story-pop></i
+            ><i data-cinematic-shard data-story-pop></i><i data-cinematic-shard data-story-pop></i>
           </div>
         </div>
-        <figcaption>THE BLUE BORDER / OPENING CUT</figcaption>
-      </figure>
-    </article>
 
-    <article class="anime-story-scene is-build" data-anime-story-scene="1" data-story-scene="sky">
-      <div class="anime-build-world" aria-hidden="true">
-        <span class="anime-build-sun" data-story-depth="far"></span>
-        <span class="anime-city city-back" data-story-depth="far"></span>
-        <span class="anime-city city-front" data-story-depth="mid"></span>
-        <span class="anime-build-rail rail-a" data-story-pop></span>
-        <span class="anime-build-rail rail-b" data-story-pop></span>
-      </div>
-      <div class="anime-story-copy" data-story-copy>
-        <p>{copy.scenes[1].number} / {copy.scenes[1].chapter}</p>
-        <h2>{copy.scenes[1].title}</h2>
-        <p class="anime-story-lede">{copy.scenes[1].body}</p>
-      </div>
-      <div class="anime-build-device" data-story-visual aria-hidden="true">
-        <div class="anime-device-screen">
-          <span class="anime-device-topbar"></span>
-          <div class="anime-code-line line-a" data-story-pop></div>
-          <div class="anime-code-line line-b" data-story-pop></div>
-          <div class="anime-code-line line-c" data-story-pop></div>
-          <div class="anime-code-line line-d" data-story-pop></div>
-          <div class="anime-code-orbit" data-story-pop></div>
-          <strong data-story-pop>CREATE</strong>
-          <small>WEB / CLOUD / API</small>
+        <svg
+          class="anime-flight-path"
+          viewBox="0 0 1600 320"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+          data-story-depth="mid"
+        >
+          <path data-story-flight-path d="M-40 286C248 44 514 365 780 135S1278 46 1640 224"></path>
+        </svg>
+        <span class="anime-orbit-proxy" data-blue-orbit aria-hidden="true"></span>
+
+        <div class="anime-story-copy" data-story-copy>
+          <p>{copy.scenes[0].number} / {copy.scenes[0].chapter}</p>
+          <h1 class="blue-media-title" data-glitch="いゔる。">
+            <span>いゔる。</span>
+            <small>{copy.scenes[0].title}</small>
+          </h1>
+          <p class="anime-story-lede">{copy.scenes[0].body}</p>
+          <div class="anime-story-actions">
+            <a href={localePath(locale, '/works')}>{d.hero.works}</a>
+            <a href={localePath(locale, '/profile')}>{d.hero.profile}</a>
+            <a href={siteConfig.xUrl} target="_blank" rel="noopener noreferrer">X ↗</a>
+          </div>
         </div>
-        <span class="anime-device-shadow"></span>
-      </div>
-    </article>
 
-    <article
-      class="anime-story-scene is-play anime-portal-section"
-      data-anime-story-scene="2"
-      data-story-scene="deep"
-    >
-      <div class="anime-game-world" aria-hidden="true">
-        <span class="anime-game-moon" data-story-depth="far"></span>
-        <span class="anime-game-grid" data-story-depth="far"></span>
-        <span class="anime-game-horizon" data-story-depth="mid"></span>
-        <span class="anime-speed-line speed-a" data-story-pop></span>
-        <span class="anime-speed-line speed-b" data-story-pop></span>
-        <span class="anime-speed-line speed-c" data-story-pop></span>
-      </div>
-      <div class="anime-story-copy" data-story-copy>
-        <p>{copy.scenes[2].number} / {copy.scenes[2].chapter}</p>
-        <h2>{copy.scenes[2].title}</h2>
-        <p class="anime-story-lede">{copy.scenes[2].body}</p>
-      </div>
-      <div class="anime-game-portal" data-story-visual aria-hidden="true">
-        <span class="anime-game-ring ring-one"></span>
-        <span class="anime-game-ring ring-two"></span>
-        <span class="anime-game-ring ring-three"></span>
-        <strong>PLAY</strong>
-        <small>ENTER THE NEXT FRAME</small>
-      </div>
-      <nav class="anime-portal-cards" aria-label="Blue story portals">
-        {
-          portalLinks.map((portal, index) => (
-            <a
-              class="anime-portal-card"
-              href={portal.href}
-              data-cinematic-card
-              data-story-pop
-              data-analytics-event="world_portal_open"
-              data-analytics-target={portal.label.toLowerCase()}
-              data-analytics-surface="home_blue_story"
-              data-analytics-position={String(index + 1)}
-            >
-              <div class="cinematic-card-surface">
-                <div class="signal-channel-visual">
-                  <span>{String(index + 1).padStart(2, '0')}</span>
-                  <strong>{portal.label}</strong>
-                </div>
-              </div>
-            </a>
-          ))
-        }
-      </nav>
-    </article>
+        <figure class="signal-key-visual anime-opening-emblem" data-story-visual>
+          <span class="cinematic-character-aura" aria-hidden="true"></span>
+          <div class="signal-key-frame" aria-hidden="true">
+            <span class="signal-key-grid"></span>
+            <span class="signal-key-orbit orbit-a"></span>
+            <span class="signal-key-orbit orbit-b"></span>
+            <span class="signal-key-orbit orbit-c"></span>
+            <span class="signal-key-scan"></span>
+            <div class="signal-key-mark">
+              <small>IVURU</small>
+              <strong>IV</strong>
+              <span>BLUE STORY / 01</span>
+            </div>
+            <div class="signal-key-readout">
+              <span><b>BUILD</b><i>ONLINE</i></span>
+              <span><b>PLAY</b><i>ONLINE</i></span>
+              <span><b>CONNECT</b><i>SYNC</i></span>
+            </div>
+          </div>
+          <figcaption>THE BLUE BORDER / OPENING CUT</figcaption>
+        </figure>
+      </article>
 
-    <article
-      class="anime-story-scene is-connect"
-      data-anime-story-scene="3"
-      data-story-scene="night"
-    >
-      <div class="anime-community-world" aria-hidden="true">
-        <span class="anime-community-aurora" data-story-depth="far"></span>
-        <span class="anime-community-horizon" data-story-depth="far"></span>
-        <span class="anime-community-light light-a" data-story-pop></span>
-        <span class="anime-community-light light-b" data-story-pop></span>
-        <span class="anime-community-light light-c" data-story-pop></span>
-        <span class="anime-community-light light-d" data-story-pop></span>
-        <span class="anime-community-link link-a" data-story-pop></span>
-        <span class="anime-community-link link-b" data-story-pop></span>
-        <span class="anime-community-link link-c" data-story-pop></span>
-      </div>
-      <div class="anime-story-copy" data-story-copy>
-        <p>{copy.scenes[3].number} / {copy.scenes[3].chapter}</p>
-        <h2>{copy.scenes[3].title}</h2>
-        <p class="anime-story-lede">{copy.scenes[3].body}</p>
-      </div>
-      <div class="anime-community-emblem" data-story-visual aria-hidden="true">
-        <span class="anime-community-ring"></span>
-        <strong>ivRm</strong>
-        <small>COMMUNITY / CONNECTED</small>
-      </div>
-    </article>
+      <article
+        class="anime-story-scene is-build"
+        data-anime-story-scene="1"
+        data-story-scene="sky"
+      >
+        <div class="anime-build-world" aria-hidden="true">
+          <span class="anime-build-sun" data-story-depth="far"></span>
+          <span class="anime-city city-back" data-story-depth="far"></span>
+          <span class="anime-city city-front" data-story-depth="mid"></span>
+          <span class="anime-build-rail rail-a" data-story-pop data-story-depth="near"></span>
+          <span class="anime-build-rail rail-b" data-story-pop data-story-depth="near"></span>
+          <span class="anime-depth-plane plane-b" data-story-depth="front"></span>
+        </div>
+        <div class="anime-story-copy" data-story-copy>
+          <p>{copy.scenes[1].number} / {copy.scenes[1].chapter}</p>
+          <h2>{copy.scenes[1].title}</h2>
+          <p class="anime-story-lede">{copy.scenes[1].body}</p>
+        </div>
+        <div class="anime-build-device" data-story-visual aria-hidden="true">
+          <div class="anime-device-screen">
+            <span class="anime-device-topbar"></span>
+            <div class="anime-code-line line-a" data-story-pop></div>
+            <div class="anime-code-line line-b" data-story-pop></div>
+            <div class="anime-code-line line-c" data-story-pop></div>
+            <div class="anime-code-line line-d" data-story-pop></div>
+            <div class="anime-code-orbit" data-story-pop></div>
+            <strong data-story-pop>BUILD / PLAY</strong>
+            <small>WEB / CLOUD / GAME</small>
+          </div>
+          <span class="anime-device-shadow"></span>
+        </div>
+      </article>
+
+      <article
+        class="anime-story-scene is-connect"
+        data-anime-story-scene="2"
+        data-story-scene="night"
+      >
+        <div class="anime-community-world" aria-hidden="true">
+          <span class="anime-community-aurora" data-story-depth="far"></span>
+          <span class="anime-community-horizon" data-story-depth="far"></span>
+          <span class="anime-community-light light-a" data-story-pop data-story-depth="near"></span>
+          <span class="anime-community-light light-b" data-story-pop data-story-depth="mid"></span>
+          <span class="anime-community-light light-c" data-story-pop data-story-depth="front"></span>
+          <span class="anime-community-light light-d" data-story-pop data-story-depth="near"></span>
+          <span class="anime-community-link link-a" data-story-pop></span>
+          <span class="anime-community-link link-b" data-story-pop></span>
+          <span class="anime-community-link link-c" data-story-pop></span>
+        </div>
+        <div class="anime-story-copy" data-story-copy>
+          <p>{copy.scenes[2].number} / {copy.scenes[2].chapter}</p>
+          <h2>{copy.scenes[2].title}</h2>
+          <p class="anime-story-lede">{copy.scenes[2].body}</p>
+        </div>
+        <div class="anime-community-emblem" data-story-visual aria-hidden="true">
+          <span class="anime-community-ring"></span>
+          <strong>ivRm</strong>
+          <small>COMMUNITY / CONNECTED</small>
+        </div>
+      </article>
+    </div>
+
+    <div class="anime-depth-flybys" aria-hidden="true">
+      <span data-story-flyby></span>
+      <span data-story-flyby></span>
+      <span data-story-flyby></span>
+      <span data-story-flyby></span>
+      <span data-story-flyby></span>
+    </div>
 
     <div class="anime-scroll-cue" aria-hidden="true">
       <i></i><span>{copy.scroll}</span>
