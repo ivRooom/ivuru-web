@@ -148,6 +148,54 @@
     transform: translate3d(0, 0, 44px);
   }
 
+  .anime-scroll-story[data-story-mode='motion'] .is-opening {
+    grid-template-rows: auto minmax(150px, 0.72fr);
+    gap: 14px;
+    padding-bottom: max(62px, calc(env(safe-area-inset-bottom) + 50px));
+  }
+
+  .anime-scroll-story[data-story-mode='motion'] .is-opening .anime-story-copy .blue-media-title {
+    gap: 8px;
+  }
+
+  .anime-scroll-story[data-story-mode='motion']
+    .is-opening
+    .anime-story-copy
+    .blue-media-title
+    > span {
+    font-size: clamp(4.55rem, 22vw, 6.7rem);
+  }
+
+  .anime-scroll-story[data-story-mode='motion']
+    .is-opening
+    .anime-story-copy
+    .blue-media-title
+    > small {
+    font-size: clamp(1.75rem, 8.5vw, 2.75rem);
+    line-height: 0.98;
+  }
+
+  .anime-scroll-story[data-story-mode='motion'] .is-opening .anime-story-lede {
+    margin-top: 14px;
+    font-size: 0.84rem;
+    line-height: 1.58;
+  }
+
+  .anime-scroll-story[data-story-mode='motion'] .is-opening .anime-story-actions {
+    margin-top: 14px;
+  }
+
+  .anime-scroll-story[data-story-mode='motion'] .is-opening .anime-opening-emblem {
+    width: min(56vw, 260px);
+    margin-top: -2px;
+  }
+
+  .anime-scroll-story[data-story-mode='motion'] .is-opening .anime-opening-emblem figcaption {
+    margin-top: 7px;
+    font-size: 0.48rem;
+    letter-spacing: 0.12em;
+  }
+
   .anime-scroll-story[data-story-mode='motion'] .anime-story-progress {
     right: 12px;
     gap: 10px;
