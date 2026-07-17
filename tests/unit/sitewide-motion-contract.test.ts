@@ -8,9 +8,10 @@ const readKeyframes = (css: string, name: string) => {
   const start = css.indexOf(`@keyframes ${name}`);
   expect(start).toBeGreaterThanOrEqual(0);
 
-  const boundaries = [css.indexOf('@keyframes', start + 1), css.indexOf('@media', start + 1)].filter(
-    (position) => position >= 0,
-  );
+  const boundaries = [
+    css.indexOf('@keyframes', start + 1),
+    css.indexOf('@media', start + 1),
+  ].filter((position) => position >= 0);
   const end = boundaries.length ? Math.min(...boundaries) : css.length;
   return css.slice(start, end);
 };
@@ -105,7 +106,9 @@ describe('site-wide motion and navigation contract', () => {
       const keyframes = readKeyframes(css, name);
       expect(keyframes).toContain('transform: translate3d');
       expect(keyframes).toContain('opacity:');
-      expect(keyframes).not.toMatch(/(?:^|\s)(?:width|height|top|left|margin(?:-[a-z-]+)?):/m);
+      expect(keyframes).not.toMatch(
+        /(?:^|\s)(?:width|height|top|left|margin(?:-[a-z-]+)?):/m,
+      );
     }
   });
 });
