@@ -5,6 +5,10 @@ test('keeps accessible loader metadata in SSR and releases the page safely', asy
   expect(response.ok()).toBeTruthy();
   const markup = await response.text();
   expect(markup).toContain('anime-intro-loader');
+  expect(markup).toContain('ORBIT &amp; PHASE');
+  expect(markup).toContain('LOW-POLY DRIVE');
+  expect(markup).toContain('SYSTEM.STATUS:');
+  expect(markup).toContain('RENDER: CSS_3D');
   expect(markup).toContain('role="status"');
   expect(markup).toContain('ページを読み込んでいます。');
   expect(markup).toContain('aria-live="polite"');
@@ -16,14 +20,46 @@ test('keeps accessible loader metadata in SSR and releases the page safely', asy
 
   await page.addInitScript(() => {
     localStorage.setItem('ivuru-locale', 'ja');
-    localStorage.setItem('ivuru-theme', 'light');
+    localStorage.setItem('ivuru-theme', 'dark');
     sessionStorage.removeItem('ivuru-intro-seen');
+    sessionStorage.removeItem('ivuru-loader-theme');
   });
   await page.goto('/');
 
   await expect(page.locator('.anime-intro-loader')).toBeHidden({ timeout: 4_000 });
   await expect(page.locator('html')).toHaveAttribute('data-loader-released', 'true');
   await expect(page.locator('body')).not.toHaveClass(/site-loading/);
+});
+
+test('alternates Orbit and Drive themes on reload', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('ivuru-locale', 'ja');
+    localStorage.setItem('ivuru-theme', 'dark');
+    sessionStorage.removeItem('ivuru-loader-theme');
+    sessionStorage.setItem('ivuru-intro-seen', '1');
+  });
+
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  const firstTheme = await page.locator('html').getAttribute('data-loader-theme');
+  expect(['orbit', 'drive']).toContain(firstTheme);
+  await expect(page.locator('.dual-loader')).toHaveAttribute('data-theme', firstTheme ?? 'orbit');
+
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  const secondTheme = await page.locator('html').getAttribute('data-loader-theme');
+  expect(['orbit', 'drive']).toContain(secondTheme);
+  expect(secondTheme).not.toBe(firstTheme);
+  await expect(page.locator('.dual-loader')).toHaveAttribute('data-theme', secondTheme ?? 'drive');
+});
+
+test('does not render the cinematic loader on lower pages', async ({ page }) => {
+  const response = await page.request.get('/profile');
+  expect(response.ok()).toBeTruthy();
+  const markup = await response.text();
+  expect(markup).not.toContain('data-dual-loader');
+
+  await page.goto('/profile');
+  await expect(page.locator('.dual-loader')).toHaveCount(0);
+  await expect(page.locator('#main-content h1')).toBeVisible();
 });
 
 test('emits an absolute local profile image URL in Person JSON-LD', async ({ page }) => {
