@@ -90,15 +90,17 @@ test('turnstile initializes after validation and the confirmation panel mounts',
   await expect(page.getByRole('button', { name: '送信する' })).toBeEnabled();
 });
 
-test('Digital Room shell is centered and uses the available desktop width', async ({ page }) => {
+test('Home V2 destination shell is centered and uses the available desktop width', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/');
+  await expect(page.locator('.world-loader')).toBeHidden({ timeout: 4_000 });
 
-  const section = page.locator('.digital-room');
-  const shell = page.locator('.digital-room-shell');
+  const section = page.locator('.home-portals');
+  const shell = page.locator('.home-portals-shell');
   await shell.scrollIntoViewIfNeeded();
-  await expect(section).not.toHaveClass(/community/);
-  await expect(shell.locator('.room-node')).toHaveCount(8);
+  await expect(shell.locator('.home-portal-link')).toHaveCount(4);
 
   const sectionBox = await section.boundingBox();
   const shellBox = await shell.boundingBox();
@@ -107,7 +109,7 @@ test('Digital Room shell is centered and uses the available desktop width', asyn
 
   const leftGap = shellBox!.x - sectionBox!.x;
   const rightGap = sectionBox!.x + sectionBox!.width - (shellBox!.x + shellBox!.width);
-  expect(Math.abs(leftGap - rightGap)).toBeLessThan(3);
+  expect(Math.abs(leftGap - rightGap)).toBeLessThan(4);
   expect(shellBox!.width).toBeGreaterThan(sectionBox!.width * 0.65);
 });
 

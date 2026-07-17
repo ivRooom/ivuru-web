@@ -35,18 +35,22 @@ test('News and Games render in every locale', async ({ page }) => {
   }
 });
 
-test('home exposes anime scenes to News, Games, and Profile Favorites', async ({ page }) => {
+test('home exposes the focused Works, Profile, Journal, and ivRm destinations', async ({
+  page,
+}) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.addInitScript(() => sessionStorage.setItem('ivuru-intro-seen', '1'));
   await page.goto('/');
   await expect(page.locator('.world-loader')).toBeHidden({ timeout: 4_000 });
-  await expect(page.locator('[data-anime-scroll-story]')).toHaveAttribute(
-    'data-story-mode',
-    'static',
-  );
-  await expect(page.locator('.anime-portal-card[href="/news"]')).toBeVisible();
-  await expect(page.locator('.anime-portal-card[href="/games"]')).toBeVisible();
-  await expect(page.locator('.anime-portal-card[href="/profile#favorites"]')).toBeVisible();
+  const story = page.locator('[data-anime-scroll-story]');
+  await expect(story).toBeVisible();
+  await expect(story).toHaveAttribute('data-story-mode', 'static');
+  const portals = page.locator('.home-portals');
+  await portals.scrollIntoViewIfNeeded();
+  await expect(portals.locator('a[href="/works"]')).toBeVisible();
+  await expect(portals.locator('a[href="/profile"]')).toBeVisible();
+  await expect(portals.locator('a[href="/blog"]')).toBeVisible();
+  await expect(portals.locator('a[href="https://ivrm.jp"]')).toBeVisible();
 });
 
 test('games page presents three restrained motion studies', async ({ page }) => {

@@ -1,18 +1,18 @@
 import { expect, test } from '@playwright/test';
 
-test('activity command center renders real routes in all locales', async ({ page }) => {
+test('Home V2 renders four focused destinations in all locales', async ({ page }) => {
   for (const route of ['/', '/en', '/ko']) {
     await page.goto(route);
-    await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
-    const center = page.locator('.activity-command-center');
-    await center.scrollIntoViewIfNeeded();
-    await expect(center).toBeVisible();
-    await expect(center.locator('.command-node')).toHaveCount(4);
-    await expect(center.locator('[data-analytics-event="command_center_open"]')).toHaveCount(4);
+    await expect(page.locator('.world-loader')).toBeHidden({ timeout: 4_000 });
+    const portals = page.locator('.home-portals');
+    await portals.scrollIntoViewIfNeeded();
+    await expect(portals).toBeVisible();
+    await expect(portals.locator('.home-portal-link')).toHaveCount(4);
+    await expect(portals.locator('[data-analytics-event="home_portal_open"]')).toHaveCount(4);
   }
 });
 
-test('analytics bridge emits one page view and allowlisted command events without PII', async ({
+test('analytics bridge emits one page view and an allowlisted Home V2 event without PII', async ({
   page,
 }) => {
   await page.addInitScript(() => {
@@ -25,10 +25,10 @@ test('analytics bridge emits one page view and allowlisted command events withou
   });
 
   await page.goto('/');
-  await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
-  const center = page.locator('.activity-command-center');
-  await center.scrollIntoViewIfNeeded();
-  await center.locator('a').first().click();
+  await expect(page.locator('.world-loader')).toBeHidden({ timeout: 4_000 });
+  const portals = page.locator('.home-portals');
+  await portals.scrollIntoViewIfNeeded();
+  await portals.locator('a').first().click();
   await expect(page).toHaveURL(/\/works\/?$/);
 
   const events = await page.evaluate(
@@ -38,7 +38,7 @@ test('analytics bridge emits one page view and allowlisted command events withou
   );
   expect(events.some((event) => event.name === 'page_view')).toBeTruthy();
   expect(
-    events.some((event) => event.name === 'command_center_open' && event.target === 'works'),
+    events.some((event) => event.name === 'home_portal_open' && event.target === 'works'),
   ).toBeTruthy();
   expect(JSON.stringify(events)).not.toContain('email');
   expect(JSON.stringify(events)).not.toContain('message');

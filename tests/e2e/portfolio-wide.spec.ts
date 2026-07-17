@@ -19,5 +19,9 @@ test('portfolio CTA remains visible on wide screens', async ({ page }) => {
   expect((linkBox?.x ?? 0) + (linkBox?.width ?? 0)).toBeLessThanOrEqual(
     (ctaBox?.x ?? 0) + (ctaBox?.width ?? 0) + 1,
   );
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1)).toBeTruthy();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1,
+    ),
+  ).toBeTruthy();
 });
