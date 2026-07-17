@@ -106,9 +106,7 @@ describe('site-wide motion and navigation contract', () => {
       const keyframes = readKeyframes(css, name);
       expect(keyframes).toContain('transform: translate3d');
       expect(keyframes).toContain('opacity:');
-      expect(keyframes).not.toMatch(
-        /(?:^|\s)(?:width|height|top|left|margin(?:-[a-z-]+)?):/m,
-      );
+      expect(keyframes).not.toMatch(/(?:^|\s)(?:width|height|top|left|margin(?:-[a-z-]+)?):/m);
     }
   });
 });
