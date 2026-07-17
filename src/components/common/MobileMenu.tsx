@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Code2, Gamepad2, Menu, Radio, Sparkles, X } from 'lucide-react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { createPortal } from 'react-dom';
+import { MOTION_DURATION, MOTION_EASE, MOTION_SCALE, MOTION_STAGGER } from '@/lib/motion';
 
 type Locale = 'ja' | 'en' | 'ko';
 type Item = { label: string; href: string; active?: boolean };
@@ -41,6 +42,15 @@ const menuCopy = {
   },
 } as const;
 
+const focusableSelector = [
+  'a[href]',
+  'button:not([disabled])',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(',');
+
 export default function MobileMenu({
   items,
   xUrl,
@@ -67,10 +77,12 @@ export default function MobileMenu({
     };
 
     document.addEventListener('astro:before-preparation', closeForNavigation);
+    document.addEventListener('ivuru:route-start', closeForNavigation);
     window.addEventListener('resize', closeForDesktop, { passive: true });
 
     return () => {
       document.removeEventListener('astro:before-preparation', closeForNavigation);
+      document.removeEventListener('ivuru:route-start', closeForNavigation);
       window.removeEventListener('resize', closeForDesktop);
     };
   }, []);
@@ -85,6 +97,17 @@ export default function MobileMenu({
     document.body.classList.add('menu-open');
     document.dispatchEvent(new CustomEvent('ivuru:menu-state', { detail: { open: true } }));
 
+    const layer = document.querySelector<HTMLElement>('.mobile-menu-layer');
+    const inertedSiblings = Array.from(document.body.children)
+      .filter(
+        (element): element is HTMLElement =>
+          element instanceof HTMLElement && element !== layer && !element.contains(layer),
+      )
+      .map((element) => ({ element, previous: element.inert }));
+    inertedSiblings.forEach(({ element }) => {
+      element.inert = true;
+    });
+
     const focusFrame = window.requestAnimationFrame(() => {
       panel.current?.querySelector<HTMLElement>('.menu-close')?.focus();
     });
@@ -98,8 +121,13 @@ export default function MobileMenu({
       if (event.key !== 'Tab' || !panel.current) return;
 
       const focusable = Array.from(
-        panel.current.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'),
-      ).filter((element) => !element.hasAttribute('hidden'));
+        panel.current.querySelectorAll<HTMLElement>(focusableSelector),
+      ).filter(
+        (element) =>
+          !element.hasAttribute('hidden') &&
+          element.getAttribute('aria-hidden') !== 'true' &&
+          !element.inert,
+      );
       if (!focusable.length) return;
 
       const first = focusable[0];
@@ -117,11 +145,16 @@ export default function MobileMenu({
     return () => {
       window.cancelAnimationFrame(focusFrame);
       document.removeEventListener('keydown', onKey);
+      inertedSiblings.forEach(({ element, previous }) => {
+        element.inert = previous;
+      });
       document.body.classList.remove('menu-open');
       if (previousGap) document.body.style.setProperty('--menu-scrollbar-gap', previousGap);
       else document.body.style.removeProperty('--menu-scrollbar-gap');
       document.dispatchEvent(new CustomEvent('ivuru:menu-state', { detail: { open: false } }));
-      window.requestAnimationFrame(() => triggerElement?.focus());
+      window.requestAnimationFrame(() => {
+        if (triggerElement?.isConnected) triggerElement.focus();
+      });
     };
   }, [open]);
 
@@ -133,21 +166,22 @@ export default function MobileMenu({
     [],
   );
 
-  const layerMotion = reduceMotion
-    ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } }
-    : {
-        initial: { clipPath: 'circle(0% at calc(100% - 48px) 48px)' },
-        animate: { clipPath: 'circle(150% at calc(100% - 48px) 48px)' },
-        exit: { clipPath: 'circle(0% at calc(100% - 48px) 48px)' },
-      };
-
   const overlay = (
     <AnimatePresence>
       {open && (
         <motion.div
           className="mobile-menu-layer"
-          {...layerMotion}
-          transition={{ duration: reduceMotion ? 0.12 : 0.72, ease: [0.76, 0, 0.24, 1] }}
+          initial={
+            reduceMotion
+              ? { opacity: 0 }
+              : { opacity: 0, scale: MOTION_SCALE.enter, y: -8 }
+          }
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.995, y: -4 }}
+          transition={{
+            duration: reduceMotion ? 0.001 : MOTION_DURATION.standard,
+            ease: MOTION_EASE.apple,
+          }}
           onPointerDown={(event) => event.target === event.currentTarget && setOpen(false)}
         >
           <motion.div
@@ -157,13 +191,12 @@ export default function MobileMenu({
             role="dialog"
             aria-modal="true"
             aria-label={copy.navigation}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: reduceMotion ? 0 : 8 }}
             transition={{
-              duration: reduceMotion ? 0.12 : 0.4,
-              delay: reduceMotion ? 0 : 0.12,
-              ease: [0.22, 1, 0.36, 1],
+              duration: reduceMotion ? 0.001 : MOTION_DURATION.standard,
+              ease: MOTION_EASE.apple,
             }}
           >
             <div className="menu-atmosphere" aria-hidden="true">
@@ -195,6 +228,7 @@ export default function MobileMenu({
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label={copy.close}
+                data-ui-action
               >
                 <X aria-hidden="true" />
               </button>
@@ -203,9 +237,13 @@ export default function MobileMenu({
             <div className="mobile-menu-worlds" aria-hidden="true">
               <motion.div
                 className="menu-world-card developer"
-                initial={reduceMotion ? false : { opacity: 0, x: -20 }}
+                initial={reduceMotion ? false : { opacity: 0, x: -16 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: reduceMotion ? 0 : 0.24, duration: 0.42 }}
+                transition={{
+                  delay: reduceMotion ? 0 : MOTION_STAGGER * 2,
+                  duration: reduceMotion ? 0.001 : MOTION_DURATION.standard,
+                  ease: MOTION_EASE.apple,
+                }}
               >
                 <Code2 />
                 <span>{copy.developer}</span>
@@ -216,9 +254,13 @@ export default function MobileMenu({
               </div>
               <motion.div
                 className="menu-world-card gamer"
-                initial={reduceMotion ? false : { opacity: 0, x: 20 }}
+                initial={reduceMotion ? false : { opacity: 0, x: 16 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: reduceMotion ? 0 : 0.29, duration: 0.42 }}
+                transition={{
+                  delay: reduceMotion ? 0 : MOTION_STAGGER * 3,
+                  duration: reduceMotion ? 0.001 : MOTION_DURATION.standard,
+                  ease: MOTION_EASE.apple,
+                }}
               >
                 <Gamepad2 />
                 <span>{copy.gamer}</span>
@@ -234,13 +276,14 @@ export default function MobileMenu({
                   className={item.active ? 'active' : undefined}
                   aria-current={item.active ? 'page' : undefined}
                   onClick={() => setOpen(false)}
-                  initial={reduceMotion ? false : { opacity: 0, y: 28, skewY: 3 }}
-                  animate={{ opacity: 1, y: 0, skewY: 0 }}
+                  initial={reduceMotion ? false : { opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
                   transition={{
-                    delay: reduceMotion ? 0 : 0.22 + index * 0.055,
-                    duration: 0.46,
-                    ease: [0.22, 1, 0.36, 1],
+                    delay: reduceMotion ? 0 : MOTION_STAGGER * (index + 2),
+                    duration: reduceMotion ? 0.001 : MOTION_DURATION.standard,
+                    ease: MOTION_EASE.apple,
                   }}
+                  data-ui-action
                 >
                   <small>{String(index + 1).padStart(2, '0')}</small>
                   <span>{item.label}</span>
@@ -251,8 +294,13 @@ export default function MobileMenu({
 
             <footer className="mobile-menu-footer">
               <span>BUILD. PLAY. CONNECT.</span>
-              <a href={xUrl} target="_blank" rel="noopener noreferrer">
-                X / {xHandle} ↗
+              <a
+                href={xUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-ui-external="true"
+              >
+                X / {xHandle}
               </a>
             </footer>
           </motion.div>
@@ -272,12 +320,16 @@ export default function MobileMenu({
         aria-expanded={open}
         aria-controls="mobile-menu"
         aria-label={open ? copy.close : copy.open}
+        data-ui-action
       >
         <motion.span
           key={open ? 'close' : 'open'}
-          initial={reduceMotion ? false : { opacity: 0, rotate: -90, scale: 0.7 }}
+          initial={reduceMotion ? false : { opacity: 0, rotate: -45, scale: 0.84 }}
           animate={{ opacity: 1, rotate: 0, scale: 1 }}
-          transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+          transition={{
+            duration: reduceMotion ? 0.001 : MOTION_DURATION.fast,
+            ease: MOTION_EASE.spring,
+          }}
         >
           {open ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
         </motion.span>
