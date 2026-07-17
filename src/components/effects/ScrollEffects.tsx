@@ -79,7 +79,10 @@ export default function ScrollEffects() {
     };
 
     const markVisible = (element: HTMLElement) => {
-      if (element.dataset.scrollReveal === 'visible' || element.dataset.scrollReveal === 'settled') {
+      if (
+        element.dataset.scrollReveal === 'visible' ||
+        element.dataset.scrollReveal === 'settled'
+      ) {
         return;
       }
       element.dataset.scrollReveal = 'visible';
@@ -91,11 +94,7 @@ export default function ScrollEffects() {
       settleTimers.add(timer);
     };
 
-    const prepareElement = (
-      element: HTMLElement,
-      kind = revealKind(element),
-      delayIndex = 0,
-    ) => {
+    const prepareElement = (element: HTMLElement, kind = revealKind(element), delayIndex = 0) => {
       if (isStoryElement(element)) return;
       observedElements.add(element);
       element.dataset.scrollReveal = 'pending';
@@ -143,7 +142,10 @@ export default function ScrollEffects() {
         document.querySelectorAll<HTMLElement>('[data-anime-parallax]').forEach((element) => {
           if (isStoryElement(element)) return;
           parallaxElements.add(element);
-          element.style.setProperty('--scroll-parallax-distance', `${parseParallaxDistance(element)}%`);
+          element.style.setProperty(
+            '--scroll-parallax-distance',
+            `${parseParallaxDistance(element)}%`,
+          );
           element.dataset.scrollParallax = CSS.supports('animation-timeline: view()')
             ? 'native'
             : 'disabled';
