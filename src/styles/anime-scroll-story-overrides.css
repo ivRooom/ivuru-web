@@ -8,6 +8,41 @@
   -webkit-font-smoothing: antialiased;
 }
 
+/* SSR/no-JS is a readable static story. Motion stacking starts only after hydration. */
+.anime-scroll-story:not([data-story-mode]) .anime-scroll-stage {
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+  perspective: none;
+}
+
+.anime-scroll-story:not([data-story-mode]) .anime-story-chrome,
+.anime-scroll-story:not([data-story-mode]) .anime-story-progress,
+.anime-scroll-story:not([data-story-mode]) .anime-scroll-cue {
+  display: none;
+}
+
+.anime-scroll-story:not([data-story-mode]) .anime-story-scene {
+  position: relative;
+  inset: auto;
+  min-height: 100svh;
+  visibility: visible;
+  opacity: 1;
+  filter: none;
+  transform: none;
+  clip-path: none;
+}
+
+.anime-scroll-story:not([data-story-mode]) [data-story-copy],
+.anime-scroll-story:not([data-story-mode]) [data-story-visual],
+.anime-scroll-story:not([data-story-mode]) [data-story-pop] {
+  visibility: visible;
+  opacity: 1;
+  filter: none;
+  transform: none;
+  clip-path: none;
+}
+
 .anime-scroll-story[data-story-mode='motion'] .anime-scroll-stage {
   min-height: 0;
   contain: layout paint style;
