@@ -31,11 +31,12 @@ jobs:
         env:
           ASTRO_TELEMETRY_DISABLED: '1'
       - run: npm run lint
+        id: lint
       - name: ESLint診断レポートを生成
-        if: failure()
+        if: failure() && steps.lint.outcome == 'failure'
         run: npm run lint -- --format json > eslint-report.json || true
       - name: ESLint診断Artifactを保存
-        if: failure()
+        if: failure() && steps.lint.outcome == 'failure'
         uses: actions/upload-artifact@v4
         with:
           name: eslint-diagnostics-${{ github.run_attempt }}
