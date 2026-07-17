@@ -37,6 +37,7 @@ describe('site-wide motion and navigation contract', () => {
     expect(lifecycle).toContain("'astro:after-swap'");
     expect(lifecycle).toContain("'astro:page-load'");
     expect(lifecycle).toContain('focusRouteTarget');
+    expect(lifecycle).not.toContain('querySelectorAll<HTMLAnchorElement>');
   });
 
   it('HeaderはIntersection Observerを使い直接scroll listenerを持たない', () => {
@@ -44,6 +45,7 @@ describe('site-wide motion and navigation contract', () => {
 
     expect(header).toContain('IntersectionObserver');
     expect(header).toContain('[data-header-sentinel]');
+    expect(header).toContain("rootMargin: '0px'");
     expect(header).toContain('aria-current');
     expect(header).toContain('header-location');
     expect(header).not.toMatch(/addEventListener\(\s*['"]scroll['"]/);
@@ -59,6 +61,14 @@ describe('site-wide motion and navigation contract', () => {
     expect(menu).toContain('MOTION_DURATION');
     expect(menu).toContain('MOTION_EASE');
     expect(menu).not.toContain('clipPath');
+  });
+
+  it('Disabled LinkはTab順と遷移対象から除外する', () => {
+    const lifecycle = readSource('src/components/common/NavigationLifecycle.astro');
+
+    expect(lifecycle).toContain('disabledLinkSelector');
+    expect(lifecycle).toContain("node.setAttribute('tabindex', '-1')");
+    expect(lifecycle).toContain('event.preventDefault()');
   });
 
   it('Reduced Motionと非アクティブタブでは大きな演出を停止する', () => {
