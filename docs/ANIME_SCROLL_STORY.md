@@ -26,6 +26,7 @@
 - 前景は奥から出現し、章の終端で画面手前へ抜ける
 - 現在章は`data-story-chapter`、テーマは`data-story-scene`で管理する
 - スナップ契約は`data-story-snap`、マスク契約は`data-story-mask`でE2Eから確認できる
+- 飛行パスは`data-story-flight-path`を使用し、共通`data-blue-path`のScrollTriggerから分離する
 - 旧`data-anime-hero`、`data-anime-scene`によるグローバル演出とは分離する
 
 ## デザインシステム
