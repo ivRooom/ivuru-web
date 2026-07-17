@@ -1,0 +1,119 @@
+:root {
+  --motion-apple-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-apple-spring: cubic-bezier(0.22, 1.24, 0.36, 1);
+}
+
+[data-scroll-reveal] {
+  backface-visibility: hidden;
+  transform-origin: 50% 50%;
+}
+
+[data-scroll-reveal='pending'] {
+  visibility: visible;
+  opacity: 0;
+  transform: translate3d(0, 30px, 0) scale(0.985);
+  will-change: transform, opacity;
+}
+
+[data-scroll-reveal='pending'][data-scroll-reveal-kind='visual'] {
+  transform: translate3d(0, 46px, 0) scale(0.955);
+}
+
+[data-scroll-reveal='pending'][data-scroll-reveal-kind='stagger'] {
+  transform: translate3d(0, 24px, 0) scale(0.98);
+}
+
+[data-scroll-reveal='pending'][data-scroll-reveal-kind='line'] {
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transform-box: fill-box;
+}
+
+[data-scroll-reveal='visible'] {
+  visibility: visible;
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+  transition:
+    transform 820ms var(--motion-apple-ease) var(--scroll-reveal-delay, 0ms),
+    opacity 620ms ease-out var(--scroll-reveal-delay, 0ms);
+  will-change: transform, opacity;
+}
+
+[data-scroll-reveal='visible'][data-scroll-reveal-kind='visual'] {
+  transition-timing-function: var(--motion-apple-spring), ease-out;
+}
+
+[data-scroll-reveal='settled'] {
+  visibility: visible;
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+  transition: none;
+  will-change: auto;
+}
+
+[data-scroll-reveal='settled'][data-scroll-reveal-kind='line'] {
+  transform: scaleX(1);
+  transform-origin: left center;
+  transform-box: fill-box;
+}
+
+[data-cinematic-card] .cinematic-card-surface,
+[data-pointer-plane] {
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+  transition: transform 620ms var(--motion-apple-ease);
+}
+
+[data-cinematic-card][data-pointer-active='true'] .cinematic-card-surface,
+[data-anime-hero][data-pointer-active='true'] [data-pointer-plane] {
+  transition-duration: 110ms;
+  will-change: transform;
+}
+
+@supports (animation-timeline: view()) {
+  [data-scroll-parallax='native'] {
+    animation: native-view-parallax linear both;
+    animation-timeline: view();
+    animation-range: entry 0% exit 100%;
+    backface-visibility: hidden;
+  }
+
+  @keyframes native-view-parallax {
+    from {
+      transform: translate3d(0, calc(var(--scroll-parallax-distance, 4%) * -1), 0);
+    }
+
+    to {
+      transform: translate3d(0, var(--scroll-parallax-distance, 4%), 0);
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  [data-scroll-reveal='pending'] {
+    transform: translate3d(0, 20px, 0) scale(0.99);
+  }
+
+  [data-scroll-reveal='pending'][data-scroll-reveal-kind='visual'] {
+    transform: translate3d(0, 28px, 0) scale(0.975);
+  }
+
+  [data-scroll-parallax='native'] {
+    --scroll-parallax-distance: 1.5% !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-scroll-reveal],
+  [data-scroll-parallax],
+  [data-cinematic-card] .cinematic-card-surface,
+  [data-pointer-plane] {
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+    will-change: auto !important;
+  }
+}
