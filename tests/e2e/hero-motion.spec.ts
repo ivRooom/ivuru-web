@@ -8,117 +8,144 @@ const prepareHome = async (page: import('@playwright/test').Page) => {
   });
 };
 
-test.describe('blue media scroll motion', () => {
-  test('reveals the cinematic blue signal hero with layered effects', async ({ page }) => {
+const moveToChapter = async (
+  page: import('@playwright/test').Page,
+  chapter: '01' | '02' | '03' | '04',
+) => {
+  const chapterIndex = Number(chapter) - 1;
+  const story = page.locator('[data-anime-scroll-story]');
+  await expect(story).toHaveAttribute('data-story-mode', 'motion', { timeout: 6_000 });
+  await page.evaluate((index) => {
+    window.scrollTo({ top: window.innerHeight * (index * 1.16 + 0.3), behavior: 'instant' });
+  }, chapterIndex);
+  await expect(story).toHaveAttribute('data-story-chapter', chapter, { timeout: 4_000 });
+};
+
+test.describe('anime scroll story', () => {
+  test('opens as a four-chapter transform-only anime world', async ({ page }, testInfo) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await prepareHome(page);
     await page.goto('/');
 
-    const hero = page.locator('[data-anime-hero]');
-    await expect(hero).toBeVisible();
-    await expect(hero.locator('[data-blue-path]')).toHaveCount(1);
-    await expect(hero.locator('[data-blue-orbit]')).toBeVisible();
-    await expect(hero.locator('[data-cinematic-field]')).toBeVisible();
-    await expect(hero.locator('[data-cinematic-ring]')).toHaveCount(3);
-    await expect(hero.locator('[data-cinematic-shard]')).toHaveCount(8);
-    await expect(hero.locator('[data-cinematic-scan]')).toBeVisible();
-    await expect(hero.locator('.cinematic-character-aura')).toBeVisible();
-    await expect(hero.locator('.signal-key-frame')).toBeVisible();
-    await expect(page.locator('[data-cinematic-intro]')).toHaveCount(0);
-    await expect(page.locator('[data-hero-depth="grain"]')).toHaveCount(0);
-    await expect(page.locator('[data-hero-video]')).toHaveCount(0);
-
-    const works = hero.getByRole('link', { name: /Works|制作|작업/i }).first();
-    await expect(works).toBeVisible();
-    await expect(works).toHaveCSS('pointer-events', 'auto');
-    await expect(page.locator('html')).toHaveAttribute('data-motion-ready', 'true');
+    const story = page.locator('[data-anime-scroll-story]');
+    await expect(story).toBeVisible();
+    await expect(story).toHaveAttribute('data-story-mode', 'motion', { timeout: 6_000 });
+    await expect(story).toHaveAttribute('data-story-performance', 'transform-only');
+    await expect(story).toHaveAttribute(
+      'data-story-snap',
+      testInfo.project.use.isMobile ? 'disabled-mobile' : 'labels-directional',
+    );
+    await expect(story).toHaveAttribute('data-story-mask', 'active');
+    await expect(story.locator('[data-anime-story-scene]')).toHaveCount(4);
+    await expect(story.locator('[data-story-progress-dot]')).toHaveCount(4);
+    await expect(story.locator('[data-story-progress-line]')).toHaveCount(1);
+    await expect(story).toHaveAttribute('data-story-chapter', '01');
+    await expect(story.locator('[data-story-flight-path]')).toHaveCount(1);
+    await expect(story.locator('[data-blue-orbit]')).toBeVisible();
+    await expect(story.locator('[data-cinematic-ring]')).toHaveCount(3);
+    await expect(story.locator('[data-cinematic-shard]')).toHaveCount(8);
+    await expect(story.locator('.signal-key-frame')).toBeVisible();
+    await expect(story.locator('[data-hero-video]')).toHaveCount(0);
+    await expect(story.getByRole('link', { name: /Works|制作|작업/i }).first()).toBeVisible();
+    await expect(page.locator('html')).toHaveAttribute('data-motion-ready', 'observer');
   });
 
-  test('responds to a fine pointer with hero depth and card tilt', async ({ page }) => {
+  test('switches scenes using compositor-friendly properties', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await prepareHome(page);
     await page.goto('/');
 
-    const hero = page.locator('[data-anime-hero]');
-    await expect(hero).toBeVisible();
-    await expect(hero).toHaveAttribute('data-cinematic-pointer', 'active');
-    const heroBox = await hero.boundingBox();
-    expect(heroBox).not.toBeNull();
-    if (!heroBox) return;
+    const story = page.locator('[data-anime-scroll-story]');
+    await moveToChapter(page, '02');
+    const buildScene = story.locator('[data-anime-story-scene="1"]');
+    await expect(buildScene).toHaveAttribute('data-active', 'true');
+    await expect(buildScene).toHaveCSS('clip-path', 'none');
+    await expect(buildScene).toHaveCSS('filter', 'none');
+    await expect(story.locator('.anime-build-device')).toBeVisible();
 
-    await hero.dispatchEvent('pointermove', {
-      clientX: heroBox.x + heroBox.width * 0.82,
-      clientY: heroBox.y + heroBox.height * 0.24,
-      pointerType: 'mouse',
-    });
+    await moveToChapter(page, '03');
+    await expect(story.locator('[data-anime-story-scene="2"]')).toHaveAttribute(
+      'data-active',
+      'true',
+    );
+    await expect(story.locator('.anime-game-portal')).toBeVisible();
+    await expect(story.locator('.anime-game-portal')).toHaveCSS('clip-path', 'none');
+    await expect(story.locator('.anime-portal-card')).toHaveCount(3);
+    await expect(page.locator('body')).toHaveAttribute('data-anime-scene', 'deep');
+
+    await moveToChapter(page, '04');
+    await expect(story.locator('[data-anime-story-scene="3"]')).toHaveAttribute(
+      'data-active',
+      'true',
+    );
+    await expect(story.locator('.anime-community-emblem')).toBeVisible();
+  });
+
+  test('updates the transform progress rail and visible card tilt', async ({ page }, testInfo) => {
+    test.skip(Boolean(testInfo.project.use.isMobile), 'Fine pointer only');
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await prepareHome(page);
+    await page.goto('/');
+
+    const story = page.locator('[data-anime-scroll-story]');
+    const progressLine = story.locator('[data-story-progress-line]');
+    const initialTransform = await progressLine.evaluate(
+      (element) => getComputedStyle(element).transform,
+    );
+
+    await moveToChapter(page, '02');
     await expect
-      .poll(() =>
-        hero.evaluate((element) =>
-          getComputedStyle(element).getPropertyValue('--hero-shift-x').trim(),
-        ),
-      )
-      .not.toBe('0px');
+      .poll(() => progressLine.evaluate((element) => getComputedStyle(element).transform))
+      .not.toBe(initialTransform);
 
-    const portal = page.locator('.anime-portal-section');
-    await portal.scrollIntoViewIfNeeded();
-    const card = portal.locator('[data-cinematic-card]').first();
+    await moveToChapter(page, '03');
+    const card = story.locator('[data-cinematic-card]').first();
     await expect(card).toBeVisible();
-    await expect(card.locator('.cinematic-card-surface')).toHaveCount(1);
+    const surface = card.locator('.cinematic-card-surface');
     const cardBox = await card.boundingBox();
     expect(cardBox).not.toBeNull();
     if (!cardBox) return;
 
+    await card.dispatchEvent('pointerenter', {
+      clientX: cardBox.x + cardBox.width * 0.5,
+      clientY: cardBox.y + cardBox.height * 0.5,
+      pointerType: 'mouse',
+    });
     await card.dispatchEvent('pointermove', {
       clientX: cardBox.x + cardBox.width * 0.78,
       clientY: cardBox.y + cardBox.height * 0.28,
       pointerType: 'mouse',
     });
+    await expect(card).toHaveAttribute('data-pointer-active', 'true');
     await expect
-      .poll(() =>
-        card.evaluate((element) =>
-          getComputedStyle(element).getPropertyValue('--card-tilt-y').trim(),
-        ),
-      )
-      .not.toBe('0deg');
+      .poll(() => surface.evaluate((element) => getComputedStyle(element).transform))
+      .not.toBe('none');
   });
 
-  test('keeps every scene visible and disables added motion for reduced motion', async ({
-    page,
-  }) => {
+  test('stacks every chapter and disables ambient loops for reduced motion', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await prepareHome(page);
     await page.goto('/');
 
-    const hero = page.locator('[data-anime-hero]');
-    await expect(hero).toBeVisible();
-    await expect(hero).not.toHaveAttribute('data-cinematic-pointer', 'active');
-    await expect(page.locator('[data-hero-video]')).toHaveCount(0);
-    await expect(page.locator('.signal-key-visual')).toBeVisible();
-    await expect(page.locator('html')).toHaveAttribute('data-motion-ready', 'reduced');
-    await expect(page.locator('.cinematic-scan-beam')).toHaveCSS('animation-name', 'none');
-    await expect(page.locator('.cinematic-signal-ring').first()).toHaveCSS(
+    const story = page.locator('[data-anime-scroll-story]');
+    await expect(story).toHaveAttribute('data-story-mode', 'static');
+    await expect(story).toHaveAttribute('data-story-mask', 'static');
+    await expect(story).toHaveAttribute('data-story-performance', 'transform-only');
+    await expect(story).not.toHaveAttribute('data-story-snap');
+    await expect(story.locator('[data-anime-story-scene]')).toHaveCount(4);
+    for (const scene of await story.locator('[data-anime-story-scene]').all()) {
+      await expect(scene).toBeVisible();
+      await expect(scene).not.toHaveAttribute('aria-hidden', 'true');
+    }
+    await expect(story.locator('.anime-game-ring').first()).toHaveCSS('animation-name', 'none');
+    await expect(story.locator('.cinematic-signal-ring').first()).toHaveCSS(
       'animation-name',
       'none',
     );
-    await expect(hero.getByRole('link', { name: /Works|制作|작업/i }).first()).toBeVisible();
+    await expect(page.locator('html')).toHaveAttribute('data-motion-ready', 'reduced');
   });
 
-  test('changes the ambient scene while scrolling through blue channel cards', async ({ page }) => {
-    await page.emulateMedia({ reducedMotion: 'no-preference' });
-    await prepareHome(page);
-    await page.goto('/');
-
-    const portal = page.locator('.anime-portal-section');
-    await portal.scrollIntoViewIfNeeded();
-    await expect(portal).toBeVisible();
-    await expect(portal.locator('.anime-portal-card')).toHaveCount(3);
-    await expect(portal.locator('[data-cinematic-card]')).toHaveCount(3);
-    await expect(portal.locator('.signal-channel-visual')).toHaveCount(3);
-    await expect(portal.locator('img')).toHaveCount(0);
-    await expect(page.locator('body')).toHaveAttribute('data-anime-scene', 'deep');
-  });
-
-  test('provides the same cinematic blue media structure in every locale', async ({ page }) => {
+  test('provides the same four-chapter structure in every locale', async ({ page }, testInfo) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await page.addInitScript(() => {
       localStorage.setItem('ivuru-theme', 'dark');
@@ -127,10 +154,15 @@ test.describe('blue media scroll motion', () => {
 
     for (const route of ['/', '/en', '/ko']) {
       await page.goto(route);
-      await expect(page.locator('[data-anime-hero]')).toBeVisible();
-      await expect(page.locator('.signal-key-visual')).toBeVisible();
-      await expect(page.locator('[data-cinematic-ring]')).toHaveCount(3);
-      await expect(page.locator('.anime-portal-card')).toHaveCount(3);
+      const story = page.locator('[data-anime-scroll-story]');
+      await expect(story).toBeVisible();
+      await expect(story).toHaveAttribute(
+        'data-story-snap',
+        testInfo.project.use.isMobile ? 'disabled-mobile' : 'labels-directional',
+      );
+      await expect(story.locator('[data-anime-story-scene]')).toHaveCount(4);
+      await expect(story.locator('.signal-key-visual')).toBeVisible();
+      await expect(story.locator('.anime-portal-card')).toHaveCount(3);
     }
   });
 });

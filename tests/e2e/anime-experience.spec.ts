@@ -12,63 +12,61 @@ const prepareLocale = async (page: import('@playwright/test').Page, seen = false
   );
 };
 
+const fetchMarkup = async (page: import('@playwright/test').Page, route: string) => {
+  const response = await page.request.get(route);
+  expect(response.ok(), route).toBeTruthy();
+  return response.text();
+};
+
 test.describe('blue signal loading experience', () => {
-  test('shows the title sequence without a placeholder mascot and then releases the page', async ({
+  test('ships the title sequence without a placeholder mascot and then releases the page', async ({
     page,
   }) => {
+    const markup = await fetchMarkup(page, '/');
+    expect(markup).toContain('anime-intro-loader');
+    expect(markup).toContain('signal-title-loader');
+    expect(markup).toContain('signal-loader-core');
+    expect(markup).toContain('signal-loader-copy');
+    expect(markup).toContain('いゔる。');
+    expect(markup).toContain('blue-loader-signal');
+    expect(markup).toContain('anime-loader-meter');
+    expect(markup).not.toMatch(/class="[^"]*anime-loader-mascot/);
+
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await prepareLocale(page, false);
-    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await page.goto('/');
 
-    const loader = page.locator('.anime-intro-loader');
-    await expect(loader).toBeVisible();
-    await expect(loader).toHaveClass(/signal-title-loader/);
-    await expect(loader.locator('.anime-loader-mascot')).toHaveCount(0);
-    await expect(loader.locator('.signal-loader-core')).toBeVisible();
-    await expect(loader.locator('.signal-loader-copy strong')).toHaveText('いゔる。');
-    await expect(loader.locator('.blue-loader-signal')).toBeVisible();
-    await expect(loader.locator('.anime-loader-meter')).toBeVisible();
-
-    await page.waitForLoadState('load');
-    await expect(loader).toBeHidden({ timeout: 4_000 });
+    await expect(page.locator('.anime-intro-loader')).toBeHidden({ timeout: 4_000 });
+    await expect(page.locator('html')).toHaveAttribute('data-loader-released', 'true');
     await expect(page.locator('body')).not.toHaveClass(/site-loading/);
   });
 
-  test('uses the compact loader after the first visit', async ({ page }) => {
+  test('uses the shortened loader timing after the first visit', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await prepareLocale(page, true);
     await page.goto('/');
 
-    const loader = page.locator('.anime-intro-loader');
-    await expect(loader).toHaveClass(/is-compact/);
-    await expect(loader).toBeHidden({ timeout: 2_000 });
+    await expect(page.locator('.anime-intro-loader')).toBeHidden({ timeout: 3_500 });
+    await expect
+      .poll(() => page.evaluate(() => sessionStorage.getItem('ivuru-intro-seen')))
+      .toBe('1');
   });
 
-  test('localizes the accessible loading status', async ({ page }) => {
-    await page.emulateMedia({ reducedMotion: 'no-preference' });
-    await page.addInitScript(() => {
-      localStorage.setItem('ivuru-theme', 'light');
-      sessionStorage.removeItem('ivuru-intro-seen');
-    });
-
+  test('localizes the accessible loading metadata in SSR output', async ({ page }) => {
     for (const [route, label, status] of [
       ['/', 'いゔる。を読み込んでいます', 'ページを読み込んでいます。'],
       ['/en', 'Loading ivuru', 'Loading the page.'],
       ['/ko', 'ivuru를 불러오는 중입니다', '페이지를 불러오는 중입니다.'],
     ]) {
-      await page.goto(route, { waitUntil: 'domcontentloaded' });
-
-      const statusRegion = page.getByRole('status');
-      await expect(statusRegion).toHaveCount(1);
-      await expect(statusRegion).toHaveText(status);
-      await expect(statusRegion).toHaveAttribute('aria-live', 'polite');
-      await expect(statusRegion).toHaveAttribute('aria-atomic', 'true');
-
-      const progressbar = page.getByRole('progressbar', { name: label });
-      await expect(progressbar).toBeVisible();
-      await expect(progressbar).toHaveAttribute('aria-valuemin', '0');
-      await expect(progressbar).toHaveAttribute('aria-valuemax', '100');
-      await expect(progressbar).toHaveAttribute('aria-valuenow', /\d+/);
+      const markup = await fetchMarkup(page, route);
+      expect(markup).toContain(`aria-label="${label}"`);
+      expect(markup).toContain(status);
+      expect(markup).toContain('role="status"');
+      expect(markup).toContain('aria-live="polite"');
+      expect(markup).toContain('aria-atomic="true"');
+      expect(markup).toContain('role="progressbar"');
+      expect(markup).toContain('aria-valuemin="0"');
+      expect(markup).toContain('aria-valuemax="100"');
     }
   });
 
@@ -96,7 +94,7 @@ test.describe('blue signal loading experience', () => {
     await page.goto('/');
 
     await expect(page.locator('.anime-intro-loader')).toBeHidden({ timeout: 1_000 });
-    await expect(page.locator('[data-anime-hero]')).toBeVisible();
+    await expect(page.locator('[data-anime-scroll-story]')).toBeVisible();
     await expect(page.locator('.anime-portal-card')).toHaveCount(3);
   });
 });

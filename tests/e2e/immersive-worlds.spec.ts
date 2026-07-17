@@ -36,9 +36,14 @@ test('News and Games render in every locale', async ({ page }) => {
 });
 
 test('home exposes anime scenes to News, Games, and Profile Favorites', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.addInitScript(() => sessionStorage.setItem('ivuru-intro-seen', '1'));
   await page.goto('/');
-  await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
+  await expect(page.locator('.world-loader')).toBeHidden({ timeout: 4_000 });
+  await expect(page.locator('[data-anime-scroll-story]')).toHaveAttribute(
+    'data-story-mode',
+    'static',
+  );
   await expect(page.locator('.anime-portal-card[href="/news"]')).toBeVisible();
   await expect(page.locator('.anime-portal-card[href="/games"]')).toBeVisible();
   await expect(page.locator('.anime-portal-card[href="/profile#favorites"]')).toBeVisible();

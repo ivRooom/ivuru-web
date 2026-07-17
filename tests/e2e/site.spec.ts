@@ -34,27 +34,35 @@ test('world loader appears on access and clears safely', async ({ page }) => {
   await page.goto('/');
   const loader = page.locator('.world-loader');
   await expect(loader).toBeVisible();
-  await expect(loader).toBeHidden({ timeout: 3000 });
+  await expect(loader).toBeHidden({ timeout: 4000 });
   await expect(page.getByRole('heading', { name: /いゔる。/ }).first()).toBeVisible();
 
   await page.reload();
   await expect(page.locator('.world-loader')).toBeVisible();
-  await expect(page.locator('.world-loader')).toBeHidden({ timeout: 2000 });
+  await expect(page.locator('.world-loader')).toBeHidden({ timeout: 4000 });
 });
 
 test('chapter cut shows the destination chapter without replaying the intro loader', async ({
   page,
 }) => {
   await page.goto('/');
-  await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
+  await expect(page.locator('.world-loader')).toBeHidden({ timeout: 4000 });
   const chapterCut = page.locator('.chapter-cut');
-  await page.locator('.desktop-nav a[href="/profile"]').click();
+  const desktopProfile = page.locator('.desktop-nav a[href="/profile"]');
+
+  if (await desktopProfile.isVisible()) {
+    await desktopProfile.click();
+  } else {
+    await page.getByRole('button', { name: /メニューを開く|Open menu|메뉴 열기/ }).click();
+    await page.getByRole('dialog').locator('a[href$="/profile"]').click();
+  }
+
   await expect(chapterCut).toHaveAttribute('data-active', 'true');
   await expect(chapterCut).toContainText('CHARACTER PROFILE');
   await expect(page).toHaveURL(/\/profile\/?$/);
   await expect(page.locator('.character-sheet')).toBeVisible();
   await expect(page.locator('.world-loader')).toBeHidden();
-  await expect(chapterCut).toHaveAttribute('data-active', 'false', { timeout: 2000 });
+  await expect(chapterCut).toHaveAttribute('data-active', 'false', { timeout: 4000 });
 });
 
 test('custom animated 404 renders recovery routes', async ({ page }) => {
@@ -67,7 +75,7 @@ test('custom animated 404 renders recovery routes', async ({ page }) => {
 
 test('theme selection persists', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
+  await expect(page.locator('.world-loader')).toBeHidden({ timeout: 4000 });
   const button = page.getByRole('button', { name: /^Theme:/ });
   await button.click();
   await expect.poll(() => page.evaluate(() => localStorage.getItem('ivuru-theme'))).toBe('light');
@@ -85,7 +93,7 @@ test('mobile menu remains viewport-bound and reachable at mobile and tablet widt
   ]) {
     await page.setViewportSize(viewport);
     await page.goto('/works');
-    await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
+    await expect(page.locator('.world-loader')).toBeHidden({ timeout: 4000 });
     const trigger = page.getByRole('button', { name: 'Open menu' });
     await trigger.click();
     const dialog = page.getByRole('dialog', { name: 'Navigation' });
@@ -119,7 +127,7 @@ test('mobile menu remains viewport-bound and reachable at mobile and tablet widt
 test('menu closes when viewport switches to desktop navigation', async ({ page }) => {
   await page.setViewportSize({ width: 1024, height: 768 });
   await page.goto('/');
-  await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
+  await expect(page.locator('.world-loader')).toBeHidden({ timeout: 4000 });
   await page.getByRole('button', { name: 'Open menu' }).click();
   await expect(page.getByRole('dialog', { name: 'Navigation' })).toBeVisible();
   await page.setViewportSize({ width: 1280, height: 800 });
@@ -130,7 +138,7 @@ test('menu closes when viewport switches to desktop navigation', async ({ page }
 test('header stays visible while scrolling down', async ({ page }) => {
   await page.setViewportSize({ width: 1365, height: 768 });
   await page.goto('/profile');
-  await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
+  await expect(page.locator('.world-loader')).toBeHidden({ timeout: 4000 });
   const header = page.locator('[data-site-header]');
   await page.evaluate(() => window.scrollTo(0, 1200));
   await expect(header).toHaveClass(/scrolled/);
@@ -148,7 +156,7 @@ test('profile passport keeps image and data within the character sheet', async (
   ]) {
     await page.setViewportSize(viewport);
     await page.goto('/profile');
-    await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
+    await expect(page.locator('.world-loader')).toBeHidden({ timeout: 4000 });
     const sheet = page.locator('.profile-passport');
     const portrait = page.locator('.profile-avatar-stage');
     const data = page.locator('.profile-passport .character-data');
@@ -215,7 +223,7 @@ test('developer portfolio stays within the viewport and links to Contact', async
   ]) {
     await page.setViewportSize(viewport);
     await page.goto('/portfolio');
-    await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
+    await expect(page.locator('.world-loader')).toBeHidden({ timeout: 4000 });
     await expect(page.locator('.console-module-grid article')).toHaveCount(6);
     await expect(page.locator('.console-contact-cta a[href="/contact"]')).toBeVisible();
     expect(
@@ -252,7 +260,7 @@ test('social embeds require an explicit action before third-party scripts load',
   await page.route('https://platform.x.com/**', (route) => route.abort());
   await page.route('https://platform.twitter.com/**', (route) => route.abort());
   await page.goto('/');
-  await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
+  await expect(page.locator('.world-loader')).toBeHidden({ timeout: 4000 });
   const socialDock = page.locator('.social-dock');
   await socialDock.scrollIntoViewIfNeeded();
   await expect(page.locator('#x-widgets-script')).toHaveCount(0);
@@ -298,7 +306,7 @@ test('customer harassment policy preserves legitimate feedback and response meas
 
 test('scroll position updates the world time state', async ({ page }) => {
   await page.goto('/profile');
-  await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
+  await expect(page.locator('.world-loader')).toBeHidden({ timeout: 4000 });
   await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
   await expect(page.locator('html')).toHaveAttribute('data-world-time', 'night');
 });

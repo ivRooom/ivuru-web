@@ -1,181 +1,86 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import AnimeScrollStory from '@/components/home/AnimeScrollStory.astro';
 import IdentitySection from '@/components/home/IdentitySection.astro';
 import FeaturedWorks from '@/components/home/FeaturedWorks.astro';
 import CommunitySection from '@/components/home/CommunitySection.astro';
 import ActivitySection from '@/components/home/ActivitySection.astro';
 import ActivityCommandCenter from '@/components/home/ActivityCommandCenter.astro';
-import WorldPortalSection from '@/components/home/WorldPortalSection.astro';
+import SignalLinksSection from '@/components/home/SignalLinksSection.astro';
 import MediaReel from '@/components/home/MediaReel';
 import LatestPosts from '@/components/blog/LatestPosts.astro';
 import ContactCTA from '@/components/home/ContactCTA.astro';
 import SocialDock from '@/components/social/SocialDock.astro';
 import CinematicPointerEffects from '@/components/effects/CinematicPointerEffects';
-import CinematicScrollEffects from '@/components/effects/CinematicScrollEffects';
-import { localePath, siteConfig, type Locale } from '@/data/site-config';
+import AnimeScrollDirector from '@/components/effects/AnimeScrollDirector';
+import { siteConfig, type Locale } from '@/data/site-config';
 import { getDictionary } from '@/i18n/dictionaries';
-import '@/styles/cinematic-motion-overrides.css';
+import '@/styles/anime-scroll-story.css';
+import '@/styles/anime-scroll-story-overrides.css';
+import '@/styles/anime-scroll-performance.css';
+import '@/styles/signal-links.css';
 
 const { locale } = Astro.props as { locale: Locale };
 const d = getDictionary(locale);
 const descriptions = {
-  ja: 'DeveloperとGamer、2つの世界を青と白のアニメエンタメ表現でつなぐ「いゔる。」の公式サイト。',
-  en: 'The official ivuru site connecting Developer and Gamer worlds through a blue-and-white anime entertainment experience.',
-  ko: 'Developer와 Gamer의 두 세계를 파랑과 흰색의 애니메이션 엔터테인먼트 경험으로 연결하는 ivuru 공식 사이트입니다.',
+  ja: 'Developer、Gamer、Communityの世界を、スクロールで展開する青と白のアニメ作品として体験できる「いゔる。」の公式サイト。',
+  en: 'The official ivuru site, presented as a blue-and-white anime scroll story connecting Developer, Gamer, and Community worlds.',
+  ko: 'Developer, Gamer, Community의 세계를 스크롤로 펼쳐지는 파랑과 흰색 애니메이션 스토리로 경험하는 ivuru 공식 사이트입니다.',
 };
-const heroCopy = {
-  ja: {
-    index: 'IVURU / BLUE MEDIA UNIVERSE',
-    role: 'つくる。遊ぶ。つながる。好きな世界を、もっと鮮やかに。',
-    body: 'Web開発、ゲーム、クラウド、ivRmコミュニティの記録を、青と白のアニメ作品のような一つのメディア体験にまとめています。',
-    caption: 'BLUE MEDIA SIGNAL / NODE 00',
-    scroll: 'SCROLL TO THE NEXT SIGNAL',
-  },
-  en: {
-    index: 'IVURU / BLUE MEDIA UNIVERSE',
-    role: 'Build. Play. Connect. Make every world more vivid.',
-    body: 'Web development, games, cloud work, and the ivRm community are connected as one blue-and-white anime media experience.',
-    caption: 'BLUE MEDIA SIGNAL / NODE 00',
-    scroll: 'SCROLL TO THE NEXT SIGNAL',
-  },
-  ko: {
-    index: 'IVURU / BLUE MEDIA UNIVERSE',
-    role: '만들고, 즐기고, 이어지며 좋아하는 세계를 더 선명하게.',
-    body: '웹 개발, 게임, 클라우드, ivRm 커뮤니티의 기록을 파랑과 흰색 애니메이션 미디어 경험으로 연결합니다.',
-    caption: 'BLUE MEDIA SIGNAL / NODE 00',
-    scroll: 'SCROLL TO THE NEXT SIGNAL',
-  },
-}[locale];
 ---
 
 <BaseLayout
   title={siteConfig.title}
   description={descriptions[locale]}
   locale={locale}
-  chapter={{ code: '00', title: 'HOME', world: 'BLUE MEDIA' }}
+  chapter={{ code: '00', title: 'HOME', world: 'BLUE STORY' }}
 >
   <CinematicPointerEffects client:idle />
-  <CinematicScrollEffects client:idle />
-  <section
-    class="blue-media-hero cinematic-hero"
-    data-hero
-    data-page-intro
-    data-anime-scene="ice"
-    data-anime-hero
-    data-cinematic-section
-  >
-    <span class="blue-hero-slash is-top" data-anime-parallax="-5" aria-hidden="true"></span>
-    <span class="blue-hero-slash is-bottom" data-anime-parallax="4" aria-hidden="true"></span>
-    <span class="blue-hero-orbit" data-blue-orbit aria-hidden="true"></span>
+  <AnimeScrollDirector client:idle />
 
-    <div class="cinematic-signal-field" data-cinematic-field aria-hidden="true">
-      <span class="cinematic-glow"></span>
-      <span class="cinematic-scan-beam" data-cinematic-scan></span>
-      <span class="cinematic-signal-ring ring-outer" data-cinematic-ring></span>
-      <span class="cinematic-signal-ring ring-middle" data-cinematic-ring></span>
-      <span class="cinematic-signal-ring ring-inner" data-cinematic-ring></span>
-      <span class="cinematic-crosshair"></span>
-      <div class="cinematic-shards">
-        <i data-cinematic-shard></i><i data-cinematic-shard></i><i data-cinematic-shard></i>
-        <i data-cinematic-shard></i><i data-cinematic-shard></i><i data-cinematic-shard></i>
-        <i data-cinematic-shard></i><i data-cinematic-shard></i>
-      </div>
+  <AnimeScrollStory locale={locale} />
+
+  <div class="anime-story-after">
+    <div class="anime-scene-anchor" data-anime-scene="ice" data-cinematic-section>
+      <IdentitySection locale={locale} />
+      <FeaturedWorks locale={locale} />
     </div>
 
-    <svg
-      class="blue-hero-path"
-      viewBox="0 0 1600 320"
-      preserveAspectRatio="none"
-      aria-hidden="true"
+    <div class="anime-scene-anchor" data-anime-scene="sky" data-cinematic-section>
+      <ActivityCommandCenter locale={locale} />
+      <CommunitySection locale={locale} />
+      <ActivitySection locale={locale} />
+    </div>
+
+    <SignalLinksSection locale={locale} />
+
+    <section
+      class="media-section section"
+      data-world-zone="creative"
+      data-anime-scene="deep"
+      data-cinematic-section
     >
-      <path data-blue-path d="M-40 286C248 44 514 365 780 135S1278 46 1640 224"></path>
-    </svg>
-
-    <div class="blue-media-hero-inner">
-      <div class="blue-media-copy" data-hero-copy data-blue-reveal>
-        <p class="blue-media-index">{heroCopy.index}</p>
-        <h1 class="blue-media-title" data-blue-split data-glitch="いゔる。">
-          <span>いゔる。</span><span>ivuru / Developer · Gamer · Community</span>
-        </h1>
-        <p class="blue-media-lede">
-          <strong>{heroCopy.role}</strong><br />{heroCopy.body}
-        </p>
-        <div class="blue-media-actions" data-anime-stagger>
-          <a href={localePath(locale, '/works')}>{d.hero.works}</a>
-          <a href={localePath(locale, '/profile')}>{d.hero.profile}</a>
-          <a href={siteConfig.xUrl} target="_blank" rel="noopener noreferrer">X ↗</a>
-        </div>
-        <div class="blue-media-meta" role="group" aria-label="Site topics" data-anime-stagger>
-          <span>WEB DEVELOPMENT</span><span>GAME</span><span>COMMUNITY</span>
-        </div>
+      <div class="section-heading section-inner" data-reveal>
+        <div><p class="section-kicker">VISUAL LOG</p><h2>{d.sections.media}</h2></div>
+        <p class="section-intro">Development / Gaming / Community / Creative</p>
       </div>
+      <MediaReel client:visible />
+    </section>
 
-      <figure
-        class="blue-media-character signal-key-visual"
-        data-anime-visual
-        data-blue-visual
-        data-anime-parallax="-3"
-        data-cinematic-character
-      >
-        <span class="cinematic-character-aura" aria-hidden="true"></span>
-        <div class="signal-key-frame" aria-hidden="true">
-          <span class="signal-key-grid"></span>
-          <span class="signal-key-orbit orbit-a"></span>
-          <span class="signal-key-orbit orbit-b"></span>
-          <span class="signal-key-orbit orbit-c"></span>
-          <span class="signal-key-scan"></span>
-          <div class="signal-key-mark">
-            <small>IVURU</small>
-            <strong>IV</strong>
-            <span>BLUE MEDIA UNIT / 00</span>
-          </div>
-          <div class="signal-key-readout">
-            <span><b>BUILD</b><i>ONLINE</i></span>
-            <span><b>PLAY</b><i>ONLINE</i></span>
-            <span><b>CONNECT</b><i>SYNC</i></span>
-          </div>
-          <div class="signal-key-corners"><i></i><i></i><i></i><i></i></div>
-        </div>
-        <figcaption>{heroCopy.caption}</figcaption>
-      </figure>
-    </div>
-    <div class="blue-media-scroll-note" aria-hidden="true"><i></i>{heroCopy.scroll}</div>
-  </section>
-
-  <div class="anime-scene-anchor" data-anime-scene="sky" data-cinematic-section>
-    <ActivityCommandCenter locale={locale} />
+    <SocialDock locale={locale} />
+    <LatestPosts locale={locale} />
+    <ContactCTA locale={locale} />
   </div>
-  <div class="anime-scene-anchor" data-anime-scene="deep" data-cinematic-section>
-    <WorldPortalSection locale={locale} />
-  </div>
-  <div class="anime-scene-anchor" data-anime-scene="ice" data-cinematic-section>
-    <IdentitySection locale={locale} />
-    <FeaturedWorks locale={locale} />
-  </div>
-  <div class="anime-scene-anchor" data-anime-scene="sky" data-cinematic-section>
-    <CommunitySection locale={locale} />
-    <ActivitySection locale={locale} />
-  </div>
-  <section
-    class="media-section section"
-    data-world-zone="creative"
-    data-anime-scene="deep"
-    data-cinematic-section
-  >
-    <div class="section-heading section-inner" data-reveal>
-      <div><p class="section-kicker">VISUAL LOG</p><h2>{d.sections.media}</h2></div>
-      <p class="section-intro">Development / Gaming / Community / Creative</p>
-    </div>
-    <MediaReel client:visible />
-  </section>
-  <SocialDock locale={locale} />
-  <LatestPosts locale={locale} />
-  <ContactCTA locale={locale} />
 </BaseLayout>
 
 <style>
   .anime-scene-anchor {
     position: relative;
+  }
+
+  :global(.anime-scroll-story .anime-portal-card) {
+    translate: none;
+    rotate: none;
   }
 
   @media (prefers-reduced-motion: reduce) {
