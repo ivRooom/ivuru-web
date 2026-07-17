@@ -1,0 +1,31 @@
+name: Fix story flight path marker
+
+on:
+  push:
+    branches:
+      - feat/anime-scroll-story
+
+permissions:
+  contents: write
+
+jobs:
+  fix-marker:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/anime-scroll-story
+          fetch-depth: 0
+      - name: ストーリー専用属性へ変更
+        run: |
+          sed -i 's/data-blue-path/data-story-flight-path/g' src/components/home/AnimeScrollStory.astro
+          sed -i 's/data-blue-path/data-story-flight-path/g' tests/e2e/hero-motion.spec.ts
+          rm .github/workflows/fix-story-flight-path.yml
+      - name: 修正を反映
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -A
+          git commit -m "ストーリー飛行パスを共通演出から分離"
+          git push origin HEAD:feat/anime-scroll-story
