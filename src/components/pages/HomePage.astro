@@ -6,6 +6,7 @@ import FeaturedWorks from '@/components/home/FeaturedWorks.astro';
 import CommunitySection from '@/components/home/CommunitySection.astro';
 import ActivitySection from '@/components/home/ActivitySection.astro';
 import ActivityCommandCenter from '@/components/home/ActivityCommandCenter.astro';
+import SignalLinksSection from '@/components/home/SignalLinksSection.astro';
 import MediaReel from '@/components/home/MediaReel';
 import LatestPosts from '@/components/blog/LatestPosts.astro';
 import ContactCTA from '@/components/home/ContactCTA.astro';
@@ -17,6 +18,8 @@ import { siteConfig, type Locale } from '@/data/site-config';
 import { getDictionary } from '@/i18n/dictionaries';
 import '@/styles/anime-scroll-story.css';
 import '@/styles/anime-scroll-story-overrides.css';
+import '@/styles/anime-scroll-performance.css';
+import '@/styles/signal-links.css';
 
 const { locale } = Astro.props as { locale: Locale };
 const d = getDictionary(locale);
@@ -50,6 +53,8 @@ const descriptions = {
       <CommunitySection locale={locale} />
       <ActivitySection locale={locale} />
     </div>
+
+    <SignalLinksSection locale={locale} />
 
     <section
       class="media-section section"
