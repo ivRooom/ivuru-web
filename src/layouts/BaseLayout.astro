@@ -5,6 +5,7 @@ import IntroLoader from '@/components/common/IntroLoader';
 import ChapterCut from '@/components/common/ChapterCut';
 import WorldState from '@/components/common/WorldState';
 import ScrollProgress from '@/components/common/ScrollProgress';
+import NavigationLifecycle from '@/components/common/NavigationLifecycle.astro';
 import ScrollEffects from '@/components/effects/ScrollEffects';
 import AnalyticsBridge from '@/components/common/AnalyticsBridge.astro';
 import { siteConfig, localePath, type Locale } from '@/data/site-config';
@@ -23,6 +24,7 @@ import '@/styles/blue-media-motion.css';
 import '@/styles/cinematic-motion.css';
 import '@/styles/anime-cyber-renewal.css';
 import '@/styles/signal-art-direction.css';
+import '@/styles/motion-system.css';
 
 type Chapter = {
   code: string;
@@ -80,6 +82,7 @@ const pageWorld = chapter.world
   data-chapter={chapter.code}
   data-world={pageWorld}
   data-world-time="dawn"
+  data-document-active="true"
 >
   <head>
     <meta charset="UTF-8" />
@@ -200,10 +203,13 @@ const pageWorld = chapter.world
         description,
       })}
     />
-    <ClientRouter />
+    <ClientRouter fallback="animate" />
   </head>
-  <body data-page-world={pageWorld} data-anime-scene="ice">
+  <body data-page-world={pageWorld} data-anime-scene="ice" data-route-state="idle">
     <a class="skip-link" href="#main-content">Skip to content</a>
+    <div class="route-progress" aria-hidden="true"><span></span></div>
+    <div class="header-scroll-sentinel" data-header-sentinel aria-hidden="true"></div>
+    <NavigationLifecycle />
     <IntroLoader locale={locale} client:load transition:persist="intro-loader" />
     <script is:inline>
       (() => {
@@ -223,8 +229,8 @@ const pageWorld = chapter.world
     <div class="world-atmosphere" aria-hidden="true"><i></i><i></i><i></i></div>
     <ScrollProgress client:load />
     <ScrollEffects client:idle />
-    <Header locale={locale} />
-    <main id="main-content"><slot /></main>
+    <Header locale={locale} chapter={chapter} />
+    <main id="main-content" tabindex="-1" transition:name="page-content"><slot /></main>
     <Footer locale={locale} />
     <div class="noise" aria-hidden="true"></div>
   </body>
