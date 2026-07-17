@@ -393,6 +393,16 @@ export default function AnimeScrollDirector() {
         return;
       }
 
+      setSceneState(elements.scenes, 0);
+      elements.root.dataset.storyChapter = '01';
+      elements.dots.forEach((dot, index) => {
+        dot.dataset.active = index === 0 ? 'true' : 'false';
+      });
+      if (elements.readout) {
+        elements.readout.textContent = `01 / ${String(elements.scenes.length).padStart(2, '0')}`;
+      }
+      document.body.dataset.animeScene = elements.scenes[0]?.dataset.storyScene ?? 'ice';
+
       elements.root.dataset.storyMode = 'booting';
       elements.root.dataset.storyMask = 'active';
       elements.root.dataset.storyInView = 'false';
