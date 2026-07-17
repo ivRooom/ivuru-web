@@ -1,90 +1,108 @@
-name: Fix Loader Review Findings
+name: CI
 
 on:
   push:
-    branches: [feat/dual-3d-loading-experience]
+    branches: [main]
   pull_request:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: fix-loader-review-findings
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  fix:
+  validate:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: feat/dual-3d-loading-experience
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: npm
-      - run: npm ci --silent
-      - name: レビュー指摘を修正
+      - run: npm ci
+      - name: 本番依存関係の脆弱性を監査
+        run: npm audit --omit=dev --audit-level=high
+      - run: npm run check
+        env:
+          ASTRO_TELEMETRY_DISABLED: '1'
+      - run: npm run lint
+        id: lint
+      - name: ESLint診断レポートを生成
+        if: failure() && steps.lint.outcome == 'failure'
+        run: npm run lint -- --format json > eslint-report.json || true
+      - name: ESLint診断Artifactを保存
+        if: failure() && steps.lint.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: eslint-diagnostics-${{ github.run_attempt }}
+          path: eslint-report.json
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: 変更ファイルのFormatを確認
+        shell: bash
         run: |
-          python3 - <<'PY'
-          from pathlib import Path
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            base="${{ github.event.pull_request.base.sha }}"
+          else
+            base="${{ github.event.before }}"
+          fi
+          mapfile -d '' files < <(git diff --diff-filter=ACMR --name-only -z "$base" HEAD -- '*.astro' '*.css' '*.js' '*.json' '*.jsonc' '*.md' '*.mjs' '*.ts' '*.tsx' '*.yml' '*.yaml')
+          if (( ${#files[@]} == 0 )); then
+            echo "整形対象の変更ファイルはありません。"
+          else
+            printf 'Format check: %s\n' "${files[@]}"
+            npx prettier --check "${files[@]}"
+          fi
+      - run: npm test
+      - run: npm run build
+        env:
+          ASTRO_TELEMETRY_DISABLED: '1'
+          SITE_URL: https://ivuru.ivrm.jp
+      - name: 静的成果物を確認
+        run: |
+          test -f dist/index.html
+          test -f dist/404.html
+          test -f dist/_headers
+          test -f dist/_redirects
+          test -f dist/sitemap-index.xml -o -f dist/sitemap.xml
+          test -f dist/rss.xml
+          test -f dist/robots.txt
+          test -f dist/en/index.html
+          test -f dist/ko/index.html
+      - name: Performance Budgetを確認
+        run: npm run performance:check
+      - name: Durable ModeのBinding設定を確認
+        run: npm run cloudflare:durable:check
+      - name: NetlifyとCloudflareのAPI経路を確認
+        run: npm run deployment:routing:check
+      - name: Wrangler設定をdry-runで検証
+        run: npx wrangler deploy --dry-run --outdir .wrangler/dry-run
 
-          demo_path = Path('docs/demos/spatial-engine-loader.html')
-          demo = demo_path.read_text()
-          demo = demo.replace(
-              '    </style>\n  </head>',
-              '''    </style>
-    <noscript>
-      <style>
-        .loader {
-          display: none !important;
-        }
-      </style>
-    </noscript>
-  </head>''',
-              1,
-          )
-          demo = demo.replace(
-              '        <p>空間エンジンを起動しています</p>',
-              '        <p role="status" aria-live="polite" aria-atomic="true">空間エンジンを起動しています</p>',
-              1,
-          )
-          demo = demo.replace(
-              '          role="progressbar"\n          aria-valuemin="0"',
-              '          role="progressbar"\n          aria-label="いゔる。を読み込んでいます"\n          aria-valuemin="0"',
-              1,
-          )
-          demo_path.write_text(demo)
-
-          loader_path = Path('src/components/common/IntroLoader.astro')
-          loader = loader_path.read_text()
-          loader = loader.replace(
-              '      padding-inline: max(18px, env(safe-area-inset-left));',
-              '''      padding-inline-start: max(18px, env(safe-area-inset-left));
-      padding-inline-end: max(18px, env(safe-area-inset-right));''',
-              1,
-          )
-          loader = loader.replace(
-              '      padding-block: 14px;',
-              '''      padding-block-start: max(14px, env(safe-area-inset-top));
-      padding-block-end: max(14px, env(safe-area-inset-bottom));''',
-              1,
-          )
-          loader_path.write_text(loader)
-          PY
-      - name: 整形と検証
-        run: |
-          npx prettier --write docs/demos/spatial-engine-loader.html src/components/common/IntroLoader.astro >/dev/null
-          npm run check
-          npm run lint
-          npm test
-          npm run build
-      - name: 修正を反映
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/demos/spatial-engine-loader.html src/components/common/IntroLoader.astro
-          if git diff --cached --quiet; then exit 0; fi
-          git commit -m "ローダーのアクセシビリティとSafe Areaを修正"
-          git push origin HEAD:feat/dual-3d-loading-experience
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Playwright Chromiumを実行
+        run: npm run test:e2e -- --project=chromium
+      - name: E2E診断Artifactを保存
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-diagnostics-${{ github.run_attempt }}
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 14
