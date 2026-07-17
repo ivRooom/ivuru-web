@@ -132,7 +132,7 @@ export default function AnimeScrollDirector() {
             end: () =>
               `+=${Math.round(window.innerHeight * (window.innerWidth < 768 ? 3.5 : 4.4))}`,
             scrub: window.innerWidth < 768 ? 0.58 : 0.82,
-            pin: stage,
+            pin: root,
             pinSpacing: true,
             anticipatePin: 1,
             invalidateOnRefresh: true,
