@@ -1,15 +1,16 @@
 import { expect, test } from '@playwright/test';
 
-test('keeps accessible orbital loader metadata in SSR and releases the page safely', async ({
+test('keeps accessible spatial loader metadata in SSR and releases the page safely', async ({
   page,
 }) => {
   const response = await page.request.get('/');
   expect(response.ok()).toBeTruthy();
   const markup = await response.text();
   expect(markup).toContain('anime-intro-loader');
-  expect(markup).toContain('IVURU / ORBITAL CORE');
+  expect(markup).toContain('IVURU / SPATIAL ENGINE');
+  expect(markup).toContain('CSS PERSPECTIVE · 12 FACES');
   expect(markup).toContain('SYSTEM.STATUS:');
-  expect(markup).toContain('RENDER: TRANSFORM / OPACITY');
+  expect(markup).toContain('RENDER: CSS_3D / PRESERVE_3D');
   expect(markup).toContain('role="status"');
   expect(markup).toContain('ページを読み込んでいます。');
   expect(markup).toContain('aria-live="polite"');
@@ -28,12 +29,12 @@ test('keeps accessible orbital loader metadata in SSR and releases the page safe
   });
   await page.goto('/');
 
-  await expect(page.locator('.orbital-loader')).toBeHidden({ timeout: 4_000 });
+  await expect(page.locator('.spatial-loader')).toBeHidden({ timeout: 4_000 });
   await expect(page.locator('html')).toHaveAttribute('data-loader-released', 'true');
   await expect(page.locator('body')).not.toHaveClass(/site-loading/);
 });
 
-test('renders a single restrained orbital visual without theme switching', async ({ page }) => {
+test('renders a real 3D cube hierarchy and three gyroscope planes', async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem('ivuru-locale', 'ja');
     localStorage.setItem('ivuru-theme', 'dark');
@@ -42,10 +43,12 @@ test('renders a single restrained orbital visual without theme switching', async
 
   await page.goto('/', { waitUntil: 'domcontentloaded' });
 
-  await expect(page.locator('.orbital-loader')).toHaveCount(1);
-  await expect(page.locator('.orbital-system')).toHaveCount(1);
-  await expect(page.locator('.orbital-core')).toHaveCount(1);
-  await expect(page.locator('.orbital-ring')).toHaveCount(3);
+  await expect(page.locator('.spatial-loader')).toHaveCount(1);
+  await expect(page.locator('.spatial-scene')).toHaveCount(1);
+  await expect(page.locator('.glass-cube > .cube-face')).toHaveCount(6);
+  await expect(page.locator('.energy-cube > .energy-face')).toHaveCount(6);
+  await expect(page.locator('.gyro')).toHaveCount(3);
+  await expect(page.locator('.depth-particle')).toHaveCount(4);
   await expect(page.locator('.low-poly-car')).toHaveCount(0);
   await expect(page.locator('html')).not.toHaveAttribute('data-loader-theme', /orbit|drive/);
 });
@@ -54,10 +57,10 @@ test('does not render the cinematic loader on lower pages', async ({ page }) => 
   const response = await page.request.get('/profile');
   expect(response.ok()).toBeTruthy();
   const markup = await response.text();
-  expect(markup).not.toContain('data-orbital-loader');
+  expect(markup).not.toContain('data-spatial-loader');
 
   await page.goto('/profile');
-  await expect(page.locator('.orbital-loader')).toHaveCount(0);
+  await expect(page.locator('.spatial-loader')).toHaveCount(0);
   await expect(page.locator('#main-content h1')).toBeVisible();
 });
 
