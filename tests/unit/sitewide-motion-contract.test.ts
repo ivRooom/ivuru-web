@@ -24,12 +24,13 @@ describe('site-wide motion and navigation contract', () => {
 
   it('Astro ClientRouterと遷移ライフサイクルを共通Layoutへ統合する', () => {
     const layout = readSource('src/layouts/BaseLayout.astro');
+    const header = readSource('src/components/common/Header.astro');
     const lifecycle = readSource('src/components/common/NavigationLifecycle.astro');
 
     expect(layout).toContain('<ClientRouter fallback="animate" />');
     expect(layout).toContain('<NavigationLifecycle />');
     expect(layout).toContain('data-route-state="idle"');
-    expect(layout).toContain('transition:name="site-header"');
+    expect(header).toContain('transition:name="site-header"');
     expect(layout).toContain('transition:name="page-content"');
     expect(lifecycle).toContain("'astro:before-preparation'");
     expect(lifecycle).toContain("'astro:after-preparation'");
