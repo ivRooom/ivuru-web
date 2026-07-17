@@ -43,7 +43,7 @@ jobs:
           path: eslint-report.json
           if-no-files-found: ignore
           retention-days: 14
-      - name: 変更ファイルのFormat差分を生成
+      - name: 変更ファイルのFormatを確認
         shell: bash
         run: |
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
@@ -53,17 +53,11 @@ jobs:
           fi
           mapfile -d '' files < <(git diff --diff-filter=ACMR --name-only -z "$base" HEAD -- '*.astro' '*.css' '*.js' '*.json' '*.jsonc' '*.md' '*.mjs' '*.ts' '*.tsx' '*.yml' '*.yaml')
           if (( ${#files[@]} == 0 )); then
-            touch prettier-format.patch
+            echo "整形対象の変更ファイルはありません。"
           else
-            npx prettier --write "${files[@]}"
-            git diff -- "${files[@]}" > prettier-format.patch
+            printf 'Format check: %s\n' "${files[@]}"
+            npx prettier --check "${files[@]}"
           fi
-      - name: Prettier差分Artifactを保存
-        uses: actions/upload-artifact@v4
-        with:
-          name: prettier-format-patch
-          path: prettier-format.patch
-          retention-days: 1
       - run: npm test
       - run: npm run build
         env:
