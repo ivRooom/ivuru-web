@@ -1,0 +1,164 @@
+.anime-scroll-story {
+  --story-apple-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --story-apple-spring: cubic-bezier(0.22, 1.18, 0.36, 1);
+
+  contain: layout paint style;
+}
+
+.anime-scroll-story[data-story-mode='booting'] .anime-scroll-stage,
+.anime-scroll-story[data-story-mode='motion'] .anime-scroll-stage {
+  height: 100svh;
+  min-height: 0;
+  overflow: clip;
+}
+
+.anime-scroll-story[data-story-mode='booting'] .anime-story-scene {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+  opacity: 0;
+}
+
+.anime-scroll-story[data-story-mode='booting'] .anime-story-scene.is-opening {
+  visibility: visible;
+  opacity: 1;
+}
+
+.anime-scroll-story[data-story-performance='transform-only'] .anime-story-scene,
+.anime-scroll-story[data-story-performance='transform-only'] [data-story-copy],
+.anime-scroll-story[data-story-performance='transform-only'] [data-story-visual],
+.anime-scroll-story[data-story-performance='transform-only'] [data-story-pop],
+.anime-scroll-story[data-story-performance='transform-only'] [data-story-depth] {
+  filter: none !important;
+  clip-path: none !important;
+  backface-visibility: hidden;
+}
+
+.anime-scroll-story[data-story-in-view='true'][data-story-mode='motion'] .anime-story-scene,
+.anime-scroll-story[data-story-in-view='true'][data-story-mode='motion'] [data-story-copy],
+.anime-scroll-story[data-story-in-view='true'][data-story-mode='motion'] [data-story-visual] {
+  will-change: transform, opacity;
+}
+
+.anime-scroll-story[data-story-in-view='false'] .anime-story-scene,
+.anime-scroll-story[data-story-in-view='false'] [data-story-copy],
+.anime-scroll-story[data-story-in-view='false'] [data-story-visual],
+.anime-scroll-story[data-story-in-view='false'] [data-story-pop],
+.anime-scroll-story[data-story-mode='static'] .anime-story-scene {
+  will-change: auto;
+}
+
+.anime-scroll-story[data-story-performance='transform-only'] .anime-story-chrome::before {
+  display: none;
+}
+
+.anime-story-progress-line {
+  position: absolute;
+  top: 22px;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgb(152 232 255 / 78%),
+    rgb(191 183 255 / 50%) 64%,
+    rgb(255 255 255 / 12%)
+  );
+  box-shadow: 0 0 18px rgb(91 205 255 / 22%);
+  transform: scaleX(0);
+  transform-origin: left center;
+  will-change: transform;
+}
+
+.anime-scroll-story[data-story-in-view='false'] .anime-story-progress-line,
+.anime-scroll-story[data-story-mode='static'] .anime-story-progress-line {
+  will-change: auto;
+}
+
+.anime-scroll-story[data-story-performance='transform-only'] .anime-story-scene::after {
+  mix-blend-mode: normal;
+  opacity: 0.16;
+}
+
+.anime-scroll-story[data-story-performance='transform-only'] .anime-portal-card {
+  backdrop-filter: none;
+  background: linear-gradient(145deg, rgb(13 33 76 / 94%), rgb(6 17 46 / 92%));
+}
+
+.anime-scroll-story[data-story-performance='transform-only']
+  .anime-portal-card
+  .cinematic-card-surface {
+  transform: translate3d(0, 0, 0);
+  transition: transform 560ms var(--story-apple-ease);
+}
+
+.anime-scroll-story[data-story-in-view='false'] .anime-game-ring,
+.anime-scroll-story[data-story-in-view='false'] .anime-community-ring,
+.anime-scroll-story[data-story-in-view='false'] .cinematic-signal-ring,
+.anime-scroll-story[data-story-in-view='false'] .cinematic-scan-beam,
+.anime-scroll-story[data-story-in-view='false'] .signal-key-orbit,
+.anime-scroll-story[data-story-in-view='false'] .signal-key-scan {
+  animation-play-state: paused !important;
+}
+
+.anime-story-after > * {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 900px;
+}
+
+.anime-story-after > .anime-scene-anchor,
+.anime-story-after > .media-section,
+.anime-story-after > .social-dock,
+.anime-story-after > .signal-links-section {
+  padding-block: clamp(96px, 13vw, 220px);
+}
+
+@media (max-width: 767px) {
+  .anime-scroll-story[data-story-mode='motion'] .anime-story-scene {
+    gap: clamp(12px, 3vh, 24px);
+  }
+
+  .anime-scroll-story[data-story-performance='transform-only'] .anime-story-scene::after,
+  .anime-scroll-story[data-story-performance='transform-only'] .anime-flight-path,
+  .anime-scroll-story[data-story-performance='transform-only'] .cinematic-shards,
+  .anime-scroll-story[data-story-performance='transform-only'] .anime-speed-line.speed-c {
+    display: none;
+  }
+
+  .anime-scroll-story[data-story-performance='transform-only'] .anime-opening-rings {
+    opacity: 0.58;
+  }
+
+  .anime-scroll-story[data-story-performance='transform-only'] .anime-game-grid {
+    opacity: 0.48;
+  }
+
+  .anime-scroll-story[data-story-performance='transform-only'] .anime-portal-card {
+    box-shadow: inset 0 1px rgb(255 255 255 / 8%);
+  }
+
+  .anime-story-after > .anime-scene-anchor,
+  .anime-story-after > .media-section,
+  .anime-story-after > .social-dock,
+  .anime-story-after > .signal-links-section {
+    padding-block: clamp(72px, 22vw, 120px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anime-scroll-story .anime-story-progress-line {
+    transform: scaleX(1) !important;
+    will-change: auto;
+  }
+
+  .anime-scroll-story [data-story-copy],
+  .anime-scroll-story [data-story-visual],
+  .anime-scroll-story [data-story-pop],
+  .anime-scroll-story [data-story-depth] {
+    filter: none !important;
+    clip-path: none !important;
+    transform: none !important;
+    transition: none !important;
+    will-change: auto !important;
+  }
+}
