@@ -5,12 +5,17 @@ on:
     branches: [feat/dual-3d-loading-experience]
     paths:
       - .github/workflows/fix-dual-loader-ci.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/fix-dual-loader-ci.yml
 
 permissions:
   contents: write
 
 jobs:
   fix:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -26,30 +31,32 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
+          import re
 
           loader = Path('src/components/common/IntroLoader.astro')
           source = loader.read_text(encoding='utf-8')
-          old = """    let seen = true;
+          pattern = re.compile(
+              r"    let seen = true;\n"
+              r"    try \{\n"
+              r"      seen = sessionStorage\.getItem\('ivuru-intro-seen'\) === '1';\n"
+              r"      sessionStorage\.setItem\('ivuru-intro-seen', '1'\);\n"
+              r"    \} catch \{\n"
+              r"      seen = true;\n"
+              r"    \}\n"
+          )
+          replacement = """    const seen = (() => {
               try {
-                seen = sessionStorage.getItem('ivuru-intro-seen') === '1';
+                const hasSeen = sessionStorage.getItem('ivuru-intro-seen') === '1';
                 sessionStorage.setItem('ivuru-intro-seen', '1');
+                return hasSeen;
               } catch {
-                seen = true;
+                return true;
               }
+            })();
           """
-          new = """    const seen = (() => {
-                try {
-                  const hasSeen = sessionStorage.getItem('ivuru-intro-seen') === '1';
-                  sessionStorage.setItem('ivuru-intro-seen', '1');
-                  return hasSeen;
-                } catch {
-                  return true;
-                }
-              })();
-          """
-          if old not in source:
+          source, count = pattern.subn(replacement, source, count=1)
+          if count != 1:
               raise SystemExit('IntroLoader replacement target not found')
-          source = source.replace(old, new)
           source = source.replace(
               "background: radial-gradient(circle at 50% 50%, transparent 45%, rgb(0 0 0 / 42%) 100%);",
               "background: radial-gradient(circle at 50% 50%, transparent 45%, rgb(0 0 0 / 42%) 100%);\n    animation: none;",
@@ -59,18 +66,22 @@ jobs:
 
           test = Path('tests/e2e/loader-metadata.spec.ts')
           source = test.read_text(encoding='utf-8')
-          old = """    sessionStorage.removeItem('ivuru-loader-theme');
+          target = """    sessionStorage.removeItem('ivuru-loader-theme');
               sessionStorage.setItem('ivuru-intro-seen', '1');
           """
-          new = """    if (sessionStorage.getItem('ivuru-loader-test-prepared') !== '1') {
-                sessionStorage.removeItem('ivuru-loader-theme');
-                sessionStorage.setItem('ivuru-loader-test-prepared', '1');
-              }
+          if target not in source:
+              target = """    sessionStorage.removeItem('ivuru-loader-theme');
               sessionStorage.setItem('ivuru-intro-seen', '1');
+          """.replace('              ', '    ')
+          replacement = """    if (sessionStorage.getItem('ivuru-loader-test-prepared') !== '1') {
+              sessionStorage.removeItem('ivuru-loader-theme');
+              sessionStorage.setItem('ivuru-loader-test-prepared', '1');
+            }
+            sessionStorage.setItem('ivuru-intro-seen', '1');
           """
-          if old not in source:
+          if target not in source:
               raise SystemExit('E2E replacement target not found')
-          test.write_text(source.replace(old, new, 1), encoding='utf-8')
+          test.write_text(source.replace(target, replacement, 1), encoding='utf-8')
           PY
       - name: 変更ファイルを整形・検証
         run: |
