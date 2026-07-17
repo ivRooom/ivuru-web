@@ -7,7 +7,7 @@ const { locale } = Astro.props as { locale: Locale };
 const d = getDictionary(locale);
 const posts = (await getCollection('blog', ({ data }) => !data.draft && data.locale === locale))
   .sort((a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf())
-  .slice(0, 3);
+  .slice(0, 2);
 ---
 
 <section class="latest-blog section">
