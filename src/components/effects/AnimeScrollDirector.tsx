@@ -352,6 +352,8 @@ export default function AnimeScrollDirector() {
             );
           }
         });
+
+        timeline.addLabel('story-end', storyDuration);
       }, root);
 
       if (finePointer.matches) {
