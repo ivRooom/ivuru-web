@@ -18,11 +18,8 @@ body.menu-open {
   width: 100vw;
   height: 100dvh;
   min-height: 100svh;
-  padding:
-    max(8px, env(safe-area-inset-top))
-    max(8px, env(safe-area-inset-right))
-    max(8px, env(safe-area-inset-bottom))
-    max(8px, env(safe-area-inset-left));
+  padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right))
+    max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
   display: flex !important;
   align-items: stretch;
   justify-content: center;
@@ -109,11 +106,8 @@ body.menu-open {
 
 @media (max-width: 720px) {
   .mobile-menu-layer {
-    padding:
-      max(6px, env(safe-area-inset-top))
-      max(6px, env(safe-area-inset-right))
-      max(6px, env(safe-area-inset-bottom))
-      max(6px, env(safe-area-inset-left));
+    padding: max(6px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right))
+      max(6px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));
   }
 
   .mobile-menu-panel {

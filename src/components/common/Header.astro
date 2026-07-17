@@ -38,12 +38,7 @@ const items = navigation(locale).map((item) => {
   data-current-chapter={chapter.code}
   transition:name="site-header"
 >
-  <a
-    class="logo-link"
-    href={items[0].href}
-    aria-label="いゔる。 / ivuru Home"
-    data-ui-action
-  >
+  <a class="logo-link" href={items[0].href} aria-label="いゔる。 / ivuru Home" data-ui-action>
     <Logo />
   </a>
   <div class="header-location" aria-label={`Current location: ${chapter.code} ${chapter.title}`}>

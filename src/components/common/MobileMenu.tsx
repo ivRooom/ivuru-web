@@ -171,11 +171,7 @@ export default function MobileMenu({
       {open && (
         <motion.div
           className="mobile-menu-layer"
-          initial={
-            reduceMotion
-              ? { opacity: 0 }
-              : { opacity: 0, scale: MOTION_SCALE.enter, y: -8 }
-          }
+          initial={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: MOTION_SCALE.enter, y: -8 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.995, y: -4 }}
           transition={{
@@ -294,12 +290,7 @@ export default function MobileMenu({
 
             <footer className="mobile-menu-footer">
               <span>BUILD. PLAY. CONNECT.</span>
-              <a
-                href={xUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-ui-external="true"
-              >
+              <a href={xUrl} target="_blank" rel="noopener noreferrer" data-ui-external="true">
                 X / {xHandle}
               </a>
             </footer>

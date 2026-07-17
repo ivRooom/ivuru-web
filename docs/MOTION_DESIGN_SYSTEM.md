@@ -14,19 +14,19 @@ PR #42で導入したホームのアニメスクロールストーリーを基�
 
 CSSは`src/styles/motion-system.css`、React / Framer Motionは`src/lib/motion.ts`を参照します。
 
-| Token | CSS | React | 用途 |
-|---|---:|---:|---|
-| Instant | 90ms | 0.09s | Pressed、状態確定 |
-| Fast | 180ms | 0.18s | Hover、Focus、アイコン |
-| Standard | 320ms | 0.32s | カード、メニュー、パネル |
-| Cinematic | 520ms | 0.52s | ページ遷移、主要セクション |
-| Exit | 220ms | 0.22s | 退出、キャンセル |
-| Apple Ease | `cubic-bezier(0.16, 1, 0.3, 1)` | `[0.16, 1, 0.3, 1]` | 標準表示 |
-| Spring Ease | `cubic-bezier(0.22, 1.24, 0.36, 1)` | `[0.22, 1.24, 0.36, 1]` | 小さなアイコン・選択反応 |
-| Exit Ease | `cubic-bezier(0.4, 0, 1, 1)` | `[0.4, 0, 1, 1]` | 退出 |
-| Distance | 8 / 16 / 28px | 8 / 16 / 28 | 操作 / 情報 / 主役 |
-| Pressed scale | 0.985 | 0.985 | 押下 |
-| Stagger | 48ms | 0.048s | メニュー・短いリスト |
+| Token         |                                 CSS |                   React | 用途                       |
+| ------------- | ----------------------------------: | ----------------------: | -------------------------- |
+| Instant       |                                90ms |                   0.09s | Pressed、状態確定          |
+| Fast          |                               180ms |                   0.18s | Hover、Focus、アイコン     |
+| Standard      |                               320ms |                   0.32s | カード、メニュー、パネル   |
+| Cinematic     |                               520ms |                   0.52s | ページ遷移、主要セクション |
+| Exit          |                               220ms |                   0.22s | 退出、キャンセル           |
+| Apple Ease    |     `cubic-bezier(0.16, 1, 0.3, 1)` |     `[0.16, 1, 0.3, 1]` | 標準表示                   |
+| Spring Ease   | `cubic-bezier(0.22, 1.24, 0.36, 1)` | `[0.22, 1.24, 0.36, 1]` | 小さなアイコン・選択反応   |
+| Exit Ease     |        `cubic-bezier(0.4, 0, 1, 1)` |        `[0.4, 0, 1, 1]` | 退出                       |
+| Distance      |                       8 / 16 / 28px |             8 / 16 / 28 | 操作 / 情報 / 主役         |
+| Pressed scale |                               0.985 |                   0.985 | 押下                       |
+| Stagger       |                                48ms |                  0.048s | メニュー・短いリスト       |
 
 一画面で強く動く主役は原則1つです。HoverやPressedはFast / Instant、情報表示はStandard、ページ遷移と主役演出だけCinematicを使用します。
 

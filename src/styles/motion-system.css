@@ -123,20 +123,20 @@ body[data-route-state='complete'] .route-progress > span {
 }
 
 :where(
-    .button-primary,
-    .button-secondary,
-    .x-link,
-    .icon-button,
-    .menu-trigger,
-    .desktop-nav a,
-    .profile-favorite-card,
-    .social-node,
-    .mission-map a,
-    .work-card > a,
-    .post-card > a,
-    .game-card > a,
-    [data-ui-action]
-  ) {
+  .button-primary,
+  .button-secondary,
+  .x-link,
+  .icon-button,
+  .menu-trigger,
+  .desktop-nav a,
+  .profile-favorite-card,
+  .social-node,
+  .mission-map a,
+  .work-card > a,
+  .post-card > a,
+  .game-card > a,
+  [data-ui-action]
+) {
   transition-property: transform, opacity, color, background-color, border-color, box-shadow;
   transition-duration: var(--motion-fast);
   transition-timing-function: var(--motion-apple-ease);
@@ -144,20 +144,20 @@ body[data-route-state='complete'] .route-progress > span {
 }
 
 :where(
-    .button-primary,
-    .button-secondary,
-    .x-link,
-    .icon-button,
-    .menu-trigger,
-    .desktop-nav a,
-    .profile-favorite-card,
-    .social-node,
-    .mission-map a,
-    .work-card > a,
-    .post-card > a,
-    .game-card > a,
-    [data-ui-action]
-  ):active {
+  .button-primary,
+  .button-secondary,
+  .x-link,
+  .icon-button,
+  .menu-trigger,
+  .desktop-nav a,
+  .profile-favorite-card,
+  .social-node,
+  .mission-map a,
+  .work-card > a,
+  .post-card > a,
+  .game-card > a,
+  [data-ui-action]
+):active {
   transform: translateY(0) scale(var(--motion-scale-pressed));
   transition-duration: var(--motion-instant);
 }
@@ -232,19 +232,19 @@ body[data-route-state='complete'] .route-progress > span {
 
 @media (hover: hover) and (pointer: fine) {
   :where(
-      .button-primary,
-      .button-secondary,
-      .x-link,
-      .icon-button,
-      .menu-trigger,
-      .profile-favorite-card,
-      .social-node,
-      .mission-map a,
-      .work-card > a,
-      .post-card > a,
-      .game-card > a,
-      [data-ui-action]
-    ):hover {
+    .button-primary,
+    .button-secondary,
+    .x-link,
+    .icon-button,
+    .menu-trigger,
+    .profile-favorite-card,
+    .social-node,
+    .mission-map a,
+    .work-card > a,
+    .post-card > a,
+    .game-card > a,
+    [data-ui-action]
+  ):hover {
     transform: translateY(-2px);
   }
 
