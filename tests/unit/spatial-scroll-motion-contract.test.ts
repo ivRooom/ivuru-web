@@ -7,10 +7,14 @@ const readSource = (relativePath: string) =>
 describe('multi-axis spatial scroll motion contract', () => {
   it('4章それぞれに異なる3D侵入・退出軌道を持つ', () => {
     const source = readSource('src/components/effects/AnimeScrollDirector.tsx');
+    const profiles = source.slice(
+      source.indexOf('const SPATIAL_SCENE_PROFILES'),
+      source.indexOf('const resolvePose'),
+    );
 
     expect(source).toContain('SPATIAL_SCENE_PROFILES');
-    expect(source.match(/sceneIn:/g)).toHaveLength(5);
-    expect(source.match(/sceneOut:/g)).toHaveLength(5);
+    expect(profiles.match(/sceneIn:/g)).toHaveLength(4);
+    expect(profiles.match(/sceneOut:/g)).toHaveLength(4);
     expect(source).toContain("root.dataset.storyCamera = 'multi-axis'");
     expect(source).toContain('resolvePose');
     expect(source).toContain('rotateX');
