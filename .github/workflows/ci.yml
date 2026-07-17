@@ -1,6 +1,8 @@
 name: Fix Loader Review Findings
 
 on:
+  push:
+    branches: [feat/dual-3d-loading-experience]
   pull_request:
 
 permissions:
