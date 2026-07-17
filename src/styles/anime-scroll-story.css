@@ -25,7 +25,8 @@
   height: 100svh;
   min-height: 680px;
   overflow: clip;
-  perspective: 1600px;
+  perspective: clamp(980px, 78vw, 1280px);
+  perspective-origin: 50% 44%;
   transform-style: preserve-3d;
   background: var(--story-ink);
 }
