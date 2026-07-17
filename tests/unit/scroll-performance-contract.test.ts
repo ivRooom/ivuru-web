@@ -24,7 +24,7 @@ describe('scroll performance contract', () => {
     expect(source).not.toContain('clipPath');
     expect(source).not.toContain('filter:');
     expect(source).not.toMatch(/addEventListener\(\s*['"]scroll['"]/);
-    expect(source).toContain("data.storyPerformance = 'transform-only'");
+    expect(source).toContain("root.dataset.storyPerformance = 'transform-only'");
   });
 
   it('ポインター演出はrequestAnimationFrameと可視領域監視で集約する', () => {
