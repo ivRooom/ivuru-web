@@ -1,7 +1,7 @@
 ---
 import Header from '@/components/common/Header.astro';
 import Footer from '@/components/common/Footer.astro';
-import IntroLoader from '@/components/common/IntroLoader';
+import IntroLoader from '@/components/common/IntroLoader.astro';
 import ChapterCut from '@/components/common/ChapterCut';
 import WorldState from '@/components/common/WorldState';
 import ScrollProgress from '@/components/common/ScrollProgress';
@@ -53,6 +53,7 @@ const {
 const resolvedTitle = title.replaceAll('ivuruGG', `${siteConfig.name} / ${siteConfig.idName}`);
 const canonical = new URL(Astro.url.pathname, siteConfig.siteUrl);
 const normalized = Astro.url.pathname.replace(/^\/(en|ko)(?=\/|$)/, '') || '/';
+const isHome = normalized === '/';
 const ogImage = new URL(image, siteConfig.siteUrl);
 const fallbackOgImage = new URL(siteConfig.fallbackOgImage, siteConfig.siteUrl);
 const ogImageType = image.endsWith('.svg')
@@ -210,7 +211,7 @@ const pageWorld = chapter.world
     <div class="route-progress" aria-hidden="true"><span></span></div>
     <div class="header-scroll-sentinel" data-header-sentinel aria-hidden="true"></div>
     <NavigationLifecycle />
-    <IntroLoader locale={locale} client:load transition:persist="intro-loader" />
+    {isHome && <IntroLoader locale={locale} transition:persist="intro-loader" />}
     <script is:inline>
       (() => {
         const delay = matchMedia('(prefers-reduced-motion: reduce)').matches ? 350 : 2400;
@@ -218,6 +219,7 @@ const pageWorld = chapter.world
           const loader = document.querySelector('.world-loader');
           if (!(loader instanceof HTMLElement)) return;
           document.documentElement.dataset.loaderReleased = 'true';
+          loader.classList.add('loaded');
           loader.dataset.failsafeHidden = 'true';
           document.body.classList.remove('site-loading');
         }, delay);
