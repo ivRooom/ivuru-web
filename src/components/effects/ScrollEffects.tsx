@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import '@/styles/scroll-performance.css';
 
 const revealSelectors = [
   '[data-anime-reveal]',
@@ -18,6 +19,11 @@ const revealKind = (element: HTMLElement) => {
   return 'copy';
 };
 
+const parseParallaxDistance = (element: HTMLElement) => {
+  const raw = Number(element.dataset.animeParallax ?? 4);
+  return Number.isFinite(raw) ? Math.min(Math.max(Math.abs(raw), 1), 10) : 4;
+};
+
 export default function ScrollEffects() {
   useEffect(() => {
     const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
@@ -26,6 +32,7 @@ export default function ScrollEffects() {
     let setupFrame = 0;
     const settleTimers = new Set<number>();
     const observedElements = new Set<HTMLElement>();
+    const parallaxElements = new Set<HTMLElement>();
     const sceneRatios = new Map<HTMLElement, number>();
 
     const settle = (element: HTMLElement) => {
@@ -45,6 +52,7 @@ export default function ScrollEffects() {
       });
       document.querySelectorAll<HTMLElement>('[data-anime-parallax]').forEach((element) => {
         delete element.dataset.scrollParallax;
+        element.style.removeProperty('--scroll-parallax-distance');
       });
     };
 
@@ -62,7 +70,12 @@ export default function ScrollEffects() {
         delete element.dataset.scrollRevealKind;
         element.style.removeProperty('--scroll-reveal-delay');
       });
+      parallaxElements.forEach((element) => {
+        delete element.dataset.scrollParallax;
+        element.style.removeProperty('--scroll-parallax-distance');
+      });
       observedElements.clear();
+      parallaxElements.clear();
     };
 
     const markVisible = (element: HTMLElement) => {
@@ -129,6 +142,8 @@ export default function ScrollEffects() {
 
         document.querySelectorAll<HTMLElement>('[data-anime-parallax]').forEach((element) => {
           if (isStoryElement(element)) return;
+          parallaxElements.add(element);
+          element.style.setProperty('--scroll-parallax-distance', `${parseParallaxDistance(element)}%`);
           element.dataset.scrollParallax = CSS.supports('animation-timeline: view()')
             ? 'native'
             : 'disabled';
@@ -143,7 +158,10 @@ export default function ScrollEffects() {
         sceneObserver = new IntersectionObserver(
           (entries) => {
             entries.forEach((entry) => {
-              sceneRatios.set(entry.target as HTMLElement, entry.isIntersecting ? entry.intersectionRatio : 0);
+              sceneRatios.set(
+                entry.target as HTMLElement,
+                entry.isIntersecting ? entry.intersectionRatio : 0,
+              );
             });
 
             const active = Array.from(sceneRatios.entries()).toSorted((a, b) => b[1] - a[1])[0];
