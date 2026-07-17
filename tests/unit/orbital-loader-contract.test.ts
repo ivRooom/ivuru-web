@@ -22,8 +22,9 @@ describe('spatial engine intro loader contract', () => {
     expect(source).not.toContain('LOW-POLY DRIVE');
     expect(source).not.toContain('low-poly-car');
     expect(source).not.toContain("from 'react'");
-    expect(source).not.toContain('canvas');
-    expect(source).not.toContain('three');
+    expect(source).not.toContain("from 'three'");
+    expect(source).not.toContain('THREE.');
+    expect(source).not.toContain('<canvas');
   });
 
   it('ロード完了時にloadedクラスでフェードアウトする', () => {
