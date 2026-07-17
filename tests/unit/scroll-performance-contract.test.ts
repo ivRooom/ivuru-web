@@ -25,6 +25,11 @@ describe('scroll performance contract', () => {
     expect(source).not.toContain('filter:');
     expect(source).not.toMatch(/addEventListener\(\s*['"]scroll['"]/);
     expect(source).toContain("root.dataset.storyPerformance = 'transform-only'");
+
+    const initialInertSync = source.indexOf('setSceneState(elements.scenes, 0)');
+    const bootingState = source.indexOf("elements.root.dataset.storyMode = 'booting'");
+    expect(initialInertSync).toBeGreaterThan(-1);
+    expect(bootingState).toBeGreaterThan(initialInertSync);
   });
 
   it('ポインター演出はrequestAnimationFrameと可視領域監視で集約する', () => {
