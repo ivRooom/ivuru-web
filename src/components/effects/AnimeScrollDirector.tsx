@@ -22,6 +22,7 @@ export default function AnimeScrollDirector() {
     let removePointer: (() => void) | undefined;
     let bodySceneBeforeStory: string | undefined;
     let bodySceneCaptured = false;
+    let activeRoot: HTMLElement | undefined;
 
     const restoreBodyScene = () => {
       if (!bodySceneCaptured) return;
@@ -36,6 +37,13 @@ export default function AnimeScrollDirector() {
       removePointer = undefined;
       gsapContext?.revert();
       gsapContext = undefined;
+      if (activeRoot) {
+        delete activeRoot.dataset.storySnap;
+        delete activeRoot.dataset.storyMask;
+        delete activeRoot.dataset.storySnapState;
+        activeRoot.style.removeProperty('--story-snap-strength');
+      }
+      activeRoot = undefined;
       restoreBodyScene();
     };
 
@@ -54,6 +62,7 @@ export default function AnimeScrollDirector() {
 
       if (!root || !stage || scenes.length === 0) return;
 
+      activeRoot = root;
       bodySceneBeforeStory = document.body.dataset.animeScene;
       bodySceneCaptured = true;
       delete root.dataset.cinematicPointer;
@@ -82,6 +91,7 @@ export default function AnimeScrollDirector() {
 
       if (reducedMotion.matches) {
         root.dataset.storyMode = 'static';
+        root.dataset.storyMask = 'static';
         scenes.forEach((scene) => {
           scene.removeAttribute('aria-hidden');
           scene.inert = false;
@@ -96,18 +106,37 @@ export default function AnimeScrollDirector() {
         return;
       }
 
+      const compactMotion = window.innerWidth < 768;
+      const entryDepth = compactMotion ? -360 : -680;
+      const entryScale = compactMotion ? 0.84 : 0.72;
+      const entryBlur = compactMotion ? 12 : 24;
+      const visualDepth = compactMotion ? -220 : -420;
+      const exitDepth = compactMotion ? 300 : 620;
+      const exitBlur = compactMotion ? 10 : 22;
+
       root.dataset.storyMode = 'motion';
+      root.dataset.storySnap = 'labels-directional';
+      root.dataset.storyMask = 'active';
+      root.dataset.storySnapState = 'ready';
+      root.style.setProperty('--story-snap-strength', compactMotion ? '0.72' : '1');
       activate(0);
 
       gsapContext = gsap.context(() => {
         gsap.set(scenes, {
           autoAlpha: 0,
-          scale: 0.72,
-          z: -680,
-          filter: 'blur(24px)',
+          scale: entryScale,
+          z: entryDepth,
+          filter: `blur(${entryBlur}px)`,
+          clipPath: 'circle(0% at 62% 50%)',
           transformOrigin: '50% 50%',
         });
-        gsap.set(scenes[0], { autoAlpha: 1, scale: 1, z: 0, filter: 'blur(0px)' });
+        gsap.set(scenes[0], {
+          autoAlpha: 1,
+          scale: 1,
+          z: 0,
+          filter: 'blur(0px)',
+          clipPath: 'circle(150% at 62% 50%)',
+        });
 
         scenes.forEach((scene, sceneIndex) => {
           const copy = scene.querySelector<HTMLElement>('[data-story-copy]');
@@ -115,22 +144,53 @@ export default function AnimeScrollDirector() {
           const popElements = Array.from(scene.querySelectorAll<HTMLElement>('[data-story-pop]'));
 
           if (sceneIndex === 0) {
-            if (copy) gsap.set(copy, { opacity: 1, y: 0, z: 0 });
-            if (visual) gsap.set(visual, { opacity: 1, y: 0, z: 0, rotateY: 0 });
+            if (copy) {
+              gsap.set(copy, {
+                opacity: 1,
+                y: 0,
+                z: 0,
+                clipPath: 'inset(0% 0% 0% 0% round 0px)',
+              });
+            }
+            if (visual) {
+              gsap.set(visual, {
+                opacity: 1,
+                y: 0,
+                z: 0,
+                rotateY: 0,
+                clipPath: 'circle(90% at 50% 50%)',
+              });
+            }
           } else {
-            if (copy) gsap.set(copy, { opacity: 0, y: 80, z: -120 });
-            if (visual) gsap.set(visual, { opacity: 0, y: 50, z: -360, rotateY: -16 });
+            if (copy) {
+              gsap.set(copy, {
+                opacity: 0,
+                y: compactMotion ? 54 : 86,
+                z: compactMotion ? -80 : -150,
+                clipPath: 'inset(0% 0% 100% 0% round 32px)',
+              });
+            }
+            if (visual) {
+              gsap.set(visual, {
+                opacity: 0,
+                y: compactMotion ? 34 : 58,
+                z: visualDepth,
+                rotateY: compactMotion ? -8 : -18,
+                clipPath: 'circle(0% at 50% 50%)',
+              });
+            }
           }
 
           popElements.forEach((element, popIndex) => {
             const direction = popIndex % 2 === 0 ? -1 : 1;
             gsap.set(element, {
               opacity: sceneIndex === 0 ? 1 : 0,
-              x: sceneIndex === 0 ? 0 : direction * (120 + popIndex * 28),
-              y: sceneIndex === 0 ? 0 : ((popIndex % 3) - 1) * 78,
-              z: sceneIndex === 0 ? 0 : -260 - popIndex * 34,
-              rotate: sceneIndex === 0 ? 0 : direction * (8 + popIndex * 2),
-              scale: sceneIndex === 0 ? 1 : 0.72,
+              x: sceneIndex === 0 ? 0 : direction * (compactMotion ? 68 : 126 + popIndex * 30),
+              y: sceneIndex === 0 ? 0 : ((popIndex % 3) - 1) * (compactMotion ? 42 : 82),
+              z: sceneIndex === 0 ? 0 : -(compactMotion ? 150 : 280 + popIndex * 38),
+              rotate: sceneIndex === 0 ? 0 : direction * (compactMotion ? 5 : 9 + popIndex * 2),
+              rotateX: sceneIndex === 0 ? 0 : compactMotion ? 5 : 12,
+              scale: sceneIndex === 0 ? 1 : compactMotion ? 0.82 : 0.7,
             });
           });
         });
@@ -144,7 +204,14 @@ export default function AnimeScrollDirector() {
             start: 'top top',
             end: () =>
               `+=${Math.round(window.innerHeight * (window.innerWidth < 768 ? 3.5 : 4.4))}`,
-            scrub: window.innerWidth < 768 ? 0.58 : 0.82,
+            scrub: compactMotion ? 0.52 : 0.78,
+            snap: {
+              snapTo: 'labelsDirectional',
+              duration: compactMotion ? { min: 0.18, max: 0.44 } : { min: 0.24, max: 0.62 },
+              delay: compactMotion ? 0.06 : 0.1,
+              ease: 'power2.inOut',
+              inertia: false,
+            },
             pin: root,
             pinSpacing: true,
             anticipatePin: 1,
@@ -174,18 +241,37 @@ export default function AnimeScrollDirector() {
                 scale: 1,
                 z: 0,
                 filter: 'blur(0px)',
-                duration: 0.58,
+                clipPath: 'circle(150% at 62% 50%)',
+                duration: compactMotion ? 0.46 : 0.62,
               },
               at,
             );
             if (copy) {
-              timeline.to(copy, { opacity: 1, y: 0, z: 0, duration: 0.52 }, at + 0.08);
+              timeline.to(
+                copy,
+                {
+                  opacity: 1,
+                  y: 0,
+                  z: 0,
+                  clipPath: 'inset(0% 0% 0% 0% round 0px)',
+                  duration: compactMotion ? 0.42 : 0.56,
+                },
+                at + 0.05,
+              );
             }
             if (visual) {
               timeline.to(
                 visual,
-                { opacity: 1, y: 0, z: 0, rotateY: 0, duration: 0.72, ease: 'back.out(1.3)' },
-                at + 0.03,
+                {
+                  opacity: 1,
+                  y: 0,
+                  z: 0,
+                  rotateY: 0,
+                  clipPath: 'circle(90% at 50% 50%)',
+                  duration: compactMotion ? 0.56 : 0.76,
+                  ease: compactMotion ? 'power3.out' : 'back.out(1.25)',
+                },
+                at + 0.02,
               );
             }
             if (popElements.length > 0) {
@@ -197,10 +283,11 @@ export default function AnimeScrollDirector() {
                   y: 0,
                   z: 0,
                   rotate: 0,
+                  rotateX: 0,
                   scale: 1,
-                  duration: 0.62,
-                  stagger: 0.045,
-                  ease: 'back.out(1.55)',
+                  duration: compactMotion ? 0.48 : 0.66,
+                  stagger: compactMotion ? 0.025 : 0.05,
+                  ease: compactMotion ? 'power3.out' : 'back.out(1.5)',
                 },
                 at + 0.08,
               );
@@ -210,8 +297,13 @@ export default function AnimeScrollDirector() {
           if (depthLayers.length > 0) {
             timeline.fromTo(
               depthLayers,
-              { yPercent: 5, scale: 1.02 },
-              { yPercent: -5, scale: 1.1, duration: 1.18, ease: 'none' },
+              { yPercent: compactMotion ? 2 : 5, scale: 1.015 },
+              {
+                yPercent: compactMotion ? -2 : -6,
+                scale: compactMotion ? 1.045 : 1.12,
+                duration: 1.18,
+                ease: 'none',
+              },
               at,
             );
           }
@@ -220,14 +312,29 @@ export default function AnimeScrollDirector() {
             if (copy) {
               timeline.to(
                 copy,
-                { opacity: 0, y: -92, z: 180, duration: 0.42, ease: 'power2.in' },
+                {
+                  opacity: 0,
+                  y: compactMotion ? -58 : -96,
+                  z: compactMotion ? 120 : 220,
+                  clipPath: 'inset(0% 0% 100% 0% round 24px)',
+                  duration: compactMotion ? 0.34 : 0.44,
+                  ease: 'power2.in',
+                },
                 at + 1.03,
               );
             }
             if (visual) {
               timeline.to(
                 visual,
-                { opacity: 0, y: -36, z: 520, scale: 1.18, duration: 0.52, ease: 'power2.in' },
+                {
+                  opacity: 0,
+                  y: compactMotion ? -24 : -40,
+                  z: exitDepth,
+                  scale: compactMotion ? 1.1 : 1.22,
+                  clipPath: 'circle(120% at 50% 50%)',
+                  duration: compactMotion ? 0.42 : 0.54,
+                  ease: 'power2.in',
+                },
                 at + 1.01,
               );
             }
@@ -235,10 +342,10 @@ export default function AnimeScrollDirector() {
               scene,
               {
                 autoAlpha: 0,
-                scale: 1.18,
-                z: 520,
-                filter: 'blur(20px)',
-                duration: 0.58,
+                scale: compactMotion ? 1.1 : 1.2,
+                z: exitDepth,
+                filter: `blur(${exitBlur}px)`,
+                duration: compactMotion ? 0.48 : 0.6,
               },
               at + 1.02,
             );
