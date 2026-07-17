@@ -50,12 +50,7 @@
 
 ## 品質ゲート
 
-- Type / Astro Check、ESLint、Stylelint、Prettier
-- Unit Test、Production Build、Static Artifact Check
-- Performance Budget、Wrangler Dry Run
-- Playwright全E2E、Visual Regression
-- Netlify Deploy Preview
-- GitHubレビュー未解決件数
+Type / Astro Check、ESLint、Stylelint、Prettier、Unit Test、Production Build、Static Artifact Check、Performance Budget、Wrangler Dry Run、Playwright全E2E、Visual Regression、Netlify Deploy Preview、GitHubレビューを確認する。
 
 これは60fpsを狙う構造的最適化です。実際のフレームレートは端末、ブラウザ、GPU、画面解像度、電源状態によって変わるため固定値として保証しません。
 
