@@ -97,14 +97,19 @@ const copy = {
     ],
   },
 }[locale];
+
+const portalLinks = [
+  { label: 'NEWS', href: localePath(locale, '/news') },
+  { label: 'GAMES', href: localePath(locale, '/games') },
+  { label: 'FAVORITES', href: localePath(locale, '/profile#favorites') },
+];
 ---
 
 <section
-  class="anime-scroll-story blue-media-hero"
+  class="anime-scroll-story"
   data-anime-scroll-story
-  data-anime-hero
   data-page-intro
-  data-anime-scene="ice"
+  data-story-scene="ice"
   aria-label={copy.label}
 >
   <div class="anime-scroll-stage" data-anime-scroll-stage>
@@ -114,16 +119,14 @@ const copy = {
     </div>
 
     <div class="anime-story-progress" aria-hidden="true">
-      {
-        copy.scenes.map((scene, index) => (
-          <i data-story-progress-dot data-active={index === 0 ? 'true' : 'false'}>
-            <span>{scene.number}</span>
-          </i>
-        ))
-      }
+      {copy.scenes.map((scene, index) => (
+        <i data-story-progress-dot data-active={index === 0 ? 'true' : 'false'}>
+          <span>{scene.number}</span>
+        </i>
+      ))}
     </div>
 
-    <article class="anime-story-scene is-opening" data-anime-story-scene="0" data-anime-scene="ice">
+    <article class="anime-story-scene is-opening" data-anime-story-scene="0" data-story-scene="ice">
       <div class="anime-scene-sky" aria-hidden="true">
         <span class="anime-sun" data-story-depth="far"></span>
         <span class="anime-cloud cloud-a" data-story-depth="far"></span>
@@ -133,11 +136,7 @@ const copy = {
         <span class="anime-light-road" data-story-depth="mid"></span>
       </div>
 
-      <div
-        class="cinematic-signal-field anime-opening-rings"
-        data-cinematic-field
-        aria-hidden="true"
-      >
+      <div class="cinematic-signal-field anime-opening-rings" data-cinematic-field aria-hidden="true">
         <span class="cinematic-glow"></span>
         <span class="cinematic-scan-beam" data-cinematic-scan></span>
         <span class="cinematic-signal-ring ring-outer" data-cinematic-ring></span>
@@ -151,12 +150,7 @@ const copy = {
         </div>
       </div>
 
-      <svg
-        class="anime-flight-path"
-        viewBox="0 0 1600 320"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
+      <svg class="anime-flight-path" viewBox="0 0 1600 320" preserveAspectRatio="none" aria-hidden="true">
         <path data-blue-path d="M-40 286C248 44 514 365 780 135S1278 46 1640 224"></path>
       </svg>
       <span class="anime-orbit-proxy" data-blue-orbit aria-hidden="true"></span>
@@ -175,7 +169,7 @@ const copy = {
         </div>
       </div>
 
-      <figure class="signal-key-visual anime-opening-emblem" data-story-visual data-anime-visual>
+      <figure class="signal-key-visual anime-opening-emblem" data-story-visual>
         <span class="cinematic-character-aura" aria-hidden="true"></span>
         <div class="signal-key-frame" aria-hidden="true">
           <span class="signal-key-grid"></span>
@@ -198,7 +192,7 @@ const copy = {
       </figure>
     </article>
 
-    <article class="anime-story-scene is-build" data-anime-story-scene="1" data-anime-scene="sky">
+    <article class="anime-story-scene is-build" data-anime-story-scene="1" data-story-scene="sky">
       <div class="anime-build-world" aria-hidden="true">
         <span class="anime-build-sun" data-story-depth="far"></span>
         <span class="anime-city city-back" data-story-depth="far"></span>
@@ -229,7 +223,7 @@ const copy = {
     <article
       class="anime-story-scene is-play anime-portal-section"
       data-anime-story-scene="2"
-      data-anime-scene="deep"
+      data-story-scene="deep"
     >
       <div class="anime-game-world" aria-hidden="true">
         <span class="anime-game-moon" data-story-depth="far"></span>
@@ -251,26 +245,29 @@ const copy = {
         <strong>PLAY</strong>
         <small>ENTER THE NEXT FRAME</small>
       </div>
-      <div class="anime-portal-cards" aria-hidden="true">
-        {
-          ['GAME', 'STREAM', 'FAVORITE'].map((label, index) => (
-            <div class="anime-portal-card" data-cinematic-card data-story-pop>
-              <div class="cinematic-card-surface">
-                <div class="signal-channel-visual">
-                  <span>{String(index + 1).padStart(2, '0')}</span>
-                  <strong>{label}</strong>
-                </div>
+      <nav class="anime-portal-cards" aria-label="Blue story portals">
+        {portalLinks.map((portal, index) => (
+          <a
+            class="anime-portal-card"
+            href={portal.href}
+            data-cinematic-card
+            data-story-pop
+          >
+            <div class="cinematic-card-surface">
+              <div class="signal-channel-visual">
+                <span>{String(index + 1).padStart(2, '0')}</span>
+                <strong>{portal.label}</strong>
               </div>
             </div>
-          ))
-        }
-      </div>
+          </a>
+        ))}
+      </nav>
     </article>
 
     <article
       class="anime-story-scene is-connect"
       data-anime-story-scene="3"
-      data-anime-scene="night"
+      data-story-scene="night"
     >
       <div class="anime-community-world" aria-hidden="true">
         <span class="anime-community-aurora" data-story-depth="far"></span>
