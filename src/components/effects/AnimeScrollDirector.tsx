@@ -239,10 +239,16 @@ export default function AnimeScrollDirector() {
           const popElements = scene.querySelectorAll<HTMLElement>('[data-story-pop]');
           const farLayers = compact
             ? []
-            : Array.from(scene.querySelectorAll<HTMLElement>('[data-story-depth="far"]')).slice(0, 2);
+            : Array.from(scene.querySelectorAll<HTMLElement>('[data-story-depth="far"]')).slice(
+                0,
+                2,
+              );
           const nearLayers = compact
             ? []
-            : Array.from(scene.querySelectorAll<HTMLElement>('[data-story-depth="near"]')).slice(0, 2);
+            : Array.from(scene.querySelectorAll<HTMLElement>('[data-story-depth="near"]')).slice(
+                0,
+                2,
+              );
 
           timeline.addLabel(`scene-${sceneIndex + 1}`, at);
 
