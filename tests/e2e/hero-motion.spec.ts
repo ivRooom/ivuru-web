@@ -89,7 +89,9 @@ test.describe('anime scroll story', () => {
 
     const story = page.locator('[data-anime-scroll-story]');
     const progressLine = story.locator('[data-story-progress-line]');
-    const initialTransform = await progressLine.evaluate((element) => getComputedStyle(element).transform);
+    const initialTransform = await progressLine.evaluate(
+      (element) => getComputedStyle(element).transform,
+    );
 
     await moveToChapter(page, '02');
     await expect
