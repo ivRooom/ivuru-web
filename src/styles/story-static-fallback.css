@@ -1,0 +1,56 @@
+.anime-scroll-story:not([data-story-mode]),
+.anime-scroll-story[data-story-mode='static'] {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.anime-scroll-story:not([data-story-mode]) .anime-scroll-stage,
+.anime-scroll-story[data-story-mode='static'] .anime-scroll-stage {
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  perspective: none !important;
+}
+
+.anime-scroll-story:not([data-story-mode]) .anime-story-camera,
+.anime-scroll-story[data-story-mode='static'] .anime-story-camera {
+  position: relative !important;
+  inset: auto !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+.anime-scroll-story:not([data-story-mode]) .anime-story-scene,
+.anime-scroll-story[data-story-mode='static'] .anime-story-scene {
+  position: relative !important;
+  inset: auto !important;
+  min-height: 100svh !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  filter: none !important;
+  transform: none !important;
+  clip-path: none !important;
+}
+
+.anime-scroll-story:not([data-story-mode]) [data-story-copy],
+.anime-scroll-story:not([data-story-mode]) [data-story-visual],
+.anime-scroll-story:not([data-story-mode]) [data-story-pop],
+.anime-scroll-story[data-story-mode='static'] [data-story-copy],
+.anime-scroll-story[data-story-mode='static'] [data-story-visual],
+.anime-scroll-story[data-story-mode='static'] [data-story-pop] {
+  visibility: visible !important;
+  opacity: 1 !important;
+  filter: none !important;
+  transform: none !important;
+  clip-path: none !important;
+}
+
+.anime-scroll-story:not([data-story-mode]) .anime-story-progress,
+.anime-scroll-story:not([data-story-mode]) .anime-scroll-cue,
+.anime-scroll-story[data-story-mode='static'] .anime-story-progress,
+.anime-scroll-story[data-story-mode='static'] .anime-scroll-cue,
+.anime-scroll-story[data-story-mode='static'] .anime-depth-flybys {
+  display: none !important;
+}
