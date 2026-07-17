@@ -49,9 +49,19 @@ jobs:
           }
           for old, new in replacements.items():
               script = script.replace(old, new)
+          script = script.replace(
+              r'''expect(source).toContain("[data-story-depth=\"far\"]");''',
+              r'''expect(source).toContain('[data-story-depth="far"]');''',
+          )
+          script = script.replace(
+              r'''expect(source).toContain("[data-story-depth=\"mid\"]");''',
+              r'''expect(source).toContain('[data-story-depth="mid"]');''',
+          )
+          script = script.replace(
+              r'''expect(source).toContain("[data-story-depth=\"near\"]");''',
+              r'''expect(source).toContain('[data-story-depth="near"]');''',
+          )
           exec(compile(script, 'spatial-scroll-publisher', 'exec'))
-          test_path = Path('tests/unit/spatial-scroll-motion-contract.test.ts')
-          test_path.write_text(test_path.read_text().replace('\\"', '"'))
           PY
       - name: 変更ファイルを整形
         run: |
