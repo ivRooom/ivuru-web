@@ -61,6 +61,10 @@ jobs:
               r'''expect(source).toContain("[data-story-depth=\"near\"]");''',
               r'''expect(source).toContain('[data-story-depth="near"]');''',
           )
+          script = script.replace(
+              r'''expect(source).not.toMatch(/addEventListener\(\s*['\"]scroll['\"]/);''',
+              r'''expect(source).not.toMatch(/addEventListener\(\s*['"]scroll['"]/);''',
+          )
           exec(compile(script, 'spatial-scroll-publisher', 'exec'))
           PY
       - name: 変更ファイルを整形
@@ -71,12 +75,14 @@ jobs:
             src/styles/scroll-performance.css \
             src/styles/anime-scroll-story.css \
             tests/unit/spatial-scroll-motion-contract.test.ts >/dev/null
-      - name: 最終検証
-        run: |
-          npm run check >/dev/null
-          npm run lint >/dev/null
-          npm test >/dev/null
-          npm run build >/dev/null
+      - name: Astro Check
+        run: npm run check
+      - name: ESLint
+        run: npm run lint
+      - name: Unit Test
+        run: npm test
+      - name: Production Build
+        run: npm run build
       - name: 変更をブランチへ反映
         env:
           GH_TOKEN: ${{ github.token }}
