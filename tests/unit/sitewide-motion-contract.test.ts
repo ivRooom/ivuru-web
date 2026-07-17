@@ -4,6 +4,17 @@ import { describe, expect, it } from 'vitest';
 const readSource = (relativePath: string) =>
   readFileSync(new URL(`../../${relativePath}`, import.meta.url), 'utf8');
 
+const readKeyframes = (css: string, name: string) => {
+  const start = css.indexOf(`@keyframes ${name}`);
+  expect(start).toBeGreaterThanOrEqual(0);
+
+  const boundaries = [css.indexOf('@keyframes', start + 1), css.indexOf('@media', start + 1)].filter(
+    (position) => position >= 0,
+  );
+  const end = boundaries.length ? Math.min(...boundaries) : css.length;
+  return css.slice(start, end);
+};
+
 describe('site-wide motion and navigation contract', () => {
   it('操作・表示・主役演出を共通Motion Tokenで分離する', () => {
     const css = readSource('src/styles/motion-system.css');
@@ -83,9 +94,18 @@ describe('site-wide motion and navigation contract', () => {
 
   it('ページ遷移はtransformとopacity中心で実装する', () => {
     const css = readSource('src/styles/motion-system.css');
+    const names = [
+      'page-content-enter',
+      'page-content-exit',
+      'page-content-enter-back',
+      'page-content-exit-back',
+    ];
 
-    expect(css).toContain('transform: translate3d');
-    expect(css).toContain('opacity: 0');
-    expect(css).not.toMatch(/@keyframes page-content-[\s\S]*?(?:width|height|top|left|margin):/);
+    for (const name of names) {
+      const keyframes = readKeyframes(css, name);
+      expect(keyframes).toContain('transform: translate3d');
+      expect(keyframes).toContain('opacity:');
+      expect(keyframes).not.toMatch(/(?:^|\s)(?:width|height|top|left|margin(?:-[a-z-]+)?):/m);
+    }
   });
 });
