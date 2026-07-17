@@ -1,4 +1,4 @@
-name: Finalize Anime Story
+name: Finalize Anime Story CSS
 
 on:
   push:
@@ -9,84 +9,37 @@ permissions:
   contents: write
 
 jobs:
-  finalize:
+  finalize-css:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           ref: feat/anime-scroll-story
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22.22.3
-          cache: npm
-      - run: npm ci
-      - name: CSS規約とモバイル遷移テストを調整
+      - name: CSS規約とリンク表示を調整
         run: |
           python - <<'PY'
           from pathlib import Path
 
-          css_path = Path('src/styles/anime-scroll-story.css')
-          css = css_path.read_text(encoding='utf-8')
+          path = Path('src/styles/anime-scroll-story.css')
+          css = path.read_text(encoding='utf-8')
           css = css.replace('  --story-progress: 0;\n  position:', '  --story-progress: 0;\n\n  position:')
           css = css.replace('currentColor', 'currentcolor')
           css = css.replace(
-              """.anime-portal-card {
-  --card-tilt-x: 0deg;
-  --card-tilt-y: 0deg;
-  flex: 1;
-  min-width: 0;
-  perspective: 900px;
-}""",
-              """.anime-portal-card {
-  --card-tilt-x: 0deg;
-  --card-tilt-y: 0deg;
-
-  display: block;
-  flex: 1;
-  min-width: 0;
-  color: inherit;
-  text-decoration: none;
-  perspective: 900px;
-}""",
+              '  --card-tilt-y: 0deg;\n  flex: 1;',
+              '  --card-tilt-y: 0deg;\n\n  display: block;\n  flex: 1;',
           )
-          css_path.write_text(css, encoding='utf-8')
-
-          site_path = Path('tests/e2e/site.spec.ts')
-          site = site_path.read_text(encoding='utf-8')
-          old = '''  const chapterCut = page.locator('.chapter-cut');
-  await page.locator('.desktop-nav a[href="/profile"]').click();'''
-          new = '''  const chapterCut = page.locator('.chapter-cut');
-  const desktopProfile = page.locator('.desktop-nav a[href="/profile"]');
-  if (await desktopProfile.isVisible()) {
-    await desktopProfile.click();
-  } else {
-    await page.getByRole('button', { name: /メニューを開く|Open menu|메뉴 열기/ }).click();
-    await page.getByRole('dialog').locator('a[href$="/profile"]').click();
-  }'''
-          if old not in site:
-              raise SystemExit('chapter cut target not found')
-          site = site.replace(old, new)
-          site = site.replace('timeout: 3000', 'timeout: 4000')
-          site = site.replace('timeout: 2000', 'timeout: 4000')
-          site_path.write_text(site, encoding='utf-8')
+          css = css.replace(
+              '  min-width: 0;\n  perspective: 900px;',
+              '  min-width: 0;\n  color: inherit;\n  text-decoration: none;\n  perspective: 900px;',
+          )
+          path.write_text(css, encoding='utf-8')
           PY
-          npx prettier --write \
-            docs/ANIME_SCROLL_STORY.md \
-            src/components/effects/AnimeScrollDirector.tsx \
-            src/components/home/AnimeScrollStory.astro \
-            src/styles/anime-scroll-story.css \
-            tests/e2e/anime-experience.spec.ts \
-            tests/e2e/blue-mobile-menu.spec.ts \
-            tests/e2e/contact.spec.ts \
-            tests/e2e/hero-motion.spec.ts \
-            tests/e2e/immersive-worlds.spec.ts \
-            tests/e2e/site.spec.ts
           rm .github/workflows/finalize-anime-story.yml
       - name: 最終調整を反映
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add -A
-          git commit -m "アニメストーリーのCSSとE2Eを最終調整"
+          git commit -m "アニメストーリーCSSを最終調整"
           git push origin HEAD:feat/anime-scroll-story
