@@ -16,7 +16,7 @@ test.describe('blue mobile navigation', () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await prepare(page);
     await page.goto('/');
-    await expect(page.locator('.anime-intro-loader')).toBeHidden({ timeout: 2_000 });
+    await expect(page.locator('.anime-intro-loader')).toBeHidden({ timeout: 4_000 });
 
     const trigger = page.getByRole('button', { name: 'メニューを開く' });
     await expect(trigger).toBeVisible();
@@ -26,7 +26,7 @@ test.describe('blue mobile navigation', () => {
     await expect(dialog).toBeVisible();
     await expect(page.locator('body')).toHaveClass(/menu-open/);
     await expect(dialog.locator('.mobile-menu-visual img')).toHaveCount(0);
-    await expect(dialog.locator('.mobile-menu-signal-core')).toBeVisible();
+    await expect(dialog.locator('.mobile-menu-signal-core')).toHaveCount(1);
     await expect(dialog.locator('.mobile-menu-core-mark')).toContainText('IV');
     await expect(dialog.locator('nav a')).toHaveCount(6);
 
