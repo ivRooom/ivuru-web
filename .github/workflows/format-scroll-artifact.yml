@@ -1,0 +1,60 @@
+name: Format Scroll Artifact
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: 変更ファイルをPrettierで整形
+        run: |
+          npx prettier --write \
+            docs/ANIME_SCROLL_STORY.md \
+            src/components/effects/AnimeScrollDirector.tsx \
+            src/components/effects/CinematicPointerEffects.tsx \
+            src/components/effects/ScrollEffects.tsx \
+            src/components/home/AnimeScrollStory.astro \
+            src/components/home/SignalLinksSection.astro \
+            src/components/pages/HomePage.astro \
+            src/components/social/SpotifyPlaylist.tsx \
+            src/data/site-config.ts \
+            src/styles/anime-scroll-performance.css \
+            src/styles/scroll-performance.css \
+            src/styles/signal-links.css \
+            tests/e2e/hero-motion.spec.ts \
+            tests/e2e/signal-links.spec.ts \
+            tests/unit/scroll-performance-contract.test.ts
+          git diff --name-only > formatted-files.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: formatted-scroll-files
+          path: |
+            formatted-files.txt
+            docs/ANIME_SCROLL_STORY.md
+            src/components/effects/AnimeScrollDirector.tsx
+            src/components/effects/CinematicPointerEffects.tsx
+            src/components/effects/ScrollEffects.tsx
+            src/components/home/AnimeScrollStory.astro
+            src/components/home/SignalLinksSection.astro
+            src/components/pages/HomePage.astro
+            src/components/social/SpotifyPlaylist.tsx
+            src/data/site-config.ts
+            src/styles/anime-scroll-performance.css
+            src/styles/scroll-performance.css
+            src/styles/signal-links.css
+            tests/e2e/hero-motion.spec.ts
+            tests/e2e/signal-links.spec.ts
+            tests/unit/scroll-performance-contract.test.ts
+          retention-days: 1
