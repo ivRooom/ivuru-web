@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Spatial Engine Loader</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #07080b;
+        --white: #f7fbff;
+        --blue: #63d4ff;
+        --cyan: #bdefff;
+        --gold: #e8c878;
+        --muted: rgb(226 235 245 / 48%);
+        --line: rgb(190 226 255 / 18%);
+        --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        min-height: 100%;
+        margin: 0;
+        background: var(--bg);
+      }
+
+      body {
+        overflow: hidden;
+        font-family: Inter, system-ui, sans-serif;
+      }
+
+      .loader {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        grid-template-rows: auto 1fr auto auto;
+        min-height: 100svh;
+        overflow: hidden;
+        padding: 28px;
+        color: var(--white);
+        background:
+          radial-gradient(circle at 50% 43%, rgb(48 161 213 / 13%), transparent 27%),
+          linear-gradient(155deg, #0a0b0f, #06070a 56%, #090a0d);
+        opacity: 1;
+        visibility: visible;
+        transform: scale(1);
+        transition:
+          opacity 420ms var(--ease),
+          visibility 420ms var(--ease),
+          transform 560ms var(--ease);
+      }
+
+      .loader::after {
+        position: absolute;
+        inset: 0;
+        content: '';
+        pointer-events: none;
+        background: radial-gradient(circle at center, transparent 41%, rgb(0 0 0 / 48%) 100%);
+      }
+
+      .loader.loaded {
+        pointer-events: none;
+        opacity: 0;
+        visibility: hidden;
+        transform: scale(1.018);
+      }
+
+      .chrome,
+      .footer,
+      .copy {
+        position: relative;
+        z-index: 4;
+      }
+
+      .chrome {
+        display: flex;
+        justify-content: space-between;
+        color: var(--muted);
+        font: 620 0.58rem/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+        letter-spacing: 0.17em;
+      }
+
+      .stage {
+        position: relative;
+        z-index: 2;
+        display: grid;
+        min-height: 310px;
+        place-items: center;
+        perspective: 1100px;
+        perspective-origin: 50% 43%;
+        transform-style: preserve-3d;
+      }
+
+      .scene {
+        position: relative;
+        width: clamp(270px, 36vw, 430px);
+        aspect-ratio: 1;
+        transform-style: preserve-3d;
+        animation: camera 5.8s var(--ease) infinite alternate;
+      }
+
+      .halo {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 50%;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background: rgb(73 196 244 / 22%);
+        filter: blur(48px);
+        transform: translate3d(-50%, -50%, -90px);
+      }
+
+      .floor {
+        position: absolute;
+        top: 65%;
+        left: 50%;
+        width: 58%;
+        height: 24%;
+        border-radius: 50%;
+        background: radial-gradient(ellipse, rgb(74 181 224 / 25%), transparent 68%);
+        filter: blur(15px);
+        transform: translate3d(-50%, 28%, -145px) rotateX(72deg);
+        animation: floor 2.8s ease-in-out infinite;
+      }
+
+      .gyro {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        border: 1px solid var(--line);
+        border-radius: 50%;
+        transform-style: preserve-3d;
+      }
+
+      .gyro::before,
+      .gyro::after {
+        position: absolute;
+        inset: -1px;
+        border: 1px solid rgb(189 239 255 / 8%);
+        border-radius: inherit;
+        content: '';
+      }
+
+      .gyro::before {
+        transform: translateZ(4px);
+      }
+
+      .gyro::after {
+        transform: translateZ(-4px);
+      }
+
+      .gyro i {
+        position: absolute;
+        top: 50%;
+        left: -4px;
+        width: 8px;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background: var(--white);
+        box-shadow: 0 0 18px rgb(99 212 255 / 64%);
+        transform: translate3d(0, -50%, 5px);
+      }
+
+      .outer {
+        width: 82%;
+        height: 82%;
+        animation: outer 7.6s linear infinite;
+      }
+
+      .middle {
+        width: 66%;
+        height: 66%;
+        border-color: rgb(232 200 120 / 25%);
+        animation: middle 6.2s linear infinite reverse;
+      }
+
+      .middle i {
+        background: var(--gold);
+        box-shadow: 0 0 16px rgb(232 200 120 / 56%);
+      }
+
+      .inner {
+        width: 50%;
+        height: 50%;
+        animation: inner 4.8s linear infinite;
+      }
+
+      .rig {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 108px;
+        height: 108px;
+        transform-style: preserve-3d;
+        animation: tumble 6.4s var(--ease) infinite;
+      }
+
+      .cube,
+      .energy {
+        position: absolute;
+        inset: 0;
+        transform-style: preserve-3d;
+      }
+
+      .face,
+      .energy-face {
+        position: absolute;
+        inset: 0;
+        display: block;
+        border: 1px solid rgb(220 246 255 / 34%);
+        backface-visibility: visible;
+      }
+
+      .face {
+        background:
+          linear-gradient(135deg, rgb(255 255 255 / 13%), transparent 42%),
+          linear-gradient(315deg, rgb(65 190 237 / 8%), transparent 56%),
+          rgb(89 194 233 / 3%);
+        box-shadow: inset 0 0 24px rgb(106 215 255 / 6%);
+      }
+
+      .front {
+        transform: translateZ(54px);
+      }
+
+      .back {
+        transform: rotateY(180deg) translateZ(54px);
+      }
+
+      .right {
+        transform: rotateY(90deg) translateZ(54px);
+      }
+
+      .left {
+        transform: rotateY(-90deg) translateZ(54px);
+      }
+
+      .top {
+        transform: rotateX(90deg) translateZ(54px);
+      }
+
+      .bottom {
+        transform: rotateX(-90deg) translateZ(54px);
+      }
+
+      .energy {
+        top: 50%;
+        left: 50%;
+        width: 38px;
+        height: 38px;
+        inset: auto;
+        transform: translate3d(-50%, -50%, 0);
+        animation: energy 2.2s ease-in-out infinite;
+      }
+
+      .energy-face {
+        background: linear-gradient(145deg, #d8f7ff, #55c9f4 48%, #105172);
+        box-shadow: 0 0 18px rgb(99 212 255 / 24%);
+      }
+
+      .energy .front {
+        transform: translateZ(19px);
+      }
+
+      .energy .back {
+        transform: rotateY(180deg) translateZ(19px);
+      }
+
+      .energy .right {
+        transform: rotateY(90deg) translateZ(19px);
+      }
+
+      .energy .left {
+        transform: rotateY(-90deg) translateZ(19px);
+      }
+
+      .energy .top {
+        transform: rotateX(90deg) translateZ(19px);
+      }
+
+      .energy .bottom {
+        transform: rotateX(-90deg) translateZ(19px);
+      }
+
+      .copy {
+        display: grid;
+        justify-items: center;
+        margin-top: -10px;
+        text-align: center;
+      }
+
+      .copy p,
+      .copy span {
+        margin: 0;
+        color: var(--muted);
+        font: 620 0.59rem/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+        letter-spacing: 0.18em;
+      }
+
+      .copy strong {
+        margin: 12px 0 9px;
+        font-size: clamp(2.8rem, 6.5vw, 5.1rem);
+        line-height: 0.9;
+        letter-spacing: -0.11em;
+      }
+
+      .footer {
+        display: grid;
+        grid-template-columns: 1fr minmax(220px, 320px);
+        gap: 24px;
+        align-items: end;
+        padding-top: 20px;
+      }
+
+      .meta {
+        color: var(--muted);
+        font: 600 0.55rem/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+        letter-spacing: 0.13em;
+      }
+
+      .progress {
+        display: grid;
+        grid-template-columns: 1fr 3ch;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .progress > span {
+        height: 1px;
+        overflow: hidden;
+        background: rgb(255 255 255 / 10%);
+      }
+
+      .progress i {
+        display: block;
+        width: var(--progress, 0%);
+        height: 100%;
+        background: linear-gradient(90deg, var(--blue), var(--cyan));
+        transition: width 80ms linear;
+      }
+
+      .progress b {
+        font: 620 0.64rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      }
+
+      @keyframes camera {
+        from {
+          transform: rotateX(-11deg) rotateY(-20deg) rotateZ(-2deg) translate3d(0, 4px, 0);
+        }
+        to {
+          transform: rotateX(-17deg) rotateY(24deg) rotateZ(2deg) translate3d(0, -5px, 0);
+        }
+      }
+
+      @keyframes tumble {
+        0% {
+          transform: translate3d(-50%, -50%, 62px) rotateX(-18deg) rotateY(28deg);
+        }
+        50% {
+          transform: translate3d(-50%, -50%, 78px) rotateX(18deg) rotateY(116deg) rotateZ(8deg);
+        }
+        100% {
+          transform: translate3d(-50%, -50%, 62px) rotateX(-18deg) rotateY(208deg);
+        }
+      }
+
+      @keyframes outer {
+        from {
+          transform: translate3d(-50%, -50%, -20px) rotateX(68deg) rotateY(-18deg) rotateZ(0);
+        }
+        to {
+          transform: translate3d(-50%, -50%, -20px) rotateX(68deg) rotateY(-18deg) rotateZ(360deg);
+        }
+      }
+
+      @keyframes middle {
+        from {
+          transform: translate3d(-50%, -50%, 8px) rotateY(72deg) rotateX(12deg) rotateZ(0);
+        }
+        to {
+          transform: translate3d(-50%, -50%, 8px) rotateY(72deg) rotateX(12deg) rotateZ(360deg);
+        }
+      }
+
+      @keyframes inner {
+        from {
+          transform: translate3d(-50%, -50%, 34px) rotateX(38deg) rotateY(56deg) rotateZ(0);
+        }
+        to {
+          transform: translate3d(-50%, -50%, 34px) rotateX(38deg) rotateY(56deg) rotateZ(360deg);
+        }
+      }
+
+      @keyframes energy {
+        0%,
+        100% {
+          transform: translate3d(-50%, -50%, 0) rotateX(-14deg) rotateY(19deg) scale3d(0.92, 0.92, 0.92);
+        }
+        50% {
+          transform: translate3d(-50%, -50%, 0) rotateX(8deg) rotateY(54deg) scale3d(1.08, 1.08, 1.08);
+        }
+      }
+
+      @keyframes floor {
+        0%,
+        100% {
+          opacity: 0.52;
+          transform: translate3d(-50%, 28%, -145px) rotateX(72deg) scale(0.92);
+        }
+        50% {
+          opacity: 0.82;
+          transform: translate3d(-50%, 28%, -145px) rotateX(72deg) scale(1.08);
+        }
+      }
+
+      @media (max-width: 680px) {
+        .loader {
+          padding-inline: 18px;
+        }
+
+        .chrome span:first-child,
+        .meta span:last-child {
+          display: none;
+        }
+
+        .chrome {
+          justify-content: flex-end;
+        }
+
+        .scene {
+          width: min(82vw, 340px);
+        }
+
+        .footer {
+          grid-template-columns: 1fr;
+          gap: 14px;
+        }
+      }
+
+      @media (max-height: 620px) {
+        .loader {
+          padding-block: 14px;
+        }
+
+        .stage {
+          min-height: 205px;
+        }
+
+        .scene {
+          width: min(48vh, 270px);
+        }
+
+        .copy span {
+          display: none;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .loader,
+        .progress i {
+          transition-duration: 1ms !important;
+        }
+
+        .scene,
+        .rig,
+        .gyro,
+        .energy,
+        .floor {
+          animation: none !important;
+        }
+
+        .scene {
+          transform: rotateX(-14deg) rotateY(-22deg);
+        }
+
+        .rig {
+          transform: translate3d(-50%, -50%, 68px) rotateX(-16deg) rotateY(32deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="loader" data-loader style="--progress: 0%;">
+      <div class="chrome">
+        <span>IVURU / SPATIAL ENGINE</span>
+        <span>CSS PERSPECTIVE · 12 FACES</span>
+      </div>
+
+      <div class="stage">
+        <div class="scene">
+          <span class="halo"></span>
+          <span class="floor"></span>
+          <div class="gyro outer"><i></i></div>
+          <div class="gyro middle"><i></i></div>
+          <div class="gyro inner"><i></i></div>
+          <div class="rig">
+            <div class="cube">
+              <span class="face front"></span>
+              <span class="face back"></span>
+              <span class="face right"></span>
+              <span class="face left"></span>
+              <span class="face top"></span>
+              <span class="face bottom"></span>
+              <div class="energy">
+                <span class="energy-face front"></span>
+                <span class="energy-face back"></span>
+                <span class="energy-face right"></span>
+                <span class="energy-face left"></span>
+                <span class="energy-face top"></span>
+                <span class="energy-face bottom"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="copy">
+        <p>空間エンジンを起動しています</p>
+        <strong>いゔる。</strong>
+        <span>BUILD. PLAY. CONNECT.</span>
+      </div>
+
+      <div class="footer">
+        <div class="meta"><span>SYSTEM.STATUS: LOADING</span></div>
+        <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <span><i></i></span><b data-value>000</b>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const loader = document.querySelector('[data-loader]');
+      const progress = document.querySelector('[role="progressbar"]');
+      const value = document.querySelector('[data-value]');
+      const startedAt = performance.now();
+      const duration = matchMedia('(prefers-reduced-motion: reduce)').matches ? 80 : 1800;
+
+      const tick = (now) => {
+        const next = Math.min(100, Math.round(((now - startedAt) / duration) * 100));
+        loader.style.setProperty('--progress', `${next}%`);
+        progress.setAttribute('aria-valuenow', String(next));
+        value.textContent = String(next).padStart(3, '0');
+        if (next < 100) requestAnimationFrame(tick);
+        else window.setTimeout(() => loader.classList.add('loaded'), 180);
+      };
+
+      window.addEventListener('load', () => requestAnimationFrame(tick), { once: true });
+    </script>
+  </body>
+</html>
