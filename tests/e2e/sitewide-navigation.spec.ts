@@ -1,6 +1,6 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
-const prepare = async (page: import('@playwright/test').Page, locale = 'ja') => {
+const prepare = async (page: Page, locale = 'ja') => {
   await page.addInitScript(
     ({ locale }) => {
       localStorage.setItem('ivuru-theme', 'dark');
@@ -46,6 +46,26 @@ test.describe('site-wide navigation experience', () => {
     await expect(external).toHaveAttribute('rel', /noopener/);
     await expect(external).toHaveAttribute('rel', /noreferrer/);
     await expect(external).toHaveAttribute('data-ui-external', 'true');
+  });
+
+  test('aria-disabledリンクをTab順と遷移対象から除外する', async ({ page }) => {
+    await prepare(page);
+    await page.goto('/profile');
+
+    await page.evaluate(() => {
+      const disabled = document.createElement('a');
+      disabled.href = '/works';
+      disabled.textContent = 'Disabled route';
+      disabled.setAttribute('aria-disabled', 'true');
+      disabled.dataset.testDisabledRoute = 'true';
+      document.body.append(disabled);
+      document.dispatchEvent(new Event('astro:page-load'));
+    });
+
+    const disabled = page.locator('[data-test-disabled-route="true"]');
+    await expect(disabled).toHaveAttribute('tabindex', '-1');
+    await disabled.click({ force: true });
+    await expect(page).toHaveURL(/\/profile\/?$/);
   });
 
   test('Reduced Motionでは共通モーション時間を無効化する', async ({ page }) => {
