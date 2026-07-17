@@ -10,6 +10,7 @@
   --story-pointer-x: 0px;
   --story-pointer-y: 0px;
   --story-progress: 0;
+
   position: relative;
   z-index: 1;
   width: 100%;
@@ -195,8 +196,8 @@
   width: clamp(36px, 5vw, 72px);
   height: 2px;
   content: '';
-  background: currentColor;
-  box-shadow: 0 0 16px currentColor;
+  background: currentcolor;
+  box-shadow: 0 0 16px currentcolor;
 }
 
 .anime-story-copy h1,
@@ -926,8 +927,12 @@
 .anime-portal-card {
   --card-tilt-x: 0deg;
   --card-tilt-y: 0deg;
+
+  display: block;
   flex: 1;
   min-width: 0;
+  color: inherit;
+  text-decoration: none;
   perspective: 900px;
 }
 
