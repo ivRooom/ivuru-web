@@ -35,7 +35,10 @@ test('alternates Orbit and Drive themes on reload', async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem('ivuru-locale', 'ja');
     localStorage.setItem('ivuru-theme', 'dark');
-    sessionStorage.removeItem('ivuru-loader-theme');
+    if (sessionStorage.getItem('ivuru-loader-test-prepared') !== '1') {
+      sessionStorage.removeItem('ivuru-loader-theme');
+      sessionStorage.setItem('ivuru-loader-test-prepared', '1');
+    }
     sessionStorage.setItem('ivuru-intro-seen', '1');
   });
 

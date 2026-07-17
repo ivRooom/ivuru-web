@@ -156,13 +156,15 @@ const copy = {
     if (statusText) statusText.textContent = themeStatus ?? '';
     if (themeLabel) themeLabel.textContent = theme === 'drive' ? 'LOW-POLY DRIVE' : 'ORBIT & PHASE';
 
-    let seen = true;
-    try {
-      seen = sessionStorage.getItem('ivuru-intro-seen') === '1';
-      sessionStorage.setItem('ivuru-intro-seen', '1');
-    } catch {
-      seen = true;
-    }
+    const seen = (() => {
+      try {
+        const hasSeen = sessionStorage.getItem('ivuru-intro-seen') === '1';
+        sessionStorage.setItem('ivuru-intro-seen', '1');
+        return hasSeen;
+      } catch {
+        return true;
+      }
+    })();
 
     const duration = reduced ? 80 : seen ? 420 : 1120;
     const exitDuration = reduced ? 20 : 460;
@@ -284,6 +286,7 @@ const copy = {
     content: '';
     pointer-events: none;
     background: radial-gradient(circle at 50% 50%, transparent 45%, rgb(0 0 0 / 42%) 100%);
+    animation: none;
   }
 
   :global(.dual-loader.loaded),
