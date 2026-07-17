@@ -1,0 +1,86 @@
+name: Diagnose Spatial Scroll Motion
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/diagnose-spatial-scroll-motion.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: diagnose-spatial-scroll-motion
+  cancel-in-progress: true
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/dual-3d-loading-experience
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --silent
+      - name: 補正版を生成
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from textwrap import dedent
+          workflow = Path('.github/workflows/apply-spatial-scroll-motion.yml').read_text()
+          start_marker = "          python3 - <<'PY'\n"
+          end_marker = "\n          PY\n"
+          start = workflow.index(start_marker) + len(start_marker)
+          end = workflow.index(end_marker, start)
+          script = dedent(workflow[start:end])
+          replacements = {
+              "const profile = SPATIAL_SCENE_PROFILES[sceneIndex % SPATIAL_SCENE_PROFILES.length];": "const profile = SPATIAL_SCENE_PROFILES[sceneIndex % SPATIAL_SCENE_PROFILES.length]!;",
+              "const profile = REVEAL_PROFILES[profileIndex % REVEAL_PROFILES.length];": "const profile = REVEAL_PROFILES[profileIndex % REVEAL_PROFILES.length]!;",
+              "const profile = PARALLAX_PROFILES[profileIndex % PARALLAX_PROFILES.length];": "const profile = PARALLAX_PROFILES[profileIndex % PARALLAX_PROFILES.length]!;",
+              "expect(source.match(/sceneIn:/g)).toHaveLength(4);": "expect(source.match(/sceneIn:/g)).toHaveLength(5);",
+              "expect(source.match(/sceneOut:/g)).toHaveLength(4);": "expect(source.match(/sceneOut:/g)).toHaveLength(5);",
+              "expect(source).toContain('data.scrollRevealDirection');": "expect(source).toContain('dataset.scrollRevealDirection');",
+              "expect(source).toContain('data.scrollParallaxDirection');": "expect(source).toContain('dataset.scrollParallaxDirection');",
+          }
+          for old, new in replacements.items():
+              script = script.replace(old, new)
+          exec(compile(script, 'spatial-scroll-diagnostic', 'exec'))
+          PY
+          npx prettier --write \
+            src/components/effects/AnimeScrollDirector.tsx \
+            src/components/effects/ScrollEffects.tsx \
+            src/styles/scroll-performance.css \
+            src/styles/anime-scroll-story.css \
+            tests/unit/spatial-scroll-motion-contract.test.ts >/dev/null
+      - name: 検証結果を収集
+        id: validate
+        continue-on-error: true
+        run: |
+          set +e
+          npm run check > check.log 2>&1; CHECK=$?
+          npm run lint > lint.log 2>&1; LINT=$?
+          npm test > test.log 2>&1; TEST=$?
+          npm run build > build.log 2>&1; BUILD=$?
+          {
+            echo "Astro Check: $CHECK"
+            echo "ESLint: $LINT"
+            echo "Unit: $TEST"
+            echo "Build: $BUILD"
+            for item in check lint test build; do
+              echo
+              echo "===== $item ====="
+              tail -n 90 "$item.log"
+            done
+          } > validation-summary.txt
+          test $CHECK -eq 0 -a $LINT -eq 0 -a $TEST -eq 0 -a $BUILD -eq 0
+      - name: 診断Artifactを保存
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: spatial-scroll-validation
+          path: validation-summary.txt
+          retention-days: 1
