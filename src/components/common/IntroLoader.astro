@@ -6,19 +6,19 @@ const copy = {
   ja: {
     label: 'いゔる。を読み込んでいます',
     status: 'ページを読み込んでいます。',
-    phase: '世界を同期しています',
+    phase: '空間エンジンを起動しています',
     tagline: 'BUILD. PLAY. CONNECT.',
   },
   en: {
     label: 'Loading ivuru',
     status: 'Loading the page.',
-    phase: 'Synchronizing worlds',
+    phase: 'Initializing spatial engine',
     tagline: 'BUILD. PLAY. CONNECT.',
   },
   ko: {
     label: 'ivuru를 불러오는 중입니다',
     status: '페이지를 불러오는 중입니다.',
-    phase: '세계를 동기화하는 중',
+    phase: '공간 엔진을 시작하는 중',
     tagline: 'BUILD. PLAY. CONNECT.',
   },
 }[locale];
@@ -33,47 +33,71 @@ const copy = {
 </noscript>
 
 <div
-  class="intro-loader world-loader anime-intro-loader orbital-loader"
-  data-orbital-loader
+  class="intro-loader world-loader anime-intro-loader spatial-loader"
+  data-spatial-loader
   style="--loader-progress: 0%;"
 >
   <span class="sr-only" role="status" aria-live="polite" aria-atomic="true">
     {copy.status}
   </span>
 
-  <div class="orbital-loader__chrome" aria-hidden="true">
-    <span>IVURU / ORBITAL CORE</span>
-    <span>CSS 3D · NODE 00</span>
+  <div class="spatial-loader__chrome" aria-hidden="true">
+    <span>IVURU / SPATIAL ENGINE</span>
+    <span>CSS PERSPECTIVE · 12 FACES</span>
   </div>
 
-  <div class="orbital-loader__stage" aria-hidden="true">
-    <div class="orbital-system">
-      <span class="orbital-bloom"></span>
-      <span class="orbital-axis orbital-axis--x"></span>
-      <span class="orbital-axis orbital-axis--y"></span>
-      <span class="orbital-ring orbital-ring--outer"><i></i></span>
-      <span class="orbital-ring orbital-ring--middle"><i></i></span>
-      <span class="orbital-ring orbital-ring--inner"><i></i></span>
-      <span class="orbital-core"><i></i><b></b></span>
-      <span class="orbital-point orbital-point--a"></span>
-      <span class="orbital-point orbital-point--b"></span>
+  <div class="spatial-loader__stage" aria-hidden="true">
+    <div class="spatial-scene">
+      <span class="spatial-halo"></span>
+      <span class="spatial-floor"></span>
+      <span class="spatial-axis spatial-axis--x"></span>
+      <span class="spatial-axis spatial-axis--y"></span>
+
+      <div class="gyro gyro--outer"><i></i></div>
+      <div class="gyro gyro--middle"><i></i></div>
+      <div class="gyro gyro--inner"><i></i></div>
+
+      <div class="cube-rig">
+        <div class="glass-cube">
+          <span class="cube-face cube-face--front"></span>
+          <span class="cube-face cube-face--back"></span>
+          <span class="cube-face cube-face--right"></span>
+          <span class="cube-face cube-face--left"></span>
+          <span class="cube-face cube-face--top"></span>
+          <span class="cube-face cube-face--bottom"></span>
+
+          <div class="energy-cube">
+            <span class="energy-face energy-face--front"></span>
+            <span class="energy-face energy-face--back"></span>
+            <span class="energy-face energy-face--right"></span>
+            <span class="energy-face energy-face--left"></span>
+            <span class="energy-face energy-face--top"></span>
+            <span class="energy-face energy-face--bottom"></span>
+          </div>
+        </div>
+      </div>
+
+      <span class="depth-particle depth-particle--one"></span>
+      <span class="depth-particle depth-particle--two"></span>
+      <span class="depth-particle depth-particle--three"></span>
+      <span class="depth-particle depth-particle--four"></span>
     </div>
   </div>
 
-  <div class="orbital-loader__copy">
+  <div class="spatial-loader__copy">
     <p>{copy.phase}</p>
     <strong>いゔる。</strong>
     <span>{copy.tagline}</span>
   </div>
 
-  <div class="orbital-loader__footer">
-    <div class="orbital-loader__metadata" aria-hidden="true">
+  <div class="spatial-loader__footer">
+    <div class="spatial-loader__metadata" aria-hidden="true">
       <span>SYSTEM.STATUS: <b data-loader-state>LOADING</b></span>
-      <span>RENDER: TRANSFORM / OPACITY</span>
+      <span>RENDER: CSS_3D / PRESERVE_3D</span>
     </div>
 
     <div
-      class="orbital-loader__progress"
+      class="spatial-loader__progress"
       role="progressbar"
       aria-label={copy.label}
       aria-valuemin="0"
@@ -88,7 +112,7 @@ const copy = {
 
 <script is:inline>
   (() => {
-    const loader = document.querySelector('[data-orbital-loader]');
+    const loader = document.querySelector('[data-spatial-loader]');
     if (!(loader instanceof HTMLElement) || loader.dataset.bound === 'true') return;
     loader.dataset.bound = 'true';
 
@@ -115,8 +139,8 @@ const copy = {
       }
     })();
 
-    const duration = reduced ? 60 : seen ? 340 : 920;
-    const exitDuration = reduced ? 1 : 380;
+    const duration = reduced ? 60 : seen ? 680 : 1480;
+    const exitDuration = reduced ? 1 : 420;
     const startedAt = performance.now();
     let readyAt = document.readyState === 'complete' ? startedAt : null;
     let frame = 0;
@@ -147,9 +171,9 @@ const copy = {
 
     const tick = (now) => {
       const elapsed = now - startedAt;
-      const waiting = Math.min(88, (elapsed / Math.max(duration, 1)) * 88);
+      const waiting = Math.min(90, (elapsed / Math.max(duration, 1)) * 90);
       const readyRatio =
-        readyAt === null ? 0 : Math.min(1, (now - readyAt) / Math.max(duration * 0.18, 1));
+        readyAt === null ? 0 : Math.min(1, (now - readyAt) / Math.max(duration * 0.16, 1));
       renderProgress(waiting + (100 - waiting) * readyRatio);
 
       if ((readyAt !== null && elapsed >= duration) || elapsed >= duration + 450) {
@@ -183,14 +207,14 @@ const copy = {
 </script>
 
 <style>
-  :global(.world-loader.anime-intro-loader.orbital-loader) {
-    --loader-bg: #0a0a0c;
-    --loader-white: #f8fbff;
-    --loader-blue: #55c8ff;
-    --loader-cyan: #b8efff;
+  :global(.world-loader.anime-intro-loader.spatial-loader) {
+    --loader-bg: #07080b;
+    --loader-white: #f7fbff;
+    --loader-blue: #63d4ff;
+    --loader-cyan: #bdefff;
     --loader-gold: #e8c878;
-    --loader-muted: rgb(225 234 245 / 46%);
-    --loader-line: rgb(187 225 255 / 14%);
+    --loader-muted: rgb(226 235 245 / 48%);
+    --loader-line: rgb(190 226 255 / 18%);
     --loader-ease: cubic-bezier(0.16, 1, 0.3, 1);
 
     position: fixed;
@@ -205,51 +229,50 @@ const copy = {
       max(26px, env(safe-area-inset-bottom)) max(28px, env(safe-area-inset-left));
     color: var(--loader-white);
     background:
-      radial-gradient(circle at 50% 45%, rgb(37 128 176 / 8%), transparent 31%),
-      linear-gradient(160deg, #0b0b0e, #08090c 58%, #0a0a0c);
-    clip-path: none;
+      radial-gradient(circle at 50% 43%, rgb(48 161 213 / 13%), transparent 27%),
+      radial-gradient(circle at 50% 120%, rgb(55 111 147 / 10%), transparent 38%),
+      linear-gradient(155deg, #0a0b0f, #06070a 56%, #090a0d);
     opacity: 1;
     visibility: visible;
     transform: translateZ(0) scale(1);
     transition:
-      opacity 380ms var(--loader-ease),
-      visibility 380ms var(--loader-ease),
-      transform 520ms var(--loader-ease);
+      opacity 420ms var(--loader-ease),
+      visibility 420ms var(--loader-ease),
+      transform 560ms var(--loader-ease);
     isolation: isolate;
   }
 
-  :global(.world-loader.anime-intro-loader.orbital-loader::before) {
+  :global(.world-loader.anime-intro-loader.spatial-loader::before) {
     position: absolute;
     inset: 0;
     content: '';
     pointer-events: none;
     background:
-      linear-gradient(90deg, transparent 0 49.96%, rgb(255 255 255 / 2.5%) 50%, transparent 50.04%),
-      linear-gradient(transparent 0 49.96%, rgb(255 255 255 / 2%) 50%, transparent 50.04%);
-    mask-image: radial-gradient(circle at center, #000, transparent 70%);
-    opacity: 0.54;
+      linear-gradient(90deg, transparent 0 49.96%, rgb(255 255 255 / 2.8%) 50%, transparent 50.04%),
+      linear-gradient(transparent 0 49.96%, rgb(255 255 255 / 2.2%) 50%, transparent 50.04%);
+    mask-image: radial-gradient(circle at center, #000, transparent 72%);
+    opacity: 0.48;
   }
 
-  :global(.world-loader.anime-intro-loader.orbital-loader::after) {
+  :global(.world-loader.anime-intro-loader.spatial-loader::after) {
     position: absolute;
     inset: 0;
     content: '';
     pointer-events: none;
-    background: radial-gradient(circle at center, transparent 44%, rgb(0 0 0 / 44%) 100%);
-    animation: none;
+    background: radial-gradient(circle at center, transparent 41%, rgb(0 0 0 / 48%) 100%);
   }
 
-  :global(.orbital-loader.loaded),
-  :global(.orbital-loader[data-failsafe-hidden='true']) {
+  :global(.spatial-loader.loaded),
+  :global(.spatial-loader[data-failsafe-hidden='true']) {
     pointer-events: none;
     opacity: 0;
     visibility: hidden;
-    transform: translateZ(0) scale(1.012);
+    transform: translateZ(0) scale(1.018);
   }
 
-  .orbital-loader__chrome {
+  .spatial-loader__chrome {
     position: relative;
-    z-index: 4;
+    z-index: 5;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -265,174 +288,296 @@ const copy = {
     letter-spacing: 0.17em;
   }
 
-  .orbital-loader__stage {
+  .spatial-loader__stage {
     position: relative;
     z-index: 2;
     display: grid;
-    min-height: 280px;
+    min-height: 310px;
     place-items: center;
-    perspective: 1200px;
+    perspective: 1100px;
+    perspective-origin: 50% 43%;
     transform-style: preserve-3d;
   }
 
-  .orbital-system {
+  .spatial-scene {
     position: relative;
-    width: clamp(240px, 31vw, 370px);
+    width: clamp(270px, 36vw, 430px);
     aspect-ratio: 1;
     transform-style: preserve-3d;
-    animation: orbital-breathe 3.8s var(--loader-ease) infinite;
+    animation: spatial-camera 5.8s var(--loader-ease) infinite alternate;
   }
 
-  .orbital-bloom {
+  .spatial-halo {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 42%;
+    width: 50%;
     aspect-ratio: 1;
     border-radius: 50%;
-    background: rgb(74 190 240 / 18%);
-    filter: blur(42px);
-    transform: translate3d(-50%, -50%, -24px);
+    background: rgb(73 196 244 / 22%);
+    filter: blur(48px);
+    transform: translate3d(-50%, -50%, -90px);
   }
 
-  .orbital-axis {
+  .spatial-floor {
+    position: absolute;
+    top: 65%;
+    left: 50%;
+    width: 58%;
+    height: 24%;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgb(74 181 224 / 25%), transparent 68%);
+    filter: blur(15px);
+    transform: translate3d(-50%, 28%, -145px) rotateX(72deg);
+    animation: floor-pulse 2.8s ease-in-out infinite;
+  }
+
+  .spatial-axis {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 86%;
+    width: 88%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgb(184 239 255 / 14%), transparent);
+    background: linear-gradient(90deg, transparent, rgb(189 239 255 / 12%), transparent);
     transform-origin: center;
   }
 
-  .orbital-axis--x {
-    transform: translate3d(-50%, -50%, -20px) rotate(24deg);
+  .spatial-axis--x {
+    transform: translate3d(-50%, -50%, -112px) rotate(19deg);
   }
 
-  .orbital-axis--y {
-    transform: translate3d(-50%, -50%, -20px) rotate(114deg);
+  .spatial-axis--y {
+    transform: translate3d(-50%, -50%, -112px) rotate(109deg);
   }
 
-  .orbital-ring {
+  .gyro {
     position: absolute;
+    top: 50%;
+    left: 50%;
     border: 1px solid var(--loader-line);
     border-radius: 50%;
     transform-style: preserve-3d;
   }
 
-  .orbital-ring i {
+  .gyro::before,
+  .gyro::after {
+    position: absolute;
+    inset: -1px;
+    border: 1px solid rgb(189 239 255 / 8%);
+    border-radius: inherit;
+    content: '';
+  }
+
+  .gyro::before {
+    transform: translateZ(4px);
+  }
+
+  .gyro::after {
+    transform: translateZ(-4px);
+  }
+
+  .gyro i {
     position: absolute;
     top: 50%;
-    left: -3px;
-    width: 6px;
+    left: -4px;
+    width: 8px;
     aspect-ratio: 1;
+    border: 1px solid rgb(255 255 255 / 70%);
     border-radius: 50%;
     background: var(--loader-white);
-    box-shadow: 0 0 18px rgb(184 239 255 / 56%);
-    transform: translateY(-50%);
+    box-shadow:
+      0 0 18px rgb(99 212 255 / 64%),
+      0 0 0 4px rgb(99 212 255 / 8%);
+    transform: translate3d(0, -50%, 5px);
   }
 
-  .orbital-ring--outer {
-    inset: 7%;
-    border-color: rgb(184 239 255 / 19%);
-    animation: orbital-outer 8.8s linear infinite;
+  .gyro--outer {
+    width: 82%;
+    height: 82%;
+    border-color: rgb(189 239 255 / 22%);
+    animation: gyro-outer 7.6s linear infinite;
   }
 
-  .orbital-ring--middle {
-    inset: 18%;
-    border-color: rgb(232 200 120 / 23%);
-    animation: orbital-middle 7.2s linear infinite reverse;
+  .gyro--middle {
+    width: 66%;
+    height: 66%;
+    border-color: rgb(232 200 120 / 25%);
+    animation: gyro-middle 6.2s linear infinite reverse;
   }
 
-  .orbital-ring--middle i {
+  .gyro--middle i {
     background: var(--loader-gold);
-    box-shadow: 0 0 16px rgb(232 200 120 / 46%);
+    box-shadow:
+      0 0 16px rgb(232 200 120 / 56%),
+      0 0 0 4px rgb(232 200 120 / 8%);
   }
 
-  .orbital-ring--inner {
-    inset: 29%;
-    border-style: dashed;
-    border-color: rgb(255 255 255 / 16%);
-    animation: orbital-inner 5.6s linear infinite;
+  .gyro--inner {
+    width: 50%;
+    height: 50%;
+    border-color: rgb(255 255 255 / 18%);
+    animation: gyro-inner 4.8s linear infinite;
   }
 
-  .orbital-core {
+  .cube-rig {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 31%;
-    aspect-ratio: 1;
-    overflow: hidden;
-    border: 1px solid rgb(255 255 255 / 22%);
-    border-radius: 50%;
-    background: radial-gradient(
-      circle at 31% 24%,
-      #fff 0 3%,
-      #d8f6ff 9%,
-      #73d4fa 27%,
-      #276b8d 59%,
-      #0a1821 100%
-    );
+    width: 108px;
+    height: 108px;
+    transform-style: preserve-3d;
+    animation: cube-tumble 6.4s var(--loader-ease) infinite;
+  }
+
+  .glass-cube,
+  .energy-cube {
+    position: absolute;
+    inset: 0;
+    transform-style: preserve-3d;
+  }
+
+  .cube-face,
+  .energy-face {
+    position: absolute;
+    inset: 0;
+    display: block;
+    box-sizing: border-box;
+    backface-visibility: visible;
+  }
+
+  .cube-face {
+    border: 1px solid rgb(220 246 255 / 34%);
+    background:
+      linear-gradient(135deg, rgb(255 255 255 / 13%), transparent 42%),
+      linear-gradient(315deg, rgb(65 190 237 / 8%), transparent 56%),
+      rgb(89 194 233 / 3%);
     box-shadow:
-      inset -18px -20px 34px rgb(0 0 0 / 46%),
-      0 0 0 1px rgb(85 200 255 / 8%),
-      0 0 44px rgb(85 200 255 / 16%);
-    transform: translate3d(-50%, -50%, 58px);
+      inset 0 0 24px rgb(106 215 255 / 6%),
+      0 0 1px rgb(255 255 255 / 70%);
   }
 
-  .orbital-core i {
+  .cube-face::before {
     position: absolute;
-    inset: -7%;
-    border-radius: inherit;
-    background: #071017;
-    opacity: 0.76;
-    transform: translate3d(54%, 0, 2px);
-    animation: orbital-phase 3.6s var(--loader-ease) infinite alternate;
+    inset: 10px;
+    border: 1px solid rgb(205 241 255 / 10%);
+    content: '';
   }
 
-  .orbital-core b {
-    position: absolute;
-    top: 20%;
-    left: 24%;
-    width: 13%;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: rgb(255 255 255 / 78%);
-    filter: blur(3px);
+  .cube-face--front {
+    transform: translateZ(54px);
   }
 
-  .orbital-point {
+  .cube-face--back {
+    transform: rotateY(180deg) translateZ(54px);
+  }
+
+  .cube-face--right {
+    transform: rotateY(90deg) translateZ(54px);
+  }
+
+  .cube-face--left {
+    transform: rotateY(-90deg) translateZ(54px);
+  }
+
+  .cube-face--top {
+    transform: rotateX(90deg) translateZ(54px);
+  }
+
+  .cube-face--bottom {
+    transform: rotateX(-90deg) translateZ(54px);
+  }
+
+  .energy-cube {
+    top: 50%;
+    left: 50%;
+    width: 38px;
+    height: 38px;
+    inset: auto;
+    transform: translate3d(-50%, -50%, 0) rotateX(-14deg) rotateY(19deg);
+    animation: energy-pulse 2.2s ease-in-out infinite;
+  }
+
+  .energy-face {
+    border: 1px solid rgb(255 255 255 / 42%);
+    background: linear-gradient(145deg, #d8f7ff, #55c9f4 48%, #105172);
+    box-shadow:
+      inset -7px -8px 15px rgb(0 24 38 / 36%),
+      0 0 18px rgb(99 212 255 / 24%);
+    opacity: 0.92;
+  }
+
+  .energy-face--front {
+    transform: translateZ(19px);
+  }
+
+  .energy-face--back {
+    transform: rotateY(180deg) translateZ(19px);
+  }
+
+  .energy-face--right {
+    transform: rotateY(90deg) translateZ(19px);
+  }
+
+  .energy-face--left {
+    transform: rotateY(-90deg) translateZ(19px);
+  }
+
+  .energy-face--top {
+    transform: rotateX(90deg) translateZ(19px);
+  }
+
+  .energy-face--bottom {
+    transform: rotateX(-90deg) translateZ(19px);
+  }
+
+  .depth-particle {
     position: absolute;
-    width: 3px;
+    width: 4px;
     aspect-ratio: 1;
     border-radius: 50%;
     background: var(--loader-cyan);
-    box-shadow: 0 0 12px rgb(184 239 255 / 50%);
+    box-shadow: 0 0 12px rgb(189 239 255 / 48%);
   }
 
-  .orbital-point--a {
+  .depth-particle--one {
     top: 18%;
-    right: 19%;
+    left: 22%;
+    opacity: 0.42;
+    transform: translateZ(-120px) scale(0.72);
   }
 
-  .orbital-point--b {
-    bottom: 21%;
-    left: 17%;
+  .depth-particle--two {
+    top: 28%;
+    right: 16%;
+    transform: translateZ(105px) scale(1.2);
+  }
+
+  .depth-particle--three {
+    right: 25%;
+    bottom: 16%;
     background: var(--loader-gold);
-    box-shadow: 0 0 12px rgb(232 200 120 / 40%);
+    box-shadow: 0 0 12px rgb(232 200 120 / 42%);
+    transform: translateZ(-72px) scale(0.84);
   }
 
-  .orbital-loader__copy {
+  .depth-particle--four {
+    bottom: 26%;
+    left: 14%;
+    opacity: 0.72;
+    transform: translateZ(72px);
+  }
+
+  .spatial-loader__copy {
     position: relative;
-    z-index: 4;
+    z-index: 5;
     display: grid;
     justify-items: center;
-    margin-top: -8px;
+    margin-top: -10px;
     text-align: center;
   }
 
-  .orbital-loader__copy p,
-  .orbital-loader__copy span {
+  .spatial-loader__copy p,
+  .spatial-loader__copy span {
     margin: 0;
     color: var(--loader-muted);
     font:
@@ -446,19 +591,19 @@ const copy = {
     text-transform: uppercase;
   }
 
-  .orbital-loader__copy strong {
+  .spatial-loader__copy strong {
     margin: 12px 0 9px;
     color: var(--loader-white);
-    font-size: clamp(2.8rem, 6.5vw, 5.2rem);
+    font-size: clamp(2.8rem, 6.5vw, 5.1rem);
     font-weight: 760;
     line-height: 0.9;
     letter-spacing: -0.11em;
-    text-shadow: 0 18px 50px rgb(70 177 225 / 13%);
+    text-shadow: 0 18px 50px rgb(70 177 225 / 14%);
   }
 
-  .orbital-loader__footer {
+  .spatial-loader__footer {
     position: relative;
-    z-index: 4;
+    z-index: 5;
     display: grid;
     grid-template-columns: 1fr minmax(220px, 320px);
     gap: 24px;
@@ -466,7 +611,7 @@ const copy = {
     padding-top: 20px;
   }
 
-  .orbital-loader__metadata {
+  .spatial-loader__metadata {
     display: flex;
     flex-wrap: wrap;
     gap: 9px 24px;
@@ -481,35 +626,35 @@ const copy = {
     letter-spacing: 0.13em;
   }
 
-  .orbital-loader__metadata b {
+  .spatial-loader__metadata b {
     color: var(--loader-cyan);
     font-weight: inherit;
   }
 
-  .orbital-loader__progress {
+  .spatial-loader__progress {
     display: grid;
     grid-template-columns: 1fr 3ch;
     gap: 12px;
     align-items: center;
   }
 
-  .orbital-loader__progress > span {
+  .spatial-loader__progress > span {
     position: relative;
     height: 1px;
     overflow: hidden;
     background: rgb(255 255 255 / 10%);
   }
 
-  .orbital-loader__progress i {
+  .spatial-loader__progress i {
     position: absolute;
     inset: 0 auto 0 0;
     width: var(--loader-progress);
     background: linear-gradient(90deg, var(--loader-blue), var(--loader-cyan));
-    box-shadow: 0 0 12px rgb(85 200 255 / 34%);
+    box-shadow: 0 0 12px rgb(99 212 255 / 34%);
     transition: width 80ms linear;
   }
 
-  .orbital-loader__progress > b {
+  .spatial-loader__progress > b {
     color: var(--loader-white);
     font:
       620 0.64rem/1 ui-monospace,
@@ -519,123 +664,186 @@ const copy = {
     letter-spacing: 0.08em;
   }
 
-  @keyframes orbital-outer {
-    from {
-      transform: rotateX(70deg) rotateZ(0deg);
+  @keyframes spatial-camera {
+    0% {
+      transform: rotateX(-11deg) rotateY(-20deg) rotateZ(-2deg) translate3d(0, 4px, 0);
     }
-    to {
-      transform: rotateX(70deg) rotateZ(360deg);
-    }
-  }
-
-  @keyframes orbital-middle {
-    from {
-      transform: rotateY(67deg) rotateZ(0deg);
-    }
-    to {
-      transform: rotateY(67deg) rotateZ(360deg);
-    }
-  }
-
-  @keyframes orbital-inner {
-    from {
-      transform: rotateX(36deg) rotateY(52deg) rotateZ(0deg);
-    }
-    to {
-      transform: rotateX(36deg) rotateY(52deg) rotateZ(360deg);
-    }
-  }
-
-  @keyframes orbital-phase {
-    from {
-      transform: translate3d(68%, -1%, 2px) scale(1.04);
-    }
-    to {
-      transform: translate3d(30%, 1%, 2px) scale(1.02);
-    }
-  }
-
-  @keyframes orbital-breathe {
-    0%,
     100% {
-      transform: translate3d(0, 2px, 0) scale(0.997);
+      transform: rotateX(-17deg) rotateY(24deg) rotateZ(2deg) translate3d(0, -5px, 0);
+    }
+  }
+
+  @keyframes cube-tumble {
+    0% {
+      transform: translate3d(-50%, -50%, 62px) rotateX(-18deg) rotateY(28deg) rotateZ(0deg);
     }
     50% {
-      transform: translate3d(0, -4px, 0) scale(1.008);
+      transform: translate3d(-50%, -50%, 78px) rotateX(18deg) rotateY(116deg) rotateZ(8deg);
+    }
+    100% {
+      transform: translate3d(-50%, -50%, 62px) rotateX(-18deg) rotateY(208deg) rotateZ(0deg);
+    }
+  }
+
+  @keyframes gyro-outer {
+    from {
+      transform: translate3d(-50%, -50%, -20px) rotateX(68deg) rotateY(-18deg) rotateZ(0deg);
+    }
+    to {
+      transform: translate3d(-50%, -50%, -20px) rotateX(68deg) rotateY(-18deg) rotateZ(360deg);
+    }
+  }
+
+  @keyframes gyro-middle {
+    from {
+      transform: translate3d(-50%, -50%, 8px) rotateY(72deg) rotateX(12deg) rotateZ(0deg);
+    }
+    to {
+      transform: translate3d(-50%, -50%, 8px) rotateY(72deg) rotateX(12deg) rotateZ(360deg);
+    }
+  }
+
+  @keyframes gyro-inner {
+    from {
+      transform: translate3d(-50%, -50%, 34px) rotateX(38deg) rotateY(56deg) rotateZ(0deg);
+    }
+    to {
+      transform: translate3d(-50%, -50%, 34px) rotateX(38deg) rotateY(56deg) rotateZ(360deg);
+    }
+  }
+
+  @keyframes energy-pulse {
+    0%,
+    100% {
+      transform: translate3d(-50%, -50%, 0) rotateX(-14deg) rotateY(19deg) scale3d(0.92, 0.92, 0.92);
+      filter: brightness(0.9);
+    }
+    50% {
+      transform: translate3d(-50%, -50%, 0) rotateX(8deg) rotateY(54deg) scale3d(1.08, 1.08, 1.08);
+      filter: brightness(1.18);
+    }
+  }
+
+  @keyframes floor-pulse {
+    0%,
+    100% {
+      opacity: 0.52;
+      transform: translate3d(-50%, 28%, -145px) rotateX(72deg) scale(0.92);
+    }
+    50% {
+      opacity: 0.82;
+      transform: translate3d(-50%, 28%, -145px) rotateX(72deg) scale(1.08);
     }
   }
 
   @media (max-width: 680px) {
-    :global(.world-loader.anime-intro-loader.orbital-loader) {
+    :global(.world-loader.anime-intro-loader.spatial-loader) {
       padding-inline: max(18px, env(safe-area-inset-left));
     }
 
-    .orbital-loader__chrome span:first-child,
-    .orbital-loader__metadata span:last-child {
+    .spatial-loader__chrome span:first-child,
+    .spatial-loader__metadata span:last-child {
       display: none;
     }
 
-    .orbital-loader__chrome {
+    .spatial-loader__chrome {
       justify-content: flex-end;
     }
 
-    .orbital-system {
-      width: min(76vw, 310px);
+    .spatial-scene {
+      width: min(82vw, 340px);
     }
 
-    .orbital-loader__footer {
+    .cube-rig {
+      width: 92px;
+      height: 92px;
+    }
+
+    .cube-face--front {
+      transform: translateZ(46px);
+    }
+
+    .cube-face--back {
+      transform: rotateY(180deg) translateZ(46px);
+    }
+
+    .cube-face--right {
+      transform: rotateY(90deg) translateZ(46px);
+    }
+
+    .cube-face--left {
+      transform: rotateY(-90deg) translateZ(46px);
+    }
+
+    .cube-face--top {
+      transform: rotateX(90deg) translateZ(46px);
+    }
+
+    .cube-face--bottom {
+      transform: rotateX(-90deg) translateZ(46px);
+    }
+
+    .spatial-loader__footer {
       grid-template-columns: 1fr;
       gap: 14px;
     }
 
-    .orbital-loader__metadata {
+    .spatial-loader__metadata {
       justify-content: center;
     }
   }
 
   @media (max-height: 620px) {
-    :global(.world-loader.anime-intro-loader.orbital-loader) {
+    :global(.world-loader.anime-intro-loader.spatial-loader) {
       padding-block: 14px;
     }
 
-    .orbital-loader__stage {
-      min-height: 190px;
+    .spatial-loader__stage {
+      min-height: 205px;
     }
 
-    .orbital-system {
-      width: min(43vh, 240px);
+    .spatial-scene {
+      width: min(48vh, 270px);
     }
 
-    .orbital-loader__copy strong {
+    .spatial-loader__copy strong {
       font-size: 2.7rem;
     }
 
-    .orbital-loader__copy span,
-    .orbital-loader__metadata span:last-child {
+    .spatial-loader__copy span,
+    .spatial-loader__metadata span:last-child {
       display: none;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    :global(.world-loader.anime-intro-loader.orbital-loader),
-    .orbital-loader__progress i {
+    :global(.world-loader.anime-intro-loader.spatial-loader),
+    .spatial-loader__progress i {
       transition-duration: 1ms !important;
     }
 
-    .orbital-system,
-    .orbital-ring,
-    .orbital-core i {
+    .spatial-scene,
+    .cube-rig,
+    .gyro,
+    .energy-cube,
+    .spatial-floor {
       animation: none !important;
     }
 
-    .orbital-core i {
-      transform: translate3d(44%, 0, 2px);
+    .spatial-scene {
+      transform: rotateX(-14deg) rotateY(-22deg);
+    }
+
+    .cube-rig {
+      transform: translate3d(-50%, -50%, 68px) rotateX(-16deg) rotateY(32deg);
     }
   }
 
-  :global(html[data-document-active='false']) .orbital-system,
-  :global(html[data-document-active='false']) .orbital-ring,
-  :global(html[data-document-active='false']) .orbital-core i {
+  :global(html[data-document-active='false']) .spatial-scene,
+  :global(html[data-document-active='false']) .cube-rig,
+  :global(html[data-document-active='false']) .gyro,
+  :global(html[data-document-active='false']) .energy-cube,
+  :global(html[data-document-active='false']) .spatial-floor {
     animation-play-state: paused !important;
   }
 </style>
