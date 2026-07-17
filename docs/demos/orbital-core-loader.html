@@ -59,7 +59,7 @@
       .loader::before {
         position: absolute;
         inset: 0;
-        content: "";
+        content: '';
         pointer-events: none;
         background:
           linear-gradient(
@@ -68,11 +68,7 @@
             rgb(255 255 255 / 2.5%) 50%,
             transparent 50.04%
           ),
-          linear-gradient(
-            transparent 0 49.96%,
-            rgb(255 255 255 / 2%) 50%,
-            transparent 50.04%
-          );
+          linear-gradient(transparent 0 49.96%, rgb(255 255 255 / 2%) 50%, transparent 50.04%);
         mask-image: radial-gradient(circle at center, #000, transparent 70%);
       }
 
@@ -91,7 +87,11 @@
         justify-content: space-between;
         gap: 18px;
         color: var(--muted);
-        font: 620 0.58rem/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+        font:
+          620 0.58rem/1.4 ui-monospace,
+          SFMono-Regular,
+          Menlo,
+          monospace;
         letter-spacing: 0.17em;
       }
 
@@ -155,7 +155,7 @@
         left: -3px;
         width: 6px;
         aspect-ratio: 1;
-        content: "";
+        content: '';
         border-radius: 50%;
         background: var(--white);
         box-shadow: 0 0 18px rgb(184 239 255 / 56%);
@@ -210,7 +210,7 @@
       .core::after {
         position: absolute;
         inset: -7%;
-        content: "";
+        content: '';
         border-radius: inherit;
         background: #071017;
         opacity: 0.76;
@@ -230,7 +230,11 @@
       .copy span {
         margin: 0;
         color: var(--muted);
-        font: 620 0.59rem/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+        font:
+          620 0.59rem/1.5 ui-monospace,
+          SFMono-Regular,
+          Menlo,
+          monospace;
         letter-spacing: 0.18em;
       }
 
@@ -275,7 +279,9 @@
       }
 
       .progress b {
-        font: 620 0.64rem/1 ui-monospace, monospace;
+        font:
+          620 0.64rem/1 ui-monospace,
+          monospace;
       }
 
       @keyframes outer {
@@ -400,9 +406,9 @@
           <span class="bloom"></span>
           <span class="axis x"></span>
           <span class="axis y"></span>
-          <span class="ring outer"></span>
-          <span class="ring middle"></span>
-          <span class="ring inner"></span>
+          <span class="outer ring"></span>
+          <span class="middle ring"></span>
+          <span class="inner ring"></span>
           <span class="core"></span>
         </div>
       </main>
