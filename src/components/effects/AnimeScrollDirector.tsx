@@ -197,6 +197,7 @@ export default function AnimeScrollDirector() {
 
         const segment = 1.55;
         const storyDuration = segment * (scenes.length - 1) + 1.18;
+        const activationDelay = compactMotion ? 0.04 : 0.1;
         const timeline = gsap.timeline({
           defaults: { ease: 'power3.inOut' },
           scrollTrigger: {
@@ -219,7 +220,7 @@ export default function AnimeScrollDirector() {
             onUpdate: (self) => {
               root.style.setProperty('--story-progress', self.progress.toFixed(4));
               const storyTime = self.progress * storyDuration;
-              activate(Math.floor((storyTime + 0.001) / segment));
+              activate(Math.floor((storyTime - activationDelay + 0.001) / segment));
             },
           },
         });
