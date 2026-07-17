@@ -58,10 +58,22 @@ export default function SpotifyPlaylist({ locale, playlistId, playlistUrl }: Pro
             </div>
             <p>{labels.consent}</p>
             <div className="signal-music-actions">
-              <button type="button" onClick={() => setLoaded(true)}>
+              <button
+                type="button"
+                data-analytics-event="spotify_load"
+                data-analytics-surface="home_signal_links"
+                onClick={() => setLoaded(true)}
+              >
                 {labels.load}
               </button>
-              <a href={playlistUrl} target="_blank" rel="noopener noreferrer">
+              <a
+                href={playlistUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-analytics-event="social_open"
+                data-analytics-target="spotify"
+                data-analytics-surface="home_signal_links"
+              >
                 {labels.open} ↗
               </a>
             </div>
