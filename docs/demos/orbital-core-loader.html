@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Orbital Core Loader</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0a0a0c;
+        --white: #f8fbff;
+        --blue: #55c8ff;
+        --cyan: #b8efff;
+        --gold: #e8c878;
+        --muted: rgb(225 234 245 / 46%);
+        --line: rgb(187 225 255 / 14%);
+        --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        min-height: 100%;
+        margin: 0;
+      }
+
+      body {
+        overflow: hidden;
+        color: var(--white);
+        background: var(--bg);
+        font-family: Inter, system-ui, sans-serif;
+      }
+
+      .loader {
+        --progress: 0%;
+        position: fixed;
+        inset: 0;
+        display: grid;
+        grid-template-rows: auto 1fr auto auto;
+        min-height: 100svh;
+        padding: max(26px, env(safe-area-inset-top)) max(28px, env(safe-area-inset-right))
+          max(26px, env(safe-area-inset-bottom)) max(28px, env(safe-area-inset-left));
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 50% 45%, rgb(37 128 176 / 8%), transparent 31%),
+          linear-gradient(160deg, #0b0b0e, #08090c 58%, #0a0a0c);
+        opacity: 1;
+        visibility: visible;
+        transform: translateZ(0) scale(1);
+        transition:
+          opacity 380ms var(--ease),
+          visibility 380ms var(--ease),
+          transform 520ms var(--ease);
+      }
+
+      .loader::before {
+        position: absolute;
+        inset: 0;
+        content: "";
+        pointer-events: none;
+        background:
+          linear-gradient(
+            90deg,
+            transparent 0 49.96%,
+            rgb(255 255 255 / 2.5%) 50%,
+            transparent 50.04%
+          ),
+          linear-gradient(
+            transparent 0 49.96%,
+            rgb(255 255 255 / 2%) 50%,
+            transparent 50.04%
+          );
+        mask-image: radial-gradient(circle at center, #000, transparent 70%);
+      }
+
+      .loader.loaded {
+        pointer-events: none;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateZ(0) scale(1.012);
+      }
+
+      .chrome,
+      .metadata {
+        position: relative;
+        z-index: 3;
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        color: var(--muted);
+        font: 620 0.58rem/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+        letter-spacing: 0.17em;
+      }
+
+      .stage {
+        position: relative;
+        z-index: 2;
+        display: grid;
+        min-height: 280px;
+        place-items: center;
+        perspective: 1200px;
+        transform-style: preserve-3d;
+      }
+
+      .system {
+        position: relative;
+        width: clamp(240px, 31vw, 370px);
+        aspect-ratio: 1;
+        transform-style: preserve-3d;
+        animation: breathe 3.8s var(--ease) infinite;
+      }
+
+      .bloom {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 42%;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background: rgb(74 190 240 / 18%);
+        filter: blur(42px);
+        transform: translate3d(-50%, -50%, -24px);
+      }
+
+      .axis {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 86%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgb(184 239 255 / 14%), transparent);
+      }
+
+      .axis.x {
+        transform: translate3d(-50%, -50%, -20px) rotate(24deg);
+      }
+
+      .axis.y {
+        transform: translate3d(-50%, -50%, -20px) rotate(114deg);
+      }
+
+      .ring {
+        position: absolute;
+        border: 1px solid var(--line);
+        border-radius: 50%;
+        transform-style: preserve-3d;
+      }
+
+      .ring::after {
+        position: absolute;
+        top: 50%;
+        left: -3px;
+        width: 6px;
+        aspect-ratio: 1;
+        content: "";
+        border-radius: 50%;
+        background: var(--white);
+        box-shadow: 0 0 18px rgb(184 239 255 / 56%);
+        transform: translateY(-50%);
+      }
+
+      .ring.outer {
+        inset: 7%;
+        animation: outer 8.8s linear infinite;
+      }
+
+      .ring.middle {
+        inset: 18%;
+        border-color: rgb(232 200 120 / 23%);
+        animation: middle 7.2s linear infinite reverse;
+      }
+
+      .ring.middle::after {
+        background: var(--gold);
+        box-shadow: 0 0 16px rgb(232 200 120 / 46%);
+      }
+
+      .ring.inner {
+        inset: 29%;
+        border-style: dashed;
+        animation: inner 5.6s linear infinite;
+      }
+
+      .core {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 31%;
+        aspect-ratio: 1;
+        overflow: hidden;
+        border: 1px solid rgb(255 255 255 / 22%);
+        border-radius: 50%;
+        background: radial-gradient(
+          circle at 31% 24%,
+          #fff 0 3%,
+          #d8f6ff 9%,
+          #73d4fa 27%,
+          #276b8d 59%,
+          #0a1821 100%
+        );
+        box-shadow:
+          inset -18px -20px 34px rgb(0 0 0 / 46%),
+          0 0 44px rgb(85 200 255 / 16%);
+        transform: translate3d(-50%, -50%, 58px);
+      }
+
+      .core::after {
+        position: absolute;
+        inset: -7%;
+        content: "";
+        border-radius: inherit;
+        background: #071017;
+        opacity: 0.76;
+        animation: phase 3.6s var(--ease) infinite alternate;
+      }
+
+      .copy {
+        position: relative;
+        z-index: 3;
+        display: grid;
+        justify-items: center;
+        margin-top: -8px;
+        text-align: center;
+      }
+
+      .copy p,
+      .copy span {
+        margin: 0;
+        color: var(--muted);
+        font: 620 0.59rem/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+        letter-spacing: 0.18em;
+      }
+
+      .copy strong {
+        margin: 12px 0 9px;
+        font-size: clamp(2.8rem, 6.5vw, 5.2rem);
+        font-weight: 760;
+        line-height: 0.9;
+        letter-spacing: -0.11em;
+      }
+
+      .footer {
+        position: relative;
+        z-index: 3;
+        display: grid;
+        grid-template-columns: 1fr minmax(220px, 320px);
+        gap: 24px;
+        align-items: end;
+        padding-top: 20px;
+      }
+
+      .progress {
+        display: grid;
+        grid-template-columns: 1fr 3ch;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .progress > span {
+        position: relative;
+        height: 1px;
+        overflow: hidden;
+        background: rgb(255 255 255 / 10%);
+      }
+
+      .progress i {
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: var(--progress);
+        background: linear-gradient(90deg, var(--blue), var(--cyan));
+        transition: width 80ms linear;
+      }
+
+      .progress b {
+        font: 620 0.64rem/1 ui-monospace, monospace;
+      }
+
+      @keyframes outer {
+        from {
+          transform: rotateX(70deg) rotateZ(0deg);
+        }
+        to {
+          transform: rotateX(70deg) rotateZ(360deg);
+        }
+      }
+
+      @keyframes middle {
+        from {
+          transform: rotateY(67deg) rotateZ(0deg);
+        }
+        to {
+          transform: rotateY(67deg) rotateZ(360deg);
+        }
+      }
+
+      @keyframes inner {
+        from {
+          transform: rotateX(36deg) rotateY(52deg) rotateZ(0deg);
+        }
+        to {
+          transform: rotateX(36deg) rotateY(52deg) rotateZ(360deg);
+        }
+      }
+
+      @keyframes phase {
+        from {
+          transform: translate3d(68%, -1%, 2px) scale(1.04);
+        }
+        to {
+          transform: translate3d(30%, 1%, 2px) scale(1.02);
+        }
+      }
+
+      @keyframes breathe {
+        0%,
+        100% {
+          transform: translate3d(0, 2px, 0) scale(0.997);
+        }
+        50% {
+          transform: translate3d(0, -4px, 0) scale(1.008);
+        }
+      }
+
+      @media (max-width: 680px) {
+        .chrome span:first-child,
+        .metadata span:last-child {
+          display: none;
+        }
+
+        .chrome {
+          justify-content: flex-end;
+        }
+
+        .system {
+          width: min(76vw, 310px);
+        }
+
+        .footer {
+          grid-template-columns: 1fr;
+          gap: 14px;
+        }
+      }
+
+      @media (max-height: 620px) {
+        .loader {
+          padding-block: 14px;
+        }
+
+        .stage {
+          min-height: 190px;
+        }
+
+        .system {
+          width: min(43vh, 240px);
+        }
+
+        .copy strong {
+          font-size: 2.7rem;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .loader,
+        .progress i {
+          transition-duration: 1ms;
+        }
+
+        .system,
+        .ring,
+        .core::after {
+          animation: none;
+        }
+
+        .core::after {
+          transform: translate3d(44%, 0, 2px);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="loader" id="loader">
+      <span
+        role="status"
+        aria-live="polite"
+        style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%)"
+      >
+        ページを読み込んでいます。
+      </span>
+
+      <header class="chrome" aria-hidden="true">
+        <span>IVURU / ORBITAL CORE</span>
+        <span>CSS 3D · NODE 00</span>
+      </header>
+
+      <main class="stage" aria-hidden="true">
+        <div class="system">
+          <span class="bloom"></span>
+          <span class="axis x"></span>
+          <span class="axis y"></span>
+          <span class="ring outer"></span>
+          <span class="ring middle"></span>
+          <span class="ring inner"></span>
+          <span class="core"></span>
+        </div>
+      </main>
+
+      <div class="copy">
+        <p>世界を同期しています</p>
+        <strong>いゔる。</strong>
+        <span>BUILD. PLAY. CONNECT.</span>
+      </div>
+
+      <footer class="footer">
+        <div class="metadata" aria-hidden="true">
+          <span>SYSTEM.STATUS: <b id="state">LOADING</b></span>
+          <span>RENDER: TRANSFORM / OPACITY</span>
+        </div>
+        <div
+          class="progress"
+          role="progressbar"
+          aria-label="いゔる。を読み込んでいます"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="0"
+        >
+          <span><i></i></span><b id="value">000</b>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      const loader = document.querySelector('#loader');
+      const meter = loader.querySelector('[role="progressbar"]');
+      const value = document.querySelector('#value');
+      const state = document.querySelector('#state');
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const startedAt = performance.now();
+      const duration = reduced ? 60 : 920;
+
+      const tick = (now) => {
+        const progress = Math.min(100, Math.round(((now - startedAt) / duration) * 100));
+        loader.style.setProperty('--progress', `${progress}%`);
+        meter.setAttribute('aria-valuenow', String(progress));
+        value.textContent = String(progress).padStart(3, '0');
+
+        if (progress < 100) {
+          requestAnimationFrame(tick);
+          return;
+        }
+
+        state.textContent = 'READY';
+        loader.classList.add('loaded');
+      };
+
+      addEventListener('load', () => requestAnimationFrame(tick), { once: true });
+    </script>
+  </body>
+</html>
