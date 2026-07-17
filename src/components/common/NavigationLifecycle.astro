@@ -9,7 +9,11 @@
 
   const markExternalLinks = () => {
     document.querySelectorAll<HTMLAnchorElement>('a[target="_blank"]').forEach((link) => {
-      link.dataset.uiExternal = 'true';
+      const alreadyCommunicated = /[↗→]/.test(link.textContent ?? '');
+      if (link.dataset.uiExternal !== 'true') {
+        link.dataset.uiExternal = alreadyCommunicated ? 'semantic' : 'true';
+      }
+
       const rel = new Set((link.rel || '').split(/\s+/).filter(Boolean));
       rel.add('noopener');
       rel.add('noreferrer');
@@ -19,12 +23,16 @@
 
   const focusRouteTarget = () => {
     if (location.hash) {
-      const id = decodeURIComponent(location.hash.slice(1));
-      const target = document.getElementById(id);
-      if (target) {
-        if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
-        target.focus({ preventScroll: false });
-        return;
+      try {
+        const id = decodeURIComponent(location.hash.slice(1));
+        const target = document.getElementById(id);
+        if (target) {
+          if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
+          target.focus({ preventScroll: false });
+          return;
+        }
+      } catch {
+        // Invalid URL fragments fall back to the page title.
       }
     }
 
@@ -60,6 +68,7 @@
     });
 
     document.addEventListener('astro:after-swap', () => {
+      setRouteState('prepared');
       setDocumentActivity();
       markExternalLinks();
     });
