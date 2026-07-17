@@ -1,0 +1,55 @@
+name: Format Orbital Loader
+
+on:
+  push:
+    branches: [feat/dual-3d-loading-experience]
+    paths:
+      - .github/workflows/format-orbital-loader.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/format-orbital-loader.yml
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/dual-3d-loading-experience
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Orbital Core関連ファイルを整形
+        run: |
+          npx prettier --write \
+            src/components/common/IntroLoader.astro \
+            docs/demos/orbital-core-loader.html \
+            tests/e2e/loader-metadata.spec.ts \
+            tests/unit/orbital-loader-contract.test.ts
+      - name: LintとUnitを確認
+        run: |
+          npm run lint
+          npm test -- --run tests/unit/orbital-loader-contract.test.ts
+      - name: 整形結果をコミット
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet; then
+            echo "整形差分はありません。"
+            exit 0
+          fi
+          git add \
+            src/components/common/IntroLoader.astro \
+            docs/demos/orbital-core-loader.html \
+            tests/e2e/loader-metadata.spec.ts \
+            tests/unit/orbital-loader-contract.test.ts
+          git commit -m "Orbital Core実装を整形"
+          git push origin HEAD:feat/dual-3d-loading-experience
