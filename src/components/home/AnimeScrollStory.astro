@@ -260,7 +260,16 @@ const portalLinks = [
       <nav class="anime-portal-cards" aria-label="Blue story portals">
         {
           portalLinks.map((portal, index) => (
-            <a class="anime-portal-card" href={portal.href} data-cinematic-card data-story-pop>
+            <a
+              class="anime-portal-card"
+              href={portal.href}
+              data-cinematic-card
+              data-story-pop
+              data-analytics-event="world_portal_open"
+              data-analytics-target={portal.label.toLowerCase()}
+              data-analytics-surface="home_blue_story"
+              data-analytics-position={String(index + 1)}
+            >
               <div class="cinematic-card-surface">
                 <div class="signal-channel-visual">
                   <span>{String(index + 1).padStart(2, '0')}</span>
