@@ -4,11 +4,26 @@ type RevertibleContext = { revert: () => void };
 
 type StoryElements = {
   root: HTMLElement;
-  stage: HTMLElement;
   scenes: HTMLElement[];
   dots: HTMLElement[];
   readout: HTMLElement | null;
   progressLine: HTMLElement | null;
+};
+
+const readStoryElements = (): StoryElements | null => {
+  const root = document.querySelector<HTMLElement>('[data-anime-scroll-story]');
+  if (!root) return null;
+
+  const scenes = Array.from(root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'));
+  if (scenes.length === 0) return null;
+
+  return {
+    root,
+    scenes,
+    dots: Array.from(root.querySelectorAll<HTMLElement>('[data-story-progress-dot]')),
+    readout: root.querySelector<HTMLElement>('[data-story-chapter-readout]'),
+    progressLine: root.querySelector<HTMLElement>('[data-story-progress-line]'),
+  };
 };
 
 const setSceneState = (scenes: HTMLElement[], activeIndex: number) => {
@@ -20,62 +35,47 @@ const setSceneState = (scenes: HTMLElement[], activeIndex: number) => {
   });
 };
 
-const readStoryElements = (): StoryElements | null => {
-  const root = document.querySelector<HTMLElement>('[data-anime-scroll-story]');
-  const stage = root?.querySelector<HTMLElement>('[data-anime-scroll-stage]');
-  if (!root || !stage) return null;
-
-  const scenes = Array.from(root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'));
-  if (scenes.length === 0) return null;
-
-  return {
-    root,
-    stage,
-    scenes,
-    dots: Array.from(root.querySelectorAll<HTMLElement>('[data-story-progress-dot]')),
-    readout: root.querySelector<HTMLElement>('[data-story-chapter-readout]'),
-    progressLine: root.querySelector<HTMLElement>('[data-story-progress-line]'),
-  };
-};
-
 export default function AnimeScrollDirector() {
   useEffect(() => {
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
     const compactViewport = matchMedia('(max-width: 767px)');
-    let visibilityObserver: IntersectionObserver | undefined;
+    let observer: IntersectionObserver | undefined;
     let gsapContext: RevertibleContext | undefined;
     let refreshFrame = 0;
     let generation = 0;
-    let motionInitialized = false;
+    let initialized = false;
     let activeRoot: HTMLElement | undefined;
-    let bodySceneBeforeStory: string | undefined;
+    let previousBodyScene: string | undefined;
     let bodySceneCaptured = false;
 
     const restoreBodyScene = () => {
       if (!bodySceneCaptured) return;
-      if (bodySceneBeforeStory) document.body.dataset.animeScene = bodySceneBeforeStory;
+      if (previousBodyScene) document.body.dataset.animeScene = previousBodyScene;
       else delete document.body.dataset.animeScene;
       bodySceneCaptured = false;
     };
 
-    const clearStoryAttributes = (root?: HTMLElement) => {
+    const clearRoot = (root?: HTMLElement) => {
       if (!root) return;
+      delete root.dataset.storyMode;
+      delete root.dataset.storyMask;
       delete root.dataset.storySnap;
       delete root.dataset.storySnapState;
       delete root.dataset.storyInView;
       delete root.dataset.storyPerformance;
+      delete root.dataset.storyChapter;
       root.style.removeProperty('--story-snap-strength');
     };
 
     const cleanup = () => {
       generation += 1;
       cancelAnimationFrame(refreshFrame);
-      visibilityObserver?.disconnect();
-      visibilityObserver = undefined;
+      observer?.disconnect();
+      observer = undefined;
       gsapContext?.revert();
       gsapContext = undefined;
-      motionInitialized = false;
-      clearStoryAttributes(activeRoot);
+      initialized = false;
+      clearRoot(activeRoot);
       activeRoot = undefined;
       restoreBodyScene();
     };
@@ -85,8 +85,6 @@ export default function AnimeScrollDirector() {
       root.dataset.storyMask = 'static';
       root.dataset.storyPerformance = 'transform-only';
       root.dataset.storyInView = 'true';
-      delete root.dataset.storySnap;
-      delete root.dataset.storySnapState;
       root.dataset.storyChapter = '01';
       scenes.forEach((scene) => {
         scene.removeAttribute('aria-hidden');
@@ -94,7 +92,9 @@ export default function AnimeScrollDirector() {
         scene.dataset.active = 'true';
         scene.removeAttribute('style');
         scene
-          .querySelectorAll<HTMLElement>('[data-story-copy], [data-story-visual], [data-story-pop]')
+          .querySelectorAll<HTMLElement>(
+            '[data-story-copy], [data-story-visual], [data-story-pop], [data-story-depth]',
+          )
           .forEach((element) => element.removeAttribute('style'));
       });
       dots.forEach((dot) => (dot.dataset.active = 'true'));
@@ -102,16 +102,19 @@ export default function AnimeScrollDirector() {
     };
 
     const initializeMotion = async (elements: StoryElements, token: number) => {
-      if (motionInitialized || reducedMotion.matches) return;
-      motionInitialized = true;
+      if (initialized || reducedMotion.matches) return;
+      initialized = true;
 
-      const [{ gsap }, { ScrollTrigger }] = await Promise.all([
+      const [gsapModule, triggerModule] = await Promise.all([
         import('gsap'),
         import('gsap/ScrollTrigger'),
       ]);
-      if (token !== generation || !elements.root.isConnected || reducedMotion.matches) return;
+      if (token !== generation || reducedMotion.matches || !elements.root.isConnected) return;
 
+      const gsap = gsapModule.gsap;
+      const ScrollTrigger = triggerModule.ScrollTrigger;
       gsap.registerPlugin(ScrollTrigger);
+
       const { root, scenes, dots, readout, progressLine } = elements;
       const compact = compactViewport.matches;
       const segment = 1.5;
@@ -119,7 +122,6 @@ export default function AnimeScrollDirector() {
       const activationDelay = compact ? 0.035 : 0.085;
       const entryDepth = compact ? -130 : -260;
       const exitDepth = compact ? 150 : 320;
-      const entryScale = compact ? 0.94 : 0.89;
       let activeIndex = -1;
 
       root.dataset.storyMode = 'motion';
@@ -148,14 +150,21 @@ export default function AnimeScrollDirector() {
       };
 
       activate(0);
-      const setProgress = progressLine
-        ? gsap.quickSetter(progressLine, 'scaleX')
-        : (_value: number) => undefined;
+      const progressSetter = progressLine ? gsap.quickSetter(progressLine, 'scaleX') : null;
+      const snap = compact
+        ? undefined
+        : {
+            snapTo: 'labelsDirectional' as const,
+            duration: { min: 0.18, max: 0.46 },
+            delay: 0.08,
+            ease: 'power3.inOut',
+            inertia: false,
+          };
 
       gsapContext = gsap.context(() => {
         gsap.set(scenes, {
           autoAlpha: 0,
-          scale: entryScale,
+          scale: compact ? 0.94 : 0.89,
           z: entryDepth,
           transformOrigin: '50% 50%',
           force3D: true,
@@ -170,21 +179,25 @@ export default function AnimeScrollDirector() {
           const visual = scene.querySelector<HTMLElement>('[data-story-visual]');
           const popElements = Array.from(scene.querySelectorAll<HTMLElement>('[data-story-pop]'));
 
-          gsap.set(copy, {
-            autoAlpha: sceneIndex === 0 ? 1 : 0,
-            y: sceneIndex === 0 ? 0 : compact ? 38 : 66,
-            z: sceneIndex === 0 ? 0 : compact ? -35 : -90,
-            scale: sceneIndex === 0 ? 1 : 0.98,
-            force3D: true,
-          });
-          gsap.set(visual, {
-            autoAlpha: sceneIndex === 0 ? 1 : 0,
-            y: sceneIndex === 0 ? 0 : compact ? 30 : 52,
-            z: sceneIndex === 0 ? 0 : entryDepth,
-            scale: sceneIndex === 0 ? 1 : compact ? 0.95 : 0.9,
-            rotateY: sceneIndex === 0 ? 0 : compact ? -4 : -9,
-            force3D: true,
-          });
+          if (copy) {
+            gsap.set(copy, {
+              autoAlpha: sceneIndex === 0 ? 1 : 0,
+              y: sceneIndex === 0 ? 0 : compact ? 38 : 66,
+              z: sceneIndex === 0 ? 0 : compact ? -35 : -90,
+              scale: sceneIndex === 0 ? 1 : 0.98,
+              force3D: true,
+            });
+          }
+          if (visual) {
+            gsap.set(visual, {
+              autoAlpha: sceneIndex === 0 ? 1 : 0,
+              y: sceneIndex === 0 ? 0 : compact ? 30 : 52,
+              z: sceneIndex === 0 ? 0 : entryDepth,
+              scale: sceneIndex === 0 ? 1 : compact ? 0.95 : 0.9,
+              rotateY: sceneIndex === 0 ? 0 : compact ? -4 : -9,
+              force3D: true,
+            });
+          }
           popElements.forEach((element, popIndex) => {
             const direction = popIndex % 2 === 0 ? -1 : 1;
             gsap.set(element, {
@@ -205,22 +218,14 @@ export default function AnimeScrollDirector() {
             start: 'top top',
             end: () => `+=${Math.round(window.innerHeight * (compact ? 3.15 : 4.05))}`,
             scrub: compact ? 0.16 : 0.36,
-            snap: compact
-              ? false
-              : {
-                  snapTo: 'labelsDirectional',
-                  duration: { min: 0.18, max: 0.46 },
-                  delay: 0.08,
-                  ease: 'power3.inOut',
-                  inertia: false,
-                },
+            snap,
             pin: root,
             pinSpacing: true,
             anticipatePin: 1,
             fastScrollEnd: true,
             invalidateOnRefresh: true,
             onUpdate: (self) => {
-              setProgress(self.progress);
+              progressSetter?.(self.progress);
               const storyTime = self.progress * storyDuration;
               activate(Math.floor((storyTime - activationDelay + 0.001) / segment));
             },
@@ -373,7 +378,7 @@ export default function AnimeScrollDirector() {
 
       const token = generation;
       activeRoot = elements.root;
-      bodySceneBeforeStory = document.body.dataset.animeScene;
+      previousBodyScene = document.body.dataset.animeScene;
       bodySceneCaptured = true;
       elements.root.dataset.storyPerformance = 'transform-only';
 
@@ -391,19 +396,15 @@ export default function AnimeScrollDirector() {
         return;
       }
 
-      visibilityObserver = new IntersectionObserver(
+      observer = new IntersectionObserver(
         ([entry]) => {
           if (!entry) return;
           elements.root.dataset.storyInView = entry.isIntersecting ? 'true' : 'false';
           if (entry.isIntersecting) void initializeMotion(elements, token);
         },
-        {
-          root: null,
-          rootMargin: '110% 0px 110% 0px',
-          threshold: 0,
-        },
+        { root: null, rootMargin: '110% 0px 110% 0px', threshold: 0 },
       );
-      visibilityObserver.observe(elements.root);
+      observer.observe(elements.root);
     };
 
     const onEnvironmentChange = () => setup();
