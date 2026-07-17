@@ -36,7 +36,9 @@ export default function SpatialCameraEnhancer() {
       if (!root || !camera || reducedMotion.matches) return;
 
       const flybys = Array.from(root.querySelectorAll<HTMLElement>('[data-story-flyby]'));
-      const frontLayers = Array.from(root.querySelectorAll<HTMLElement>('[data-story-depth="front"]'));
+      const frontLayers = Array.from(
+        root.querySelectorAll<HTMLElement>('[data-story-depth="front"]'),
+      );
       const token = generation;
       const [gsapModule, triggerModule] = await Promise.all([
         import('gsap'),
@@ -109,7 +111,7 @@ export default function SpatialCameraEnhancer() {
             },
             {
               xPercent: direction * 90,
-              yPercent: ((index + 1) % 3 - 1) * -60,
+              yPercent: (((index + 1) % 3) - 1) * -60,
               z: 360 * distance,
               rotateX: 12 * direction,
               rotateY: -18 * direction,
@@ -141,7 +143,7 @@ export default function SpatialCameraEnhancer() {
             {
               autoAlpha: compact ? 0.44 : 0.86,
               xPercent: direction * 230,
-              yPercent: ((index + 1) % 3 - 1) * -160,
+              yPercent: (((index + 1) % 3) - 1) * -160,
               z: 760 * distance,
               rotateX: direction * 20,
               rotateY: direction * -38,
