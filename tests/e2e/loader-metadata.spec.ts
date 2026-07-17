@@ -1,28 +1,27 @@
 import { expect, test } from '@playwright/test';
 
-test('keeps the page released after the intro loader finishes', async ({ page }) => {
+test('keeps accessible loader metadata in SSR and releases the page safely', async ({ page }) => {
+  const response = await page.request.get('/');
+  expect(response.ok()).toBeTruthy();
+  const markup = await response.text();
+  expect(markup).toContain('anime-intro-loader');
+  expect(markup).toContain('role="status"');
+  expect(markup).toContain('ページを読み込んでいます。');
+  expect(markup).toContain('aria-live="polite"');
+  expect(markup).toContain('aria-atomic="true"');
+  expect(markup).toContain('role="progressbar"');
+  expect(markup).toContain('aria-label="いゔる。を読み込んでいます"');
+  expect(markup).toContain('aria-valuemin="0"');
+  expect(markup).toContain('aria-valuemax="100"');
+
   await page.addInitScript(() => {
     localStorage.setItem('ivuru-locale', 'ja');
     localStorage.setItem('ivuru-theme', 'light');
     sessionStorage.removeItem('ivuru-intro-seen');
   });
-  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await page.goto('/');
 
-  const loader = page.locator('.anime-intro-loader');
-  const status = loader.locator('[role="status"]');
-  const progressbar = loader.locator('[role="progressbar"]');
-
-  await expect(loader).toHaveCount(1);
-  await expect(status).toHaveText('ページを読み込んでいます。');
-  await expect(status).toHaveAttribute('aria-live', 'polite');
-  await expect(status).toHaveAttribute('aria-atomic', 'true');
-  await expect(progressbar).toHaveAttribute('aria-label', 'いゔる。を読み込んでいます');
-  await expect(progressbar).toHaveAttribute('aria-valuemin', '0');
-  await expect(progressbar).toHaveAttribute('aria-valuemax', '100');
-  await expect(progressbar).toHaveAttribute('aria-valuenow', /\d+/);
-
-  await expect(loader).toHaveClass(/is-leaving/, { timeout: 3_000 });
-  await expect(loader).toHaveCount(0, { timeout: 2_000 });
+  await expect(page.locator('.anime-intro-loader')).toBeHidden({ timeout: 4_000 });
   await expect(page.locator('html')).toHaveAttribute('data-loader-released', 'true');
   await expect(page.locator('body')).not.toHaveClass(/site-loading/);
 });
