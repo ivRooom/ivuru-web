@@ -79,11 +79,19 @@ body.menu-open {
 }
 
 .mobile-menu-panel nav a {
+  position: relative;
   min-height: 0;
   padding: clamp(8px, 1.25vh, 14px) 4px;
   grid-template-columns: 42px minmax(0, 1fr) 26px;
   font-size: clamp(27px, 4.6vmin, 56px);
   line-height: 0.98;
+}
+
+.mobile-menu-panel nav a[aria-current='page']::before {
+  position: absolute;
+  top: 50%;
+  left: -2px;
+  transform: translateY(-50%);
 }
 
 .mobile-menu-panel nav a span {
