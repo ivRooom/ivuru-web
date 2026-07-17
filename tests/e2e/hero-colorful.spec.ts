@@ -31,7 +31,9 @@ test('anime scroll story uses the brand signal visual and keeps primary actions 
   await expect(page.locator('body')).toHaveAttribute('data-anime-scene', 'ice');
 });
 
-test('reduced motion keeps all story artwork available without autoplay media', async ({ page }) => {
+test('reduced motion keeps all story artwork available without autoplay media', async ({
+  page,
+}) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await preparePage(page);
   await page.goto('/');

@@ -119,11 +119,13 @@ const portalLinks = [
     </div>
 
     <div class="anime-story-progress" aria-hidden="true">
-      {copy.scenes.map((scene, index) => (
-        <i data-story-progress-dot data-active={index === 0 ? 'true' : 'false'}>
-          <span>{scene.number}</span>
-        </i>
-      ))}
+      {
+        copy.scenes.map((scene, index) => (
+          <i data-story-progress-dot data-active={index === 0 ? 'true' : 'false'}>
+            <span>{scene.number}</span>
+          </i>
+        ))
+      }
     </div>
 
     <article class="anime-story-scene is-opening" data-anime-story-scene="0" data-story-scene="ice">
@@ -136,7 +138,11 @@ const portalLinks = [
         <span class="anime-light-road" data-story-depth="mid"></span>
       </div>
 
-      <div class="cinematic-signal-field anime-opening-rings" data-cinematic-field aria-hidden="true">
+      <div
+        class="cinematic-signal-field anime-opening-rings"
+        data-cinematic-field
+        aria-hidden="true"
+      >
         <span class="cinematic-glow"></span>
         <span class="cinematic-scan-beam" data-cinematic-scan></span>
         <span class="cinematic-signal-ring ring-outer" data-cinematic-ring></span>
@@ -150,7 +156,12 @@ const portalLinks = [
         </div>
       </div>
 
-      <svg class="anime-flight-path" viewBox="0 0 1600 320" preserveAspectRatio="none" aria-hidden="true">
+      <svg
+        class="anime-flight-path"
+        viewBox="0 0 1600 320"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
         <path data-blue-path d="M-40 286C248 44 514 365 780 135S1278 46 1640 224"></path>
       </svg>
       <span class="anime-orbit-proxy" data-blue-orbit aria-hidden="true"></span>
@@ -246,21 +257,18 @@ const portalLinks = [
         <small>ENTER THE NEXT FRAME</small>
       </div>
       <nav class="anime-portal-cards" aria-label="Blue story portals">
-        {portalLinks.map((portal, index) => (
-          <a
-            class="anime-portal-card"
-            href={portal.href}
-            data-cinematic-card
-            data-story-pop
-          >
-            <div class="cinematic-card-surface">
-              <div class="signal-channel-visual">
-                <span>{String(index + 1).padStart(2, '0')}</span>
-                <strong>{portal.label}</strong>
+        {
+          portalLinks.map((portal, index) => (
+            <a class="anime-portal-card" href={portal.href} data-cinematic-card data-story-pop>
+              <div class="cinematic-card-surface">
+                <div class="signal-channel-visual">
+                  <span>{String(index + 1).padStart(2, '0')}</span>
+                  <strong>{portal.label}</strong>
+                </div>
               </div>
-            </div>
-          </a>
-        ))}
+            </a>
+          ))
+        }
       </nav>
     </article>
 

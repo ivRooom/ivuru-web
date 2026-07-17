@@ -75,10 +75,9 @@ test.describe('anime scroll story', () => {
     await expect(story.locator('.anime-community-emblem')).toBeVisible();
   });
 
-  test('responds to a fine pointer with depth and chapter-three card tilt', async (
-    { page },
-    testInfo,
-  ) => {
+  test('responds to a fine pointer with depth and chapter-three card tilt', async ({
+    page,
+  }, testInfo) => {
     test.skip(Boolean(testInfo.project.use.isMobile), 'Fine pointer only');
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await prepareHome(page);
