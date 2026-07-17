@@ -1,9 +1,9 @@
 name: Diagnose Scroll Check
 
 on:
-  push:
+  pull_request:
     branches:
-      - feat/anime-scroll-story
+      - main
 
 permissions:
   contents: read
