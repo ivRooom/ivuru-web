@@ -1,0 +1,416 @@
+/* Site-wide motion and interaction system -------------------------------- */
+:root {
+  --motion-instant: 90ms;
+  --motion-fast: 180ms;
+  --motion-standard: 320ms;
+  --motion-cinematic: 520ms;
+  --motion-exit: 220ms;
+  --motion-apple-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-apple-spring: cubic-bezier(0.22, 1.24, 0.36, 1);
+  --motion-exit-ease: cubic-bezier(0.4, 0, 1, 1);
+  --motion-distance-subtle: 8px;
+  --motion-distance-standard: 16px;
+  --motion-distance-cinematic: 28px;
+  --motion-scale-pressed: 0.985;
+  --motion-scale-hover: 1.015;
+  --motion-stagger: 48ms;
+  --motion-focus-ring: 0 0 0 3px color-mix(in srgb, var(--cyan) 58%, transparent);
+}
+
+html {
+  scroll-padding-top: calc(104px + env(safe-area-inset-top));
+}
+
+body {
+  transition: background-color var(--motion-standard) var(--motion-apple-ease);
+}
+
+.route-progress {
+  position: fixed;
+  z-index: 9500;
+  inset: 0 0 auto;
+  height: 3px;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--motion-fast) linear;
+}
+
+.route-progress > span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(0.08);
+  transform-origin: left center;
+  background: linear-gradient(90deg, var(--cyan), var(--blue), var(--purple));
+  transition: transform var(--motion-cinematic) var(--motion-apple-ease);
+}
+
+body[data-route-state='loading'] .route-progress,
+body[data-route-state='prepared'] .route-progress {
+  opacity: 1;
+}
+
+body[data-route-state='loading'] .route-progress > span {
+  transform: scaleX(0.72);
+}
+
+body[data-route-state='prepared'] .route-progress > span {
+  transform: scaleX(0.92);
+}
+
+body[data-route-state='complete'] .route-progress {
+  opacity: 0;
+}
+
+body[data-route-state='complete'] .route-progress > span {
+  transform: scaleX(1);
+  transition-duration: var(--motion-fast);
+}
+
+.header-scroll-sentinel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.site-header {
+  view-transition-name: site-header;
+  transition-duration: var(--motion-standard);
+  transition-timing-function: var(--motion-apple-ease);
+}
+
+.header-location {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  margin-inline: 16px auto;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.header-location span {
+  display: inline-grid;
+  place-items: center;
+  min-width: 28px;
+  height: 24px;
+  padding-inline: 7px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--cyan);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.header-location strong {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-overflow: ellipsis;
+}
+
+#main-content {
+  view-transition-name: page-content;
+  min-height: 40vh;
+}
+
+:where(
+    .button-primary,
+    .button-secondary,
+    .x-link,
+    .icon-button,
+    .menu-trigger,
+    .desktop-nav a,
+    .profile-favorite-card,
+    .social-node,
+    .mission-map a,
+    .work-card > a,
+    .post-card > a,
+    .game-card > a,
+    [data-ui-action]
+  ) {
+  transition-property: transform, opacity, color, background-color, border-color, box-shadow;
+  transition-duration: var(--motion-fast);
+  transition-timing-function: var(--motion-apple-ease);
+  -webkit-tap-highlight-color: transparent;
+}
+
+:where(
+    .button-primary,
+    .button-secondary,
+    .x-link,
+    .icon-button,
+    .menu-trigger,
+    .desktop-nav a,
+    .profile-favorite-card,
+    .social-node,
+    .mission-map a,
+    .work-card > a,
+    .post-card > a,
+    .game-card > a,
+    [data-ui-action]
+  ):active {
+  transform: translateY(0) scale(var(--motion-scale-pressed));
+  transition-duration: var(--motion-instant);
+}
+
+:where(button, a, [role='button']):focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 4px;
+  box-shadow: var(--motion-focus-ring);
+}
+
+:where(button, [role='button'], a)[disabled],
+:where(button, [role='button'], a)[aria-disabled='true'],
+:where(button, [role='button'], a)[data-state='disabled'] {
+  pointer-events: none;
+  cursor: not-allowed;
+  opacity: 0.46;
+  filter: saturate(0.55);
+}
+
+:where(button, [role='button'], a)[aria-busy='true'],
+:where(button, [role='button'], a)[data-state='loading'] {
+  cursor: progress;
+  opacity: 0.72;
+}
+
+:where(button, [role='button'], a)[data-state='success'] {
+  border-color: color-mix(in srgb, #4ade80 55%, var(--line));
+}
+
+:where(button, [role='button'], a)[data-state='error'] {
+  border-color: color-mix(in srgb, #fb7185 62%, var(--line));
+}
+
+:where(.desktop-nav a, .mobile-menu-panel nav a)[aria-current='page'] {
+  color: var(--text);
+}
+
+:where(.desktop-nav a, .mobile-menu-panel nav a)[aria-current='page']::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--cyan) 76%, transparent);
+}
+
+.desktop-nav a[aria-current='page']::before {
+  position: absolute;
+  top: 50%;
+  left: -13px;
+  transform: translateY(-50%);
+}
+
+.mobile-menu-panel nav a[aria-current='page']::before {
+  align-self: center;
+}
+
+[data-ui-external='true'] {
+  position: relative;
+}
+
+[data-ui-external='true']::after {
+  content: '↗';
+  display: inline-block;
+  margin-inline-start: 0.35em;
+  font-size: 0.78em;
+  line-height: 1;
+  transform: translate3d(0, 0, 0);
+  transition: transform var(--motion-fast) var(--motion-apple-ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :where(
+      .button-primary,
+      .button-secondary,
+      .x-link,
+      .icon-button,
+      .menu-trigger,
+      .profile-favorite-card,
+      .social-node,
+      .mission-map a,
+      .work-card > a,
+      .post-card > a,
+      .game-card > a,
+      [data-ui-action]
+    ):hover {
+    transform: translateY(-2px);
+  }
+
+  [data-ui-external='true']:hover::after {
+    transform: translate3d(2px, -2px, 0);
+  }
+}
+
+@media (pointer: coarse), (hover: none) {
+  [data-cinematic-card],
+  [data-cinematic-card] > div,
+  [data-cinematic-card] .anime-portal-card-copy {
+    transform: none !important;
+  }
+
+  :where(a, button, [role='button']) {
+    min-height: 44px;
+  }
+}
+
+html[data-document-active='false'] *,
+html[data-document-active='false'] *::before,
+html[data-document-active='false'] *::after {
+  animation-play-state: paused !important;
+}
+
+@supports (view-transition-name: page-content) {
+  ::view-transition-group(root) {
+    animation-duration: var(--motion-cinematic);
+    animation-timing-function: var(--motion-apple-ease);
+  }
+
+  ::view-transition-group(site-header) {
+    animation-duration: var(--motion-standard);
+    animation-timing-function: var(--motion-apple-ease);
+  }
+
+  ::view-transition-old(site-header),
+  ::view-transition-new(site-header) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+
+  ::view-transition-old(page-content) {
+    animation: page-content-exit var(--motion-exit) var(--motion-exit-ease) both;
+  }
+
+  ::view-transition-new(page-content) {
+    animation: page-content-enter var(--motion-cinematic) var(--motion-apple-ease) both;
+  }
+
+  html[data-astro-transition='back']::view-transition-old(page-content) {
+    animation-name: page-content-exit-back;
+  }
+
+  html[data-astro-transition='back']::view-transition-new(page-content) {
+    animation-name: page-content-enter-back;
+  }
+}
+
+@keyframes page-content-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, var(--motion-distance-standard), 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes page-content-exit {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, calc(var(--motion-distance-subtle) * -1), 0);
+  }
+}
+
+@keyframes page-content-enter-back {
+  from {
+    opacity: 0;
+    transform: translate3d(0, calc(var(--motion-distance-standard) * -1), 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes page-content-exit-back {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, var(--motion-distance-subtle), 0);
+  }
+}
+
+@media (max-width: 1180px) {
+  .header-location {
+    margin-inline: 12px auto;
+  }
+
+  .header-location strong {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .header-location {
+    display: none;
+  }
+
+  html {
+    scroll-padding-top: calc(88px + env(safe-area-inset-top));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-instant: 1ms;
+    --motion-fast: 1ms;
+    --motion-standard: 1ms;
+    --motion-cinematic: 1ms;
+    --motion-exit: 1ms;
+    --motion-distance-subtle: 0px;
+    --motion-distance-standard: 0px;
+    --motion-distance-cinematic: 0px;
+    --motion-scale-pressed: 1;
+    --motion-scale-hover: 1;
+    --motion-stagger: 0ms;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    transition-delay: 0ms !important;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  ::view-transition-old(page-content),
+  ::view-transition-new(page-content),
+  ::view-transition-old(site-header),
+  ::view-transition-new(site-header) {
+    animation: none !important;
+  }
+
+  [data-cinematic-card],
+  [data-cinematic-card] > div,
+  [data-cinematic-card] .anime-portal-card-copy,
+  :where(a, button, [role='button']):active {
+    transform: none !important;
+  }
+}
