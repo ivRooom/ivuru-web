@@ -28,7 +28,11 @@ const copy = {
 ---
 
 <noscript>
-  <style>.anime-intro-loader { display: none !important; }</style>
+  <style>
+    .anime-intro-loader {
+      display: none !important;
+    }
+  </style>
 </noscript>
 
 <script is:inline>
@@ -54,7 +58,6 @@ const copy = {
 
 <div
   class="intro-loader world-loader anime-intro-loader dual-loader"
-  role="presentation"
   data-dual-loader
   data-orbit-status={copy.orbit}
   data-drive-status={copy.drive}
@@ -193,7 +196,8 @@ const copy = {
     const tick = (now) => {
       const elapsed = now - startedAt;
       const base = Math.min(88, (elapsed / Math.max(duration, 1)) * 88);
-      const readyRatio = readyAt === null ? 0 : Math.min(1, (now - readyAt) / Math.max(duration * 0.2, 1));
+      const readyRatio =
+        readyAt === null ? 0 : Math.min(1, (now - readyAt) / Math.max(duration * 0.2, 1));
       renderProgress(base + (100 - base) * readyRatio);
 
       if ((readyAt !== null && elapsed >= duration) || elapsed >= duration + 500) {
@@ -464,8 +468,14 @@ const copy = {
     aspect-ratio: 1;
     overflow: hidden;
     border-radius: 50%;
-    background:
-      radial-gradient(circle at 32% 27%, #fff 0 4%, #c9f3ff 13%, #5dcff7 34%, #12648d 66%, #06121d 100%);
+    background: radial-gradient(
+      circle at 32% 27%,
+      #fff 0 4%,
+      #c9f3ff 13%,
+      #5dcff7 34%,
+      #12648d 66%,
+      #06121d 100%
+    );
     box-shadow:
       inset -22px -18px 38px rgb(0 0 0 / 48%),
       0 0 46px rgb(56 189 248 / 24%);
@@ -736,53 +746,101 @@ const copy = {
   }
 
   @keyframes orbit-outer {
-    from { transform: rotateX(68deg) rotateZ(0deg); }
-    to { transform: rotateX(68deg) rotateZ(360deg); }
+    from {
+      transform: rotateX(68deg) rotateZ(0deg);
+    }
+    to {
+      transform: rotateX(68deg) rotateZ(360deg);
+    }
   }
 
   @keyframes orbit-middle {
-    from { transform: rotateY(64deg) rotateZ(0deg); }
-    to { transform: rotateY(64deg) rotateZ(360deg); }
+    from {
+      transform: rotateY(64deg) rotateZ(0deg);
+    }
+    to {
+      transform: rotateY(64deg) rotateZ(360deg);
+    }
   }
 
   @keyframes orbit-inner {
-    from { transform: rotateX(34deg) rotateY(54deg) rotateZ(0deg); }
-    to { transform: rotateX(34deg) rotateY(54deg) rotateZ(360deg); }
+    from {
+      transform: rotateX(34deg) rotateY(54deg) rotateZ(0deg);
+    }
+    to {
+      transform: rotateX(34deg) rotateY(54deg) rotateZ(360deg);
+    }
   }
 
   @keyframes orbit-phase {
-    from { transform: translate3d(72%, -2%, 2px) scale(1.05); }
-    to { transform: translate3d(20%, 2%, 2px) scale(1.02); }
+    from {
+      transform: translate3d(72%, -2%, 2px) scale(1.05);
+    }
+    to {
+      transform: translate3d(20%, 2%, 2px) scale(1.02);
+    }
   }
 
   @keyframes orbit-system-breathe {
-    0%, 100% { transform: translate3d(0, 2px, 0) scale(0.995); }
-    50% { transform: translate3d(0, -5px, 0) scale(1.01); }
+    0%,
+    100% {
+      transform: translate3d(0, 2px, 0) scale(0.995);
+    }
+    50% {
+      transform: translate3d(0, -5px, 0) scale(1.01);
+    }
   }
 
   @keyframes drive-grid-flow {
-    from { translate: 0 -42px; }
-    to { translate: 0 42px; }
+    from {
+      translate: 0 -42px;
+    }
+    to {
+      translate: 0 42px;
+    }
   }
 
   @keyframes car-spring {
-    0%, 100% { transform: translate3d(-50%, -50%, 44px) scale3d(1.02, 0.98, 1); }
-    42% { transform: translate3d(-50%, -58%, 54px) scale3d(0.98, 1.035, 1); }
-    68% { transform: translate3d(-50%, -49%, 45px) scale3d(1.01, 0.99, 1); }
+    0%,
+    100% {
+      transform: translate3d(-50%, -50%, 44px) scale3d(1.02, 0.98, 1);
+    }
+    42% {
+      transform: translate3d(-50%, -58%, 54px) scale3d(0.98, 1.035, 1);
+    }
+    68% {
+      transform: translate3d(-50%, -49%, 45px) scale3d(1.01, 0.99, 1);
+    }
   }
 
   @keyframes car-shadow {
-    0%, 100% { transform: translateZ(-6px) scaleX(1); opacity: 0.46; }
-    42% { transform: translateZ(-6px) scaleX(0.78); opacity: 0.28; }
+    0%,
+    100% {
+      transform: translateZ(-6px) scaleX(1);
+      opacity: 0.46;
+    }
+    42% {
+      transform: translateZ(-6px) scaleX(0.78);
+      opacity: 0.28;
+    }
   }
 
   @keyframes wheel-spin {
-    to { transform: rotate(360deg); }
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   @keyframes loader-particle {
-    0%, 100% { transform: translate3d(0, 8px, 0) scale(0.8); opacity: 0.18; }
-    50% { transform: translate3d(0, -10px, 0) scale(1); opacity: 0.72; }
+    0%,
+    100% {
+      transform: translate3d(0, 8px, 0) scale(0.8);
+      opacity: 0.18;
+    }
+    50% {
+      transform: translate3d(0, -10px, 0) scale(1);
+      opacity: 0.72;
+    }
   }
 
   @media (max-width: 720px) {

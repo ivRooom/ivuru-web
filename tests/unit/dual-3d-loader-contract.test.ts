@@ -14,7 +14,7 @@ describe('dual 3D intro loader contract', () => {
     expect(source).toContain('loader-theme--drive');
     expect(source).toContain('orbit-sphere');
     expect(source).toContain('low-poly-car');
-    expect(source).not.toContain('from \'react\'');
+    expect(source).not.toContain("from 'react'");
     expect(source).not.toContain('three');
     expect(source).not.toContain('canvas');
   });
@@ -25,7 +25,7 @@ describe('dual 3D intro loader contract', () => {
     expect(source).toContain("sessionStorage.getItem('ivuru-loader-theme')");
     expect(source).toContain("previous === 'orbit' ? 'drive'");
     expect(source).toContain("previous === 'drive' ? 'orbit'");
-    expect(source).toContain("root.dataset.loaderTheme = next");
+    expect(source).toContain('root.dataset.loaderTheme = next');
   });
 
   it('ロード完了時にloadedクラスでフェードアウトする', () => {
