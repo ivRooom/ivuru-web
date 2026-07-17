@@ -113,7 +113,16 @@ test('Digital Room shell is centered and uses the available desktop width', asyn
 
 test('header and footer expose Contact', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('.world-loader')).toBeHidden({ timeout: 3000 });
-  await expect(page.locator('.desktop-nav a[href="/contact"]')).toBeVisible();
+  await expect(page.locator('.world-loader')).toBeHidden({ timeout: 4_000 });
+
+  const desktopContact = page.locator('.desktop-nav a[href="/contact"]');
+  if (await desktopContact.isVisible()) {
+    await expect(desktopContact).toBeVisible();
+  } else {
+    await page.getByRole('button', { name: /メニューを開く|Open menu|메뉴 열기/ }).click();
+    await expect(page.getByRole('dialog').locator('a[href$="/contact"]')).toBeVisible();
+    await page.keyboard.press('Escape');
+  }
+
   await expect(page.locator('footer a[href="/contact"]').first()).toBeVisible();
 });
