@@ -1,0 +1,1124 @@
+name: Apply Spatial Scroll Motion
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/apply-spatial-scroll-motion.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apply-spatial-scroll-motion
+  cancel-in-progress: true
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/dual-3d-loading-experience
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: 多方向3Dスクロール演出を実装
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          director_path = Path('src/components/effects/AnimeScrollDirector.tsx')
+          director = director_path.read_text()
+
+          types_marker = """type StoryElements = {
+            root: HTMLElement;
+            scenes: HTMLElement[];
+            dots: HTMLElement[];
+            readout: HTMLElement | null;
+            progressLine: HTMLElement | null;
+          };
+
+          const readStoryElements"""
+          types_replacement = """type StoryElements = {
+            root: HTMLElement;
+            scenes: HTMLElement[];
+            dots: HTMLElement[];
+            readout: HTMLElement | null;
+            progressLine: HTMLElement | null;
+          };
+
+          type SpatialPose = {
+            x: number;
+            y: number;
+            z: number;
+            rotateX: number;
+            rotateY: number;
+            rotateZ: number;
+            scale: number;
+          };
+
+          type SceneMotionProfile = {
+            sceneIn: SpatialPose;
+            sceneOut: SpatialPose;
+            copyIn: SpatialPose;
+            copyOut: SpatialPose;
+            visualIn: SpatialPose;
+            visualOut: SpatialPose;
+            orbit: Omit<SpatialPose, 'scale'>;
+          };
+
+          const SPATIAL_SCENE_PROFILES: SceneMotionProfile[] = [
+            {
+              sceneIn: { x: -120, y: 70, z: -300, rotateX: 7, rotateY: 14, rotateZ: -3, scale: 0.88 },
+              sceneOut: { x: 190, y: -90, z: 360, rotateX: -8, rotateY: -18, rotateZ: 4, scale: 1.14 },
+              copyIn: { x: -150, y: 80, z: -120, rotateX: 5, rotateY: 14, rotateZ: -3, scale: 0.96 },
+              copyOut: { x: -190, y: -100, z: 180, rotateX: -6, rotateY: 18, rotateZ: -4, scale: 1.04 },
+              visualIn: { x: 190, y: -60, z: -340, rotateX: -9, rotateY: -22, rotateZ: 5, scale: 0.84 },
+              visualOut: { x: 220, y: -40, z: 390, rotateX: 9, rotateY: 20, rotateZ: -5, scale: 1.16 },
+              orbit: { x: 32, y: -18, z: 55, rotateX: -2, rotateY: 5, rotateZ: 2 },
+            },
+            {
+              sceneIn: { x: 220, y: 110, z: -360, rotateX: 9, rotateY: -18, rotateZ: 4, scale: 0.86 },
+              sceneOut: { x: -210, y: -80, z: 340, rotateX: -7, rotateY: 17, rotateZ: -5, scale: 1.13 },
+              copyIn: { x: 180, y: 90, z: -140, rotateX: 4, rotateY: -15, rotateZ: 3, scale: 0.96 },
+              copyOut: { x: -180, y: -120, z: 180, rotateX: -5, rotateY: 17, rotateZ: -4, scale: 1.04 },
+              visualIn: { x: -190, y: -80, z: -400, rotateX: -10, rotateY: 20, rotateZ: -5, scale: 0.82 },
+              visualOut: { x: 230, y: -20, z: 410, rotateX: 8, rotateY: -22, rotateZ: 5, scale: 1.18 },
+              orbit: { x: -36, y: -12, z: 70, rotateX: 3, rotateY: -6, rotateZ: -2 },
+            },
+            {
+              sceneIn: { x: -230, y: -90, z: -420, rotateX: -8, rotateY: 22, rotateZ: -5, scale: 0.84 },
+              sceneOut: { x: 200, y: -130, z: 380, rotateX: 10, rotateY: -19, rotateZ: 6, scale: 1.15 },
+              copyIn: { x: -180, y: 110, z: -160, rotateX: 6, rotateY: 16, rotateZ: -4, scale: 0.95 },
+              copyOut: { x: 210, y: -100, z: 210, rotateX: -5, rotateY: -18, rotateZ: 5, scale: 1.05 },
+              visualIn: { x: 220, y: 70, z: -430, rotateX: 11, rotateY: -24, rotateZ: 6, scale: 0.8 },
+              visualOut: { x: -230, y: -70, z: 430, rotateX: -10, rotateY: 22, rotateZ: -6, scale: 1.2 },
+              orbit: { x: 42, y: 22, z: 85, rotateX: -4, rotateY: 7, rotateZ: 3 },
+            },
+            {
+              sceneIn: { x: 0, y: 190, z: -500, rotateX: 18, rotateY: 0, rotateZ: -4, scale: 0.8 },
+              sceneOut: { x: 0, y: -180, z: 420, rotateX: -16, rotateY: 0, rotateZ: 4, scale: 1.18 },
+              copyIn: { x: 130, y: 150, z: -180, rotateX: 10, rotateY: -12, rotateZ: 4, scale: 0.94 },
+              copyOut: { x: -150, y: -140, z: 220, rotateX: -9, rotateY: 14, rotateZ: -4, scale: 1.05 },
+              visualIn: { x: -160, y: -120, z: -460, rotateX: -14, rotateY: 16, rotateZ: -6, scale: 0.78 },
+              visualOut: { x: 180, y: -80, z: 450, rotateX: 12, rotateY: -18, rotateZ: 6, scale: 1.2 },
+              orbit: { x: -28, y: -30, z: 95, rotateX: 5, rotateY: -5, rotateZ: -3 },
+            },
+          ];
+
+          const resolvePose = (pose: SpatialPose, compact: boolean): SpatialPose => {
+            const distanceScale = compact ? 0.46 : 1;
+            const rotationScale = compact ? 0.55 : 1;
+            return {
+              x: pose.x * distanceScale,
+              y: pose.y * distanceScale,
+              z: pose.z * distanceScale,
+              rotateX: pose.rotateX * rotationScale,
+              rotateY: pose.rotateY * rotationScale,
+              rotateZ: pose.rotateZ * rotationScale,
+              scale: compact ? 1 + (pose.scale - 1) * 0.55 : pose.scale,
+            };
+          };
+
+          const readStoryElements"""
+          if types_marker not in director:
+              raise SystemExit('StoryElements marker not found')
+          director = director.replace(types_marker, types_replacement, 1)
+          director = director.replace("      delete root.dataset.storyChapter;\n", "      delete root.dataset.storyChapter;\n      delete root.dataset.storyCamera;\n", 1)
+          director = director.replace("      root.dataset.storyChapter = '01';\n", "      root.dataset.storyChapter = '01';\n      root.dataset.storyCamera = 'static';\n", 1)
+          director = director.replace("      const entryDepth = compact ? -130 : -260;\n      const exitDepth = compact ? 150 : 320;\n", "", 1)
+          director = director.replace("      root.dataset.storyPerformance = 'transform-only';\n      root.dataset.storySnap", "      root.dataset.storyPerformance = 'transform-only';\n      root.dataset.storyCamera = 'multi-axis';\n      root.dataset.storySnap", 1)
+          director = director.replace("compact ? 3.15 : 4.05", "compact ? 3.55 : 4.85", 1)
+          director = director.replace("scrub: compact ? 0.16 : 0.36", "scrub: compact ? 0.2 : 0.48", 1)
+
+          init_start = director.index("        gsap.set(scenes, {")
+          init_end = director.index("        const timeline = gsap.timeline({", init_start)
+          init_block = """        scenes.forEach((scene, sceneIndex) => {
+            const profile = SPATIAL_SCENE_PROFILES[sceneIndex % SPATIAL_SCENE_PROFILES.length];
+            const sceneIn = resolvePose(profile.sceneIn, compact);
+            const copyIn = resolvePose(profile.copyIn, compact);
+            const visualIn = resolvePose(profile.visualIn, compact);
+            const copy = scene.querySelector<HTMLElement>('[data-story-copy]');
+            const visual = scene.querySelector<HTMLElement>('[data-story-visual]');
+            const popElements = Array.from(scene.querySelectorAll<HTMLElement>('[data-story-pop]'));
+            const active = sceneIndex === 0;
+
+            gsap.set(scene, {
+              autoAlpha: active ? 1 : 0,
+              ...(active
+                ? { x: 0, y: 0, z: 0, rotateX: 0, rotateY: 0, rotateZ: 0, scale: 1 }
+                : sceneIn),
+              transformOrigin: '50% 50%',
+              force3D: true,
+            });
+
+            if (copy) {
+              gsap.set(copy, {
+                autoAlpha: active ? 1 : 0,
+                ...(active
+                  ? { x: 0, y: 0, z: 0, rotateX: 0, rotateY: 0, rotateZ: 0, scale: 1 }
+                  : copyIn),
+                transformOrigin: '50% 50%',
+                force3D: true,
+              });
+            }
+
+            if (visual) {
+              gsap.set(visual, {
+                autoAlpha: active ? 1 : 0,
+                ...(active
+                  ? { x: 0, y: 0, z: 0, rotateX: 0, rotateY: 0, rotateZ: 0, scale: 1 }
+                  : visualIn),
+                transformOrigin: '50% 50%',
+                force3D: true,
+              });
+            }
+
+            popElements.forEach((element, popIndex) => {
+              const angle =
+                (popIndex / Math.max(popElements.length, 1)) * Math.PI * 2 + sceneIndex * 0.72;
+              const radius = (compact ? 34 : 72) + popIndex * (compact ? 4 : 9);
+              const depth = (compact ? -70 : -160) + (popIndex % 3) * (compact ? 26 : 58);
+              gsap.set(element, {
+                autoAlpha: active ? 1 : 0,
+                x: active ? 0 : Math.cos(angle) * radius,
+                y: active ? 0 : Math.sin(angle) * radius * 0.72,
+                z: active ? 0 : depth,
+                rotateX: active ? 0 : Math.sin(angle) * (compact ? 7 : 14),
+                rotateY: active ? 0 : Math.cos(angle) * (compact ? 9 : 18),
+                rotateZ: active ? 0 : (popIndex % 2 === 0 ? -1 : 1) * (compact ? 4 : 9),
+                scale: active ? 1 : compact ? 0.93 : 0.84,
+                transformOrigin: '50% 50%',
+                force3D: true,
+              });
+            });
+          });
+
+          if (progressLine) {
+            gsap.set(progressLine, { scaleX: 0, transformOrigin: 'left center', force3D: true });
+          }
+
+          """
+          director = director[:init_start] + init_block + director[init_end:]
+
+          loop_start = director.index("        scenes.forEach((scene, sceneIndex) => {\n          const at = sceneIndex * segment;")
+          loop_end = director.index("\n        timeline.addLabel('story-end'", loop_start)
+          loop_block = """        scenes.forEach((scene, sceneIndex) => {
+            const at = sceneIndex * segment;
+            const profile = SPATIAL_SCENE_PROFILES[sceneIndex % SPATIAL_SCENE_PROFILES.length];
+            const sceneOut = resolvePose(profile.sceneOut, compact);
+            const copyOut = resolvePose(profile.copyOut, compact);
+            const visualOut = resolvePose(profile.visualOut, compact);
+            const orbitScale = compact ? 0.55 : 1;
+            const orbit = {
+              x: profile.orbit.x * orbitScale,
+              y: profile.orbit.y * orbitScale,
+              z: profile.orbit.z * orbitScale,
+              rotateX: profile.orbit.rotateX * orbitScale,
+              rotateY: profile.orbit.rotateY * orbitScale,
+              rotateZ: profile.orbit.rotateZ * orbitScale,
+            };
+            const copy = scene.querySelector<HTMLElement>('[data-story-copy]');
+            const visual = scene.querySelector<HTMLElement>('[data-story-visual]');
+            const popElements = scene.querySelectorAll<HTMLElement>('[data-story-pop]');
+            const farLayers = compact
+              ? []
+              : Array.from(scene.querySelectorAll<HTMLElement>('[data-story-depth="far"]')).slice(0, 3);
+            const midLayers = compact
+              ? []
+              : Array.from(scene.querySelectorAll<HTMLElement>('[data-story-depth="mid"]')).slice(0, 3);
+            const nearLayers = compact
+              ? []
+              : Array.from(scene.querySelectorAll<HTMLElement>('[data-story-depth="near"]')).slice(0, 3);
+
+            timeline.addLabel(`scene-${sceneIndex + 1}`, at);
+
+            if (sceneIndex > 0) {
+              timeline.to(
+                scene,
+                {
+                  autoAlpha: 1,
+                  x: 0,
+                  y: 0,
+                  z: 0,
+                  rotateX: 0,
+                  rotateY: 0,
+                  rotateZ: 0,
+                  scale: 1,
+                  duration: compact ? 0.5 : 0.68,
+                  ease: 'power4.out',
+                  force3D: true,
+                },
+                at,
+              );
+              if (copy) {
+                timeline.to(
+                  copy,
+                  {
+                    autoAlpha: 1,
+                    x: 0,
+                    y: 0,
+                    z: 0,
+                    rotateX: 0,
+                    rotateY: 0,
+                    rotateZ: 0,
+                    scale: 1,
+                    duration: compact ? 0.42 : 0.58,
+                    ease: 'expo.out',
+                    force3D: true,
+                  },
+                  at + 0.03,
+                );
+              }
+              if (visual) {
+                timeline.to(
+                  visual,
+                  {
+                    autoAlpha: 1,
+                    x: 0,
+                    y: 0,
+                    z: 0,
+                    rotateX: 0,
+                    rotateY: 0,
+                    rotateZ: 0,
+                    scale: 1,
+                    duration: compact ? 0.52 : 0.72,
+                    ease: compact ? 'power4.out' : 'back.out(1.08)',
+                    force3D: true,
+                  },
+                  at + 0.01,
+                );
+              }
+              if (popElements.length > 0) {
+                timeline.to(
+                  popElements,
+                  {
+                    autoAlpha: 1,
+                    x: 0,
+                    y: 0,
+                    z: 0,
+                    rotateX: 0,
+                    rotateY: 0,
+                    rotateZ: 0,
+                    scale: 1,
+                    duration: compact ? 0.4 : 0.58,
+                    stagger: compact ? 0.016 : 0.032,
+                    ease: compact ? 'power4.out' : 'back.out(1.12)',
+                    force3D: true,
+                  },
+                  at + 0.06,
+                );
+              }
+            }
+
+            if (farLayers.length > 0) {
+              timeline.fromTo(
+                farLayers,
+                {
+                  xPercent: orbit.x * -0.1,
+                  yPercent: orbit.y * -0.08,
+                  z: orbit.z * -1.2,
+                  rotateX: orbit.rotateX * -0.5,
+                  rotateY: orbit.rotateY * -0.5,
+                  scale: 0.985,
+                },
+                {
+                  xPercent: orbit.x * 0.1,
+                  yPercent: orbit.y * 0.08,
+                  z: orbit.z * 0.2,
+                  rotateX: orbit.rotateX * 0.5,
+                  rotateY: orbit.rotateY * 0.5,
+                  scale: 1.025,
+                  duration: 1.08,
+                  ease: 'none',
+                  force3D: true,
+                },
+                at,
+              );
+            }
+            if (midLayers.length > 0) {
+              timeline.fromTo(
+                midLayers,
+                {
+                  xPercent: orbit.x * -0.2,
+                  yPercent: orbit.y * -0.16,
+                  z: orbit.z * -0.45,
+                  rotateZ: orbit.rotateZ * -0.7,
+                  scale: 0.99,
+                },
+                {
+                  xPercent: orbit.x * 0.2,
+                  yPercent: orbit.y * 0.16,
+                  z: orbit.z * 0.35,
+                  rotateZ: orbit.rotateZ * 0.7,
+                  scale: 1.045,
+                  duration: 1.08,
+                  ease: 'none',
+                  force3D: true,
+                },
+                at,
+              );
+            }
+            if (nearLayers.length > 0) {
+              timeline.fromTo(
+                nearLayers,
+                {
+                  xPercent: orbit.x * -0.34,
+                  yPercent: orbit.y * -0.28,
+                  z: orbit.z * 0.2,
+                  rotateX: orbit.rotateX * -1.2,
+                  rotateY: orbit.rotateY * -1.2,
+                  scale: 1.01,
+                },
+                {
+                  xPercent: orbit.x * 0.34,
+                  yPercent: orbit.y * 0.28,
+                  z: orbit.z * 1.2,
+                  rotateX: orbit.rotateX * 1.2,
+                  rotateY: orbit.rotateY * 1.2,
+                  scale: 1.085,
+                  duration: 1.08,
+                  ease: 'none',
+                  force3D: true,
+                },
+                at,
+              );
+            }
+
+            timeline.to(
+              scene,
+              {
+                x: orbit.x * 0.22,
+                y: orbit.y * 0.18,
+                z: orbit.z * 0.12,
+                rotateX: orbit.rotateX * 0.35,
+                rotateY: orbit.rotateY * 0.35,
+                rotateZ: orbit.rotateZ * 0.3,
+                duration: 0.56,
+                ease: 'none',
+                force3D: true,
+              },
+              at + 0.42,
+            );
+            if (copy) {
+              timeline.to(
+                copy,
+                {
+                  x: orbit.x * -0.34,
+                  y: orbit.y * 0.24,
+                  z: orbit.z * 0.18,
+                  rotateX: orbit.rotateX * -0.5,
+                  rotateY: orbit.rotateY * -0.45,
+                  rotateZ: orbit.rotateZ * -0.35,
+                  duration: 0.54,
+                  ease: 'none',
+                  force3D: true,
+                },
+                at + 0.45,
+              );
+            }
+            if (visual) {
+              timeline.to(
+                visual,
+                {
+                  x: orbit.x * 0.58,
+                  y: orbit.y * -0.38,
+                  z: orbit.z * 0.52,
+                  rotateX: orbit.rotateX * 0.8,
+                  rotateY: orbit.rotateY * 0.75,
+                  rotateZ: orbit.rotateZ * 0.6,
+                  duration: 0.56,
+                  ease: 'none',
+                  force3D: true,
+                },
+                at + 0.41,
+              );
+            }
+            if (popElements.length > 0) {
+              timeline.to(
+                popElements,
+                {
+                  x: (index: number) => Math.cos(index * 1.7 + sceneIndex) * (compact ? 12 : 30),
+                  y: (index: number) => Math.sin(index * 1.35 + sceneIndex) * (compact ? 9 : 22),
+                  z: (index: number) => ((index % 3) - 1) * (compact ? 24 : 64),
+                  rotateY: (index: number) => ((index % 2) * 2 - 1) * (compact ? 4 : 10),
+                  rotateZ: (index: number) => ((index % 3) - 1) * (compact ? 3 : 7),
+                  duration: 0.6,
+                  stagger: 0.012,
+                  ease: 'none',
+                  force3D: true,
+                },
+                at + 0.38,
+              );
+            }
+
+            if (sceneIndex < scenes.length - 1) {
+              if (copy) {
+                timeline.to(
+                  copy,
+                  {
+                    autoAlpha: 0,
+                    ...copyOut,
+                    duration: compact ? 0.34 : 0.46,
+                    ease: 'power3.in',
+                    force3D: true,
+                  },
+                  at + 1.02,
+                );
+              }
+              if (visual) {
+                timeline.to(
+                  visual,
+                  {
+                    autoAlpha: 0,
+                    ...visualOut,
+                    duration: compact ? 0.4 : 0.54,
+                    ease: 'power3.in',
+                    force3D: true,
+                  },
+                  at + 1,
+                );
+              }
+              timeline.to(
+                scene,
+                {
+                  autoAlpha: 0,
+                  ...sceneOut,
+                  duration: compact ? 0.44 : 0.58,
+                  ease: 'power3.in',
+                  force3D: true,
+                },
+                at + 1.01,
+              );
+            }
+          });
+          """
+          director = director[:loop_start] + loop_block + director[loop_end:]
+          director_path.write_text(director)
+
+          scroll_effects = r"""import { useEffect } from 'react';
+          import '@/styles/scroll-performance.css';
+
+          type RevealKind = 'copy' | 'visual' | 'line' | 'stagger';
+
+          type SpatialProfile = {
+            name: string;
+            x: number;
+            y: number;
+            z: number;
+            rotateX: number;
+            rotateY: number;
+            rotateZ: number;
+            scale: number;
+          };
+
+          const revealSelectors = [
+            '[data-anime-reveal]',
+            '[data-reveal]',
+            '[data-blue-reveal]',
+            '[data-anime-visual]',
+            '[data-blue-visual]',
+            '[data-anime-line]',
+            '[data-blue-path]',
+          ];
+
+          const REVEAL_PROFILES: SpatialProfile[] = [
+            { name: 'left-depth', x: -96, y: 28, z: -190, rotateX: 5, rotateY: 17, rotateZ: -2, scale: 0.92 },
+            { name: 'right-front', x: 112, y: -18, z: 120, rotateX: -4, rotateY: -15, rotateZ: 3, scale: 1.07 },
+            { name: 'top-left', x: -74, y: -86, z: -130, rotateX: 12, rotateY: 11, rotateZ: -4, scale: 0.94 },
+            { name: 'bottom-right', x: 82, y: 96, z: -230, rotateX: -11, rotateY: -13, rotateZ: 4, scale: 0.9 },
+            { name: 'center-depth', x: 0, y: 18, z: -320, rotateX: 0, rotateY: 9, rotateZ: 0, scale: 0.84 },
+            { name: 'left-front', x: -88, y: -34, z: 105, rotateX: 6, rotateY: 18, rotateZ: -3, scale: 1.06 },
+            { name: 'right-depth', x: 94, y: 48, z: -210, rotateX: -8, rotateY: -17, rotateZ: 3, scale: 0.91 },
+          ];
+
+          const PARALLAX_PROFILES = [
+            { name: 'diagonal-left', x: -38, y: 24, z: 72, rotateX: 2.4, rotateY: -3.4, rotateZ: 1.2 },
+            { name: 'diagonal-right', x: 42, y: -20, z: -86, rotateX: -2.2, rotateY: 3.8, rotateZ: -1.4 },
+            { name: 'vertical-depth', x: 12, y: 34, z: 110, rotateX: 3.2, rotateY: 1.4, rotateZ: 0.8 },
+            { name: 'cross-depth', x: -30, y: -26, z: -96, rotateX: -3.4, rotateY: -2.8, rotateZ: 1.8 },
+          ];
+
+          const SPATIAL_VARIABLES = [
+            '--scroll-enter-x',
+            '--scroll-enter-y',
+            '--scroll-enter-z',
+            '--scroll-enter-rotate-x',
+            '--scroll-enter-rotate-y',
+            '--scroll-enter-rotate-z',
+            '--scroll-enter-scale',
+            '--scroll-parallax-x',
+            '--scroll-parallax-y',
+            '--scroll-parallax-z',
+            '--scroll-parallax-rotate-x',
+            '--scroll-parallax-rotate-y',
+            '--scroll-parallax-rotate-z',
+          ];
+
+          const isStoryElement = (element: Element) => Boolean(element.closest('[data-anime-scroll-story]'));
+
+          const revealKind = (element: HTMLElement): RevealKind => {
+            if (element.matches('[data-anime-visual], [data-blue-visual]')) return 'visual';
+            if (element.matches('[data-anime-line], [data-blue-path]')) return 'line';
+            return 'copy';
+          };
+
+          const parseParallaxDistance = (element: HTMLElement) => {
+            const raw = Number(element.dataset.animeParallax ?? 4);
+            return Number.isFinite(raw) ? Math.min(Math.max(Math.abs(raw), 1), 10) : 4;
+          };
+
+          const clearSpatialVariables = (element: HTMLElement) => {
+            SPATIAL_VARIABLES.forEach((property) => element.style.removeProperty(property));
+          };
+
+          export default function ScrollEffects() {
+            useEffect(() => {
+              const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
+              const compactQuery = matchMedia('(max-width: 767px)');
+              let revealObserver: IntersectionObserver | undefined;
+              let sceneObserver: IntersectionObserver | undefined;
+              let setupFrame = 0;
+              const settleTimers = new Set<number>();
+              const observedElements = new Set<HTMLElement>();
+              const parallaxElements = new Set<HTMLElement>();
+              const spaceElements = new Set<HTMLElement>();
+              const sceneRatios = new Map<HTMLElement, number>();
+
+              const settle = (element: HTMLElement) => {
+                element.dataset.scrollReveal = 'settled';
+                element.style.removeProperty('--scroll-reveal-delay');
+              };
+
+              const registerSpace = (element: HTMLElement) => {
+                const space = element.closest(
+                  '[data-cinematic-section], section, .section-inner, .anime-scene-anchor',
+                );
+                if (!(space instanceof HTMLElement)) return;
+                space.dataset.scrollSpace = 'true';
+                spaceElements.add(space);
+              };
+
+              const assignRevealProfile = (
+                element: HTMLElement,
+                kind: RevealKind,
+                profileIndex: number,
+              ) => {
+                if (kind === 'line') return;
+                const profile = REVEAL_PROFILES[profileIndex % REVEAL_PROFILES.length];
+                const compactScale = compactQuery.matches ? 0.48 : 1;
+                const strength = kind === 'visual' ? 1 : kind === 'stagger' ? 0.82 : 0.66;
+                const rotationScale = (compactQuery.matches ? 0.55 : 1) * strength;
+                const scale = 1 + (profile.scale - 1) * (compactQuery.matches ? 0.55 : strength);
+
+                element.dataset.scrollRevealDirection = profile.name;
+                element.style.setProperty('--scroll-enter-x', `${profile.x * compactScale * strength}px`);
+                element.style.setProperty('--scroll-enter-y', `${profile.y * compactScale * strength}px`);
+                element.style.setProperty('--scroll-enter-z', `${profile.z * compactScale * strength}px`);
+                element.style.setProperty(
+                  '--scroll-enter-rotate-x',
+                  `${profile.rotateX * rotationScale}deg`,
+                );
+                element.style.setProperty(
+                  '--scroll-enter-rotate-y',
+                  `${profile.rotateY * rotationScale}deg`,
+                );
+                element.style.setProperty(
+                  '--scroll-enter-rotate-z',
+                  `${profile.rotateZ * rotationScale}deg`,
+                );
+                element.style.setProperty('--scroll-enter-scale', String(scale));
+                registerSpace(element);
+              };
+
+              const assignParallaxProfile = (element: HTMLElement, profileIndex: number) => {
+                const profile = PARALLAX_PROFILES[profileIndex % PARALLAX_PROFILES.length];
+                const distanceScale = parseParallaxDistance(element) / 4;
+                const compactScale = compactQuery.matches ? 0.42 : 1;
+                element.dataset.scrollParallaxDirection = profile.name;
+                element.style.setProperty(
+                  '--scroll-parallax-x',
+                  `${profile.x * distanceScale * compactScale}px`,
+                );
+                element.style.setProperty(
+                  '--scroll-parallax-y',
+                  `${profile.y * distanceScale * compactScale}px`,
+                );
+                element.style.setProperty(
+                  '--scroll-parallax-z',
+                  `${profile.z * distanceScale * compactScale}px`,
+                );
+                element.style.setProperty(
+                  '--scroll-parallax-rotate-x',
+                  `${profile.rotateX * compactScale}deg`,
+                );
+                element.style.setProperty(
+                  '--scroll-parallax-rotate-y',
+                  `${profile.rotateY * compactScale}deg`,
+                );
+                element.style.setProperty(
+                  '--scroll-parallax-rotate-z',
+                  `${profile.rotateZ * compactScale}deg`,
+                );
+                registerSpace(element);
+              };
+
+              const showImmediately = () => {
+                document.documentElement.dataset.motionReady = 'reduced';
+                document.querySelectorAll<HTMLElement>(revealSelectors.join(',')).forEach((element) => {
+                  element.dataset.scrollReveal = 'settled';
+                  delete element.dataset.scrollRevealDirection;
+                  element.style.removeProperty('--scroll-reveal-delay');
+                  clearSpatialVariables(element);
+                });
+                document.querySelectorAll<HTMLElement>('[data-anime-stagger] > *').forEach((element) => {
+                  element.dataset.scrollReveal = 'settled';
+                  delete element.dataset.scrollRevealDirection;
+                  element.style.removeProperty('--scroll-reveal-delay');
+                  clearSpatialVariables(element);
+                });
+                document.querySelectorAll<HTMLElement>('[data-anime-parallax]').forEach((element) => {
+                  delete element.dataset.scrollParallax;
+                  delete element.dataset.scrollParallaxDirection;
+                  clearSpatialVariables(element);
+                });
+              };
+
+              const cleanup = () => {
+                cancelAnimationFrame(setupFrame);
+                revealObserver?.disconnect();
+                sceneObserver?.disconnect();
+                revealObserver = undefined;
+                sceneObserver = undefined;
+                settleTimers.forEach((timer) => window.clearTimeout(timer));
+                settleTimers.clear();
+                sceneRatios.clear();
+                observedElements.forEach((element) => {
+                  delete element.dataset.scrollReveal;
+                  delete element.dataset.scrollRevealKind;
+                  delete element.dataset.scrollRevealDirection;
+                  element.style.removeProperty('--scroll-reveal-delay');
+                  clearSpatialVariables(element);
+                });
+                parallaxElements.forEach((element) => {
+                  delete element.dataset.scrollParallax;
+                  delete element.dataset.scrollParallaxDirection;
+                  clearSpatialVariables(element);
+                });
+                spaceElements.forEach((element) => delete element.dataset.scrollSpace);
+                observedElements.clear();
+                parallaxElements.clear();
+                spaceElements.clear();
+              };
+
+              const markVisible = (element: HTMLElement) => {
+                if (
+                  element.dataset.scrollReveal === 'visible' ||
+                  element.dataset.scrollReveal === 'settled'
+                ) {
+                  return;
+                }
+                element.dataset.scrollReveal = 'visible';
+                revealObserver?.unobserve(element);
+                const timer = window.setTimeout(() => {
+                  settleTimers.delete(timer);
+                  settle(element);
+                }, 1250);
+                settleTimers.add(timer);
+              };
+
+              const prepareElement = (
+                element: HTMLElement,
+                kind: RevealKind = revealKind(element),
+                delayIndex = 0,
+                profileIndex = 0,
+              ) => {
+                if (isStoryElement(element)) return;
+                observedElements.add(element);
+                element.dataset.scrollReveal = 'pending';
+                element.dataset.scrollRevealKind = kind;
+                element.style.setProperty('--scroll-reveal-delay', `${Math.min(delayIndex, 6) * 55}ms`);
+                assignRevealProfile(element, kind, profileIndex);
+                revealObserver?.observe(element);
+              };
+
+              const setup = () => {
+                cleanup();
+
+                if (motionQuery.matches || !('IntersectionObserver' in window)) {
+                  showImmediately();
+                  return;
+                }
+
+                document.documentElement.dataset.motionReady = 'observer';
+
+                revealObserver = new IntersectionObserver(
+                  (entries) => {
+                    entries.forEach((entry) => {
+                      if (!entry.isIntersecting) return;
+                      markVisible(entry.target as HTMLElement);
+                    });
+                  },
+                  {
+                    root: null,
+                    rootMargin: '0px 0px -8% 0px',
+                    threshold: 0.08,
+                  },
+                );
+
+                setupFrame = requestAnimationFrame(() => {
+                  let profileIndex = 0;
+                  document.querySelectorAll<HTMLElement>(revealSelectors.join(',')).forEach((element) => {
+                    prepareElement(element, revealKind(element), 0, profileIndex);
+                    profileIndex += 1;
+                  });
+
+                  document.querySelectorAll<HTMLElement>('[data-anime-stagger]').forEach((group, groupIndex) => {
+                    if (isStoryElement(group)) return;
+                    Array.from(group.children).forEach((child, childIndex) => {
+                      if (child instanceof HTMLElement) {
+                        prepareElement(
+                          child,
+                          'stagger',
+                          childIndex,
+                          profileIndex + groupIndex * 3 + childIndex,
+                        );
+                      }
+                    });
+                    profileIndex += group.children.length;
+                  });
+
+                  document.querySelectorAll<HTMLElement>('[data-anime-parallax]').forEach((element, index) => {
+                    if (isStoryElement(element)) return;
+                    parallaxElements.add(element);
+                    assignParallaxProfile(element, index);
+                    element.dataset.scrollParallax = CSS.supports('animation-timeline: view()')
+                      ? 'native'
+                      : 'disabled';
+                  });
+                });
+
+                const sceneSections = Array.from(
+                  document.querySelectorAll<HTMLElement>('[data-anime-scene]'),
+                ).filter((section) => !isStoryElement(section));
+
+                if (sceneSections.length > 0) {
+                  sceneObserver = new IntersectionObserver(
+                    (entries) => {
+                      entries.forEach((entry) => {
+                        sceneRatios.set(
+                          entry.target as HTMLElement,
+                          entry.isIntersecting ? entry.intersectionRatio : 0,
+                        );
+                      });
+
+                      const active = Array.from(sceneRatios.entries()).toSorted((a, b) => b[1] - a[1])[0];
+                      const scene = active?.[0].dataset.animeScene;
+                      if (scene && active[1] > 0.18) document.body.dataset.animeScene = scene;
+                    },
+                    {
+                      root: null,
+                      rootMargin: '-32% 0px -32% 0px',
+                      threshold: [0, 0.18, 0.35, 0.55, 0.75],
+                    },
+                  );
+                  sceneSections.forEach((section) => {
+                    sceneRatios.set(section, 0);
+                    sceneObserver?.observe(section);
+                  });
+                }
+              };
+
+              const onPageLoad = () => setup();
+              const onEnvironmentChange = () => setup();
+
+              setup();
+              document.addEventListener('astro:page-load', onPageLoad);
+              motionQuery.addEventListener('change', onEnvironmentChange);
+              compactQuery.addEventListener('change', onEnvironmentChange);
+
+              return () => {
+                cleanup();
+                document.removeEventListener('astro:page-load', onPageLoad);
+                motionQuery.removeEventListener('change', onEnvironmentChange);
+                compactQuery.removeEventListener('change', onEnvironmentChange);
+                delete document.documentElement.dataset.motionReady;
+              };
+            }, []);
+
+            return null;
+          }
+          """
+          Path('src/components/effects/ScrollEffects.tsx').write_text(scroll_effects)
+
+          scroll_css = r""":root {
+            --motion-apple-ease: cubic-bezier(0.16, 1, 0.3, 1);
+            --motion-apple-spring: cubic-bezier(0.22, 1.24, 0.36, 1);
+          }
+
+          [data-scroll-space='true'] {
+            perspective: clamp(900px, 84vw, 1450px);
+            perspective-origin: 50% 46%;
+            transform-style: preserve-3d;
+          }
+
+          [data-scroll-reveal] {
+            backface-visibility: hidden;
+            transform-origin: 50% 50%;
+            transform-style: preserve-3d;
+          }
+
+          [data-scroll-reveal='pending'] {
+            visibility: visible;
+            opacity: 0;
+            transform: translate3d(
+                var(--scroll-enter-x, 0),
+                var(--scroll-enter-y, 30px),
+                var(--scroll-enter-z, -80px)
+              )
+              rotateX(var(--scroll-enter-rotate-x, 0deg))
+              rotateY(var(--scroll-enter-rotate-y, 0deg))
+              rotateZ(var(--scroll-enter-rotate-z, 0deg))
+              scale(var(--scroll-enter-scale, 0.985));
+            will-change: transform, opacity;
+          }
+
+          [data-scroll-reveal='pending'][data-scroll-reveal-kind='line'] {
+            opacity: 0;
+            transform: scaleX(0);
+            transform-origin: left center;
+            transform-box: fill-box;
+          }
+
+          [data-scroll-reveal='visible'] {
+            visibility: visible;
+            opacity: 1;
+            transform: translate3d(0, 0, 0) rotateX(0) rotateY(0) rotateZ(0) scale(1);
+            transition:
+              transform 940ms var(--motion-apple-ease) var(--scroll-reveal-delay, 0ms),
+              opacity 660ms ease-out var(--scroll-reveal-delay, 0ms);
+            will-change: transform, opacity;
+          }
+
+          [data-scroll-reveal='visible'][data-scroll-reveal-kind='visual'] {
+            transition-duration: 1080ms, 720ms;
+            transition-timing-function: var(--motion-apple-spring), ease-out;
+          }
+
+          [data-scroll-reveal='visible'][data-scroll-reveal-kind='stagger'] {
+            transition-duration: 860ms, 620ms;
+            transition-timing-function: var(--motion-apple-spring), ease-out;
+          }
+
+          [data-scroll-reveal='visible'][data-scroll-reveal-kind='line'] {
+            transform: scaleX(1);
+            transform-origin: left center;
+            transform-box: fill-box;
+          }
+
+          [data-scroll-reveal='settled'] {
+            visibility: visible;
+            opacity: 1;
+            transform: translate3d(0, 0, 0) rotateX(0) rotateY(0) rotateZ(0) scale(1);
+            transition: none;
+            will-change: auto;
+          }
+
+          [data-scroll-reveal='settled'][data-scroll-reveal-kind='line'] {
+            transform: scaleX(1);
+            transform-origin: left center;
+            transform-box: fill-box;
+          }
+
+          [data-cinematic-card] .cinematic-card-surface,
+          [data-pointer-plane] {
+            backface-visibility: hidden;
+            transform: translate3d(0, 0, 0);
+            transform-style: preserve-3d;
+            transition: transform 620ms var(--motion-apple-ease);
+          }
+
+          [data-cinematic-card][data-pointer-active='true'] .cinematic-card-surface,
+          [data-anime-hero][data-pointer-active='true'] [data-pointer-plane] {
+            transition-duration: 110ms;
+            will-change: transform;
+          }
+
+          @supports (animation-timeline: view()) {
+            [data-scroll-parallax='native'] {
+              animation: native-view-parallax-3d linear both;
+              animation-timeline: view();
+              animation-range: entry 0% exit 100%;
+              backface-visibility: hidden;
+              transform-style: preserve-3d;
+              will-change: transform;
+            }
+
+            @keyframes native-view-parallax-3d {
+              from {
+                transform: translate3d(
+                    calc(var(--scroll-parallax-x, 0px) * -1),
+                    calc(var(--scroll-parallax-y, 0px) * -1),
+                    calc(var(--scroll-parallax-z, 0px) * -1)
+                  )
+                  rotateX(calc(var(--scroll-parallax-rotate-x, 0deg) * -1))
+                  rotateY(calc(var(--scroll-parallax-rotate-y, 0deg) * -1))
+                  rotateZ(calc(var(--scroll-parallax-rotate-z, 0deg) * -1));
+              }
+
+              to {
+                transform: translate3d(
+                    var(--scroll-parallax-x, 0px),
+                    var(--scroll-parallax-y, 0px),
+                    var(--scroll-parallax-z, 0px)
+                  )
+                  rotateX(var(--scroll-parallax-rotate-x, 0deg))
+                  rotateY(var(--scroll-parallax-rotate-y, 0deg))
+                  rotateZ(var(--scroll-parallax-rotate-z, 0deg));
+              }
+            }
+          }
+
+          @media (max-width: 767px) {
+            [data-scroll-space='true'] {
+              perspective: 1050px;
+            }
+          }
+
+          @media (prefers-reduced-motion: reduce) {
+            [data-scroll-reveal],
+            [data-scroll-parallax],
+            [data-cinematic-card] .cinematic-card-surface,
+            [data-pointer-plane] {
+              visibility: visible !important;
+              opacity: 1 !important;
+              transform: none !important;
+              animation: none !important;
+              transition: none !important;
+              will-change: auto !important;
+            }
+          }
+          """
+          Path('src/styles/scroll-performance.css').write_text(scroll_css)
+
+          story_css_path = Path('src/styles/anime-scroll-story.css')
+          story_css = story_css_path.read_text()
+          story_css = story_css.replace(
+              "  perspective: 1600px;\n  transform-style: preserve-3d;",
+              "  perspective: clamp(980px, 78vw, 1280px);\n  perspective-origin: 50% 44%;\n  transform-style: preserve-3d;",
+              1,
+          )
+          story_css_path.write_text(story_css)
+
+          test = r"""import { readFileSync } from 'node:fs';
+          import { describe, expect, it } from 'vitest';
+
+          const readSource = (relativePath: string) =>
+            readFileSync(new URL(`../../${relativePath}`, import.meta.url), 'utf8');
+
+          describe('multi-axis spatial scroll motion contract', () => {
+            it('4章それぞれに異なる3D侵入・退出軌道を持つ', () => {
+              const source = readSource('src/components/effects/AnimeScrollDirector.tsx');
+
+              expect(source).toContain('SPATIAL_SCENE_PROFILES');
+              expect(source.match(/sceneIn:/g)).toHaveLength(4);
+              expect(source.match(/sceneOut:/g)).toHaveLength(4);
+              expect(source).toContain("root.dataset.storyCamera = 'multi-axis'");
+              expect(source).toContain('resolvePose');
+              expect(source).toContain('rotateX');
+              expect(source).toContain('rotateY');
+              expect(source).toContain('rotateZ');
+              expect(source).toContain("[data-story-depth=\"far\"]");
+              expect(source).toContain("[data-story-depth=\"mid\"]");
+              expect(source).toContain("[data-story-depth=\"near\"]");
+            });
+
+            it('後続セクションへ複数方向のRevealと3D Parallaxを割り当てる', () => {
+              const source = readSource('src/components/effects/ScrollEffects.tsx');
+
+              expect(source).toContain('REVEAL_PROFILES');
+              expect(source).toContain('left-depth');
+              expect(source).toContain('right-front');
+              expect(source).toContain('top-left');
+              expect(source).toContain('bottom-right');
+              expect(source).toContain('center-depth');
+              expect(source).toContain('data.scrollRevealDirection');
+              expect(source).toContain('data.scrollParallaxDirection');
+              expect(source).not.toMatch(/addEventListener\(\s*['\"]scroll['\"]/);
+            });
+
+            it('CSSがX・Y・Z移動と3軸回転を描画する', () => {
+              const source = readSource('src/styles/scroll-performance.css');
+              const story = readSource('src/styles/anime-scroll-story.css');
+
+              expect(source).toContain("[data-scroll-space='true']");
+              expect(source).toContain('--scroll-enter-x');
+              expect(source).toContain('--scroll-enter-y');
+              expect(source).toContain('--scroll-enter-z');
+              expect(source).toContain('rotateX(var(--scroll-enter-rotate-x');
+              expect(source).toContain('rotateY(var(--scroll-enter-rotate-y');
+              expect(source).toContain('rotateZ(var(--scroll-enter-rotate-z');
+              expect(source).toContain('@keyframes native-view-parallax-3d');
+              expect(story).toContain('perspective: clamp(980px, 78vw, 1280px)');
+              expect(story).toContain('perspective-origin: 50% 44%');
+            });
+
+            it('Reduced Motionでは3Dスクロール演出を停止する', () => {
+              const source = readSource('src/styles/scroll-performance.css');
+
+              expect(source).toContain('@media (prefers-reduced-motion: reduce)');
+              expect(source).toContain('animation: none !important');
+              expect(source).toContain('transition: none !important');
+              expect(source).toContain('transform: none !important');
+            });
+          });
+          """
+          Path('tests/unit/spatial-scroll-motion-contract.test.ts').write_text(test)
+          PY
+      - name: 変更ファイルを整形
+        run: |
+          npx prettier --write \
+            src/components/effects/AnimeScrollDirector.tsx \
+            src/components/effects/ScrollEffects.tsx \
+            src/styles/scroll-performance.css \
+            src/styles/anime-scroll-story.css \
+            tests/unit/spatial-scroll-motion-contract.test.ts
+      - name: 実装を検証
+        run: |
+          npm run check
+          npm run lint
+          npm test
+          npm run build
+      - name: 変更をブランチへ反映
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          BRANCH: feat/dual-3d-loading-experience
+        run: |
+          for file in \
+            src/components/effects/AnimeScrollDirector.tsx \
+            src/components/effects/ScrollEffects.tsx \
+            src/styles/scroll-performance.css \
+            src/styles/anime-scroll-story.css \
+            tests/unit/spatial-scroll-motion-contract.test.ts
+          do
+            if gh api "repos/$REPO/contents/$file?ref=$BRANCH" --silent >/dev/null 2>&1; then
+              sha=$(gh api "repos/$REPO/contents/$file?ref=$BRANCH" --jq .sha)
+              content=$(base64 -w 0 "$file")
+              gh api --method PUT "repos/$REPO/contents/$file" \
+                -f message="多方向3Dスクロール演出を実装" \
+                -f content="$content" \
+                -f branch="$BRANCH" \
+                -f sha="$sha"
+            else
+              content=$(base64 -w 0 "$file")
+              gh api --method PUT "repos/$REPO/contents/$file" \
+                -f message="多方向3Dスクロール演出の契約テストを追加" \
+                -f content="$content" \
+                -f branch="$BRANCH"
+            fi
+          done
