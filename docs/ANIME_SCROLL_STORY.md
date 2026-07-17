@@ -50,8 +50,6 @@
 
 ## 最終QA
 
-最新コミット`ad8366e291a7a30391231a01c6fd733f09f19ec7`で次を確認済みです。
-
 - Type / Astro Check、ESLint、Stylelint、Prettier: 成功
 - Unit Test、Production Build、Static Artifact Check: 成功
 - Performance Budget、Wrangler Dry Run: 成功
