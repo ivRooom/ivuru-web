@@ -1,0 +1,45 @@
+name: Fix story activation boundary
+
+on:
+  push:
+    branches:
+      - feat/anime-scroll-story
+
+permissions:
+  contents: write
+
+jobs:
+  fix-boundary:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/anime-scroll-story
+          fetch-depth: 0
+      - name: 退出完了後の境界へ変更
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('src/components/effects/AnimeScrollDirector.tsx')
+          content = path.read_text()
+          content = content.replace(
+              "        const storyDuration = segment * (scenes.length - 1) + 1.18;\n",
+              "        const storyDuration = segment * (scenes.length - 1) + 1.18;\n        const activationDelay = compactMotion ? 0.04 : 0.1;\n",
+          )
+          content = content.replace(
+              "              activate(Math.floor((storyTime + 0.001) / segment));",
+              "              activate(\n                Math.floor((storyTime - activationDelay + 0.001) / segment),\n              );",
+          )
+          path.write_text(content)
+          PY
+          npx prettier --write src/components/effects/AnimeScrollDirector.tsx
+          rm .github/workflows/fix-story-activation-boundary.yml
+      - name: 修正を反映
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -A
+          git commit -m "前章の退出完了後に有効章を切り替える"
+          git push origin HEAD:feat/anime-scroll-story
