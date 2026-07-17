@@ -34,7 +34,14 @@
 - Tabletは主役サイズと余白を圧縮する
 - Mobileは本文を上、主役を下へ配置する
 - `100svh`とSafe Areaを使用し、iOSブラウザの可変UIを考慮する
+- Motionモードでは固定ステージの`min-height`を解除し、画面高679px以下ではコピー・余白・ポータル位置を追加圧縮する
 - Fine pointer環境だけ視差とカードチルトを有効にする
+
+## 導線と計測
+
+- 第3章のNEWS、GAMES、FAVORITESは装飾ではなく実際のローカライズ済みリンクとして提供する
+- `AnimeStoryAnalytics.tsx`が`world_portal_open`、target、surface、positionを既存のAnalyticsBridge契約へ同期する
+- デスクトップとモバイルで同一の遷移先・計測項目を維持する
 
 ## 性能方針
 
