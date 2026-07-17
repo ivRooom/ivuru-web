@@ -12,6 +12,7 @@ import ContactCTA from '@/components/home/ContactCTA.astro';
 import SocialDock from '@/components/social/SocialDock.astro';
 import CinematicPointerEffects from '@/components/effects/CinematicPointerEffects';
 import AnimeScrollDirector from '@/components/effects/AnimeScrollDirector';
+import AnimeStoryAnalytics from '@/components/effects/AnimeStoryAnalytics';
 import { siteConfig, type Locale } from '@/data/site-config';
 import { getDictionary } from '@/i18n/dictionaries';
 import '@/styles/anime-scroll-story.css';
@@ -34,6 +35,7 @@ const descriptions = {
 >
   <CinematicPointerEffects client:idle />
   <AnimeScrollDirector client:idle />
+  <AnimeStoryAnalytics client:idle />
 
   <AnimeScrollStory locale={locale} />
 
