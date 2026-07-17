@@ -30,6 +30,8 @@ test.describe('anime scroll story', () => {
     const story = page.locator('[data-anime-scroll-story]');
     await expect(story).toBeVisible();
     await expect(story).toHaveAttribute('data-story-mode', 'motion', { timeout: 4_000 });
+    await expect(story).toHaveAttribute('data-story-snap', 'labels-directional');
+    await expect(story).toHaveAttribute('data-story-mask', 'active');
     await expect(story.locator('[data-anime-story-scene]')).toHaveCount(4);
     await expect(story.locator('[data-story-progress-dot]')).toHaveCount(4);
     await expect(story).toHaveAttribute('data-story-chapter', '01');
@@ -51,10 +53,9 @@ test.describe('anime scroll story', () => {
 
     const story = page.locator('[data-anime-scroll-story]');
     await moveToChapter(page, '02');
-    await expect(story.locator('[data-anime-story-scene="1"]')).toHaveAttribute(
-      'data-active',
-      'true',
-    );
+    const buildScene = story.locator('[data-anime-story-scene="1"]');
+    await expect(buildScene).toHaveAttribute('data-active', 'true');
+    await expect(buildScene).toHaveCSS('clip-path', /circle\((?:1[0-9]{2}|[89][0-9])%/);
     await expect(story.locator('.anime-build-device')).toBeVisible();
 
     await moveToChapter(page, '03');
@@ -63,6 +64,7 @@ test.describe('anime scroll story', () => {
       'true',
     );
     await expect(story.locator('.anime-game-portal')).toBeVisible();
+    await expect(story.locator('.anime-game-portal')).toHaveCSS('clip-path', /circle\(/);
     await expect(story.locator('.anime-portal-card')).toHaveCount(3);
     await expect(story.locator('.anime-portal-section img')).toHaveCount(0);
     await expect(page.locator('body')).toHaveAttribute('data-anime-scene', 'deep');
@@ -131,6 +133,8 @@ test.describe('anime scroll story', () => {
 
     const story = page.locator('[data-anime-scroll-story]');
     await expect(story).toHaveAttribute('data-story-mode', 'static');
+    await expect(story).toHaveAttribute('data-story-mask', 'static');
+    await expect(story).not.toHaveAttribute('data-story-snap');
     await expect(story.locator('[data-anime-story-scene]')).toHaveCount(4);
     for (const scene of await story.locator('[data-anime-story-scene]').all()) {
       await expect(scene).toBeVisible();
@@ -156,6 +160,7 @@ test.describe('anime scroll story', () => {
       await page.goto(route);
       const story = page.locator('[data-anime-scroll-story]');
       await expect(story).toBeVisible();
+      await expect(story).toHaveAttribute('data-story-snap', 'labels-directional');
       await expect(story.locator('[data-anime-story-scene]')).toHaveCount(4);
       await expect(story.locator('.signal-key-visual')).toBeVisible();
       await expect(story.locator('.anime-portal-card')).toHaveCount(3);
