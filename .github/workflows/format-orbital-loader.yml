@@ -11,12 +11,16 @@ on:
       - .github/workflows/format-orbital-loader.yml
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   format:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TARGET_BRANCH: feat/dual-3d-loading-experience
     steps:
       - uses: actions/checkout@v4
         with:
@@ -37,14 +41,22 @@ jobs:
         run: |
           npm run lint
           npm test -- --run tests/unit/orbital-loader-contract.test.ts
-      - name: 整形済みファイルを保存
-        uses: actions/upload-artifact@v4
-        with:
-          name: orbital-loader-formatted
-          path: |
+      - name: 整形結果をContents APIで反映
+        shell: bash
+        run: |
+          files=(
             src/components/common/IntroLoader.astro
             docs/demos/orbital-core-loader.html
             tests/e2e/loader-metadata.spec.ts
             tests/unit/orbital-loader-contract.test.ts
-          if-no-files-found: error
-          retention-days: 1
+          )
+
+          for path in "${files[@]}"; do
+            sha=$(gh api "repos/${GITHUB_REPOSITORY}/contents/${path}?ref=${TARGET_BRANCH}" --jq .sha)
+            encoded=$(base64 -w 0 "${path}")
+            gh api --method PUT "repos/${GITHUB_REPOSITORY}/contents/${path}" \
+              -f message="Orbital Core実装を整形: ${path}" \
+              -f content="${encoded}" \
+              -f branch="${TARGET_BRANCH}" \
+              -f sha="${sha}" >/dev/null
+          done
