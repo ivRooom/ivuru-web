@@ -13,14 +13,12 @@ const moveToChapter = async (
   chapter: '01' | '02' | '03' | '04',
 ) => {
   const chapterIndex = Number(chapter) - 1;
+  const story = page.locator('[data-anime-scroll-story]');
+  await expect(story).toHaveAttribute('data-story-mode', 'motion', { timeout: 4_000 });
   await page.evaluate((index) => {
     window.scrollTo({ top: window.innerHeight * (index * 1.22 + 0.35), behavior: 'instant' });
   }, chapterIndex);
-  await expect(page.locator('[data-anime-scroll-story]')).toHaveAttribute(
-    'data-story-chapter',
-    chapter,
-    { timeout: 4_000 },
-  );
+  await expect(story).toHaveAttribute('data-story-chapter', chapter, { timeout: 4_000 });
 };
 
 test.describe('anime scroll story', () => {
@@ -31,6 +29,7 @@ test.describe('anime scroll story', () => {
 
     const story = page.locator('[data-anime-scroll-story]');
     await expect(story).toBeVisible();
+    await expect(story).toHaveAttribute('data-story-mode', 'motion', { timeout: 4_000 });
     await expect(story.locator('[data-anime-story-scene]')).toHaveCount(4);
     await expect(story.locator('[data-story-progress-dot]')).toHaveCount(4);
     await expect(story).toHaveAttribute('data-story-chapter', '01');
@@ -76,7 +75,11 @@ test.describe('anime scroll story', () => {
     await expect(story.locator('.anime-community-emblem')).toBeVisible();
   });
 
-  test('responds to a fine pointer with depth and chapter-three card tilt', async ({ page }) => {
+  test('responds to a fine pointer with depth and chapter-three card tilt', async (
+    { page },
+    testInfo,
+  ) => {
+    test.skip(Boolean(testInfo.project.use.isMobile), 'Fine pointer only');
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await prepareHome(page);
     await page.goto('/');
