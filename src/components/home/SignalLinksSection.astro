@@ -1,0 +1,101 @@
+---
+import SpotifyPlaylist from '@/components/social/SpotifyPlaylist';
+import { siteConfig, type Locale } from '@/data/site-config';
+
+const { locale } = Astro.props as { locale: Locale };
+const copy = {
+  ja: {
+    label: '音楽と公開プロフィール',
+    title: '画面の外でも、\n同じ世界は続いている。',
+    body: '音楽、開発、日々の発信。それぞれのチャンネルを、ひとつの静かな余白にまとめました。',
+    x: '短い発信と最新のシグナル',
+    github: '公開リポジトリと開発の軌跡',
+    links: 'SNSと活動先をまとめた入口',
+  },
+  en: {
+    label: 'Music and public profiles',
+    title: 'The same world continues\nbeyond this screen.',
+    body: 'Music, development, and everyday signals come together in one quiet cinematic space.',
+    x: 'Short updates and current signals',
+    github: 'Public repositories and development trails',
+    links: 'One entrance to social channels and activities',
+  },
+  ko: {
+    label: '음악과 공개 프로필',
+    title: '화면 밖에서도\n같은 세계는 이어집니다.',
+    body: '음악, 개발, 일상의 발신을 하나의 여유로운 시네마틱 공간에 모았습니다.',
+    x: '짧은 소식과 최신 시그널',
+    github: '공개 저장소와 개발 기록',
+    links: 'SNS와 활동 채널을 모은 입구',
+  },
+}[locale];
+
+const channels = [
+  {
+    code: '01',
+    name: 'X',
+    id: siteConfig.xHandle,
+    description: copy.x,
+    href: siteConfig.xUrl,
+  },
+  {
+    code: '02',
+    name: 'GITHUB',
+    id: siteConfig.githubHandle,
+    description: copy.github,
+    href: siteConfig.githubUrl,
+  },
+  {
+    code: '03',
+    name: 'ALL LINKS',
+    id: 'lit.link/ivuruGG',
+    description: copy.links,
+    href: siteConfig.litLinkUrl,
+  },
+];
+---
+
+<section
+  class="signal-links-section section"
+  data-world-zone="community"
+  aria-labelledby="signal-links-title"
+>
+  <div class="signal-links-shell section-inner">
+    <header class="signal-links-heading" data-reveal>
+      <p>{copy.label}</p>
+      <h2 id="signal-links-title">{copy.title}</h2>
+      <span>{copy.body}</span>
+    </header>
+
+    <SpotifyPlaylist
+      client:visible
+      locale={locale}
+      playlistId={siteConfig.spotifyPlaylistId}
+      playlistUrl={siteConfig.spotifyPlaylistUrl}
+    />
+
+    <nav class="signal-links-rail" aria-label={copy.label} data-anime-stagger>
+      {
+        channels.map((channel) => (
+          <a
+            href={channel.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-cinematic-card
+            data-analytics-event="external_profile_open"
+            data-analytics-target={channel.name.toLowerCase()}
+            data-analytics-surface="home_signal_links"
+          >
+            <span>{channel.code}</span>
+            <div class="cinematic-card-surface">
+              <strong>{channel.name}</strong>
+              <small>{channel.id}</small>
+              <p>{channel.description}</p>
+            </div>
+            <i aria-hidden="true">↗</i>
+          </a>
+        ))
+      }
+    </nav>
+  </div>
+</section>
