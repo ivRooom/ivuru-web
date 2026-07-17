@@ -1,0 +1,55 @@
+name: Fix Spatial Scroll Workflow
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/fix-spatial-scroll-workflow.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/dual-3d-loading-experience
+      - name: 適用ワークフローを修正
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('.github/workflows/apply-spatial-scroll-motion.yml')
+          text = path.read_text()
+          text = text.replace(
+              "const profile = SPATIAL_SCENE_PROFILES[sceneIndex % SPATIAL_SCENE_PROFILES.length];",
+              "const profile = SPATIAL_SCENE_PROFILES[sceneIndex % SPATIAL_SCENE_PROFILES.length]!;",
+          )
+          text = text.replace(
+              "const profile = REVEAL_PROFILES[profileIndex % REVEAL_PROFILES.length];",
+              "const profile = REVEAL_PROFILES[profileIndex % REVEAL_PROFILES.length]!;",
+          )
+          text = text.replace(
+              "const profile = PARALLAX_PROFILES[profileIndex % PARALLAX_PROFILES.length];",
+              "const profile = PARALLAX_PROFILES[profileIndex % PARALLAX_PROFILES.length]!;",
+          )
+          text = text.replace("expect(source.match(/sceneIn:/g)).toHaveLength(4);", "expect(source.match(/sceneIn:/g)).toHaveLength(5);")
+          text = text.replace("expect(source.match(/sceneOut:/g)).toHaveLength(4);", "expect(source.match(/sceneOut:/g)).toHaveLength(5);")
+          path.write_text(text)
+          PY
+      - name: 修正を反映
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          BRANCH: feat/dual-3d-loading-experience
+          FILE: .github/workflows/apply-spatial-scroll-motion.yml
+        run: |
+          sha=$(gh api "repos/$REPO/contents/$FILE?ref=$BRANCH" --jq .sha)
+          content=$(base64 -w 0 "$FILE")
+          gh api --method PUT "repos/$REPO/contents/$FILE" \
+            -f message="3Dスクロール適用ワークフローの型と契約テストを修正" \
+            -f content="$content" \
+            -f branch="$BRANCH" \
+            -f sha="$sha"
