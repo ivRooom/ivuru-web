@@ -7,7 +7,14 @@ import { navigation } from '@/data/navigation';
 import { siteConfig, type Locale } from '@/data/site-config';
 import { getDictionary } from '@/i18n/dictionaries';
 
-const { locale = 'ja' } = Astro.props as { locale: Locale };
+type Chapter = {
+  code: string;
+  title: string;
+  world: string;
+};
+
+const { locale = 'ja', chapter = { code: '00', title: 'WORLD GATE', world: 'NEXUS' } } =
+  Astro.props as { locale: Locale; chapter?: Chapter };
 const dict = getDictionary(locale);
 const normalizePath = (path: string) => path.replace(/\/$/, '') || '/';
 const currentPath = normalizePath(Astro.url.pathname);
@@ -25,8 +32,19 @@ const items = navigation(locale).map((item) => {
 });
 ---
 
-<header class="site-header" data-site-header>
-  <a class="logo-link" href={items[0].href} aria-label="いゔる。 / ivuru Home"><Logo /></a>
+<header
+  class="site-header"
+  data-site-header
+  data-current-chapter={chapter.code}
+  transition:name="site-header"
+>
+  <a class="logo-link" href={items[0].href} aria-label="いゔる。 / ivuru Home" data-ui-action>
+    <Logo />
+  </a>
+  <div class="header-location" aria-label={`Current location: ${chapter.code} ${chapter.title}`}>
+    <span>{chapter.code}</span>
+    <strong>{chapter.title}</strong>
+  </div>
   <nav class="desktop-nav" aria-label="Primary navigation">
     {
       items.map((item) => (
@@ -34,6 +52,7 @@ const items = navigation(locale).map((item) => {
           class:list={{ active: item.active }}
           href={item.href}
           aria-current={item.active ? 'page' : undefined}
+          data-ui-action
         >
           {item.label}
         </a>
@@ -46,7 +65,9 @@ const items = navigation(locale).map((item) => {
       href={siteConfig.xUrl}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label={`${siteConfig.name} on X`}>X</a
+      aria-label={`${siteConfig.name} on X`}
+      data-ui-action
+      data-ui-external="true">X</a
     >
     <LanguageSwitcher client:load current={locale} />
     <ThemeSwitcher client:load />
@@ -62,32 +83,49 @@ const items = navigation(locale).map((item) => {
   </div>
 </header>
 <script>
+  let headerObserver: IntersectionObserver | undefined;
+  let sentinelVisible = true;
+
   const updateCurrentHeader = () => {
     const header = document.querySelector<HTMLElement>('[data-site-header]');
     if (!header) return;
     const menuOpen = document.body.classList.contains('menu-open');
-    header.classList.toggle('scrolled', window.scrollY > 24 || menuOpen);
+    header.classList.toggle('scrolled', !sentinelVisible || menuOpen);
     header.classList.remove('hidden');
   };
 
-  updateCurrentHeader();
+  const observeHeaderSentinel = () => {
+    headerObserver?.disconnect();
+    headerObserver = undefined;
+    sentinelVisible = true;
+
+    const sentinel = document.querySelector<HTMLElement>('[data-header-sentinel]');
+    if (!sentinel || !('IntersectionObserver' in window)) {
+      updateCurrentHeader();
+      return;
+    }
+
+    headerObserver = new IntersectionObserver(
+      ([entry]) => {
+        sentinelVisible = entry?.isIntersecting ?? true;
+        updateCurrentHeader();
+      },
+      {
+        root: null,
+        rootMargin: '0px',
+        threshold: [0, 1],
+      },
+    );
+    headerObserver.observe(sentinel);
+    updateCurrentHeader();
+  };
 
   const root = document.documentElement;
   if (root.dataset.ivuruHeaderBound !== 'true') {
     root.dataset.ivuruHeaderBound = 'true';
-    let ticking = false;
-
-    const queueUpdate = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        updateCurrentHeader();
-        ticking = false;
-      });
-    };
-
-    document.addEventListener('scroll', queueUpdate, { passive: true });
-    document.addEventListener('astro:page-load', queueUpdate);
-    document.addEventListener('ivuru:menu-state', queueUpdate);
+    document.addEventListener('astro:page-load', observeHeaderSentinel);
+    document.addEventListener('ivuru:menu-state', updateCurrentHeader);
   }
+
+  observeHeaderSentinel();
 </script>

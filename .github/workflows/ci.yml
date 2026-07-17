@@ -31,6 +31,18 @@ jobs:
         env:
           ASTRO_TELEMETRY_DISABLED: '1'
       - run: npm run lint
+        id: lint
+      - name: ESLint診断レポートを生成
+        if: failure() && steps.lint.outcome == 'failure'
+        run: npm run lint -- --format json > eslint-report.json || true
+      - name: ESLint診断Artifactを保存
+        if: failure() && steps.lint.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: eslint-diagnostics-${{ github.run_attempt }}
+          path: eslint-report.json
+          if-no-files-found: ignore
+          retention-days: 14
       - name: 変更ファイルのFormatを確認
         shell: bash
         run: |

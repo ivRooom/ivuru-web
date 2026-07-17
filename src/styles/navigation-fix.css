@@ -18,11 +18,8 @@ body.menu-open {
   width: 100vw;
   height: 100dvh;
   min-height: 100svh;
-  padding:
-    max(8px, env(safe-area-inset-top))
-    max(8px, env(safe-area-inset-right))
-    max(8px, env(safe-area-inset-bottom))
-    max(8px, env(safe-area-inset-left));
+  padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right))
+    max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
   display: flex !important;
   align-items: stretch;
   justify-content: center;
@@ -79,11 +76,19 @@ body.menu-open {
 }
 
 .mobile-menu-panel nav a {
+  position: relative;
   min-height: 0;
   padding: clamp(8px, 1.25vh, 14px) 4px;
   grid-template-columns: 42px minmax(0, 1fr) 26px;
   font-size: clamp(27px, 4.6vmin, 56px);
   line-height: 0.98;
+}
+
+.mobile-menu-panel nav a[aria-current='page']::before {
+  position: absolute;
+  top: 50%;
+  left: -2px;
+  transform: translateY(-50%);
 }
 
 .mobile-menu-panel nav a span {
@@ -101,11 +106,8 @@ body.menu-open {
 
 @media (max-width: 720px) {
   .mobile-menu-layer {
-    padding:
-      max(6px, env(safe-area-inset-top))
-      max(6px, env(safe-area-inset-right))
-      max(6px, env(safe-area-inset-bottom))
-      max(6px, env(safe-area-inset-left));
+    padding: max(6px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right))
+      max(6px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));
   }
 
   .mobile-menu-panel {
