@@ -25,14 +25,24 @@
     radial-gradient(circle at 62% 14%, rgb(255 255 255 / 70%) 0 1px, transparent 1.5px),
     radial-gradient(circle at 88% 68%, rgb(255 104 226 / 48%) 0 1.2px, transparent 2px),
     radial-gradient(circle at 48% 48%, rgb(151 222 255 / 44%) 0 1px, transparent 1.6px);
-  background-size: 260px 220px, 330px 290px, 410px 360px, 370px 310px, 290px 250px;
+  background-size:
+    260px 220px,
+    330px 290px,
+    410px 360px,
+    370px 310px,
+    290px 250px;
   opacity: 0.5;
   animation: anime-star-drift 18s linear infinite;
 }
 
 .is-opening .anime-scene-sky::before {
   background:
-    conic-gradient(from 235deg at 72% 34%, transparent 0 38%, rgb(87 224 255 / 16%) 42%, transparent 48%),
+    conic-gradient(
+      from 235deg at 72% 34%,
+      transparent 0 38%,
+      rgb(87 224 255 / 16%) 42%,
+      transparent 48%
+    ),
     linear-gradient(118deg, transparent 40%, rgb(105 221 255 / 9%) 49%, transparent 58%);
   mix-blend-mode: screen;
 }
@@ -41,7 +51,13 @@
   top: 17%;
   right: 18%;
   width: clamp(70px, 9vw, 138px);
-  background: radial-gradient(circle at 38% 34%, #fff 0 9%, #b8f7ff 28%, #55dfff 58%, transparent 70%);
+  background: radial-gradient(
+    circle at 38% 34%,
+    #fff 0 9%,
+    #b8f7ff 28%,
+    #55dfff 58%,
+    transparent 70%
+  );
   box-shadow:
     0 0 0 18px rgb(86 226 255 / 5%),
     0 0 80px 30px rgb(44 200 255 / 32%),
@@ -49,7 +65,12 @@
 }
 
 .is-opening .anime-cloud {
-  background: linear-gradient(90deg, rgb(74 169 255 / 8%), rgb(146 234 255 / 24%), rgb(79 117 255 / 8%));
+  background: linear-gradient(
+    90deg,
+    rgb(74 169 255 / 8%),
+    rgb(146 234 255 / 24%),
+    rgb(79 117 255 / 8%)
+  );
   filter: blur(8px);
 }
 
@@ -78,7 +99,12 @@
 .is-opening .anime-light-road {
   right: 0;
   width: 62%;
-  background: linear-gradient(180deg, rgb(137 239 255 / 55%), rgb(92 122 255 / 14%) 38%, transparent 80%);
+  background: linear-gradient(
+    180deg,
+    rgb(137 239 255 / 55%),
+    rgb(92 122 255 / 14%) 38%,
+    transparent 80%
+  );
   filter: blur(14px);
   opacity: 0.36;
 }
@@ -153,7 +179,14 @@
   inset: -20%;
   border-radius: 50%;
   background:
-    conic-gradient(from 40deg, transparent 0 18%, rgb(60 219 255 / 24%) 23%, transparent 30% 58%, rgb(255 79 216 / 18%) 65%, transparent 74%),
+    conic-gradient(
+      from 40deg,
+      transparent 0 18%,
+      rgb(60 219 255 / 24%) 23%,
+      transparent 30% 58%,
+      rgb(255 79 216 / 18%) 65%,
+      transparent 74%
+    ),
     radial-gradient(circle, rgb(50 198 255 / 24%), transparent 62%);
   filter: blur(18px);
   animation: anime-aura-turn 12s linear infinite;
@@ -168,9 +201,29 @@
   border-radius: 50%;
   clip-path: none;
   background:
-    radial-gradient(circle at 50% 50%, rgb(255 255 255 / 96%) 0 1.5%, rgb(105 229 255 / 88%) 2.5%, transparent 5%),
-    radial-gradient(circle at 50% 50%, rgb(68 211 255 / 18%) 0 22%, transparent 23% 36%, rgb(95 121 255 / 13%) 37% 38%, transparent 39%),
-    conic-gradient(from 12deg, transparent 0 8%, rgb(92 229 255 / 62%) 9% 10%, transparent 11% 33%, rgb(127 95 255 / 52%) 34% 36%, transparent 37% 68%, rgb(255 91 220 / 38%) 69% 70%, transparent 71%),
+    radial-gradient(
+      circle at 50% 50%,
+      rgb(255 255 255 / 96%) 0 1.5%,
+      rgb(105 229 255 / 88%) 2.5%,
+      transparent 5%
+    ),
+    radial-gradient(
+      circle at 50% 50%,
+      rgb(68 211 255 / 18%) 0 22%,
+      transparent 23% 36%,
+      rgb(95 121 255 / 13%) 37% 38%,
+      transparent 39%
+    ),
+    conic-gradient(
+      from 12deg,
+      transparent 0 8%,
+      rgb(92 229 255 / 62%) 9% 10%,
+      transparent 11% 33%,
+      rgb(127 95 255 / 52%) 34% 36%,
+      transparent 37% 68%,
+      rgb(255 91 220 / 38%) 69% 70%,
+      transparent 71%
+    ),
     radial-gradient(circle, rgb(3 20 55 / 84%) 0 54%, rgb(2 8 27 / 94%) 70%);
   box-shadow:
     inset 0 0 70px rgb(53 214 255 / 18%),
@@ -193,7 +246,14 @@
 .anime-opening-emblem .signal-key-frame::before {
   inset: -9%;
   border: 1px solid rgb(127 230 255 / 38%);
-  background: conic-gradient(from 0deg, transparent 0 13%, rgb(112 233 255 / 48%) 14% 15%, transparent 16% 48%, rgb(255 88 220 / 32%) 49% 50%, transparent 51%);
+  background: conic-gradient(
+    from 0deg,
+    transparent 0 13%,
+    rgb(112 233 255 / 48%) 14% 15%,
+    transparent 16% 48%,
+    rgb(255 88 220 / 32%) 49% 50%,
+    transparent 51%
+  );
   box-shadow: 0 0 38px rgb(83 217 255 / 16%);
   animation: anime-portal-spin 9s linear infinite;
 }
@@ -295,7 +355,9 @@
 
 .anime-opening-emblem .signal-key-mark span {
   color: rgb(220 245 255 / 66%);
-  font: 700 clamp(0.52rem, 0.7vw, 0.66rem) / 1 ui-monospace, monospace;
+  font:
+    700 clamp(0.52rem, 0.7vw, 0.66rem) / 1 ui-monospace,
+    monospace;
   letter-spacing: 0.2em;
 }
 
@@ -394,7 +456,12 @@
 
 @keyframes anime-star-drift {
   to {
-    background-position: 260px 110px, -330px 145px, 205px -180px, -185px -155px, 145px 125px;
+    background-position:
+      260px 110px,
+      -330px 145px,
+      205px -180px,
+      -185px -155px,
+      145px 125px;
   }
 }
 
