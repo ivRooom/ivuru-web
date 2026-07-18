@@ -8,10 +8,7 @@ const prepareHome = async (page: import('@playwright/test').Page) => {
   });
 };
 
-const scrollViewport = async (
-  page: import('@playwright/test').Page,
-  multiplier: number,
-) => {
+const scrollViewport = async (page: import('@playwright/test').Page, multiplier: number) => {
   await page.evaluate((value) => {
     window.scrollTo({ top: window.innerHeight * value, behavior: 'instant' });
   }, multiplier);
@@ -24,13 +21,9 @@ test.describe('World Forge chapter transitions', () => {
     await page.goto('/');
 
     const story = page.locator('[data-anime-scroll-story]');
-    await expect(story).toHaveAttribute(
-      'data-story-transition-engine',
-      'world-forge',
-      {
-        timeout: 10_000,
-      },
-    );
+    await expect(story).toHaveAttribute('data-story-transition-engine', 'world-forge', {
+      timeout: 10_000,
+    });
     await expect(story).toHaveAttribute('data-story-axis', 'portal-forward');
     await expect(story).toHaveAttribute('data-spatial-camera-ready', 'true', {
       timeout: 10_000,
@@ -66,28 +59,18 @@ test.describe('World Forge chapter transitions', () => {
       timeout: 8_000,
     });
     await expect(story).toHaveAttribute('data-story-camera', 'multi-axis');
-    await expect(story).toHaveAttribute(
-      'data-story-camera-path',
-      'portal-forward-stabilized',
-    );
+    await expect(story).toHaveAttribute('data-story-camera-path', 'portal-forward-stabilized');
   });
 
-  test('Reduced Motionでは章間ゲートを生成せず3章を静的表示する', async ({
-    page,
-  }) => {
+  test('Reduced Motionでは章間ゲートを生成せず3章を静的表示する', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await prepareHome(page);
     await page.goto('/');
 
     const story = page.locator('[data-anime-scroll-story]');
-    await expect(story).toHaveAttribute(
-      'data-story-transition-engine',
-      'static',
-    );
+    await expect(story).toHaveAttribute('data-story-transition-engine', 'static');
     await expect(story).toHaveAttribute('data-story-axis', 'portal-forward');
     await expect(story.locator('[data-chapter-gate]')).toHaveCount(0);
-    await expect(
-      story.locator('[data-anime-story-scene][data-active="true"]'),
-    ).toHaveCount(3);
+    await expect(story.locator('[data-anime-story-scene][data-active="true"]')).toHaveCount(3);
   });
 });

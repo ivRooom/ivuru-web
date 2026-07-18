@@ -107,11 +107,7 @@ const copy = {
       <span class="quantum-loader__ring quantum-loader__ring--inner"></span>
 
       <div class="quantum-loader__blades">
-        {
-          Array.from({ length: 12 }, (_, index) => (
-            <i style={`--blade-index:${index}`} />
-          ))
-        }
+        {Array.from({ length: 12 }, (_, index) => <i style={`--blade-index:${index}`} />)}
       </div>
 
       <div class="quantum-loader__core">
@@ -128,11 +124,7 @@ const copy = {
         {
           Array.from({ length: 10 }, (_, index) => {
             const duration = 3.2 + (index % 4) * 0.4;
-            return (
-              <i
-                style={`--shard-index:${index};--shard-duration:${duration}s`}
-              />
-            );
+            return <i style={`--shard-index:${index};--shard-duration:${duration}s`} />;
           })
         }
       </div>
@@ -168,20 +160,15 @@ const copy = {
     </div>
   </div>
 
-  <span
-    class="quantum-loader__curtain quantum-loader__curtain--left"
-    aria-hidden="true"></span>
-  <span
-    class="quantum-loader__curtain quantum-loader__curtain--right"
-    aria-hidden="true"></span>
+  <span class="quantum-loader__curtain quantum-loader__curtain--left" aria-hidden="true"></span>
+  <span class="quantum-loader__curtain quantum-loader__curtain--right" aria-hidden="true"></span>
   <span class="quantum-loader__release-flash" aria-hidden="true"></span>
 </div>
 
 <script is:inline define:vars={{ phases: copy.phases }}>
   (() => {
     const loader = document.querySelector('[data-spatial-loader]');
-    if (!(loader instanceof HTMLElement) || loader.dataset.bound === 'true')
-      return;
+    if (!(loader instanceof HTMLElement) || loader.dataset.bound === 'true') return;
     loader.dataset.bound = 'true';
 
     const root = document.documentElement;
@@ -228,8 +215,7 @@ const copy = {
       loader.style.setProperty('--loader-progress', `${next}%`);
       loader.style.setProperty('--loader-progress-ratio', String(next / 100));
       progressbar?.setAttribute('aria-valuenow', String(next));
-      if (progressText)
-        progressText.textContent = String(next).padStart(3, '0');
+      if (progressText) progressText.textContent = String(next).padStart(3, '0');
 
       const phase = resolvePhase(next);
       if (activePhase === phase.key) return;
@@ -264,15 +250,10 @@ const copy = {
       const elapsed = now - startedAt;
       const waiting = Math.min(91, (elapsed / Math.max(duration, 1)) * 91);
       const readyRatio =
-        readyAt === null
-          ? 0
-          : Math.min(1, (now - readyAt) / Math.max(duration * 0.14, 1));
+        readyAt === null ? 0 : Math.min(1, (now - readyAt) / Math.max(duration * 0.14, 1));
       renderProgress(waiting + (100 - waiting) * readyRatio);
 
-      if (
-        (readyAt !== null && elapsed >= duration) ||
-        elapsed >= duration + 420
-      ) {
+      if ((readyAt !== null && elapsed >= duration) || elapsed >= duration + 420) {
         release();
         return;
       }
@@ -287,8 +268,7 @@ const copy = {
     document.body.classList.add('site-loading');
     loader.dataset.state = 'loading';
     renderProgress(0);
-    if (readyAt === null)
-      window.addEventListener('load', markReady, { once: true });
+    if (readyAt === null) window.addEventListener('load', markReady, { once: true });
     frame = requestAnimationFrame(tick);
 
     window.addEventListener(

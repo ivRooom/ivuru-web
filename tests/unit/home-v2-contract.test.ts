@@ -19,18 +19,12 @@ describe('home page v2 contract', () => {
   });
 
   it('安定化したカメラと章間ワールドゲートを持つ', () => {
-    const camera = readSource(
-      'src/components/effects/SpatialCameraEnhancer.tsx',
-    );
-    const director = readSource(
-      'src/components/effects/AnimeScrollDirector.tsx',
-    );
+    const camera = readSource('src/components/effects/SpatialCameraEnhancer.tsx');
+    const director = readSource('src/components/effects/AnimeScrollDirector.tsx');
     const styles = readSource('src/styles/chapter-gate-transitions.css');
 
     expect(camera).toContain("root.dataset.storyCamera = 'multi-axis'");
-    expect(camera).toContain(
-      "root.dataset.storyCameraPath = 'portal-forward-stabilized'",
-    );
+    expect(camera).toContain("root.dataset.storyCameraPath = 'portal-forward-stabilized'");
     expect(camera).toContain("root.dataset.spatialCameraReady = 'pending'");
     expect(camera).toContain("root.dataset.spatialCameraReady = 'true'");
     expect(camera).toContain('--story-perspective-x');
@@ -39,9 +33,7 @@ describe('home page v2 contract', () => {
     expect(camera).toContain('[data-story-depth="front"]');
     expect(camera).toContain('syncPinnedStory(attempt + 1)');
     expect(camera).toContain('attempt < 30');
-    expect(director).toContain(
-      "root.dataset.storyTransitionEngine = 'world-forge'",
-    );
+    expect(director).toContain("root.dataset.storyTransitionEngine = 'world-forge'");
     expect(styles).toContain('.anime-chapter-gate');
     expect(styles).toContain('.anime-chapter-gate__iris');
   });
@@ -78,13 +70,8 @@ describe('home page v2 contract', () => {
   it('Reduced Motionでは追加3D演出と章間ゲートを停止する', () => {
     const styles = readSource('src/styles/spatial-home-v2.css');
     const gateStyles = readSource('src/styles/chapter-gate-transitions.css');
-    const mediaStart = styles.indexOf(
-      '@media (prefers-reduced-motion: reduce)',
-    );
-    const mediaEnd = styles.indexOf(
-      '/* Home V2 static and no-JS fallback */',
-      mediaStart,
-    );
+    const mediaStart = styles.indexOf('@media (prefers-reduced-motion: reduce)');
+    const mediaEnd = styles.indexOf('/* Home V2 static and no-JS fallback */', mediaStart);
 
     expect(mediaStart).toBeGreaterThanOrEqual(0);
     expect(mediaEnd).toBeGreaterThan(mediaStart);

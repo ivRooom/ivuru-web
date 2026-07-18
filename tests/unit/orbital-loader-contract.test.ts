@@ -77,9 +77,7 @@ describe('quantum world gate intro loader contract', () => {
 
     expect(layout).toContain("const isHome = normalized === '/'");
     expect(layout).toContain('{isHome && <IntroLoader');
-    expect(layout).toContain(
-      "import IntroLoader from '@/components/common/IntroLoader.astro'",
-    );
+    expect(layout).toContain("import IntroLoader from '@/components/common/IntroLoader.astro'");
     expect(layout).not.toContain('<IntroLoader locale={locale} client:load');
   });
 });

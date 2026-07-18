@@ -35,22 +35,14 @@ const moveToChapter = async (
 };
 
 test.describe('Home V2 spatial scroll story', () => {
-  test('opens as a three-scene world-forge 3D experience', async ({
-    page,
-  }, testInfo) => {
+  test('opens as a three-scene world-forge 3D experience', async ({ page }, testInfo) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await prepareHome(page);
     await page.goto('/');
 
     const story = await waitForMotionStory(page);
-    await expect(story).toHaveAttribute(
-      'data-story-performance',
-      'composited-world-forge',
-    );
-    await expect(story).toHaveAttribute(
-      'data-story-transition-engine',
-      'world-forge',
-    );
+    await expect(story).toHaveAttribute('data-story-performance', 'composited-world-forge');
+    await expect(story).toHaveAttribute('data-story-transition-engine', 'world-forge');
     await expect(story).toHaveAttribute('data-story-axis', 'portal-forward');
     await expect(story).toHaveAttribute(
       'data-story-snap',
@@ -66,18 +58,11 @@ test.describe('Home V2 spatial scroll story', () => {
     await expect(story.locator('[data-cinematic-shard]')).toHaveCount(6);
     await expect(story.locator('[data-chapter-gate]')).toHaveCount(1);
     await expect(story.locator('.signal-key-frame')).toBeVisible();
-    await expect(
-      story.getByRole('link', { name: /Works|制作|작업/i }).first(),
-    ).toBeVisible();
-    await expect(page.locator('html')).toHaveAttribute(
-      'data-motion-ready',
-      'observer',
-    );
+    await expect(story.getByRole('link', { name: /Works|制作|작업/i }).first()).toBeVisible();
+    await expect(page.locator('html')).toHaveAttribute('data-motion-ready', 'observer');
   });
 
-  test('switches from Build & Play to Connect through the shared gate axis', async ({
-    page,
-  }) => {
+  test('switches from Build & Play to Connect through the shared gate axis', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await prepareHome(page);
     await page.goto('/');
@@ -102,10 +87,7 @@ test.describe('Home V2 spatial scroll story', () => {
     await expect(connectScene).toHaveAttribute('data-active', 'true');
     await expect(connectScene).toHaveCSS('clip-path', 'none');
     await expect(story.locator('.anime-community-emblem')).toBeVisible();
-    await expect(page.locator('body')).toHaveAttribute(
-      'data-anime-scene',
-      'night',
-    );
+    await expect(page.locator('body')).toHaveAttribute('data-anime-scene', 'night');
   });
 
   test('moves the stabilized perspective camera and foreground layers as the page scrolls', async ({
@@ -119,36 +101,26 @@ test.describe('Home V2 spatial scroll story', () => {
     await expect(story).toHaveAttribute('data-spatial-camera-ready', 'true', {
       timeout: 10_000,
     });
-    await expect(story).toHaveAttribute(
-      'data-story-camera-path',
-      'portal-forward-stabilized',
-    );
+    await expect(story).toHaveAttribute('data-story-camera-path', 'portal-forward-stabilized');
     const camera = story.locator('[data-story-camera-rig]');
     const initialTransform = await camera.evaluate(
       (element) => getComputedStyle(element).transform,
     );
     const initialPerspective = await story.evaluate((element) =>
-      getComputedStyle(element)
-        .getPropertyValue('--story-perspective-x')
-        .trim(),
+      getComputedStyle(element).getPropertyValue('--story-perspective-x').trim(),
     );
 
     await moveToChapter(page, '02');
     await expect
-      .poll(
-        () => camera.evaluate((element) => getComputedStyle(element).transform),
-        {
-          timeout: 10_000,
-        },
-      )
+      .poll(() => camera.evaluate((element) => getComputedStyle(element).transform), {
+        timeout: 10_000,
+      })
       .not.toBe(initialTransform);
     await expect
       .poll(
         () =>
           story.evaluate((element) =>
-            getComputedStyle(element)
-              .getPropertyValue('--story-perspective-x')
-              .trim(),
+            getComputedStyle(element).getPropertyValue('--story-perspective-x').trim(),
           ),
         { timeout: 10_000 },
       )
@@ -170,10 +142,7 @@ test.describe('Home V2 spatial scroll story', () => {
     });
     await expect(story).toHaveAttribute('data-story-mask', 'static');
     await expect(story).toHaveAttribute('data-story-camera', 'static');
-    await expect(story).toHaveAttribute(
-      'data-story-transition-engine',
-      'static',
-    );
+    await expect(story).toHaveAttribute('data-story-transition-engine', 'static');
     await expect(story.locator('[data-anime-story-scene]')).toHaveCount(3);
     for (const scene of await story.locator('[data-anime-story-scene]').all()) {
       await expect(scene).toBeVisible();
@@ -181,15 +150,10 @@ test.describe('Home V2 spatial scroll story', () => {
     }
     await expect(story.locator('.anime-depth-flybys')).toBeHidden();
     await expect(story.locator('[data-chapter-gate]')).toHaveCount(0);
-    await expect(page.locator('html')).toHaveAttribute(
-      'data-motion-ready',
-      'reduced',
-    );
+    await expect(page.locator('html')).toHaveAttribute('data-motion-ready', 'reduced');
   });
 
-  test('provides the same three-scene structure in every locale', async ({
-    page,
-  }, testInfo) => {
+  test('provides the same three-scene structure in every locale', async ({ page }, testInfo) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await page.addInitScript(() => {
       localStorage.setItem('ivuru-theme', 'dark');
@@ -202,9 +166,7 @@ test.describe('Home V2 spatial scroll story', () => {
       await expect(story).toBeVisible();
       await expect(story).toHaveAttribute(
         'data-story-snap',
-        testInfo.project.use.isMobile
-          ? 'disabled-mobile'
-          : 'labels-directional',
+        testInfo.project.use.isMobile ? 'disabled-mobile' : 'labels-directional',
         { timeout: 10_000 },
       );
       await expect(story.locator('[data-anime-story-scene]')).toHaveCount(3);

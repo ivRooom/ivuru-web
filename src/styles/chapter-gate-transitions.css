@@ -42,11 +42,7 @@
       rgb(255 78 217 / 9%) 75%,
       transparent 78%
     ),
-    radial-gradient(
-      circle at 50% 50%,
-      rgb(1 11 34 / 12%),
-      rgb(0 3 17 / 92%) 72%
-    );
+    radial-gradient(circle at 50% 50%, rgb(1 11 34 / 12%), rgb(0 3 17 / 92%) 72%);
   mix-blend-mode: screen;
 }
 
@@ -71,8 +67,7 @@
   border-radius: 50%;
   transform-style: preserve-3d;
   transform: translate3d(-50%, -50%, 0);
-  filter: drop-shadow(0 0 34px rgb(87 221 255 / 48%))
-    drop-shadow(0 0 110px rgb(95 75 255 / 32%));
+  filter: drop-shadow(0 0 34px rgb(87 221 255 / 48%)) drop-shadow(0 0 110px rgb(95 75 255 / 32%));
 }
 
 .anime-chapter-gate__core {
@@ -173,14 +168,8 @@
   z-index: 6;
   width: 62%;
   background:
-    linear-gradient(
-      132deg,
-      transparent 0 48%,
-      rgb(121 239 255 / 24%) 48.4% 49%,
-      transparent 49.4%
-    ),
-    radial-gradient(circle at 50% 50%, rgb(33 131 255 / 28%), transparent 45%),
-    #020617;
+    linear-gradient(132deg, transparent 0 48%, rgb(121 239 255 / 24%) 48.4% 49%, transparent 49.4%),
+    radial-gradient(circle at 50% 50%, rgb(33 131 255 / 28%), transparent 45%), #020617;
   box-shadow: 0 0 90px rgb(68 193 255 / 20%);
 }
 
@@ -248,8 +237,7 @@
 
 .anime-scroll-story[data-story-transition-phase='collapse'] .anime-story-chrome,
 .anime-scroll-story[data-story-transition-phase='burst'] .anime-story-chrome,
-.anime-scroll-story[data-story-transition-phase='collapse']
-  .anime-story-progress,
+.anime-scroll-story[data-story-transition-phase='collapse'] .anime-story-progress,
 .anime-scroll-story[data-story-transition-phase='burst'] .anime-story-progress,
 .anime-scroll-story[data-story-transition-phase='collapse'] .anime-scroll-cue,
 .anime-scroll-story[data-story-transition-phase='burst'] .anime-scroll-cue {

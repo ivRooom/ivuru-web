@@ -52,21 +52,15 @@ export default function SpatialCameraEnhancer() {
 
     const setup = async () => {
       cleanup();
-      const root = document.querySelector<HTMLElement>(
-        '[data-anime-scroll-story]',
-      );
-      const camera = root?.querySelector<HTMLElement>(
-        '[data-story-camera-rig]',
-      );
+      const root = document.querySelector<HTMLElement>('[data-anime-scroll-story]');
+      const camera = root?.querySelector<HTMLElement>('[data-story-camera-rig]');
       if (!root || !camera) return;
 
       activeRoot = root;
       if (reducedMotion.matches) return;
       root.dataset.spatialCameraReady = 'pending';
 
-      const flybys = Array.from(
-        root.querySelectorAll<HTMLElement>('[data-story-flyby]'),
-      );
+      const flybys = Array.from(root.querySelectorAll<HTMLElement>('[data-story-flyby]'));
       const frontLayers = Array.from(
         root.querySelectorAll<HTMLElement>('[data-story-depth="front"]'),
       );
@@ -75,15 +69,13 @@ export default function SpatialCameraEnhancer() {
         import('gsap'),
         import('gsap/ScrollTrigger'),
       ]);
-      if (token !== generation || !root.isConnected || reducedMotion.matches)
-        return;
+      if (token !== generation || !root.isConnected || reducedMotion.matches) return;
 
       const gsap = gsapModule.gsap;
       const ScrollTrigger = triggerModule.ScrollTrigger;
       const compact = compactViewport.matches;
       const distance = compact ? 0.46 : 1;
-      const scrollLength = () =>
-        `+=${Math.round(innerHeight * (compact ? 5.7 : 7.2))}`;
+      const scrollLength = () => `+=${Math.round(innerHeight * (compact ? 5.7 : 7.2))}`;
       gsap.registerPlugin(ScrollTrigger);
 
       root.dataset.storyCamera = 'multi-axis';
@@ -189,17 +181,12 @@ export default function SpatialCameraEnhancer() {
             },
             start,
           );
-          timeline.to(
-            flyby,
-            { autoAlpha: 0, duration: 0.12 },
-            start + (compact ? 0.34 : 0.46),
-          );
+          timeline.to(flyby, { autoAlpha: 0, duration: 0.12 }, start + (compact ? 0.34 : 0.46));
         });
       }, root);
 
       const syncPinnedStory = (attempt = 0) => {
-        if (token !== generation || !root.isConnected || reducedMotion.matches)
-          return;
+        if (token !== generation || !root.isConnected || reducedMotion.matches) return;
         const pinnedStory = ScrollTrigger.getAll().find((trigger) => {
           const vars = trigger.vars as MutableTriggerVars;
           return vars.trigger === root && vars.pin === root;
@@ -207,10 +194,7 @@ export default function SpatialCameraEnhancer() {
 
         if (!pinnedStory) {
           if (attempt < 30) {
-            syncTimer = window.setTimeout(
-              () => syncPinnedStory(attempt + 1),
-              160,
-            );
+            syncTimer = window.setTimeout(() => syncPinnedStory(attempt + 1), 160);
           }
           return;
         }

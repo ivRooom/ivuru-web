@@ -8,9 +8,7 @@ describe('world forge chapter transition contract', () => {
   it('01→02→03を共通のポータル前進軸で受け渡す', () => {
     const source = readSource('src/components/effects/AnimeScrollDirector.tsx');
 
-    expect(source).toContain(
-      "root.dataset.storyTransitionEngine = 'world-forge'",
-    );
+    expect(source).toContain("root.dataset.storyTransitionEngine = 'world-forge'");
     expect(source).toContain("root.dataset.storyAxis = 'portal-forward'");
     expect(source).toContain('const CHAPTER_SEGMENT = 2.4');
     expect(source).toContain('const CHAPTER_HOLD = 1.04');
@@ -34,14 +32,10 @@ describe('world forge chapter transition contract', () => {
   });
 
   it('カメラ軌道を安定化しピン距離を章演出へ同期する', () => {
-    const source = readSource(
-      'src/components/effects/SpatialCameraEnhancer.tsx',
-    );
+    const source = readSource('src/components/effects/SpatialCameraEnhancer.tsx');
 
     expect(source).toContain("root.dataset.storyCamera = 'multi-axis'");
-    expect(source).toContain(
-      "root.dataset.storyCameraPath = 'portal-forward-stabilized'",
-    );
+    expect(source).toContain("root.dataset.storyCameraPath = 'portal-forward-stabilized'");
     expect(source).toContain('compact ? 5.7 : 7.2');
     expect(source).toContain('pinnedStory.refresh()');
     expect(source).toContain("root.dataset.spatialCameraReady = 'true'");

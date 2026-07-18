@@ -39,18 +39,14 @@ const readStoryElements = (): StoryElements | null => {
   const stage = root?.querySelector<HTMLElement>('.anime-story-stage');
   if (!root || !stage) return null;
 
-  const scenes = Array.from(
-    root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'),
-  );
+  const scenes = Array.from(root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'));
   if (scenes.length !== 3) return null;
 
   return {
     root,
     stage,
     scenes,
-    dots: Array.from(
-      root.querySelectorAll<HTMLElement>('[data-story-progress-dot]'),
-    ),
+    dots: Array.from(root.querySelectorAll<HTMLElement>('[data-story-progress-dot]')),
     readout: root.querySelector<HTMLElement>('[data-story-chapter-readout]'),
     progressLine: root.querySelector<HTMLElement>('[data-story-progress-line]'),
   };
@@ -107,8 +103,7 @@ const createGate = (stage: HTMLElement): GateElements => {
   ).join('');
   rays.innerHTML = Array.from(
     { length: GATE_RAY_COUNT },
-    (_, index) =>
-      `<i style="--gate-index:${index};--gate-thickness:${(index % 3) + 1}px"></i>`,
+    (_, index) => `<i style="--gate-index:${index};--gate-thickness:${(index % 3) + 1}px"></i>`,
   ).join('');
   shards.innerHTML = Array.from(
     { length: GATE_SHARD_COUNT },
@@ -126,18 +121,10 @@ const createGate = (stage: HTMLElement): GateElements => {
     root: gate,
     backdrop: required('[data-gate-backdrop]'),
     iris: required('[data-gate-iris]'),
-    rings: Array.from(
-      gate.querySelectorAll<HTMLElement>('[data-gate-rings] > i'),
-    ),
-    blades: Array.from(
-      gate.querySelectorAll<HTMLElement>('[data-gate-blades] > i'),
-    ),
-    rays: Array.from(
-      gate.querySelectorAll<HTMLElement>('[data-gate-rays] > i'),
-    ),
-    shards: Array.from(
-      gate.querySelectorAll<HTMLElement>('[data-gate-shards] > i'),
-    ),
+    rings: Array.from(gate.querySelectorAll<HTMLElement>('[data-gate-rings] > i')),
+    blades: Array.from(gate.querySelectorAll<HTMLElement>('[data-gate-blades] > i')),
+    rays: Array.from(gate.querySelectorAll<HTMLElement>('[data-gate-rays] > i')),
+    shards: Array.from(gate.querySelectorAll<HTMLElement>('[data-gate-shards] > i')),
     shutterLeft: required('[data-gate-shutter-left]'),
     shutterRight: required('[data-gate-shutter-right]'),
     flash: required('[data-gate-flash]'),
@@ -222,12 +209,7 @@ export default function AnimeScrollDirector() {
       restoreBodyScene();
     };
 
-    const setStaticMode = ({
-      root,
-      scenes,
-      dots,
-      progressLine,
-    }: StoryElements) => {
+    const setStaticMode = ({ root, scenes, dots, progressLine }: StoryElements) => {
       root.dataset.storyMode = 'static';
       root.dataset.storyMask = 'static';
       root.dataset.storyPerformance = 'static';
@@ -259,12 +241,7 @@ export default function AnimeScrollDirector() {
         import('gsap'),
         import('gsap/ScrollTrigger'),
       ]);
-      if (
-        token !== generation ||
-        reducedMotion.matches ||
-        !elements.root.isConnected
-      )
-        return;
+      if (token !== generation || reducedMotion.matches || !elements.root.isConnected) return;
 
       const gsap = gsapModule.gsap;
       const ScrollTrigger = triggerModule.ScrollTrigger;
@@ -273,8 +250,7 @@ export default function AnimeScrollDirector() {
       const { root, stage, scenes, dots, readout, progressLine } = elements;
       const compact = compactViewport.matches;
       const storyDuration = CHAPTER_SEGMENT * (scenes.length - 1) + 1.2;
-      const scrollLength = () =>
-        `+=${Math.round(innerHeight * (compact ? 5.7 : 7.2))}`;
+      const scrollLength = () => `+=${Math.round(innerHeight * (compact ? 5.7 : 7.2))}`;
       let activeIndex = -1;
       let activeTransition = '';
 
@@ -284,9 +260,7 @@ export default function AnimeScrollDirector() {
       root.dataset.storyCamera = 'multi-axis';
       root.dataset.storyTransitionEngine = 'world-forge';
       root.dataset.storyAxis = 'portal-forward';
-      root.dataset.storySnap = compact
-        ? 'disabled-mobile'
-        : 'labels-directional';
+      root.dataset.storySnap = compact ? 'disabled-mobile' : 'labels-directional';
       root.dataset.storySnapState = 'ready';
       const chapterGate = createGate(stage);
       gate = chapterGate;
@@ -296,14 +270,12 @@ export default function AnimeScrollDirector() {
         if (nextIndex === activeIndex) return;
         activeIndex = nextIndex;
         root.dataset.storyChapter = String(nextIndex + 1).padStart(2, '0');
-        document.body.dataset.animeScene =
-          scenes[nextIndex]?.dataset.storyScene ?? 'ice';
+        document.body.dataset.animeScene = scenes[nextIndex]?.dataset.storyScene ?? 'ice';
         setSceneState(scenes, nextIndex);
         dots.forEach((dot, dotIndex) => {
           dot.dataset.active = dotIndex === nextIndex ? 'true' : 'false';
         });
-        if (readout)
-          readout.textContent = `${String(nextIndex + 1).padStart(2, '0')} / 03`;
+        if (readout) readout.textContent = `${String(nextIndex + 1).padStart(2, '0')} / 03`;
       };
 
       const updateState = (storyTime: number) => {
@@ -325,24 +297,14 @@ export default function AnimeScrollDirector() {
         activeTransition = transitionKey;
         root.dataset.storyTransition = transitionKey;
         root.dataset.storyTransitionPhase = transition.phase;
-        root.style.setProperty(
-          '--chapter-gate-progress',
-          transition.ratio.toFixed(4),
-        );
-        chapterGate.number.textContent = String(transition.index + 2).padStart(
-          2,
-          '0',
-        );
+        root.style.setProperty('--chapter-gate-progress', transition.ratio.toFixed(4));
+        chapterGate.number.textContent = String(transition.index + 2).padStart(2, '0');
         chapterGate.title.textContent =
-          transition.index === 0
-            ? 'WORLD FORGE / BUILD'
-            : 'NEXUS LINK / CONNECT';
+          transition.index === 0 ? 'WORLD FORGE / BUILD' : 'NEXUS LINK / CONNECT';
       };
 
       activate(0);
-      const progressSetter = progressLine
-        ? gsap.quickSetter(progressLine, 'scaleX')
-        : null;
+      const progressSetter = progressLine ? gsap.quickSetter(progressLine, 'scaleX') : null;
 
       context = gsap.context(() => {
         const timeline = gsap.timeline({
@@ -391,12 +353,7 @@ export default function AnimeScrollDirector() {
 
         gsap.set(chapterGate.root, { autoAlpha: 0, force3D: true });
         gsap.set(
-          [
-            chapterGate.flash,
-            chapterGate.backdrop,
-            ...chapterGate.rays,
-            ...chapterGate.shards,
-          ],
+          [chapterGate.flash, chapterGate.backdrop, ...chapterGate.rays, ...chapterGate.shards],
           { autoAlpha: 0 },
         );
         gsap.set([chapterGate.shutterLeft, chapterGate.shutterRight], {
@@ -415,16 +372,11 @@ export default function AnimeScrollDirector() {
           timeline.set(
             chapterGate.title,
             {
-              textContent:
-                index === 0 ? 'WORLD FORGE / BUILD' : 'NEXUS LINK / CONNECT',
+              textContent: index === 0 ? 'WORLD FORGE / BUILD' : 'NEXUS LINK / CONNECT',
             },
             start,
           );
-          timeline.to(
-            chapterGate.root,
-            { autoAlpha: 1, duration: 0.12 },
-            start,
-          );
+          timeline.to(chapterGate.root, { autoAlpha: 1, duration: 0.12 }, start);
           timeline.fromTo(
             chapterGate.iris,
             { scale: 0.16, z: -500, rotateZ: index % 2 === 0 ? -120 : 120 },
@@ -479,11 +431,7 @@ export default function AnimeScrollDirector() {
             { autoAlpha: 1, scale: 1.25, duration: 0.08, ease: 'power4.out' },
             start + 0.49,
           );
-          timeline.to(
-            chapterGate.backdrop,
-            { autoAlpha: 0.86, duration: 0.12 },
-            start + 0.47,
-          );
+          timeline.to(chapterGate.backdrop, { autoAlpha: 0.86, duration: 0.12 }, start + 0.47);
           timeline.fromTo(
             chapterGate.rays,
             { autoAlpha: 0, scaleX: 0.04, xPercent: -50 },
@@ -501,10 +449,8 @@ export default function AnimeScrollDirector() {
             },
             {
               autoAlpha: 0.86,
-              x: (shardIndex: number) =>
-                Math.cos(shardIndex * 1.71) * (compact ? 170 : 360),
-              y: (shardIndex: number) =>
-                Math.sin(shardIndex * 1.37) * (compact ? 150 : 280),
+              x: (shardIndex: number) => Math.cos(shardIndex * 1.71) * (compact ? 170 : 360),
+              y: (shardIndex: number) => Math.sin(shardIndex * 1.37) * (compact ? 150 : 280),
               z: (shardIndex: number) => 150 + (shardIndex % 4) * 90,
               rotateZ: (shardIndex: number) => shardIndex * 47,
               scale: 1.2,
@@ -530,12 +476,7 @@ export default function AnimeScrollDirector() {
             start + 0.62,
           );
           timeline.to(
-            [
-              chapterGate.flash,
-              chapterGate.backdrop,
-              ...chapterGate.rays,
-              ...chapterGate.shards,
-            ],
+            [chapterGate.flash, chapterGate.backdrop, ...chapterGate.rays, ...chapterGate.shards],
             { autoAlpha: 0, duration: 0.34 },
             start + 0.7,
           );
@@ -551,11 +492,7 @@ export default function AnimeScrollDirector() {
             },
             start + 0.72,
           );
-          timeline.to(
-            chapterGate.root,
-            { autoAlpha: 0, duration: 0.18 },
-            start + 1.06,
-          );
+          timeline.to(chapterGate.root, { autoAlpha: 0, duration: 0.18 }, start + 1.06);
         });
 
         timeline.addLabel('story-end', storyDuration);
@@ -585,8 +522,7 @@ export default function AnimeScrollDirector() {
         dot.dataset.active = index === 0 ? 'true' : 'false';
       });
       if (elements.readout) elements.readout.textContent = '01 / 03';
-      document.body.dataset.animeScene =
-        elements.scenes[0]?.dataset.storyScene ?? 'ice';
+      document.body.dataset.animeScene = elements.scenes[0]?.dataset.storyScene ?? 'ice';
       elements.root.dataset.storyMode = 'booting';
       elements.root.dataset.storyMask = 'active';
       elements.root.dataset.storyInView = 'false';
@@ -599,9 +535,7 @@ export default function AnimeScrollDirector() {
       observer = new IntersectionObserver(
         ([entry]) => {
           if (!entry) return;
-          elements.root.dataset.storyInView = entry.isIntersecting
-            ? 'true'
-            : 'false';
+          elements.root.dataset.storyInView = entry.isIntersecting ? 'true' : 'false';
           if (entry.isIntersecting) void initializeMotion(elements, token);
         },
         { root: null, rootMargin: '110% 0px 110% 0px', threshold: 0 },
