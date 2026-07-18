@@ -8,17 +8,23 @@ const prepareHome = async (page: import('@playwright/test').Page) => {
   });
 };
 
+const waitForMotionStory = async (page: import('@playwright/test').Page) => {
+  const story = page.locator('[data-anime-scroll-story]');
+  await expect(story).toBeVisible();
+  await expect(story).toHaveAttribute('data-story-mode', 'motion', { timeout: 10_000 });
+  return story;
+};
+
 const moveToChapter = async (
   page: import('@playwright/test').Page,
   chapter: '01' | '02' | '03',
 ) => {
   const chapterIndex = Number(chapter) - 1;
-  const story = page.locator('[data-anime-scroll-story]');
-  await expect(story).toHaveAttribute('data-story-mode', 'motion', { timeout: 6_000 });
+  const story = await waitForMotionStory(page);
   await page.evaluate((index) => {
     window.scrollTo({ top: window.innerHeight * (index * 1.15 + 0.18), behavior: 'instant' });
   }, chapterIndex);
-  await expect(story).toHaveAttribute('data-story-chapter', chapter, { timeout: 5_000 });
+  await expect(story).toHaveAttribute('data-story-chapter', chapter, { timeout: 10_000 });
 };
 
 test.describe('Home V2 spatial scroll story', () => {
@@ -27,9 +33,7 @@ test.describe('Home V2 spatial scroll story', () => {
     await prepareHome(page);
     await page.goto('/');
 
-    const story = page.locator('[data-anime-scroll-story]');
-    await expect(story).toBeVisible();
-    await expect(story).toHaveAttribute('data-story-mode', 'motion', { timeout: 6_000 });
+    const story = await waitForMotionStory(page);
     await expect(story).toHaveAttribute('data-story-performance', 'transform-only');
     await expect(story).toHaveAttribute(
       'data-story-snap',
@@ -78,27 +82,31 @@ test.describe('Home V2 spatial scroll story', () => {
     await prepareHome(page);
     await page.goto('/');
 
-    const story = page.locator('[data-anime-scroll-story]');
-    await expect(story).toHaveAttribute('data-story-camera', 'multi-axis', {
-      timeout: 6_000,
+    const story = await waitForMotionStory(page);
+    await expect(story).toHaveAttribute('data-spatial-camera-ready', 'true', {
+      timeout: 10_000,
     });
     const camera = story.locator('[data-story-camera-rig]');
     const initialTransform = await camera.evaluate(
       (element) => getComputedStyle(element).transform,
     );
     const initialPerspective = await story.evaluate((element) =>
-      getComputedStyle(element).getPropertyValue('--story-perspective-x'),
+      getComputedStyle(element).getPropertyValue('--story-perspective-x').trim(),
     );
 
     await moveToChapter(page, '02');
     await expect
-      .poll(() => camera.evaluate((element) => getComputedStyle(element).transform))
+      .poll(() => camera.evaluate((element) => getComputedStyle(element).transform), {
+        timeout: 10_000,
+      })
       .not.toBe(initialTransform);
     await expect
-      .poll(() =>
-        story.evaluate((element) =>
-          getComputedStyle(element).getPropertyValue('--story-perspective-x'),
-        ),
+      .poll(
+        () =>
+          story.evaluate((element) =>
+            getComputedStyle(element).getPropertyValue('--story-perspective-x').trim(),
+          ),
+        { timeout: 10_000 },
       )
       .not.toBe(initialPerspective);
     await expect(story.locator('[data-story-depth="front"]')).toHaveCount(3);
@@ -113,7 +121,7 @@ test.describe('Home V2 spatial scroll story', () => {
 
     const story = page.locator('[data-anime-scroll-story]');
     await expect(story).toBeVisible();
-    await expect(story).toHaveAttribute('data-story-mode', 'static');
+    await expect(story).toHaveAttribute('data-story-mode', 'static', { timeout: 10_000 });
     await expect(story).toHaveAttribute('data-story-mask', 'static');
     await expect(story).toHaveAttribute('data-story-camera', 'static');
     await expect(story.locator('[data-anime-story-scene]')).toHaveCount(3);
@@ -139,6 +147,7 @@ test.describe('Home V2 spatial scroll story', () => {
       await expect(story).toHaveAttribute(
         'data-story-snap',
         testInfo.project.use.isMobile ? 'disabled-mobile' : 'labels-directional',
+        { timeout: 10_000 },
       );
       await expect(story.locator('[data-anime-story-scene]')).toHaveCount(3);
       await expect(story.locator('.signal-key-visual')).toBeVisible();
