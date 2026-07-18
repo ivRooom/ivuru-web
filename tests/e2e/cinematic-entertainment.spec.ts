@@ -31,7 +31,9 @@ test.describe('Home V2 cinematic entertainment', () => {
     const initialProgress = await story.evaluate((element) =>
       getComputedStyle(element).getPropertyValue('--entertainment-progress'),
     );
-    await page.evaluate(() => window.scrollTo({ top: window.innerHeight * 1.35, behavior: 'instant' }));
+    await page.evaluate(() =>
+      window.scrollTo({ top: window.innerHeight * 1.35, behavior: 'instant' }),
+    );
     await expect
       .poll(() =>
         story.evaluate((element) =>
