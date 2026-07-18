@@ -58,11 +58,16 @@ export default function StoryProgressAuthority() {
       };
 
       const nativeRange = () => {
-        const spacer = root.parentElement?.classList.contains('pin-spacer') ? root.parentElement : null;
+        const spacer = root.parentElement?.classList.contains('pin-spacer')
+          ? root.parentElement
+          : null;
         const anchor = spacer ?? root;
         const rect = anchor.getBoundingClientRect();
         const start = rect.top + window.scrollY;
-        const distance = Math.max(window.innerHeight * 5.7, anchor.scrollHeight - window.innerHeight);
+        const distance = Math.max(
+          window.innerHeight * 5.7,
+          anchor.scrollHeight - window.innerHeight,
+        );
         return { start, end: start + distance };
       };
 
