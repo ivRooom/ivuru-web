@@ -105,6 +105,47 @@ const copy = {
       }
     </div>
 
+    <div class="anime-cinematic-curtain" aria-hidden="true">
+      <span></span><span></span>
+    </div>
+
+    <div class="anime-entertainment-layer" data-entertainment-layer aria-hidden="true">
+      <span class="anime-entertainment-flare" data-entertainment-flash></span>
+
+      <div class="anime-warp-rings">
+        <span class="anime-warp-ring" data-entertainment-ring></span>
+        <span class="anime-warp-ring" data-entertainment-ring></span>
+        <span class="anime-warp-ring" data-entertainment-ring></span>
+        <span class="anime-warp-ring" data-entertainment-ring></span>
+        <span class="anime-warp-ring" data-entertainment-ring></span>
+        <span class="anime-warp-ring" data-entertainment-ring></span>
+      </div>
+
+      <div class="anime-comet-field">
+        <i class="anime-comet" data-entertainment-comet></i>
+        <i class="anime-comet" data-entertainment-comet></i>
+        <i class="anime-comet" data-entertainment-comet></i>
+        <i class="anime-comet" data-entertainment-comet></i>
+        <i class="anime-comet" data-entertainment-comet></i>
+        <i class="anime-comet" data-entertainment-comet></i>
+      </div>
+
+      <div class="anime-impact-slices">
+        <span class="anime-impact-slice" data-entertainment-slice></span>
+        <span class="anime-impact-slice" data-entertainment-slice></span>
+        <span class="anime-impact-slice" data-entertainment-slice></span>
+      </div>
+
+      <span class="anime-impact-shockwave" data-entertainment-shockwave></span>
+      <span class="anime-tap-shockwave"></span>
+
+      <div class="anime-kinetic-words">
+        <span class="anime-kinetic-word" data-entertainment-word>BUILD</span>
+        <span class="anime-kinetic-word" data-entertainment-word>PLAY</span>
+        <span class="anime-kinetic-word" data-entertainment-word>CONNECT</span>
+      </div>
+    </div>
+
     <div class="anime-story-camera" data-story-camera-rig>
       <article
         class="anime-story-scene is-opening"
@@ -156,7 +197,7 @@ const copy = {
         <div class="anime-story-copy" data-story-copy>
           <p>{copy.scenes[0].number} / {copy.scenes[0].chapter}</p>
           <h1 class="blue-media-title" data-glitch="いゔる。">
-            <span>いゔる。</span>
+            <span data-entertainment-title="いゔる。">いゔる。</span>
             <small>{copy.scenes[0].title}</small>
           </h1>
           <p class="anime-story-lede">{copy.scenes[0].body}</p>
@@ -205,6 +246,9 @@ const copy = {
           <p class="anime-story-lede">{copy.scenes[1].body}</p>
         </div>
         <div class="anime-build-device" data-story-visual aria-hidden="true">
+          <div class="anime-device-orbits" data-story-pop>
+            <i></i><i></i><i></i>
+          </div>
           <div class="anime-device-screen">
             <span class="anime-device-topbar"></span>
             <div class="anime-code-line line-a" data-story-pop></div>
@@ -242,6 +286,9 @@ const copy = {
           <p class="anime-story-lede">{copy.scenes[2].body}</p>
         </div>
         <div class="anime-community-emblem" data-story-visual aria-hidden="true">
+          <div class="anime-community-satellites" data-story-pop>
+            <i></i><i></i><i></i><i></i>
+          </div>
           <span class="anime-community-ring"></span>
           <strong>ivRm</strong>
           <small>COMMUNITY / CONNECTED</small>
