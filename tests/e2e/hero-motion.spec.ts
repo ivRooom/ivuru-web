@@ -79,7 +79,7 @@ test.describe('Home V2 spatial scroll story', () => {
     await page.goto('/');
 
     const story = page.locator('[data-anime-scroll-story]');
-    await expect(story).toHaveAttribute('data-story-camera', 'orbital-flythrough', {
+    await expect(story).toHaveAttribute('data-story-camera', 'multi-axis', {
       timeout: 6_000,
     });
     const camera = story.locator('[data-story-camera-rig]');
