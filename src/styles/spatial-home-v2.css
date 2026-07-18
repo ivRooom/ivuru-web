@@ -131,8 +131,8 @@
   overflow: clip;
 }
 
-.anime-story-after > .section,
-.anime-story-after > section.section {
+.anime-story-after > .anime-scene-anchor > .section,
+.anime-story-after > .anime-scene-anchor > section.section {
   padding-block: clamp(82px, 10vw, 132px);
 }
 
@@ -302,8 +302,8 @@
     display: none;
   }
 
-  .anime-story-after > .section,
-  .anime-story-after > section.section {
+  .anime-story-after > .anime-scene-anchor > .section,
+  .anime-story-after > .anime-scene-anchor > section.section {
     padding-block: 72px;
   }
 
