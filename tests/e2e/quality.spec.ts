@@ -28,8 +28,12 @@ test('analytics bridge emits one page view and an allowlisted Home V2 event with
   await expect(page.locator('.world-loader')).toBeHidden({ timeout: 4_000 });
   const portals = page.locator('.home-portals');
   await portals.scrollIntoViewIfNeeded();
-  await portals.locator('a').first().click();
-  await expect(page).toHaveURL(/\/works\/?$/);
+  const worksPortal = portals.locator('a[href="/works"]');
+  await expect(worksPortal).toBeVisible();
+  await Promise.all([
+    page.waitForURL(/\/works\/?$/, { timeout: 10_000 }),
+    worksPortal.click(),
+  ]);
 
   const events = await page.evaluate(
     () =>
