@@ -20,9 +20,7 @@ describe('cinematic entertainment contract', () => {
   });
 
   it('スクロール連動と操作時の衝撃波を決定的なパスで制御する', () => {
-    const director = readSource(
-      'src/components/effects/CinematicEntertainmentDirector.tsx',
-    );
+    const director = readSource('src/components/effects/CinematicEntertainmentDirector.tsx');
 
     expect(director).toContain("root.dataset.storyEntertainment = 'cinematic-impact'");
     expect(director).toContain('--entertainment-progress');
