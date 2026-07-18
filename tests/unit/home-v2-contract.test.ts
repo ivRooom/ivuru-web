@@ -28,6 +28,7 @@ describe('home page v2 contract', () => {
     expect(camera).toContain('[data-story-flyby]');
     expect(camera).toContain('[data-story-depth="front"]');
     expect(camera).toContain('z: 760 * distance');
+    expect(camera).toContain('syncPinnedStory(attempt + 1)');
     expect(styles).toContain('.anime-story-camera');
     expect(styles).toContain('.anime-depth-flybys');
     expect(styles).toContain('perspective-origin');
@@ -53,10 +54,14 @@ describe('home page v2 contract', () => {
 
   it('Reduced Motionでは追加3D演出を停止する', () => {
     const styles = readSource('src/styles/spatial-home-v2.css');
+    const mediaStart = styles.indexOf('@media (prefers-reduced-motion: reduce)');
+    const mediaEnd = styles.indexOf('/* Home V2 static and no-JS fallback */', mediaStart);
 
-    expect(styles).toContain('@media (prefers-reduced-motion: reduce)');
-    expect(styles).toContain('transform: none !important');
-    expect(styles).toContain('animation: none !important');
-    expect(styles).toContain('.anime-depth-flybys');
+    expect(mediaStart).toBeGreaterThanOrEqual(0);
+    expect(mediaEnd).toBeGreaterThan(mediaStart);
+    const reducedMotionBlock = styles.slice(mediaStart, mediaEnd);
+    expect(reducedMotionBlock).toContain('transform: none !important');
+    expect(reducedMotionBlock).toContain('animation: none !important');
+    expect(reducedMotionBlock).toContain('.anime-depth-flybys');
   });
 });
