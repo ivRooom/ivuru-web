@@ -1,0 +1,437 @@
+.anime-scroll-story {
+  --singularity-progress: 0;
+  --singularity-x: 73%;
+  --singularity-y: 48%;
+}
+
+.anime-singularity-overdrive {
+  position: absolute;
+  z-index: 38;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  perspective: 1300px;
+  transform-style: preserve-3d;
+  opacity: 0;
+}
+
+.anime-singularity-overdrive::before,
+.anime-singularity-overdrive::after {
+  position: absolute;
+  inset: -20%;
+  content: '';
+  pointer-events: none;
+}
+
+.anime-singularity-overdrive::before {
+  z-index: 1;
+  background:
+    conic-gradient(
+      from calc(-90deg + var(--singularity-progress) * 460deg) at var(--singularity-x)
+        var(--singularity-y),
+      transparent 0 8%,
+      rgb(88 230 255 / 14%) 10%,
+      transparent 13% 31%,
+      rgb(255 74 218 / 10%) 33%,
+      transparent 36% 62%,
+      rgb(126 96 255 / 13%) 64%,
+      transparent 68%
+    ),
+    radial-gradient(
+      circle at var(--singularity-x) var(--singularity-y),
+      transparent 0 8%,
+      rgb(107 236 255 / 7%) 13%,
+      transparent 28%,
+      rgb(3 7 24 / 64%) 62%,
+      rgb(0 2 10 / 92%) 82%
+    );
+  mix-blend-mode: screen;
+  opacity: calc(0.28 + var(--singularity-progress) * 0.34);
+  transform: rotate(calc(var(--singularity-progress) * 26deg));
+}
+
+.anime-singularity-overdrive::after {
+  z-index: 32;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 6px,
+    rgb(108 231 255 / 6%) 7px,
+    transparent 8px 15px
+  );
+  mix-blend-mode: screen;
+  opacity: calc(var(--singularity-progress) * 0.12);
+  transform: skewX(-12deg) translateX(calc(var(--singularity-progress) * 18px));
+}
+
+.anime-singularity-void,
+.anime-singularity-chromatic,
+.anime-singularity-whiteout {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.anime-singularity-void {
+  z-index: 2;
+  background:
+    radial-gradient(
+      circle at var(--singularity-x) var(--singularity-y),
+      transparent 0 3%,
+      rgb(0 2 12 / 42%) 11%,
+      rgb(0 2 12 / 84%) 32%,
+      rgb(0 1 8 / 96%) 62%,
+      rgb(0 0 5 / 98%) 100%
+    ),
+    linear-gradient(110deg, rgb(1 3 14 / 80%), rgb(2 8 28 / 62%));
+}
+
+.anime-singularity-core,
+.anime-singularity-lens,
+.anime-singularity-ray,
+.anime-singularity-fragment,
+.anime-singularity-chromatic {
+  will-change: transform, opacity;
+}
+
+.anime-singularity-core {
+  position: absolute;
+  z-index: 22;
+  top: var(--singularity-y);
+  left: var(--singularity-x);
+  width: clamp(86px, 10vw, 172px);
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  transform-style: preserve-3d;
+}
+
+.anime-singularity-core > span {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.anime-singularity-core-halo {
+  inset: -72%;
+  background:
+    conic-gradient(
+      from 0deg,
+      transparent 0 10%,
+      rgb(101 237 255 / 78%) 12%,
+      transparent 15% 38%,
+      rgb(255 82 224 / 64%) 42%,
+      transparent 47% 70%,
+      rgb(127 97 255 / 72%) 73%,
+      transparent 78%
+    ),
+    radial-gradient(circle, rgb(94 223 255 / 22%), transparent 66%);
+  filter: blur(10px);
+  mix-blend-mode: screen;
+  animation: singularity-halo-spin 2.4s linear infinite;
+}
+
+.anime-singularity-core-disc {
+  inset: -14%;
+  border: 1px solid rgb(184 247 255 / 72%);
+  background:
+    radial-gradient(circle, #fff 0 3%, #aaf5ff 5%, transparent 12%),
+    conic-gradient(
+      from 45deg,
+      rgb(111 235 255 / 86%),
+      transparent 13% 27%,
+      rgb(125 94 255 / 82%) 34%,
+      transparent 44% 64%,
+      rgb(255 80 216 / 74%) 72%,
+      transparent 82%
+    ),
+    radial-gradient(circle, rgb(5 18 55 / 94%) 0 48%, rgb(1 3 16 / 98%) 72%);
+  box-shadow:
+    inset 0 0 34px rgb(255 255 255 / 28%),
+    0 0 28px rgb(93 228 255 / 86%),
+    0 0 78px rgb(82 106 255 / 58%),
+    0 0 140px rgb(255 74 218 / 24%);
+  animation: singularity-disc-spin 1.55s linear infinite reverse;
+}
+
+.anime-singularity-core-star {
+  inset: 27%;
+  background: #fff;
+  clip-path: polygon(50% 0, 58% 38%, 100% 50%, 58% 62%, 50% 100%, 42% 62%, 0 50%, 42% 38%);
+  box-shadow:
+    0 0 14px #fff,
+    0 0 32px #a9f6ff,
+    0 0 68px #61dfff;
+  animation: singularity-star-pulse 620ms ease-in-out infinite alternate;
+}
+
+.anime-singularity-lenses,
+.anime-singularity-tunnel,
+.anime-singularity-fragments {
+  position: absolute;
+  z-index: 12;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+.anime-singularity-lens {
+  position: absolute;
+  top: var(--singularity-y);
+  left: var(--singularity-x);
+  width: calc(clamp(180px, 22vw, 390px) + var(--singularity-lens-index) * 58px);
+  aspect-ratio: 1;
+  border: 1px solid rgb(143 239 255 / 44%);
+  border-radius: 50%;
+  background:
+    conic-gradient(
+      from calc(var(--singularity-lens-index) * 37deg),
+      transparent 0 9%,
+      rgb(120 236 255 / 48%) 10% 11%,
+      transparent 12% 31%,
+      rgb(255 87 221 / 34%) 32% 34%,
+      transparent 35% 66%,
+      rgb(132 100 255 / 44%) 67% 68%,
+      transparent 69%
+    );
+  box-shadow:
+    inset 0 0 28px rgb(80 215 255 / 10%),
+    0 0 30px rgb(80 200 255 / 16%);
+  transform: translate(-50%, -50%);
+  transform-style: preserve-3d;
+}
+
+.anime-singularity-lens::before,
+.anime-singularity-lens::after {
+  position: absolute;
+  content: '';
+  border-radius: inherit;
+}
+
+.anime-singularity-lens::before {
+  inset: 6%;
+  border: 1px dashed rgb(214 249 255 / 26%);
+}
+
+.anime-singularity-lens::after {
+  inset: 18%;
+  border: 1px solid rgb(139 104 255 / 28%);
+  box-shadow: 0 0 18px rgb(113 91 255 / 12%);
+}
+
+.anime-singularity-tunnel {
+  z-index: 18;
+  perspective: 900px;
+}
+
+.anime-singularity-ray {
+  position: absolute;
+  top: var(--singularity-y);
+  left: var(--singularity-x);
+  width: 2px;
+  height: var(--singularity-ray-length);
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgb(122 235 255 / 18%) 14%,
+    rgb(222 252 255 / 96%) 70%,
+    #fff
+  );
+  box-shadow:
+    0 0 10px rgb(135 239 255 / 74%),
+    0 0 30px rgb(78 151 255 / 44%);
+  opacity: 0;
+  transform: translate(-50%, var(--singularity-ray-offset)) rotate(var(--singularity-ray-angle));
+  transform-origin: 50% 0;
+}
+
+.anime-singularity-ray:nth-child(3n) {
+  width: 1px;
+  background: linear-gradient(180deg, transparent, rgb(255 104 226 / 30%), #fff);
+}
+
+.anime-singularity-ray:nth-child(4n) {
+  width: 3px;
+  filter: blur(1px);
+}
+
+.anime-singularity-fragments {
+  z-index: 20;
+}
+
+.anime-singularity-fragment {
+  position: absolute;
+  top: var(--singularity-y);
+  left: var(--singularity-x);
+  width: var(--singularity-fragment-size);
+  aspect-ratio: 0.38;
+  background: linear-gradient(180deg, #fff, #76e8ff 42%, #765eff);
+  clip-path: polygon(50% 0, 100% 44%, 68% 100%, 0 72%);
+  box-shadow:
+    0 0 12px rgb(127 238 255 / 88%),
+    0 0 34px rgb(111 86 255 / 46%);
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(var(--singularity-fragment-angle));
+}
+
+.anime-singularity-title {
+  position: absolute;
+  z-index: 25;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: min(92vw, 1180px);
+  color: #fff;
+  text-align: center;
+  place-items: center;
+  transform: translate(-50%, -50%);
+  transform-style: preserve-3d;
+  mix-blend-mode: screen;
+}
+
+.anime-singularity-title-lead {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: rgb(179 245 255 / 88%);
+  font-size: clamp(0.62rem, 0.9vw, 0.9rem);
+  font-weight: 760;
+  letter-spacing: 0.52em;
+  text-shadow: 0 0 18px rgb(92 224 255 / 82%);
+}
+
+.anime-singularity-title-main {
+  display: block;
+  color: transparent;
+  background: linear-gradient(95deg, #fff 8%, #8ff0ff 36%, #9b7cff 68%, #ff72dc 92%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  font-size: clamp(3.4rem, 11vw, 10rem);
+  font-weight: 950;
+  line-height: 0.8;
+  letter-spacing: -0.085em;
+  -webkit-text-stroke: 1px rgb(255 255 255 / 36%);
+  text-shadow:
+    0 0 28px rgb(106 234 255 / 36%),
+    0 0 86px rgb(94 83 255 / 34%);
+  filter: drop-shadow(0 28px 48px rgb(0 2 16 / 72%));
+}
+
+.anime-singularity-chromatic {
+  z-index: 28;
+  top: var(--singularity-y);
+  left: var(--singularity-x);
+  width: min(48vw, 720px);
+  aspect-ratio: 1;
+  inset: auto;
+  border: 4px solid rgb(255 255 255 / 72%);
+  border-radius: 50%;
+  background:
+    conic-gradient(
+      from 0deg,
+      rgb(81 225 255 / 0%) 0 12%,
+      rgb(81 225 255 / 54%) 18%,
+      transparent 24% 44%,
+      rgb(255 70 216 / 44%) 50%,
+      transparent 57% 74%,
+      rgb(117 88 255 / 52%) 82%,
+      transparent 90%
+    ),
+    radial-gradient(circle, transparent 42%, rgb(255 255 255 / 22%) 46%, transparent 55%);
+  box-shadow:
+    -18px 0 48px rgb(53 225 255 / 52%),
+    18px 0 48px rgb(255 66 213 / 44%),
+    0 0 120px rgb(112 91 255 / 32%);
+  mix-blend-mode: screen;
+  transform: translate(-50%, -50%);
+}
+
+.anime-singularity-whiteout {
+  z-index: 40;
+  background: #fff;
+  mix-blend-mode: screen;
+}
+
+.anime-scroll-story[data-overdrive-phase='charge'] .anime-singularity-core-star {
+  animation-duration: 420ms;
+}
+
+.anime-scroll-story[data-overdrive-phase='collapse'] .anime-singularity-core-halo {
+  filter: blur(4px);
+}
+
+.anime-scroll-story[data-overdrive-phase='burst'] .anime-singularity-overdrive::after {
+  opacity: 0.28;
+}
+
+@keyframes singularity-halo-spin {
+  to {
+    transform: rotate(360deg) scale(1.08);
+  }
+}
+
+@keyframes singularity-disc-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes singularity-star-pulse {
+  from {
+    opacity: 0.74;
+    transform: scale(0.72) rotate(0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.18) rotate(45deg);
+  }
+}
+
+@media (max-width: 767px) {
+  .anime-scroll-story {
+    --singularity-x: 50%;
+    --singularity-y: 69%;
+  }
+
+  .anime-singularity-core {
+    width: clamp(72px, 22vw, 112px);
+  }
+
+  .anime-singularity-lens {
+    width: calc(clamp(150px, 46vw, 250px) + var(--singularity-lens-index) * 32px);
+  }
+
+  .anime-singularity-ray:nth-child(n + 17),
+  .anime-singularity-fragment:nth-child(n + 9) {
+    display: none;
+  }
+
+  .anime-singularity-title {
+    top: 43%;
+  }
+
+  .anime-singularity-title-lead {
+    margin-bottom: 0.2rem;
+    font-size: 0.56rem;
+    letter-spacing: 0.34em;
+  }
+
+  .anime-singularity-title-main {
+    font-size: clamp(3rem, 16vw, 5.4rem);
+  }
+
+  .anime-singularity-chromatic {
+    width: 76vw;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anime-singularity-overdrive,
+  .anime-singularity-core,
+  .anime-singularity-lens,
+  .anime-singularity-ray,
+  .anime-singularity-fragment,
+  .anime-singularity-title,
+  .anime-singularity-chromatic,
+  .anime-singularity-whiteout {
+    display: none !important;
+    animation: none !important;
+    transform: none !important;
+  }
+}
