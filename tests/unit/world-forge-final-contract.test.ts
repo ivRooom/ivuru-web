@@ -13,6 +13,8 @@ describe('World Forge final integration contract', () => {
     const loader = readSource('src/components/common/IntroLoader.astro');
 
     expect(home).toContain("import '@/styles/chapter-gate-transitions.css'");
+    expect(director).toContain("'[data-anime-scroll-stage]'");
+    expect(director).toContain("root.dataset.storyDirector = 'ready'");
     expect(director).toContain("root.dataset.storyAxis = 'portal-forward'");
     expect(camera).toContain("root.dataset.storyCameraPath = 'portal-forward-stabilized'");
     expect(loader).toContain('ENGINE: WORLD_FORGE / PORTAL_FORWARD');
