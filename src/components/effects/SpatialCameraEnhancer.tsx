@@ -21,19 +21,26 @@ export default function SpatialCameraEnhancer() {
     let context: RevertibleContext | undefined;
     let generation = 0;
     let syncTimer = 0;
+    let activeRoot: HTMLElement | undefined;
 
     const cleanup = () => {
       generation += 1;
       window.clearTimeout(syncTimer);
       context?.revert();
       context = undefined;
+      if (activeRoot) delete activeRoot.dataset.spatialCameraReady;
+      activeRoot = undefined;
     };
 
     const setup = async () => {
       cleanup();
       const root = document.querySelector<HTMLElement>('[data-anime-scroll-story]');
       const camera = root?.querySelector<HTMLElement>('[data-story-camera-rig]');
-      if (!root || !camera || reducedMotion.matches) return;
+      if (!root || !camera) return;
+
+      activeRoot = root;
+      if (reducedMotion.matches) return;
+      root.dataset.spatialCameraReady = 'pending';
 
       const flybys = Array.from(root.querySelectorAll<HTMLElement>('[data-story-flyby]'));
       const frontLayers = Array.from(
@@ -167,7 +174,7 @@ export default function SpatialCameraEnhancer() {
         });
 
         if (!pinnedStory) {
-          if (attempt < 12) {
+          if (attempt < 30) {
             syncTimer = window.setTimeout(() => syncPinnedStory(attempt + 1), 160);
           }
           return;
@@ -175,6 +182,7 @@ export default function SpatialCameraEnhancer() {
 
         (pinnedStory.vars as MutableTriggerVars).end = scrollLength;
         pinnedStory.refresh();
+        root.dataset.spatialCameraReady = 'true';
       };
 
       syncTimer = window.setTimeout(() => syncPinnedStory(), 160);
