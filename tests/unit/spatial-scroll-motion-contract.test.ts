@@ -12,10 +12,10 @@ describe('world forge chapter transition contract', () => {
     expect(source).toContain("root.dataset.storyAxis = 'portal-forward'");
     expect(source).toContain('const CHAPTER_SEGMENT = 2.4');
     expect(source).toContain('const CHAPTER_HOLD = 1.04');
-    expect(source).toContain("phase = 'charge'");
-    expect(source).toContain("? 'collapse'");
-    expect(source).toContain("? 'burst'");
-    expect(source).toContain(": 'reveal'");
+    expect(source).toContain("let phase = 'charge'");
+    expect(source).toContain("phase = 'collapse'");
+    expect(source).toContain("phase = 'burst'");
+    expect(source).toContain("phase = 'reveal'");
     expect(source).not.toContain('SPATIAL_SCENE_PROFILES');
   });
 
