@@ -11,3 +11,10 @@
     radial-gradient(circle at 50% 50%, transparent 34%, rgb(0 10 36 / 24%) 68%, rgb(0 4 18 / 68%));
   transform: translate3d(0, 0, -120px);
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .anime-opening-emblem .signal-key-frame,
+  .anime-opening-emblem .signal-key-mark {
+    transform: none !important;
+  }
+}
