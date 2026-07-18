@@ -1,4 +1,4 @@
-name: Export Entertainment Polish Format
+name: Publish Entertainment Polish Format
 
 on:
   pull_request:
@@ -7,33 +7,45 @@ on:
       - .github/workflows/export-entertainment-polish-format.yml
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  format:
+  publish:
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.ref }}
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: npm
-      - run: npm ci --silent
+      - name: 依存関係を安全に取得
+        run: npm ci --ignore-scripts --silent
       - name: Prettierで整形
         run: |
           npx prettier --write \
             src/styles/cinematic-entertainment-compat.css \
             src/styles/cinematic-entertainment-polish.css \
             src/components/pages/HomePageV2.astro
-      - name: 整形済みファイルを保存
-        uses: actions/upload-artifact@v4
-        with:
-          name: entertainment-polish-formatted
-          path: |
-            src/styles/cinematic-entertainment-compat.css
-            src/styles/cinematic-entertainment-polish.css
+          npx prettier --check \
+            src/styles/cinematic-entertainment-compat.css \
+            src/styles/cinematic-entertainment-polish.css \
             src/components/pages/HomePageV2.astro
-          retention-days: 1
+      - name: 整形結果を反映して一時ワークフローを削除
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            src/styles/cinematic-entertainment-compat.css \
+            src/styles/cinematic-entertainment-polish.css \
+            src/components/pages/HomePageV2.astro
+          git rm .github/workflows/export-entertainment-polish-format.yml
+          git commit -m "エンタメ演出の表示品質と整形を仕上げ"
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:${HEAD_REF}"
