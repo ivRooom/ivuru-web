@@ -1,24 +1,41 @@
 ---
+import '@/styles/quantum-gate-loader.css';
+
 type Locale = 'ja' | 'en' | 'ko';
 
 const { locale = 'ja' } = Astro.props as { locale?: Locale };
 const copy = {
   ja: {
-    label: 'いゔる。を読み込んでいます',
+    label: 'いゔる。のワールドゲートを起動しています',
     status: 'ページを読み込んでいます。',
-    phase: '空間エンジンを起動しています',
+    phases: [
+      '世界レイヤーを同期しています',
+      'チャプターゲートを構築しています',
+      'シンギュラリティを点火しています',
+      'ワールドリンクを開放しています',
+    ],
     tagline: 'BUILD. PLAY. CONNECT.',
   },
   en: {
-    label: 'Loading ivuru',
+    label: 'Opening the ivuru world gate',
     status: 'Loading the page.',
-    phase: 'Initializing spatial engine',
+    phases: [
+      'Synchronizing world layers',
+      'Forging the chapter gate',
+      'Igniting the singularity',
+      'Opening the world link',
+    ],
     tagline: 'BUILD. PLAY. CONNECT.',
   },
   ko: {
-    label: 'ivuru를 불러오는 중입니다',
+    label: 'ivuru 월드 게이트를 기동하는 중입니다',
     status: '페이지를 불러오는 중입니다.',
-    phase: '공간 엔진을 시작하는 중',
+    phases: [
+      '월드 레이어 동기화 중',
+      '챕터 게이트 구축 중',
+      '싱귤래리티 점화 중',
+      '월드 링크 개방 중',
+    ],
     tagline: 'BUILD. PLAY. CONNECT.',
   },
 }[locale];
@@ -33,93 +50,145 @@ const copy = {
 </noscript>
 
 <div
-  class="intro-loader world-loader anime-intro-loader spatial-loader"
+  class="intro-loader world-loader anime-intro-loader spatial-loader quantum-gate-loader"
   data-spatial-loader
-  style="--loader-progress: 0%;"
+  data-loader-theme="quantum-world-gate"
+  data-loader-phase="sync"
+  style="--loader-progress: 0%; --loader-progress-ratio: 0;"
 >
   <span class="sr-only" role="status" aria-live="polite" aria-atomic="true">
     {copy.status}
   </span>
 
-  <div class="spatial-loader__chrome" aria-hidden="true">
-    <span>IVURU / SPATIAL ENGINE</span>
-    <span>CSS PERSPECTIVE · 12 FACES</span>
+  <div class="quantum-loader__chrome" aria-hidden="true">
+    <span>IVURU / WORLD GATE OS</span>
+    <span>SEQUENCE 00 · SINGULARITY BOOT</span>
   </div>
 
-  <div class="spatial-loader__stage" aria-hidden="true">
-    <div class="spatial-scene">
-      <span class="spatial-halo"></span>
-      <span class="spatial-floor"></span>
-      <span class="spatial-axis spatial-axis--x"></span>
-      <span class="spatial-axis spatial-axis--y"></span>
+  <div class="quantum-loader__stage" aria-hidden="true">
+    <div class="quantum-loader__starfield">
+      {
+        Array.from({ length: 24 }, (_, index) => {
+          const x = 4 + ((index * 17) % 92);
+          const y = 8 + ((index * 13) % 82);
+          const size = 1 + (index % 3) * 0.7;
+          const driftX = (index % 2 === 0 ? -1 : 1) * (24 + (index % 5) * 14);
+          const driftY = ((index % 3) - 1) * (26 + (index % 4) * 12);
+          const duration = 3.8 + (index % 6) * 0.36;
+          return (
+            <i
+              style={`--star-index:${index};--star-x:${x}%;--star-y:${y}%;--star-size:${size}px;--star-drift-x:${driftX}px;--star-drift-y:${driftY}px;--star-duration:${duration}s`}
+            />
+          );
+        })
+      }
+    </div>
 
-      <div class="gyro gyro--outer"><i></i></div>
-      <div class="gyro gyro--middle"><i></i></div>
-      <div class="gyro gyro--inner"><i></i></div>
+    <div class="quantum-loader__tunnel">
+      {
+        Array.from({ length: 18 }, (_, index) => {
+          const x = 50 + ((index % 5) - 2) * 9;
+          const y = 50 + ((index % 6) - 3) * 8;
+          const angle = (index - 9) * 19;
+          const height = 1 + (index % 3);
+          return (
+            <i
+              style={`--tunnel-index:${index};--tunnel-x:${x}%;--tunnel-y:${y}%;--tunnel-angle:${angle}deg;--tunnel-height:${height}px`}
+            />
+          );
+        })
+      }
+    </div>
 
-      <div class="cube-rig">
-        <div class="glass-cube">
-          <span class="cube-face cube-face--front"></span>
-          <span class="cube-face cube-face--back"></span>
-          <span class="cube-face cube-face--right"></span>
-          <span class="cube-face cube-face--left"></span>
-          <span class="cube-face cube-face--top"></span>
-          <span class="cube-face cube-face--bottom"></span>
+    <div class="quantum-loader__gate">
+      <span class="quantum-loader__aura"></span>
+      <span class="quantum-loader__ring quantum-loader__ring--outer"></span>
+      <span class="quantum-loader__ring quantum-loader__ring--middle"></span>
+      <span class="quantum-loader__ring quantum-loader__ring--inner"></span>
 
-          <div class="energy-cube">
-            <span class="energy-face energy-face--front"></span>
-            <span class="energy-face energy-face--back"></span>
-            <span class="energy-face energy-face--right"></span>
-            <span class="energy-face energy-face--left"></span>
-            <span class="energy-face energy-face--top"></span>
-            <span class="energy-face energy-face--bottom"></span>
-          </div>
+      <div class="quantum-loader__blades">
+        {
+          Array.from({ length: 12 }, (_, index) => (
+            <i style={`--blade-index:${index}`} />
+          ))
+        }
+      </div>
+
+      <div class="quantum-loader__core">
+        <span class="quantum-loader__core-pulse"></span>
+        <span class="quantum-loader__core-grid"></span>
+        <div class="quantum-loader__mark">
+          <small>IVURU</small>
+          <strong>IV</strong>
+          <span>WORLD / 00</span>
         </div>
       </div>
 
-      <span class="depth-particle depth-particle--one"></span>
-      <span class="depth-particle depth-particle--two"></span>
-      <span class="depth-particle depth-particle--three"></span>
-      <span class="depth-particle depth-particle--four"></span>
+      <div class="quantum-loader__shards">
+        {
+          Array.from({ length: 10 }, (_, index) => {
+            const duration = 3.2 + (index % 4) * 0.4;
+            return (
+              <i
+                style={`--shard-index:${index};--shard-duration:${duration}s`}
+              />
+            );
+          })
+        }
+      </div>
+    </div>
+
+    <div class="quantum-loader__reticle">
+      <span></span><span></span><span></span><span></span>
     </div>
   </div>
 
-  <div class="spatial-loader__copy">
-    <p>{copy.phase}</p>
+  <div class="quantum-loader__copy">
+    <p data-loader-phase-text>{copy.phases[0]}</p>
     <strong>いゔる。</strong>
     <span>{copy.tagline}</span>
   </div>
 
-  <div class="spatial-loader__footer">
-    <div class="spatial-loader__metadata" aria-hidden="true">
-      <span>SYSTEM.STATUS: <b data-loader-state>LOADING</b></span>
-      <span>RENDER: CSS_3D / PRESERVE_3D</span>
+  <div class="quantum-loader__footer">
+    <div class="quantum-loader__metadata" aria-hidden="true">
+      <span>SYSTEM.STATUS: <b data-loader-state>SYNCING</b></span>
+      <span>ENGINE: WORLD_FORGE / PORTAL_FORWARD</span>
     </div>
 
     <div
-      class="spatial-loader__progress"
+      class="quantum-loader__progress"
       role="progressbar"
       aria-label={copy.label}
       aria-valuemin="0"
       aria-valuemax="100"
       aria-valuenow="0"
     >
-      <span><i></i></span>
+      <span class="quantum-loader__progress-track"><i></i></span>
       <b data-loader-progress>000</b>
     </div>
   </div>
+
+  <span
+    class="quantum-loader__curtain quantum-loader__curtain--left"
+    aria-hidden="true"></span>
+  <span
+    class="quantum-loader__curtain quantum-loader__curtain--right"
+    aria-hidden="true"></span>
+  <span class="quantum-loader__release-flash" aria-hidden="true"></span>
 </div>
 
-<script is:inline>
+<script is:inline define:vars={{ phases: copy.phases }}>
   (() => {
     const loader = document.querySelector('[data-spatial-loader]');
-    if (!(loader instanceof HTMLElement) || loader.dataset.bound === 'true') return;
+    if (!(loader instanceof HTMLElement) || loader.dataset.bound === 'true')
+      return;
     loader.dataset.bound = 'true';
 
     const root = document.documentElement;
     const progressbar = loader.querySelector('[role="progressbar"]');
     const progressText = loader.querySelector('[data-loader-progress]');
     const stateText = loader.querySelector('[data-loader-state]');
+    const phaseText = loader.querySelector('[data-loader-phase-text]');
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     if (root.dataset.loaderReleased === 'true') {
@@ -139,44 +208,71 @@ const copy = {
       }
     })();
 
-    const duration = reduced ? 60 : seen ? 680 : 1480;
-    const exitDuration = reduced ? 1 : 420;
+    const duration = reduced ? 80 : seen ? 820 : 1780;
+    const exitDuration = reduced ? 1 : 560;
     const startedAt = performance.now();
     let readyAt = document.readyState === 'complete' ? startedAt : null;
     let frame = 0;
     let released = false;
+    let activePhase = '';
+
+    const resolvePhase = (value) => {
+      if (value < 27) return { key: 'sync', index: 0, state: 'SYNCING' };
+      if (value < 61) return { key: 'forge', index: 1, state: 'FORGING' };
+      if (value < 91) return { key: 'ignite', index: 2, state: 'IGNITING' };
+      return { key: 'open', index: 3, state: 'OPENING' };
+    };
 
     const renderProgress = (value) => {
       const next = Math.max(0, Math.min(100, Math.round(value)));
       loader.style.setProperty('--loader-progress', `${next}%`);
+      loader.style.setProperty('--loader-progress-ratio', String(next / 100));
       progressbar?.setAttribute('aria-valuenow', String(next));
-      if (progressText) progressText.textContent = String(next).padStart(3, '0');
+      if (progressText)
+        progressText.textContent = String(next).padStart(3, '0');
+
+      const phase = resolvePhase(next);
+      if (activePhase === phase.key) return;
+      activePhase = phase.key;
+      loader.dataset.loaderPhase = phase.key;
+      if (stateText) stateText.textContent = phase.state;
+      if (phaseText) phaseText.textContent = phases[phase.index] ?? phases[0];
     };
 
     const release = () => {
       if (released) return;
       released = true;
       renderProgress(100);
-      loader.classList.add('loaded');
+      loader.dataset.loaderPhase = 'open';
       loader.dataset.state = 'ready';
-      if (stateText) stateText.textContent = 'READY';
+      if (stateText) stateText.textContent = 'WORLD LINK READY';
       root.dataset.loaderReleased = 'true';
+      loader.classList.add('loaded');
 
       window.setTimeout(() => {
         document.body.classList.remove('site-loading');
         loader.setAttribute('aria-hidden', 'true');
-        document.dispatchEvent(new CustomEvent('ivuru:loader-released'));
+        document.dispatchEvent(
+          new CustomEvent('ivuru:loader-released', {
+            detail: { reason: 'quantum-gate-open' },
+          }),
+        );
       }, exitDuration);
     };
 
     const tick = (now) => {
       const elapsed = now - startedAt;
-      const waiting = Math.min(90, (elapsed / Math.max(duration, 1)) * 90);
+      const waiting = Math.min(91, (elapsed / Math.max(duration, 1)) * 91);
       const readyRatio =
-        readyAt === null ? 0 : Math.min(1, (now - readyAt) / Math.max(duration * 0.16, 1));
+        readyAt === null
+          ? 0
+          : Math.min(1, (now - readyAt) / Math.max(duration * 0.14, 1));
       renderProgress(waiting + (100 - waiting) * readyRatio);
 
-      if ((readyAt !== null && elapsed >= duration) || elapsed >= duration + 450) {
+      if (
+        (readyAt !== null && elapsed >= duration) ||
+        elapsed >= duration + 420
+      ) {
         release();
         return;
       }
@@ -191,7 +287,8 @@ const copy = {
     document.body.classList.add('site-loading');
     loader.dataset.state = 'loading';
     renderProgress(0);
-    if (readyAt === null) window.addEventListener('load', markReady, { once: true });
+    if (readyAt === null)
+      window.addEventListener('load', markReady, { once: true });
     frame = requestAnimationFrame(tick);
 
     window.addEventListener(
@@ -205,644 +302,3 @@ const copy = {
     );
   })();
 </script>
-
-<style>
-  :global(.world-loader.anime-intro-loader.spatial-loader) {
-    --loader-bg: #07080b;
-    --loader-white: #f7fbff;
-    --loader-blue: #63d4ff;
-    --loader-cyan: #bdefff;
-    --loader-gold: #e8c878;
-    --loader-muted: rgb(226 235 245 / 48%);
-    --loader-line: rgb(190 226 255 / 18%);
-    --loader-ease: cubic-bezier(0.16, 1, 0.3, 1);
-
-    position: fixed;
-    z-index: 6000;
-    inset: 0;
-    display: grid;
-    grid-template-rows: auto 1fr auto auto;
-    box-sizing: border-box;
-    min-height: 100svh;
-    overflow: hidden;
-    padding: max(26px, env(safe-area-inset-top)) max(28px, env(safe-area-inset-right))
-      max(26px, env(safe-area-inset-bottom)) max(28px, env(safe-area-inset-left));
-    color: var(--loader-white);
-    background:
-      radial-gradient(circle at 50% 43%, rgb(48 161 213 / 13%), transparent 27%),
-      radial-gradient(circle at 50% 120%, rgb(55 111 147 / 10%), transparent 38%),
-      linear-gradient(155deg, #0a0b0f, #06070a 56%, #090a0d);
-    opacity: 1;
-    visibility: visible;
-    transform: translateZ(0) scale(1);
-    transition:
-      opacity 420ms var(--loader-ease),
-      visibility 420ms var(--loader-ease),
-      transform 560ms var(--loader-ease);
-    isolation: isolate;
-  }
-
-  :global(.world-loader.anime-intro-loader.spatial-loader::before) {
-    position: absolute;
-    inset: 0;
-    content: '';
-    pointer-events: none;
-    background:
-      linear-gradient(90deg, transparent 0 49.96%, rgb(255 255 255 / 2.8%) 50%, transparent 50.04%),
-      linear-gradient(transparent 0 49.96%, rgb(255 255 255 / 2.2%) 50%, transparent 50.04%);
-    mask-image: radial-gradient(circle at center, #000, transparent 72%);
-    opacity: 0.48;
-  }
-
-  :global(.world-loader.anime-intro-loader.spatial-loader::after) {
-    position: absolute;
-    inset: 0;
-    content: '';
-    pointer-events: none;
-    background: radial-gradient(circle at center, transparent 41%, rgb(0 0 0 / 48%) 100%);
-  }
-
-  :global(.spatial-loader.loaded),
-  :global(.spatial-loader[data-failsafe-hidden='true']) {
-    pointer-events: none;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateZ(0) scale(1.018);
-  }
-
-  .spatial-loader__chrome {
-    position: relative;
-    z-index: 5;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 18px;
-    color: var(--loader-muted);
-    font:
-      620 0.58rem/1.4 ui-monospace,
-      SFMono-Regular,
-      Menlo,
-      Monaco,
-      Consolas,
-      monospace;
-    letter-spacing: 0.17em;
-  }
-
-  .spatial-loader__stage {
-    position: relative;
-    z-index: 2;
-    display: grid;
-    min-height: 310px;
-    place-items: center;
-    perspective: 1100px;
-    perspective-origin: 50% 43%;
-    transform-style: preserve-3d;
-  }
-
-  .spatial-scene {
-    position: relative;
-    width: clamp(270px, 36vw, 430px);
-    aspect-ratio: 1;
-    transform-style: preserve-3d;
-    animation: spatial-camera 5.8s var(--loader-ease) infinite alternate;
-  }
-
-  .spatial-halo {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 50%;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: rgb(73 196 244 / 22%);
-    filter: blur(48px);
-    transform: translate3d(-50%, -50%, -90px);
-  }
-
-  .spatial-floor {
-    position: absolute;
-    top: 65%;
-    left: 50%;
-    width: 58%;
-    height: 24%;
-    border-radius: 50%;
-    background: radial-gradient(ellipse, rgb(74 181 224 / 25%), transparent 68%);
-    filter: blur(15px);
-    transform: translate3d(-50%, 28%, -145px) rotateX(72deg);
-    animation: floor-pulse 2.8s ease-in-out infinite;
-  }
-
-  .spatial-axis {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 88%;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgb(189 239 255 / 12%), transparent);
-    transform-origin: center;
-  }
-
-  .spatial-axis--x {
-    transform: translate3d(-50%, -50%, -112px) rotate(19deg);
-  }
-
-  .spatial-axis--y {
-    transform: translate3d(-50%, -50%, -112px) rotate(109deg);
-  }
-
-  .gyro {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    border: 1px solid var(--loader-line);
-    border-radius: 50%;
-    transform-style: preserve-3d;
-  }
-
-  .gyro::before,
-  .gyro::after {
-    position: absolute;
-    inset: -1px;
-    border: 1px solid rgb(189 239 255 / 8%);
-    border-radius: inherit;
-    content: '';
-  }
-
-  .gyro::before {
-    transform: translateZ(4px);
-  }
-
-  .gyro::after {
-    transform: translateZ(-4px);
-  }
-
-  .gyro i {
-    position: absolute;
-    top: 50%;
-    left: -4px;
-    width: 8px;
-    aspect-ratio: 1;
-    border: 1px solid rgb(255 255 255 / 70%);
-    border-radius: 50%;
-    background: var(--loader-white);
-    box-shadow:
-      0 0 18px rgb(99 212 255 / 64%),
-      0 0 0 4px rgb(99 212 255 / 8%);
-    transform: translate3d(0, -50%, 5px);
-  }
-
-  .gyro--outer {
-    width: 82%;
-    height: 82%;
-    border-color: rgb(189 239 255 / 22%);
-    animation: gyro-outer 7.6s linear infinite;
-  }
-
-  .gyro--middle {
-    width: 66%;
-    height: 66%;
-    border-color: rgb(232 200 120 / 25%);
-    animation: gyro-middle 6.2s linear infinite reverse;
-  }
-
-  .gyro--middle i {
-    background: var(--loader-gold);
-    box-shadow:
-      0 0 16px rgb(232 200 120 / 56%),
-      0 0 0 4px rgb(232 200 120 / 8%);
-  }
-
-  .gyro--inner {
-    width: 50%;
-    height: 50%;
-    border-color: rgb(255 255 255 / 18%);
-    animation: gyro-inner 4.8s linear infinite;
-  }
-
-  .cube-rig {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 108px;
-    height: 108px;
-    transform-style: preserve-3d;
-    animation: cube-tumble 6.4s var(--loader-ease) infinite;
-  }
-
-  .glass-cube,
-  .energy-cube {
-    position: absolute;
-    inset: 0;
-    transform-style: preserve-3d;
-  }
-
-  .cube-face,
-  .energy-face {
-    position: absolute;
-    inset: 0;
-    display: block;
-    box-sizing: border-box;
-    backface-visibility: visible;
-  }
-
-  .cube-face {
-    border: 1px solid rgb(220 246 255 / 34%);
-    background:
-      linear-gradient(135deg, rgb(255 255 255 / 13%), transparent 42%),
-      linear-gradient(315deg, rgb(65 190 237 / 8%), transparent 56%), rgb(89 194 233 / 3%);
-    box-shadow:
-      inset 0 0 24px rgb(106 215 255 / 6%),
-      0 0 1px rgb(255 255 255 / 70%);
-  }
-
-  .cube-face::before {
-    position: absolute;
-    inset: 10px;
-    border: 1px solid rgb(205 241 255 / 10%);
-    content: '';
-  }
-
-  .cube-face--front {
-    transform: translateZ(54px);
-  }
-
-  .cube-face--back {
-    transform: rotateY(180deg) translateZ(54px);
-  }
-
-  .cube-face--right {
-    transform: rotateY(90deg) translateZ(54px);
-  }
-
-  .cube-face--left {
-    transform: rotateY(-90deg) translateZ(54px);
-  }
-
-  .cube-face--top {
-    transform: rotateX(90deg) translateZ(54px);
-  }
-
-  .cube-face--bottom {
-    transform: rotateX(-90deg) translateZ(54px);
-  }
-
-  .energy-cube {
-    top: 50%;
-    left: 50%;
-    width: 38px;
-    height: 38px;
-    inset: auto;
-    transform: translate3d(-50%, -50%, 0) rotateX(-14deg) rotateY(19deg);
-    animation: energy-pulse 2.2s ease-in-out infinite;
-  }
-
-  .energy-face {
-    border: 1px solid rgb(255 255 255 / 42%);
-    background: linear-gradient(145deg, #d8f7ff, #55c9f4 48%, #105172);
-    box-shadow:
-      inset -7px -8px 15px rgb(0 24 38 / 36%),
-      0 0 18px rgb(99 212 255 / 24%);
-    opacity: 0.92;
-  }
-
-  .energy-face--front {
-    transform: translateZ(19px);
-  }
-
-  .energy-face--back {
-    transform: rotateY(180deg) translateZ(19px);
-  }
-
-  .energy-face--right {
-    transform: rotateY(90deg) translateZ(19px);
-  }
-
-  .energy-face--left {
-    transform: rotateY(-90deg) translateZ(19px);
-  }
-
-  .energy-face--top {
-    transform: rotateX(90deg) translateZ(19px);
-  }
-
-  .energy-face--bottom {
-    transform: rotateX(-90deg) translateZ(19px);
-  }
-
-  .depth-particle {
-    position: absolute;
-    width: 4px;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: var(--loader-cyan);
-    box-shadow: 0 0 12px rgb(189 239 255 / 48%);
-  }
-
-  .depth-particle--one {
-    top: 18%;
-    left: 22%;
-    opacity: 0.42;
-    transform: translateZ(-120px) scale(0.72);
-  }
-
-  .depth-particle--two {
-    top: 28%;
-    right: 16%;
-    transform: translateZ(105px) scale(1.2);
-  }
-
-  .depth-particle--three {
-    right: 25%;
-    bottom: 16%;
-    background: var(--loader-gold);
-    box-shadow: 0 0 12px rgb(232 200 120 / 42%);
-    transform: translateZ(-72px) scale(0.84);
-  }
-
-  .depth-particle--four {
-    bottom: 26%;
-    left: 14%;
-    opacity: 0.72;
-    transform: translateZ(72px);
-  }
-
-  .spatial-loader__copy {
-    position: relative;
-    z-index: 5;
-    display: grid;
-    justify-items: center;
-    margin-top: -10px;
-    text-align: center;
-  }
-
-  .spatial-loader__copy p,
-  .spatial-loader__copy span {
-    margin: 0;
-    color: var(--loader-muted);
-    font:
-      620 0.59rem/1.5 ui-monospace,
-      SFMono-Regular,
-      Menlo,
-      Monaco,
-      Consolas,
-      monospace;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-  }
-
-  .spatial-loader__copy strong {
-    margin: 12px 0 9px;
-    color: var(--loader-white);
-    font-size: clamp(2.8rem, 6.5vw, 5.1rem);
-    font-weight: 760;
-    line-height: 0.9;
-    letter-spacing: -0.11em;
-    text-shadow: 0 18px 50px rgb(70 177 225 / 14%);
-  }
-
-  .spatial-loader__footer {
-    position: relative;
-    z-index: 5;
-    display: grid;
-    grid-template-columns: 1fr minmax(220px, 320px);
-    gap: 24px;
-    align-items: end;
-    padding-top: 20px;
-  }
-
-  .spatial-loader__metadata {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 9px 24px;
-    color: var(--loader-muted);
-    font:
-      600 0.55rem/1.4 ui-monospace,
-      SFMono-Regular,
-      Menlo,
-      Monaco,
-      Consolas,
-      monospace;
-    letter-spacing: 0.13em;
-  }
-
-  .spatial-loader__metadata b {
-    color: var(--loader-cyan);
-    font-weight: inherit;
-  }
-
-  .spatial-loader__progress {
-    display: grid;
-    grid-template-columns: 1fr 3ch;
-    gap: 12px;
-    align-items: center;
-  }
-
-  .spatial-loader__progress > span {
-    position: relative;
-    height: 1px;
-    overflow: hidden;
-    background: rgb(255 255 255 / 10%);
-  }
-
-  .spatial-loader__progress i {
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: var(--loader-progress);
-    background: linear-gradient(90deg, var(--loader-blue), var(--loader-cyan));
-    box-shadow: 0 0 12px rgb(99 212 255 / 34%);
-    transition: width 80ms linear;
-  }
-
-  .spatial-loader__progress > b {
-    color: var(--loader-white);
-    font:
-      620 0.64rem/1 ui-monospace,
-      SFMono-Regular,
-      Menlo,
-      monospace;
-    letter-spacing: 0.08em;
-  }
-
-  @keyframes spatial-camera {
-    0% {
-      transform: rotateX(-11deg) rotateY(-20deg) rotateZ(-2deg) translate3d(0, 4px, 0);
-    }
-    100% {
-      transform: rotateX(-17deg) rotateY(24deg) rotateZ(2deg) translate3d(0, -5px, 0);
-    }
-  }
-
-  @keyframes cube-tumble {
-    0% {
-      transform: translate3d(-50%, -50%, 62px) rotateX(-18deg) rotateY(28deg) rotateZ(0deg);
-    }
-    50% {
-      transform: translate3d(-50%, -50%, 78px) rotateX(18deg) rotateY(116deg) rotateZ(8deg);
-    }
-    100% {
-      transform: translate3d(-50%, -50%, 62px) rotateX(-18deg) rotateY(208deg) rotateZ(0deg);
-    }
-  }
-
-  @keyframes gyro-outer {
-    from {
-      transform: translate3d(-50%, -50%, -20px) rotateX(68deg) rotateY(-18deg) rotateZ(0deg);
-    }
-    to {
-      transform: translate3d(-50%, -50%, -20px) rotateX(68deg) rotateY(-18deg) rotateZ(360deg);
-    }
-  }
-
-  @keyframes gyro-middle {
-    from {
-      transform: translate3d(-50%, -50%, 8px) rotateY(72deg) rotateX(12deg) rotateZ(0deg);
-    }
-    to {
-      transform: translate3d(-50%, -50%, 8px) rotateY(72deg) rotateX(12deg) rotateZ(360deg);
-    }
-  }
-
-  @keyframes gyro-inner {
-    from {
-      transform: translate3d(-50%, -50%, 34px) rotateX(38deg) rotateY(56deg) rotateZ(0deg);
-    }
-    to {
-      transform: translate3d(-50%, -50%, 34px) rotateX(38deg) rotateY(56deg) rotateZ(360deg);
-    }
-  }
-
-  @keyframes energy-pulse {
-    0%,
-    100% {
-      transform: translate3d(-50%, -50%, 0) rotateX(-14deg) rotateY(19deg) scale3d(0.92, 0.92, 0.92);
-      filter: brightness(0.9);
-    }
-    50% {
-      transform: translate3d(-50%, -50%, 0) rotateX(8deg) rotateY(54deg) scale3d(1.08, 1.08, 1.08);
-      filter: brightness(1.18);
-    }
-  }
-
-  @keyframes floor-pulse {
-    0%,
-    100% {
-      opacity: 0.52;
-      transform: translate3d(-50%, 28%, -145px) rotateX(72deg) scale(0.92);
-    }
-    50% {
-      opacity: 0.82;
-      transform: translate3d(-50%, 28%, -145px) rotateX(72deg) scale(1.08);
-    }
-  }
-
-  @media (max-width: 680px) {
-    :global(.world-loader.anime-intro-loader.spatial-loader) {
-      padding-inline: max(18px, env(safe-area-inset-left));
-    }
-
-    .spatial-loader__chrome span:first-child,
-    .spatial-loader__metadata span:last-child {
-      display: none;
-    }
-
-    .spatial-loader__chrome {
-      justify-content: flex-end;
-    }
-
-    .spatial-scene {
-      width: min(82vw, 340px);
-    }
-
-    .cube-rig {
-      width: 92px;
-      height: 92px;
-    }
-
-    .cube-face--front {
-      transform: translateZ(46px);
-    }
-
-    .cube-face--back {
-      transform: rotateY(180deg) translateZ(46px);
-    }
-
-    .cube-face--right {
-      transform: rotateY(90deg) translateZ(46px);
-    }
-
-    .cube-face--left {
-      transform: rotateY(-90deg) translateZ(46px);
-    }
-
-    .cube-face--top {
-      transform: rotateX(90deg) translateZ(46px);
-    }
-
-    .cube-face--bottom {
-      transform: rotateX(-90deg) translateZ(46px);
-    }
-
-    .spatial-loader__footer {
-      grid-template-columns: 1fr;
-      gap: 14px;
-    }
-
-    .spatial-loader__metadata {
-      justify-content: center;
-    }
-  }
-
-  @media (max-height: 620px) {
-    :global(.world-loader.anime-intro-loader.spatial-loader) {
-      padding-block: 14px;
-    }
-
-    .spatial-loader__stage {
-      min-height: 205px;
-    }
-
-    .spatial-scene {
-      width: min(48vh, 270px);
-    }
-
-    .spatial-loader__copy strong {
-      font-size: 2.7rem;
-    }
-
-    .spatial-loader__copy span,
-    .spatial-loader__metadata span:last-child {
-      display: none;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    :global(.world-loader.anime-intro-loader.spatial-loader),
-    .spatial-loader__progress i {
-      transition-duration: 1ms !important;
-    }
-
-    .spatial-scene,
-    .cube-rig,
-    .gyro,
-    .energy-cube,
-    .spatial-floor {
-      animation: none !important;
-    }
-
-    .spatial-scene {
-      transform: rotateX(-14deg) rotateY(-22deg);
-    }
-
-    .cube-rig {
-      transform: translate3d(-50%, -50%, 68px) rotateX(-16deg) rotateY(32deg);
-    }
-  }
-
-  :global(html[data-document-active='false']) .spatial-scene,
-  :global(html[data-document-active='false']) .cube-rig,
-  :global(html[data-document-active='false']) .gyro,
-  :global(html[data-document-active='false']) .energy-cube,
-  :global(html[data-document-active='false']) .spatial-floor {
-    animation-play-state: paused !important;
-  }
-</style>
