@@ -10,6 +10,7 @@ import CinematicPointerEffects from '@/components/effects/CinematicPointerEffect
 import AnimeScrollDirector from '@/components/effects/AnimeScrollDirector';
 import SpatialCameraEnhancer from '@/components/effects/SpatialCameraEnhancer';
 import CinematicEntertainmentDirector from '@/components/effects/CinematicEntertainmentDirector';
+import SingularityOverdriveDirector from '@/components/effects/SingularityOverdriveDirector';
 import { siteConfig, type Locale } from '@/data/site-config';
 import '@/styles/anime-scroll-story.css';
 import '@/styles/anime-scroll-story-overrides.css';
@@ -18,6 +19,7 @@ import '@/styles/spatial-home-v2.css';
 import '@/styles/cinematic-entertainment.css';
 import '@/styles/cinematic-entertainment-polish.css';
 import '@/styles/cinematic-entertainment-compat.css';
+import '@/styles/singularity-overdrive.css';
 import '@/styles/home-loader-insets.css';
 import '@/styles/story-static-fallback.css';
 
@@ -40,6 +42,7 @@ const descriptions = {
   <AnimeScrollDirector client:load />
   <SpatialCameraEnhancer client:load />
   <CinematicEntertainmentDirector client:load />
+  <SingularityOverdriveDirector client:load />
 
   <AnimeScrollStory locale={locale} />
 
