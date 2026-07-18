@@ -4,63 +4,59 @@ import { describe, expect, it } from 'vitest';
 const readSource = (relativePath: string) =>
   readFileSync(new URL(`../../${relativePath}`, import.meta.url), 'utf8');
 
-describe('multi-axis spatial scroll motion contract', () => {
-  it('4章それぞれに異なる3D侵入・退出軌道を持つ', () => {
+describe('world forge chapter transition contract', () => {
+  it('01→02→03を共通のポータル前進軸で受け渡す', () => {
     const source = readSource('src/components/effects/AnimeScrollDirector.tsx');
-    const profiles = source.slice(
-      source.indexOf('const SPATIAL_SCENE_PROFILES'),
-      source.indexOf('const resolvePose'),
+
+    expect(source).toContain(
+      "root.dataset.storyTransitionEngine = 'world-forge'",
+    );
+    expect(source).toContain("root.dataset.storyAxis = 'portal-forward'");
+    expect(source).toContain('const CHAPTER_SEGMENT = 2.4');
+    expect(source).toContain('const CHAPTER_HOLD = 1.04');
+    expect(source).toContain("phase = 'charge'");
+    expect(source).toContain("? 'collapse'");
+    expect(source).toContain("? 'burst'");
+    expect(source).toContain(": 'reveal'");
+    expect(source).not.toContain('SPATIAL_SCENE_PROFILES');
+  });
+
+  it('章間ゲートを決定的な要素数で生成する', () => {
+    const source = readSource('src/components/effects/AnimeScrollDirector.tsx');
+
+    expect(source).toContain('const GATE_BLADE_COUNT = 12');
+    expect(source).toContain('const GATE_RAY_COUNT = 18');
+    expect(source).toContain('const GATE_SHARD_COUNT = 10');
+    expect(source).toContain('data-chapter-gate');
+    expect(source).toContain('WORLD FORGE / BUILD');
+    expect(source).toContain('NEXUS LINK / CONNECT');
+    expect(source).toContain('--chapter-gate-progress');
+  });
+
+  it('カメラ軌道を安定化しピン距離を章演出へ同期する', () => {
+    const source = readSource(
+      'src/components/effects/SpatialCameraEnhancer.tsx',
     );
 
-    expect(source).toContain('SPATIAL_SCENE_PROFILES');
-    expect(profiles.match(/sceneIn:/g)).toHaveLength(4);
-    expect(profiles.match(/sceneOut:/g)).toHaveLength(4);
     expect(source).toContain("root.dataset.storyCamera = 'multi-axis'");
-    expect(source).toContain('resolvePose');
-    expect(source).toContain('rotateX');
-    expect(source).toContain('rotateY');
-    expect(source).toContain('rotateZ');
-    expect(source).toContain('[data-story-depth="far"]');
-    expect(source).toContain('[data-story-depth="mid"]');
-    expect(source).toContain('[data-story-depth="near"]');
+    expect(source).toContain(
+      "root.dataset.storyCameraPath = 'portal-forward-stabilized'",
+    );
+    expect(source).toContain('compact ? 5.7 : 7.2');
+    expect(source).toContain('pinnedStory.refresh()');
+    expect(source).toContain("root.dataset.spatialCameraReady = 'true'");
   });
 
-  it('後続セクションへ複数方向のRevealと3D Parallaxを割り当てる', () => {
-    const source = readSource('src/components/effects/ScrollEffects.tsx');
+  it('ゲートCSSがフラッシュ・シャッター・光線・破片を描画する', () => {
+    const styles = readSource('src/styles/chapter-gate-transitions.css');
 
-    expect(source).toContain('REVEAL_PROFILES');
-    expect(source).toContain('left-depth');
-    expect(source).toContain('right-front');
-    expect(source).toContain('top-left');
-    expect(source).toContain('bottom-right');
-    expect(source).toContain('center-depth');
-    expect(source).toContain('dataset.scrollRevealDirection');
-    expect(source).toContain('dataset.scrollParallaxDirection');
-    expect(source).not.toMatch(/addEventListener\(\s*['"]scroll['"]/);
-  });
-
-  it('CSSがX・Y・Z移動と3軸回転を描画する', () => {
-    const source = readSource('src/styles/scroll-performance.css');
-    const story = readSource('src/styles/anime-scroll-story.css');
-
-    expect(source).toContain("[data-scroll-space='true']");
-    expect(source).toContain('--scroll-enter-x');
-    expect(source).toContain('--scroll-enter-y');
-    expect(source).toContain('--scroll-enter-z');
-    expect(source).toContain('rotateX(var(--scroll-enter-rotate-x');
-    expect(source).toContain('rotateY(var(--scroll-enter-rotate-y');
-    expect(source).toContain('rotateZ(var(--scroll-enter-rotate-z');
-    expect(source).toContain('@keyframes native-view-parallax-3d');
-    expect(story).toContain('perspective: clamp(980px, 78vw, 1280px)');
-    expect(story).toContain('perspective-origin: 50% 44%');
-  });
-
-  it('Reduced Motionでは3Dスクロール演出を停止する', () => {
-    const source = readSource('src/styles/scroll-performance.css');
-
-    expect(source).toContain('@media (prefers-reduced-motion: reduce)');
-    expect(source).toContain('animation: none !important');
-    expect(source).toContain('transition: none !important');
-    expect(source).toContain('transform: none !important');
+    expect(styles).toContain('.anime-chapter-gate__iris');
+    expect(styles).toContain('.anime-chapter-gate__shutter--left');
+    expect(styles).toContain('.anime-chapter-gate__shutter--right');
+    expect(styles).toContain('.anime-chapter-gate__flash');
+    expect(styles).toContain('.anime-chapter-gate__rays');
+    expect(styles).toContain('.anime-chapter-gate__shards');
+    expect(styles).toContain('@media (prefers-reduced-motion: reduce)');
+    expect(styles).toContain('display: none !important');
   });
 });
