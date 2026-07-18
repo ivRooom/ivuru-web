@@ -1,0 +1,57 @@
+name: Format Story Authority
+
+on:
+  push:
+    branches:
+      - feat/dual-3d-loading-experience
+    paths:
+      - .github/workflows/format-story-authority.yml
+      - src/components/effects/StoryProgressAuthority.tsx
+      - src/components/effects/OmegaWorldRift.astro
+      - src/components/pages/HomePageV2.astro
+      - src/styles/omega-world-rift.css
+      - tests/e2e/story-progress-authority.spec.ts
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/dual-3d-loading-experience
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: 対象ファイルを整形
+        run: |
+          npx prettier --write \
+            src/components/effects/StoryProgressAuthority.tsx \
+            src/components/effects/OmegaWorldRift.astro \
+            src/components/pages/HomePageV2.astro \
+            src/styles/omega-world-rift.css \
+            tests/e2e/story-progress-authority.spec.ts
+      - name: 整形結果を反映
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            src/components/effects/StoryProgressAuthority.tsx \
+            src/components/effects/OmegaWorldRift.astro \
+            src/components/pages/HomePageV2.astro \
+            src/styles/omega-world-rift.css \
+            tests/e2e/story-progress-authority.spec.ts
+          if git diff --cached --quiet; then
+            echo "No format changes"
+            exit 0
+          fi
+          git commit -m "章切替修正をPrettierで整形"
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:feat/dual-3d-loading-experience
