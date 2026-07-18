@@ -159,15 +159,25 @@ export default function SpatialCameraEnhancer() {
         });
       }, root);
 
-      syncTimer = window.setTimeout(() => {
+      const syncPinnedStory = (attempt = 0) => {
+        if (token !== generation || !root.isConnected || reducedMotion.matches) return;
         const pinnedStory = ScrollTrigger.getAll().find((trigger) => {
           const vars = trigger.vars as MutableTriggerVars;
           return vars.trigger === root && vars.pin === root;
         });
-        if (!pinnedStory) return;
+
+        if (!pinnedStory) {
+          if (attempt < 12) {
+            syncTimer = window.setTimeout(() => syncPinnedStory(attempt + 1), 160);
+          }
+          return;
+        }
+
         (pinnedStory.vars as MutableTriggerVars).end = scrollLength;
         pinnedStory.refresh();
-      }, 280);
+      };
+
+      syncTimer = window.setTimeout(() => syncPinnedStory(), 160);
     };
 
     const onChange = () => void setup();
