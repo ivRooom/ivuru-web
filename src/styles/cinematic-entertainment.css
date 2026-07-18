@@ -53,8 +53,7 @@
   width: 64%;
   background:
     linear-gradient(125deg, transparent 0 46%, rgb(108 232 255 / 12%) 46.3% 46.8%, transparent 47%),
-    radial-gradient(circle at 50% 50%, rgb(42 118 255 / 18%), transparent 42%),
-    #020614;
+    radial-gradient(circle at 50% 50%, rgb(42 118 255 / 18%), transparent 42%), #020614;
   box-shadow: 0 0 90px rgb(60 166 255 / 18%);
   transition: transform 880ms cubic-bezier(0.76, 0, 0.24, 1);
   will-change: transform;
@@ -85,7 +84,14 @@
   left: 50%;
   width: min(78vw, 1100px);
   height: 12%;
-  background: linear-gradient(90deg, transparent, rgb(124 235 255 / 94%), white, rgb(120 92 255 / 88%), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(124 235 255 / 94%),
+    white,
+    rgb(120 92 255 / 88%),
+    transparent
+  );
   filter: blur(12px);
   mix-blend-mode: screen;
   opacity: 0;
@@ -110,8 +116,20 @@
   border: 1px solid rgb(154 237 255 / 40%);
   border-radius: 50%;
   background:
-    radial-gradient(circle at center, transparent 58%, rgb(87 198 255 / 7%) 58.5% 62%, transparent 63%),
-    conic-gradient(from 0deg, transparent 0 13%, rgb(123 230 255 / 45%) 14% 15%, transparent 16% 48%, rgb(127 95 255 / 48%) 49% 51%, transparent 52%);
+    radial-gradient(
+      circle at center,
+      transparent 58%,
+      rgb(87 198 255 / 7%) 58.5% 62%,
+      transparent 63%
+    ),
+    conic-gradient(
+      from 0deg,
+      transparent 0 13%,
+      rgb(123 230 255 / 45%) 14% 15%,
+      transparent 16% 48%,
+      rgb(127 95 255 / 48%) 49% 51%,
+      transparent 52%
+    );
   box-shadow:
     inset 0 0 34px rgb(80 207 255 / 10%),
     0 0 44px rgb(80 190 255 / 18%);
@@ -147,7 +165,13 @@
   width: clamp(130px, 18vw, 320px);
   height: 3px;
   border-radius: 999px;
-  background: linear-gradient(90deg, transparent, rgb(123 232 255 / 20%), #fff 78%, rgb(145 244 255));
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(123 232 255 / 20%),
+    #fff 78%,
+    rgb(145 244 255)
+  );
   box-shadow:
     0 0 18px rgb(107 222 255 / 80%),
     0 0 46px rgb(77 139 255 / 46%);
@@ -185,7 +209,14 @@
   left: -28%;
   width: 156%;
   height: 18%;
-  background: linear-gradient(90deg, transparent, rgb(101 224 255 / 55%), white 48% 52%, rgb(117 85 255 / 58%), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(101 224 255 / 55%),
+    white 48% 52%,
+    rgb(117 85 255 / 58%),
+    transparent
+  );
   clip-path: polygon(4% 46%, 96% 0, 100% 54%, 0 100%);
   filter: blur(1px);
   opacity: 0;
@@ -324,7 +355,9 @@
   animation: anime-title-split-right 760ms 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.anime-scroll-story[data-entertainment-ready='true'] .blue-media-title > span[data-entertainment-title] {
+.anime-scroll-story[data-entertainment-ready='true']
+  .blue-media-title
+  > span[data-entertainment-title] {
   animation: anime-title-arrival 920ms 110ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
@@ -480,7 +513,8 @@
     transform: translate(-50%, -50%) rotate(0) translateX(clamp(86px, 13vw, 190px)) rotate(0);
   }
   to {
-    transform: translate(-50%, -50%) rotate(360deg) translateX(clamp(86px, 13vw, 190px)) rotate(-360deg);
+    transform: translate(-50%, -50%) rotate(360deg) translateX(clamp(86px, 13vw, 190px))
+      rotate(-360deg);
   }
 }
 
