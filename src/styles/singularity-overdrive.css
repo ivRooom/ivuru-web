@@ -179,17 +179,16 @@
   aspect-ratio: 1;
   border: 1px solid rgb(143 239 255 / 44%);
   border-radius: 50%;
-  background:
-    conic-gradient(
-      from calc(var(--singularity-lens-index) * 37deg),
-      transparent 0 9%,
-      rgb(120 236 255 / 48%) 10% 11%,
-      transparent 12% 31%,
-      rgb(255 87 221 / 34%) 32% 34%,
-      transparent 35% 66%,
-      rgb(132 100 255 / 44%) 67% 68%,
-      transparent 69%
-    );
+  background: conic-gradient(
+    from calc(var(--singularity-lens-index) * 37deg),
+    transparent 0 9%,
+    rgb(120 236 255 / 48%) 10% 11%,
+    transparent 12% 31%,
+    rgb(255 87 221 / 34%) 32% 34%,
+    transparent 35% 66%,
+    rgb(132 100 255 / 44%) 67% 68%,
+    transparent 69%
+  );
   box-shadow:
     inset 0 0 28px rgb(80 215 255 / 10%),
     0 0 30px rgb(80 200 255 / 16%);

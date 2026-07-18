@@ -80,16 +80,7 @@ const buildOverdrive = (): OverdriveNodes => {
   const chromatic = createElement('div', 'anime-singularity-chromatic');
   const whiteout = createElement('div', 'anime-singularity-whiteout');
 
-  overlay.append(
-    voidLayer,
-    lensField,
-    tunnel,
-    fragmentField,
-    core,
-    title,
-    chromatic,
-    whiteout,
-  );
+  overlay.append(voidLayer, lensField, tunnel, fragmentField, core, title, chromatic, whiteout);
 
   return {
     overlay,

@@ -8,7 +8,9 @@ describe('singularity overdrive contract', () => {
   it('トップページへ必殺技級のSingularity Overdriveを接続する', () => {
     const home = readSource('src/components/pages/HomePageV2.astro');
 
-    expect(home).toContain("import SingularityOverdriveDirector from '@/components/effects/SingularityOverdriveDirector'");
+    expect(home).toContain(
+      "import SingularityOverdriveDirector from '@/components/effects/SingularityOverdriveDirector'",
+    );
     expect(home).toContain("import '@/styles/singularity-overdrive.css'");
     expect(home).toContain('<SingularityOverdriveDirector client:load />');
   });
