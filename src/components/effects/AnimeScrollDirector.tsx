@@ -36,7 +36,7 @@ const GATE_SHARD_COUNT = 10;
 
 const readStoryElements = (): StoryElements | null => {
   const root = document.querySelector<HTMLElement>('[data-anime-scroll-story]');
-  const stage = root?.querySelector<HTMLElement>('.anime-story-stage');
+  const stage = root?.querySelector<HTMLElement>('[data-anime-scroll-stage]');
   if (!root || !stage) return null;
 
   const scenes = Array.from(root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'));
@@ -57,7 +57,7 @@ const setSceneState = (scenes: HTMLElement[], activeIndex: number) => {
     const active = index === activeIndex;
     scene.dataset.active = active ? 'true' : 'false';
     scene.setAttribute('aria-hidden', active ? 'false' : 'true');
-    scene.inert = !active;
+    scene.toggleAttribute('inert', !active);
   });
 };
 
@@ -103,7 +103,8 @@ const createGate = (stage: HTMLElement): GateElements => {
   ).join('');
   rays.innerHTML = Array.from(
     { length: GATE_RAY_COUNT },
-    (_, index) => `<i style="--gate-index:${index};--gate-thickness:${(index % 3) + 1}px"></i>`,
+    (_, index) =>
+      `<i style="--gate-index:${index};--gate-thickness:${(index % 3) + 1}px"></i>`,
   ).join('');
   shards.innerHTML = Array.from(
     { length: GATE_SHARD_COUNT },
@@ -191,6 +192,7 @@ export default function AnimeScrollDirector() {
       delete root.dataset.storyTransition;
       delete root.dataset.storyTransitionPhase;
       delete root.dataset.storyAxis;
+      delete root.dataset.storyDirector;
       root.style.removeProperty('--chapter-gate-progress');
     };
 
@@ -210,6 +212,7 @@ export default function AnimeScrollDirector() {
     };
 
     const setStaticMode = ({ root, scenes, dots, progressLine }: StoryElements) => {
+      root.dataset.storyDirector = 'ready';
       root.dataset.storyMode = 'static';
       root.dataset.storyMask = 'static';
       root.dataset.storyPerformance = 'static';
@@ -220,7 +223,7 @@ export default function AnimeScrollDirector() {
       root.dataset.storyAxis = 'portal-forward';
       scenes.forEach((scene) => {
         scene.removeAttribute('aria-hidden');
-        scene.inert = false;
+        scene.removeAttribute('inert');
         scene.dataset.active = 'true';
         scene.removeAttribute('style');
         scene
@@ -254,6 +257,7 @@ export default function AnimeScrollDirector() {
       let activeIndex = -1;
       let activeTransition = '';
 
+      root.dataset.storyDirector = 'ready';
       root.dataset.storyMode = 'motion';
       root.dataset.storyMask = 'active';
       root.dataset.storyPerformance = 'composited-world-forge';
@@ -508,6 +512,7 @@ export default function AnimeScrollDirector() {
 
       const token = generation;
       activeRoot = elements.root;
+      activeRoot.dataset.storyDirector = 'booting';
       previousBodyScene = document.body.dataset.animeScene;
       bodySceneCaptured = true;
 
