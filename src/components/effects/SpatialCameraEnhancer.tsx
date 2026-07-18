@@ -9,9 +9,27 @@ type MutableTriggerVars = {
 };
 
 const cameraPath = [
-  { x: 34, y: -18, z: 90, rotateX: -4, rotateY: 8, rotateZ: 1.5, px: 58, py: 42 },
-  { x: -52, y: 24, z: 150, rotateX: 7, rotateY: -13, rotateZ: -2.5, px: 42, py: 48 },
-  { x: 38, y: -38, z: 210, rotateX: -8, rotateY: 16, rotateZ: 3, px: 63, py: 37 },
+  { x: 0, y: 0, z: 28, rotateX: 0, rotateY: 0, rotateZ: 0, px: 50, py: 44 },
+  {
+    x: -18,
+    y: 10,
+    z: 72,
+    rotateX: 2,
+    rotateY: -4,
+    rotateZ: -0.8,
+    px: 47,
+    py: 46,
+  },
+  {
+    x: 16,
+    y: -12,
+    z: 108,
+    rotateX: -2,
+    rotateY: 4,
+    rotateZ: 0.8,
+    px: 53,
+    py: 42,
+  },
 ];
 
 export default function SpatialCameraEnhancer() {
@@ -34,15 +52,21 @@ export default function SpatialCameraEnhancer() {
 
     const setup = async () => {
       cleanup();
-      const root = document.querySelector<HTMLElement>('[data-anime-scroll-story]');
-      const camera = root?.querySelector<HTMLElement>('[data-story-camera-rig]');
+      const root = document.querySelector<HTMLElement>(
+        '[data-anime-scroll-story]',
+      );
+      const camera = root?.querySelector<HTMLElement>(
+        '[data-story-camera-rig]',
+      );
       if (!root || !camera) return;
 
       activeRoot = root;
       if (reducedMotion.matches) return;
       root.dataset.spatialCameraReady = 'pending';
 
-      const flybys = Array.from(root.querySelectorAll<HTMLElement>('[data-story-flyby]'));
+      const flybys = Array.from(
+        root.querySelectorAll<HTMLElement>('[data-story-flyby]'),
+      );
       const frontLayers = Array.from(
         root.querySelectorAll<HTMLElement>('[data-story-depth="front"]'),
       );
@@ -51,16 +75,19 @@ export default function SpatialCameraEnhancer() {
         import('gsap'),
         import('gsap/ScrollTrigger'),
       ]);
-      if (token !== generation || !root.isConnected || reducedMotion.matches) return;
+      if (token !== generation || !root.isConnected || reducedMotion.matches)
+        return;
 
       const gsap = gsapModule.gsap;
       const ScrollTrigger = triggerModule.ScrollTrigger;
       const compact = compactViewport.matches;
       const distance = compact ? 0.46 : 1;
-      const scrollLength = () => `+=${Math.round(innerHeight * (compact ? 2.35 : 3.05))}`;
+      const scrollLength = () =>
+        `+=${Math.round(innerHeight * (compact ? 5.7 : 7.2))}`;
       gsap.registerPlugin(ScrollTrigger);
 
-      root.dataset.storyCamera = 'orbital-flythrough';
+      root.dataset.storyCamera = 'multi-axis';
+      root.dataset.storyCameraPath = 'portal-forward-stabilized';
       context = gsap.context(() => {
         gsap.set(camera, { transformOrigin: '50% 50%', force3D: true });
         gsap.set(flybys, { autoAlpha: 0, force3D: true });
@@ -70,7 +97,7 @@ export default function SpatialCameraEnhancer() {
             trigger: root,
             start: 'top top',
             end: scrollLength,
-            scrub: compact ? 0.14 : 0.3,
+            scrub: compact ? 0.16 : 0.34,
             invalidateOnRefresh: true,
           },
         });
@@ -108,22 +135,22 @@ export default function SpatialCameraEnhancer() {
           timeline.fromTo(
             layer,
             {
-              xPercent: direction * -80,
-              yPercent: ((index % 3) - 1) * 50,
-              z: 80 * distance,
-              rotateX: -10 * direction,
-              rotateY: 16 * direction,
-              scale: 0.84,
-              autoAlpha: 0.18,
+              xPercent: direction * -30,
+              yPercent: ((index % 3) - 1) * 18,
+              z: 46 * distance,
+              rotateX: -4 * direction,
+              rotateY: 6 * direction,
+              scale: 0.94,
+              autoAlpha: 0.16,
             },
             {
-              xPercent: direction * 90,
-              yPercent: (((index + 1) % 3) - 1) * -60,
-              z: 360 * distance,
-              rotateX: 12 * direction,
-              rotateY: -18 * direction,
-              scale: 1.28,
-              autoAlpha: 0.82,
+              xPercent: direction * 34,
+              yPercent: (((index + 1) % 3) - 1) * -22,
+              z: 170 * distance,
+              rotateX: 4 * direction,
+              rotateY: -6 * direction,
+              scale: 1.1,
+              autoAlpha: 0.58,
               duration: 1.05,
               ease: 'none',
               force3D: true,
@@ -134,40 +161,45 @@ export default function SpatialCameraEnhancer() {
 
         flybys.forEach((flyby, index) => {
           const direction = index % 2 === 0 ? 1 : -1;
-          const start = 0.16 + index * 0.52;
+          const start = 0.2 + index * 0.54;
           timeline.fromTo(
             flyby,
             {
               autoAlpha: 0,
-              xPercent: direction * -220,
-              yPercent: ((index % 3) - 1) * 150,
-              z: -560 * distance,
-              rotateX: direction * -18,
-              rotateY: direction * 34,
-              rotateZ: direction * -12,
-              scale: 0.34,
+              xPercent: direction * -160,
+              yPercent: ((index % 3) - 1) * 90,
+              z: -320 * distance,
+              rotateX: direction * -8,
+              rotateY: direction * 14,
+              rotateZ: direction * -6,
+              scale: 0.46,
             },
             {
-              autoAlpha: compact ? 0.44 : 0.86,
-              xPercent: direction * 230,
-              yPercent: (((index + 1) % 3) - 1) * -160,
-              z: 760 * distance,
-              rotateX: direction * 20,
-              rotateY: direction * -38,
-              rotateZ: direction * 16,
-              scale: compact ? 1.35 : 2.15,
-              duration: compact ? 0.4 : 0.52,
+              autoAlpha: compact ? 0.28 : 0.64,
+              xPercent: direction * 170,
+              yPercent: (((index + 1) % 3) - 1) * -96,
+              z: 430 * distance,
+              rotateX: direction * 9,
+              rotateY: direction * -16,
+              rotateZ: direction * 7,
+              scale: compact ? 1.16 : 1.65,
+              duration: compact ? 0.42 : 0.56,
               ease: 'power2.in',
               force3D: true,
             },
             start,
           );
-          timeline.to(flyby, { autoAlpha: 0, duration: 0.1 }, start + (compact ? 0.32 : 0.43));
+          timeline.to(
+            flyby,
+            { autoAlpha: 0, duration: 0.12 },
+            start + (compact ? 0.34 : 0.46),
+          );
         });
       }, root);
 
       const syncPinnedStory = (attempt = 0) => {
-        if (token !== generation || !root.isConnected || reducedMotion.matches) return;
+        if (token !== generation || !root.isConnected || reducedMotion.matches)
+          return;
         const pinnedStory = ScrollTrigger.getAll().find((trigger) => {
           const vars = trigger.vars as MutableTriggerVars;
           return vars.trigger === root && vars.pin === root;
@@ -175,7 +207,10 @@ export default function SpatialCameraEnhancer() {
 
         if (!pinnedStory) {
           if (attempt < 30) {
-            syncTimer = window.setTimeout(() => syncPinnedStory(attempt + 1), 160);
+            syncTimer = window.setTimeout(
+              () => syncPinnedStory(attempt + 1),
+              160,
+            );
           }
           return;
         }
