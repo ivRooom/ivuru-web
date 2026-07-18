@@ -1,0 +1,39 @@
+name: Export Entertainment Polish Format
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/export-entertainment-polish-format.yml
+
+permissions:
+  contents: read
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --silent
+      - name: Prettierで整形
+        run: |
+          npx prettier --write \
+            src/styles/cinematic-entertainment-compat.css \
+            src/styles/cinematic-entertainment-polish.css \
+            src/components/pages/HomePageV2.astro
+      - name: 整形済みファイルを保存
+        uses: actions/upload-artifact@v4
+        with:
+          name: entertainment-polish-formatted
+          path: |
+            src/styles/cinematic-entertainment-compat.css
+            src/styles/cinematic-entertainment-polish.css
+            src/components/pages/HomePageV2.astro
+          retention-days: 1
