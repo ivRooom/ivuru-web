@@ -123,7 +123,6 @@ export default function AdaptiveRealityDirector() {
 
       let reality: RealityLayer | undefined;
       let gateObserver: MutationObserver | undefined;
-      let stateObserver: MutationObserver | undefined;
       let animationFrame = 0;
       let energy = 0;
       let targetEnergy = 0;
@@ -162,7 +161,7 @@ export default function AdaptiveRealityDirector() {
         gateObserver.observe(stage, { childList: true, subtree: true });
       }
 
-      stateObserver = new MutationObserver(syncRealityState);
+      const stateObserver = new MutationObserver(syncRealityState);
       stateObserver.observe(story, {
         attributes: true,
         attributeFilter: ['data-story-transition', 'data-story-transition-phase'],
@@ -221,7 +220,7 @@ export default function AdaptiveRealityDirector() {
       disposeCurrent = () => {
         cancelAnimationFrame(animationFrame);
         gateObserver?.disconnect();
-        stateObserver?.disconnect();
+        stateObserver.disconnect();
         reality?.root.remove();
         story.removeEventListener('wheel', onWheel);
         story.removeEventListener('touchstart', onTouchStart);
