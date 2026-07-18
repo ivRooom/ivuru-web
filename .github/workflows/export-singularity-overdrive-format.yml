@@ -1,4 +1,4 @@
-name: Export Singularity Overdrive Format
+name: Publish Singularity Overdrive Format
 
 on:
   pull_request:
@@ -7,37 +7,46 @@ on:
       - .github/workflows/export-singularity-overdrive-format.yml
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  format:
+  publish:
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.pull_request.head.ref }}
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: npm
-      - run: npm ci --silent
+      - name: 依存関係を安全に取得
+        run: npm ci --ignore-scripts --silent
       - name: Prettierで整形
         run: |
-          npx prettier --write \
+          npx --no-install prettier --write \
             src/components/effects/SingularityOverdriveDirector.tsx \
             src/components/pages/HomePageV2.astro \
             src/styles/singularity-overdrive.css \
             tests/unit/singularity-overdrive-contract.test.ts \
             tests/e2e/singularity-overdrive.spec.ts
-      - name: 整形済みファイルを保存
-        uses: actions/upload-artifact@v4
-        with:
-          name: singularity-overdrive-formatted
-          path: |
-            src/components/effects/SingularityOverdriveDirector.tsx
-            src/components/pages/HomePageV2.astro
-            src/styles/singularity-overdrive.css
-            tests/unit/singularity-overdrive-contract.test.ts
+      - name: 整形結果を反映して一時ワークフローを削除
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/export-singularity-overdrive-format.yml
+          git add \
+            src/components/effects/SingularityOverdriveDirector.tsx \
+            src/components/pages/HomePageV2.astro \
+            src/styles/singularity-overdrive.css \
+            tests/unit/singularity-overdrive-contract.test.ts \
             tests/e2e/singularity-overdrive.spec.ts
-          retention-days: 1
+          git commit -m "Singularity Overdriveを整形"
+          AUTH="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          git -c http.https://github.com/.extraheader="AUTHORIZATION: basic $AUTH" push origin "HEAD:${HEAD_REF}"
