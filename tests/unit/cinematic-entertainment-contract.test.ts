@@ -47,8 +47,12 @@ describe('cinematic entertainment contract', () => {
   it('Reduced Motionでは追加演出を完全に停止する', () => {
     const styles = readSource('src/styles/cinematic-entertainment.css');
     const polish = readSource('src/styles/cinematic-entertainment-polish.css');
+    const compatibility = readSource('src/styles/cinematic-entertainment-compat.css');
     const mediaStart = styles.indexOf('@media (prefers-reduced-motion: reduce)');
     const polishMediaStart = polish.indexOf('@media (prefers-reduced-motion: reduce)');
+    const compatibilityMediaStart = compatibility.indexOf(
+      '@media (prefers-reduced-motion: reduce)',
+    );
 
     expect(mediaStart).toBeGreaterThanOrEqual(0);
     const reducedMotionBlock = styles.slice(mediaStart);
@@ -60,6 +64,11 @@ describe('cinematic entertainment contract', () => {
     expect(polishMediaStart).toBeGreaterThanOrEqual(0);
     const polishReducedMotionBlock = polish.slice(polishMediaStart);
     expect(polishReducedMotionBlock).toContain('animation: none !important');
-    expect(polishReducedMotionBlock).toContain('transform: none !important');
+
+    expect(compatibilityMediaStart).toBeGreaterThanOrEqual(0);
+    const compatibilityReducedMotionBlock = compatibility.slice(compatibilityMediaStart);
+    expect(compatibilityReducedMotionBlock).toContain('.signal-key-frame');
+    expect(compatibilityReducedMotionBlock).toContain('.signal-key-mark');
+    expect(compatibilityReducedMotionBlock).toContain('transform: none !important');
   });
 });
