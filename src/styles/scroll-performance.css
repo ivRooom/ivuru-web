@@ -15,6 +15,12 @@
   transform-style: preserve-3d;
 }
 
+/* Structural sheets must remain inside their layout bounds while revealing. */
+.profile-passport[data-scroll-reveal] {
+  transform: none !important;
+  transition-property: opacity !important;
+}
+
 [data-scroll-reveal='pending'] {
   visibility: visible;
   opacity: 0;
