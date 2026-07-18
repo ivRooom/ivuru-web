@@ -34,6 +34,36 @@ test('keeps accessible spatial loader metadata in SSR and releases the page safe
   await expect(page.locator('body')).not.toHaveClass(/site-loading/);
 });
 
+test('hard releases the loader even when requestAnimationFrame does not advance', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('ivuru-locale', 'ja');
+    localStorage.setItem('ivuru-theme', 'dark');
+    sessionStorage.removeItem('ivuru-intro-seen');
+    window.requestAnimationFrame = () => 0;
+    window.cancelAnimationFrame = () => undefined;
+  });
+
+  await page.goto('/');
+  await expect(page.locator('.spatial-loader')).toBeHidden({ timeout: 4_000 });
+  await expect(page.locator('html')).toHaveAttribute('data-loader-released', 'true');
+  await expect(page.locator('body')).not.toHaveClass(/site-loading/);
+});
+
+test('releases a stalled loader as soon as the user attempts to scroll', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('ivuru-locale', 'ja');
+    localStorage.setItem('ivuru-theme', 'dark');
+    sessionStorage.removeItem('ivuru-intro-seen');
+    window.requestAnimationFrame = () => 0;
+    window.cancelAnimationFrame = () => undefined;
+  });
+
+  await page.goto('/', { waitUntil: 'domcontentloaded' });
+  await page.mouse.wheel(0, 400);
+  await expect(page.locator('.spatial-loader')).toBeHidden({ timeout: 1_500 });
+  await expect(page.locator('html')).toHaveAttribute('data-loader-released', 'true');
+});
+
 test('renders a real 3D cube hierarchy and three gyroscope planes', async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem('ivuru-locale', 'ja');
