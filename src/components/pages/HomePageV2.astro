@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import LoaderReleaseGuard from '@/components/common/LoaderReleaseGuard.astro';
 import AnimeScrollStory from '@/components/home/AnimeScrollStory.astro';
 import FeaturedWorks from '@/components/home/FeaturedWorks.astro';
 import HomePortalGrid from '@/components/home/HomePortalGrid.astro';
@@ -14,6 +15,7 @@ import '@/styles/anime-scroll-story-overrides.css';
 import '@/styles/anime-scroll-performance.css';
 import '@/styles/spatial-home-v2.css';
 import '@/styles/home-loader-insets.css';
+import '@/styles/story-static-fallback.css';
 
 const { locale } = Astro.props as { locale: Locale };
 const descriptions = {
@@ -29,6 +31,7 @@ const descriptions = {
   locale={locale}
   chapter={{ code: '00', title: 'HOME', world: 'BLUE STORY' }}
 >
+  <LoaderReleaseGuard />
   <CinematicPointerEffects client:idle />
   <AnimeScrollDirector client:idle />
   <SpatialCameraEnhancer client:idle />
