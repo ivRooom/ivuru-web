@@ -47,7 +47,9 @@ test.describe('Adaptive Reality evolution', () => {
     await story.dispatchEvent('wheel', { deltaY: 900 });
     await expect
       .poll(() =>
-        story.evaluate((element) => Number.parseFloat(element.style.getPropertyValue('--reality-energy')) || 0),
+        story.evaluate(
+          (element) => Number.parseFloat(element.style.getPropertyValue('--reality-energy')) || 0,
+        ),
       )
       .toBeGreaterThan(0.05);
     await expect(story).toHaveAttribute('data-story-reality-intensity', /charged|overdrive/);

@@ -8,8 +8,12 @@ describe('Adaptive Reality evolution contract', () => {
   it('Home V2へ操作反応型Reality Directorとローダー進化層を統合する', () => {
     const home = readSource('src/components/pages/HomePageV2.astro');
 
-    expect(home).toContain("import AdaptiveRealityDirector from '@/components/effects/AdaptiveRealityDirector'");
-    expect(home).toContain("import QuantumLoaderEvolution from '@/components/effects/QuantumLoaderEvolution.astro'");
+    expect(home).toContain(
+      "import AdaptiveRealityDirector from '@/components/effects/AdaptiveRealityDirector'",
+    );
+    expect(home).toContain(
+      "import QuantumLoaderEvolution from '@/components/effects/QuantumLoaderEvolution.astro'",
+    );
     expect(home).toContain("import '@/styles/adaptive-reality-overdrive.css'");
     expect(home).toContain('<AdaptiveRealityDirector client:load />');
     expect(home).toContain('<QuantumLoaderEvolution />');
@@ -18,7 +22,9 @@ describe('Adaptive Reality evolution contract', () => {
   it('スクロールリスナーを使わず入力速度と遷移属性から演出強度を更新する', () => {
     const source = readSource('src/components/effects/AdaptiveRealityDirector.tsx');
 
-    expect(source).toContain("story.dataset.storyRealityEngine = reducedMotion.matches ? 'static' : 'adaptive-overdrive'");
+    expect(source).toContain(
+      "story.dataset.storyRealityEngine = reducedMotion.matches ? 'static' : 'adaptive-overdrive'",
+    );
     expect(source).toContain('requestAnimationFrame(renderEnergy)');
     expect(source).toContain("story.addEventListener('wheel'");
     expect(source).toContain("story.addEventListener('touchmove'");

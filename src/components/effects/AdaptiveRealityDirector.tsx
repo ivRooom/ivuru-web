@@ -132,13 +132,18 @@ export default function AdaptiveRealityDirector() {
         if (!reality) return;
         const transition = story.dataset.storyTransition;
         const phase = story.dataset.storyTransitionPhase ?? 'idle';
-        const variant = transition === '01-02' ? 'forge' : transition === '02-03' ? 'nexus' : 'idle';
+        const variant =
+          transition === '01-02' ? 'forge' : transition === '02-03' ? 'nexus' : 'idle';
 
         reality.root.dataset.realityVariant = variant;
         reality.root.dataset.realityPhase = phase;
         if (reality.variantLabel) {
           reality.variantLabel.textContent =
-            variant === 'forge' ? 'CRYSTAL WORLD FORGE' : variant === 'nexus' ? 'NEXUS HYPERLINK' : 'STANDBY';
+            variant === 'forge'
+              ? 'CRYSTAL WORLD FORGE'
+              : variant === 'nexus'
+                ? 'NEXUS HYPERLINK'
+                : 'STANDBY';
         }
       };
 
@@ -215,7 +220,8 @@ export default function AdaptiveRealityDirector() {
       story.addEventListener('wheel', onWheel, { passive: true });
       story.addEventListener('touchstart', onTouchStart, { passive: true });
       story.addEventListener('touchmove', onTouchMove, { passive: true });
-      if (quality !== 'lite') story.addEventListener('pointermove', onPointerMove, { passive: true });
+      if (quality !== 'lite')
+        story.addEventListener('pointermove', onPointerMove, { passive: true });
 
       disposeCurrent = () => {
         cancelAnimationFrame(animationFrame);

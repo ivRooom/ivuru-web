@@ -194,13 +194,17 @@
 .anime-reality-overdrive[data-reality-phase='collapse'] .anime-reality-overdrive__beam {
   opacity: 0.74;
   transform: scaleX(0.42);
-  transition: transform 240ms ease-in, opacity 120ms ease;
+  transition:
+    transform 240ms ease-in,
+    opacity 120ms ease;
 }
 
 .anime-reality-overdrive[data-reality-phase='burst'] .anime-reality-overdrive__beam {
   opacity: 1;
   transform: scaleX(1.18) scaleY(3);
-  transition: transform 140ms ease-out, opacity 80ms ease;
+  transition:
+    transform 140ms ease-out,
+    opacity 80ms ease;
 }
 
 .anime-reality-overdrive[data-reality-phase='burst'] .anime-reality-overdrive__fractures > i {
@@ -225,11 +229,7 @@
 
 .anime-reality-overdrive[data-reality-phase='reveal'] .anime-reality-overdrive__fractures > i {
   opacity: 0;
-  transform: translate3d(
-      calc(-50% + var(--fracture-x)),
-      calc(-50% + var(--fracture-y)),
-      520px
-    )
+  transform: translate3d(calc(-50% + var(--fracture-x)), calc(-50% + var(--fracture-y)), 520px)
     rotate(var(--fracture-rotation)) scale(1.8);
 }
 
@@ -261,11 +261,21 @@
   transform: scaleX(-1);
 }
 
-.anime-reality-overdrive[data-reality-quality='balanced'] .anime-reality-overdrive__particles > i:nth-child(n + 19),
-.anime-reality-overdrive[data-reality-quality='balanced'] .anime-reality-overdrive__fractures > i:nth-child(n + 12),
-.anime-reality-overdrive[data-reality-quality='lite'] .anime-reality-overdrive__particles > i:nth-child(n + 13),
-.anime-reality-overdrive[data-reality-quality='lite'] .anime-reality-overdrive__fractures > i:nth-child(n + 9),
-.anime-reality-overdrive[data-reality-quality='lite'] .anime-reality-overdrive__glyphs > i:nth-child(n + 5) {
+.anime-reality-overdrive[data-reality-quality='balanced']
+  .anime-reality-overdrive__particles
+  > i:nth-child(n + 19),
+.anime-reality-overdrive[data-reality-quality='balanced']
+  .anime-reality-overdrive__fractures
+  > i:nth-child(n + 12),
+.anime-reality-overdrive[data-reality-quality='lite']
+  .anime-reality-overdrive__particles
+  > i:nth-child(n + 13),
+.anime-reality-overdrive[data-reality-quality='lite']
+  .anime-reality-overdrive__fractures
+  > i:nth-child(n + 9),
+.anime-reality-overdrive[data-reality-quality='lite']
+  .anime-reality-overdrive__glyphs
+  > i:nth-child(n + 5) {
   display: none;
 }
 

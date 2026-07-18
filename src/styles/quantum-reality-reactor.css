@@ -201,11 +201,17 @@
   animation: reactor-release 620ms ease-out both;
 }
 
-.quantum-reality-reactor[data-reactor-quality='balanced'] .quantum-reality-reactor__scanlines > i:nth-child(n + 5),
-.quantum-reality-reactor[data-reactor-quality='balanced'] .quantum-reality-reactor__plates > i:nth-child(n + 11),
+.quantum-reality-reactor[data-reactor-quality='balanced']
+  .quantum-reality-reactor__scanlines
+  > i:nth-child(n + 5),
+.quantum-reality-reactor[data-reactor-quality='balanced']
+  .quantum-reality-reactor__plates
+  > i:nth-child(n + 11),
 .quantum-reality-reactor[data-reactor-quality='lite'] .quantum-reality-reactor__scanlines,
 .quantum-reality-reactor[data-reactor-quality='lite'] .quantum-reality-reactor__diagnostics,
-.quantum-reality-reactor[data-reactor-quality='lite'] .quantum-reality-reactor__plates > i:nth-child(n + 7) {
+.quantum-reality-reactor[data-reactor-quality='lite']
+  .quantum-reality-reactor__plates
+  > i:nth-child(n + 7) {
   display: none;
 }
 

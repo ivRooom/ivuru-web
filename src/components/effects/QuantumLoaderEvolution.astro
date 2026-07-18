@@ -14,11 +14,12 @@ import '@/styles/quantum-reality-reactor.css';
       const memory = Number(hints.deviceMemory ?? 4);
       const threads = Number(hints.hardwareConcurrency ?? 4);
       const saveData = hints.connection?.saveData === true;
-      const quality = reduced || saveData || memory <= 2 || threads <= 2
-        ? 'lite'
-        : memory >= 8 && threads >= 8 && innerWidth >= 1024 && devicePixelRatio <= 2
-          ? 'ultra'
-          : 'balanced';
+      const quality =
+        reduced || saveData || memory <= 2 || threads <= 2
+          ? 'lite'
+          : memory >= 8 && threads >= 8 && innerWidth >= 1024 && devicePixelRatio <= 2
+            ? 'ultra'
+            : 'balanced';
 
       loader.dataset.loaderQuality = quality;
       loader.dataset.loaderEvolution = 'reality-reactor';
@@ -82,7 +83,8 @@ import '@/styles/quantum-reality-reactor.css';
         loader.style.setProperty('--reactor-pointer-y', Math.max(-1, Math.min(1, y)).toFixed(3));
       };
 
-      if (quality !== 'lite') window.addEventListener('pointermove', onPointerMove, { passive: true });
+      if (quality !== 'lite')
+        window.addEventListener('pointermove', onPointerMove, { passive: true });
 
       document.addEventListener(
         'ivuru:loader-released',
