@@ -18,23 +18,32 @@ describe('home page v2 contract', () => {
     expect(story).toContain('data-story-depth="front"');
   });
 
-  it('カメラ回り込みと前景の追い越し演出を持つ', () => {
-    const camera = readSource('src/components/effects/SpatialCameraEnhancer.tsx');
-    const styles = readSource('src/styles/spatial-home-v2.css');
+  it('安定化したカメラと章間ワールドゲートを持つ', () => {
+    const camera = readSource(
+      'src/components/effects/SpatialCameraEnhancer.tsx',
+    );
+    const director = readSource(
+      'src/components/effects/AnimeScrollDirector.tsx',
+    );
+    const styles = readSource('src/styles/chapter-gate-transitions.css');
 
-    expect(camera).toContain("root.dataset.storyCamera = 'orbital-flythrough'");
+    expect(camera).toContain("root.dataset.storyCamera = 'multi-axis'");
+    expect(camera).toContain(
+      "root.dataset.storyCameraPath = 'portal-forward-stabilized'",
+    );
     expect(camera).toContain("root.dataset.spatialCameraReady = 'pending'");
     expect(camera).toContain("root.dataset.spatialCameraReady = 'true'");
     expect(camera).toContain('--story-perspective-x');
     expect(camera).toContain('--story-perspective-y');
     expect(camera).toContain('[data-story-flyby]');
     expect(camera).toContain('[data-story-depth="front"]');
-    expect(camera).toContain('z: 760 * distance');
     expect(camera).toContain('syncPinnedStory(attempt + 1)');
     expect(camera).toContain('attempt < 30');
-    expect(styles).toContain('.anime-story-camera');
-    expect(styles).toContain('.anime-depth-flybys');
-    expect(styles).toContain('perspective-origin');
+    expect(director).toContain(
+      "root.dataset.storyTransitionEngine = 'world-forge'",
+    );
+    expect(styles).toContain('.anime-chapter-gate');
+    expect(styles).toContain('.anime-chapter-gate__iris');
   });
 
   it('重要なスクロール演出を初回表示で確実に起動する', () => {
@@ -43,7 +52,9 @@ describe('home page v2 contract', () => {
     expect(home).toContain('<AnimeScrollDirector client:load />');
     expect(home).toContain('<SpatialCameraEnhancer client:load />');
     expect(home).toContain('<CinematicEntertainmentDirector client:load />');
+    expect(home).toContain('<SingularityOverdriveDirector client:load />');
     expect(home).toContain('<CinematicPointerEffects client:idle />');
+    expect(home).toContain("import '@/styles/chapter-gate-transitions.css'");
   });
 
   it('トップページを代表情報と主要導線だけに絞る', () => {
@@ -64,10 +75,16 @@ describe('home page v2 contract', () => {
     expect(posts).toContain('.slice(0, 2)');
   });
 
-  it('Reduced Motionでは追加3D演出を停止する', () => {
+  it('Reduced Motionでは追加3D演出と章間ゲートを停止する', () => {
     const styles = readSource('src/styles/spatial-home-v2.css');
-    const mediaStart = styles.indexOf('@media (prefers-reduced-motion: reduce)');
-    const mediaEnd = styles.indexOf('/* Home V2 static and no-JS fallback */', mediaStart);
+    const gateStyles = readSource('src/styles/chapter-gate-transitions.css');
+    const mediaStart = styles.indexOf(
+      '@media (prefers-reduced-motion: reduce)',
+    );
+    const mediaEnd = styles.indexOf(
+      '/* Home V2 static and no-JS fallback */',
+      mediaStart,
+    );
 
     expect(mediaStart).toBeGreaterThanOrEqual(0);
     expect(mediaEnd).toBeGreaterThan(mediaStart);
@@ -75,5 +92,7 @@ describe('home page v2 contract', () => {
     expect(reducedMotionBlock).toContain('transform: none !important');
     expect(reducedMotionBlock).toContain('animation: none !important');
     expect(reducedMotionBlock).toContain('.anime-depth-flybys');
+    expect(gateStyles).toContain('@media (prefers-reduced-motion: reduce)');
+    expect(gateStyles).toContain('display: none !important');
   });
 });
