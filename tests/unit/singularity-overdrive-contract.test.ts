@@ -20,6 +20,9 @@ describe('singularity overdrive contract', () => {
 
     expect(director).toContain('const SINGULARITY_RAY_COUNT = 24');
     expect(director).toContain('const SINGULARITY_FRAGMENT_COUNT = 12');
+    expect(director).toContain('index * (360 / SINGULARITY_RAY_COUNT)');
+    expect(director).toContain('index * (360 / SINGULARITY_FRAGMENT_COUNT)');
+    expect(director).not.toContain('Math.random');
     expect(director).toContain("root.dataset.storyOverdrive = 'singularity-overdrive'");
     expect(director).toContain("root.dataset.overdrivePhase = 'charge'");
     expect(director).toContain("'collapse'");
