@@ -23,15 +23,27 @@ describe('home page v2 contract', () => {
     const styles = readSource('src/styles/spatial-home-v2.css');
 
     expect(camera).toContain("root.dataset.storyCamera = 'orbital-flythrough'");
+    expect(camera).toContain("root.dataset.spatialCameraReady = 'pending'");
+    expect(camera).toContain("root.dataset.spatialCameraReady = 'true'");
     expect(camera).toContain('--story-perspective-x');
     expect(camera).toContain('--story-perspective-y');
     expect(camera).toContain('[data-story-flyby]');
     expect(camera).toContain('[data-story-depth="front"]');
     expect(camera).toContain('z: 760 * distance');
     expect(camera).toContain('syncPinnedStory(attempt + 1)');
+    expect(camera).toContain('attempt < 30');
     expect(styles).toContain('.anime-story-camera');
     expect(styles).toContain('.anime-depth-flybys');
     expect(styles).toContain('perspective-origin');
+  });
+
+  it('重要なスクロール演出を初回表示で確実に起動する', () => {
+    const home = readSource('src/components/pages/HomePageV2.astro');
+
+    expect(home).toContain('<AnimeScrollDirector client:load />');
+    expect(home).toContain('<SpatialCameraEnhancer client:load />');
+    expect(home).toContain('<CinematicEntertainmentDirector client:load />');
+    expect(home).toContain('<CinematicPointerEffects client:idle />');
   });
 
   it('トップページを代表情報と主要導線だけに絞る', () => {
