@@ -1,3 +1,4 @@
+// World ForgeとQuantum Gateの最終統合をCIで固定する。
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
