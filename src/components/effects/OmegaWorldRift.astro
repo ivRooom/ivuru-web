@@ -1,0 +1,54 @@
+---
+import '@/styles/omega-world-rift.css';
+---
+
+<div class="omega-world-rift" data-omega-world-rift aria-hidden="true">
+  <span class="omega-world-rift__veil"></span>
+  <span class="omega-world-rift__singularity"></span>
+  <div class="omega-world-rift__rings">
+    {Array.from({ length: 6 }, (_, index) => <i style={`--omega-index:${index}`}></i>)}
+  </div>
+  <div class="omega-world-rift__beams">
+    {Array.from({ length: 32 }, (_, index) => <i style={`--omega-index:${index}`}></i>)}
+  </div>
+  <div class="omega-world-rift__fragments">
+    {Array.from({ length: 18 }, (_, index) => <i style={`--omega-index:${index}`}></i>)}
+  </div>
+  <div class="omega-world-rift__copy">
+    <small>OMEGA WORLD SHIFT</small>
+    <strong data-omega-chapter>01</strong>
+    <span data-omega-title>BLUE BORDER</span>
+  </div>
+</div>
+
+<script>
+  const bindOmegaWorldRift = () => {
+    const root = document.querySelector<HTMLElement>('[data-anime-scroll-story]');
+    const rift = root?.querySelector<HTMLElement>('[data-omega-world-rift]');
+    const chapter = rift?.querySelector<HTMLElement>('[data-omega-chapter]');
+    const title = rift?.querySelector<HTMLElement>('[data-omega-title]');
+    if (!root || !rift || !chapter || !title) return;
+
+    const titles = ['BLUE BORDER', 'CRYSTAL FORGE', 'NEXUS ASCENSION'];
+    const sync = () => {
+      const code = root.dataset.storyChapter ?? '01';
+      const index = Math.max(0, Math.min(2, Number(code) - 1));
+      rift.dataset.omegaChapter = code;
+      rift.dataset.omegaPhase = root.dataset.storyTransitionPhase ?? 'idle';
+      chapter.textContent = code;
+      title.textContent = titles[index] ?? titles[0]!;
+    };
+
+    const observer = new MutationObserver(sync);
+    observer.observe(root, {
+      attributes: true,
+      attributeFilter: ['data-story-chapter', 'data-story-transition-phase'],
+    });
+    sync();
+
+    document.addEventListener('astro:before-swap', () => observer.disconnect(), { once: true });
+  };
+
+  bindOmegaWorldRift();
+  document.addEventListener('astro:page-load', bindOmegaWorldRift);
+</script>
