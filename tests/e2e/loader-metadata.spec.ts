@@ -34,7 +34,9 @@ test('keeps accessible spatial loader metadata in SSR and releases the page safe
   await expect(page.locator('body')).not.toHaveClass(/site-loading/);
 });
 
-test('hard releases the loader even when requestAnimationFrame does not advance', async ({ page }) => {
+test('hard releases the loader even when requestAnimationFrame does not advance', async ({
+  page,
+}) => {
   await page.addInitScript(() => {
     localStorage.setItem('ivuru-locale', 'ja');
     localStorage.setItem('ivuru-theme', 'dark');

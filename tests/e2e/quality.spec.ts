@@ -30,10 +30,7 @@ test('analytics bridge emits one page view and an allowlisted Home V2 event with
   await portals.scrollIntoViewIfNeeded();
   const worksPortal = portals.locator('a[href="/works"]');
   await expect(worksPortal).toBeVisible();
-  await Promise.all([
-    page.waitForURL(/\/works\/?$/, { timeout: 10_000 }),
-    worksPortal.click(),
-  ]);
+  await Promise.all([page.waitForURL(/\/works\/?$/, { timeout: 10_000 }), worksPortal.click()]);
 
   const events = await page.evaluate(
     () =>

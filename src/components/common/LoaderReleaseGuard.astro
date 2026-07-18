@@ -27,9 +27,7 @@
         loader.setAttribute('aria-hidden', 'true');
         loader.hidden = true;
         loader.style.display = 'none';
-        document.dispatchEvent(
-          new CustomEvent('ivuru:loader-released', { detail: { reason } }),
-        );
+        document.dispatchEvent(new CustomEvent('ivuru:loader-released', { detail: { reason } }));
       }, 580);
     };
 
