@@ -24,10 +24,14 @@ import '@/styles/omega-world-rift.css';
 <script>
   const bindOmegaWorldRift = () => {
     const root = document.querySelector<HTMLElement>('[data-anime-scroll-story]');
-    const rift = root?.querySelector<HTMLElement>('[data-omega-world-rift]');
-    const chapter = rift?.querySelector<HTMLElement>('[data-omega-chapter]');
-    const title = rift?.querySelector<HTMLElement>('[data-omega-title]');
-    if (!root || !rift || !chapter || !title) return;
+    const stage = root?.querySelector<HTMLElement>('[data-anime-scroll-stage]');
+    const rift = document.querySelector<HTMLElement>('[data-omega-world-rift]');
+    if (!root || !stage || !rift) return;
+
+    if (rift.parentElement !== stage) stage.append(rift);
+    const chapter = rift.querySelector<HTMLElement>('[data-omega-chapter]');
+    const title = rift.querySelector<HTMLElement>('[data-omega-title]');
+    if (!chapter || !title) return;
 
     const titles = ['BLUE BORDER', 'CRYSTAL FORGE', 'NEXUS ASCENSION'];
     const sync = () => {
