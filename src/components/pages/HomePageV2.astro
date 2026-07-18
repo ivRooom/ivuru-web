@@ -12,7 +12,9 @@ import SpatialCameraEnhancer from '@/components/effects/SpatialCameraEnhancer';
 import CinematicEntertainmentDirector from '@/components/effects/CinematicEntertainmentDirector';
 import SingularityOverdriveDirector from '@/components/effects/SingularityOverdriveDirector';
 import AdaptiveRealityDirector from '@/components/effects/AdaptiveRealityDirector';
+import StoryProgressAuthority from '@/components/effects/StoryProgressAuthority';
 import QuantumLoaderEvolution from '@/components/effects/QuantumLoaderEvolution.astro';
+import OmegaWorldRift from '@/components/effects/OmegaWorldRift.astro';
 import { siteConfig, type Locale } from '@/data/site-config';
 import '@/styles/anime-scroll-story.css';
 import '@/styles/anime-scroll-story-overrides.css';
@@ -45,12 +47,14 @@ const descriptions = {
   <QuantumLoaderEvolution />
   <CinematicPointerEffects client:idle />
   <AnimeScrollDirector client:load />
+  <StoryProgressAuthority client:load />
   <SpatialCameraEnhancer client:load />
   <CinematicEntertainmentDirector client:load />
   <SingularityOverdriveDirector client:load />
   <AdaptiveRealityDirector client:load />
 
   <AnimeScrollStory locale={locale} />
+  <OmegaWorldRift />
 
   <div class="anime-story-after">
     <div class="anime-scene-anchor" data-anime-scene="ice" data-cinematic-section>
