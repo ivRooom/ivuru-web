@@ -1,0 +1,43 @@
+name: Export Singularity Overdrive Format
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/export-singularity-overdrive-format.yml
+
+permissions:
+  contents: read
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --silent
+      - name: Prettierで整形
+        run: |
+          npx prettier --write \
+            src/components/effects/SingularityOverdriveDirector.tsx \
+            src/components/pages/HomePageV2.astro \
+            src/styles/singularity-overdrive.css \
+            tests/unit/singularity-overdrive-contract.test.ts \
+            tests/e2e/singularity-overdrive.spec.ts
+      - name: 整形済みファイルを保存
+        uses: actions/upload-artifact@v4
+        with:
+          name: singularity-overdrive-formatted
+          path: |
+            src/components/effects/SingularityOverdriveDirector.tsx
+            src/components/pages/HomePageV2.astro
+            src/styles/singularity-overdrive.css
+            tests/unit/singularity-overdrive-contract.test.ts
+            tests/e2e/singularity-overdrive.spec.ts
+          retention-days: 1
