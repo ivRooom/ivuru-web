@@ -11,6 +11,8 @@ import AnimeScrollDirector from '@/components/effects/AnimeScrollDirector';
 import SpatialCameraEnhancer from '@/components/effects/SpatialCameraEnhancer';
 import CinematicEntertainmentDirector from '@/components/effects/CinematicEntertainmentDirector';
 import SingularityOverdriveDirector from '@/components/effects/SingularityOverdriveDirector';
+import AdaptiveRealityDirector from '@/components/effects/AdaptiveRealityDirector';
+import QuantumLoaderEvolution from '@/components/effects/QuantumLoaderEvolution.astro';
 import { siteConfig, type Locale } from '@/data/site-config';
 import '@/styles/anime-scroll-story.css';
 import '@/styles/anime-scroll-story-overrides.css';
@@ -21,6 +23,7 @@ import '@/styles/cinematic-entertainment-polish.css';
 import '@/styles/cinematic-entertainment-compat.css';
 import '@/styles/singularity-overdrive.css';
 import '@/styles/chapter-gate-transitions.css';
+import '@/styles/adaptive-reality-overdrive.css';
 import '@/styles/home-loader-insets.css';
 import '@/styles/story-static-fallback.css';
 
@@ -39,11 +42,13 @@ const descriptions = {
   chapter={{ code: '00', title: 'HOME', world: 'BLUE STORY' }}
 >
   <LoaderReleaseGuard />
+  <QuantumLoaderEvolution />
   <CinematicPointerEffects client:idle />
   <AnimeScrollDirector client:load />
   <SpatialCameraEnhancer client:load />
   <CinematicEntertainmentDirector client:load />
   <SingularityOverdriveDirector client:load />
+  <AdaptiveRealityDirector client:load />
 
   <AnimeScrollStory locale={locale} />
 
