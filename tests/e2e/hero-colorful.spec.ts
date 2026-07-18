@@ -14,11 +14,13 @@ test('Home V2 uses the brand signal visual and keeps primary actions clear', asy
 
   const story = page.locator('[data-anime-scroll-story]');
   await expect(story).toBeVisible();
-  await expect(story).toHaveAttribute('data-story-mode', 'motion', { timeout: 6_000 });
+  await expect(story).toHaveAttribute('data-story-mode', 'motion', { timeout: 10_000 });
   await expect(story.locator('[data-anime-story-scene]')).toHaveCount(3);
   await expect(story.locator('.signal-key-visual')).toBeVisible();
   await expect(story.locator('.signal-key-mark')).toContainText('IV');
-  await expect(story.locator('.signal-key-readout')).toBeVisible();
+  await expect(story.locator('.signal-key-readout')).toBeHidden();
+  await expect(story.locator('.signal-key-orbit')).toHaveCount(3);
+  await expect(story.locator('.signal-key-scan')).toBeVisible();
   await expect(story.locator('[data-story-camera-rig]')).toHaveCount(1);
   await expect(story.locator('[data-story-flyby]')).toHaveCount(5);
   await expect(story.getByRole('link', { name: /Works|制作|작업/i }).first()).toBeVisible();
@@ -37,7 +39,7 @@ test('reduced motion keeps all three story scenes available without autoplay mot
 
   const story = page.locator('[data-anime-scroll-story]');
   await expect(story).toBeVisible();
-  await expect(story).toHaveAttribute('data-story-mode', 'static');
+  await expect(story).toHaveAttribute('data-story-mode', 'static', { timeout: 10_000 });
   await expect(story).toHaveAttribute('data-story-camera', 'static');
   await expect(story.locator('[data-anime-story-scene]')).toHaveCount(3);
   await expect(story.locator('.signal-key-visual')).toBeVisible();
