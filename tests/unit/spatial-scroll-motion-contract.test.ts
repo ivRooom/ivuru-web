@@ -8,6 +8,8 @@ describe('world forge chapter transition contract', () => {
   it('01→02→03を共通のポータル前進軸で受け渡す', () => {
     const source = readSource('src/components/effects/AnimeScrollDirector.tsx');
 
+    expect(source).toContain("'[data-anime-scroll-stage]'");
+    expect(source).toContain("root.dataset.storyDirector = 'ready'");
     expect(source).toContain("root.dataset.storyTransitionEngine = 'world-forge'");
     expect(source).toContain("root.dataset.storyAxis = 'portal-forward'");
     expect(source).toContain('const CHAPTER_SEGMENT = 2.4');
