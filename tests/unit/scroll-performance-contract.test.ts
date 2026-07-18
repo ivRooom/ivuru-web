@@ -24,7 +24,8 @@ describe('scroll performance contract', () => {
     expect(source).not.toContain('clipPath');
     expect(source).not.toContain('filter:');
     expect(source).not.toMatch(/addEventListener\(\s*['"]scroll['"]/);
-    expect(source).toContain("root.dataset.storyPerformance = 'transform-only'");
+    expect(source).toContain("root.dataset.storyPerformance = 'composited-world-forge'");
+    expect(source).toContain("root.dataset.storyAxis = 'portal-forward'");
 
     const initialInertSync = source.indexOf('setSceneState(elements.scenes, 0)');
     const bootingState = source.indexOf("elements.root.dataset.storyMode = 'booting'");
