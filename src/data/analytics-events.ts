@@ -13,6 +13,7 @@ export const analyticsEventNames = [
   'contact_error',
   'command_center_open',
   'world_portal_open',
+  'home_portal_open',
   'media_playback_toggle',
   'spotify_load',
   'language_change',
@@ -101,6 +102,10 @@ export const analyticsEventMap: Record<
   world_portal_open: {
     purpose: 'News・Games・Favoritesの各ワールドへの導線利用を把握する',
     parameters: ['path', 'locale', 'target', 'surface', 'position'],
+  },
+  home_portal_open: {
+    purpose: 'Home V2のWorks・Profile・Journal・ivRm導線利用を把握する',
+    parameters: ['path', 'locale', 'target', 'position'],
   },
   media_playback_toggle: {
     purpose: 'ローカル生成動画の再生・停止操作を把握する',
