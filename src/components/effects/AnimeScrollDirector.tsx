@@ -103,8 +103,7 @@ const createGate = (stage: HTMLElement): GateElements => {
   ).join('');
   rays.innerHTML = Array.from(
     { length: GATE_RAY_COUNT },
-    (_, index) =>
-      `<i style="--gate-index:${index};--gate-thickness:${(index % 3) + 1}px"></i>`,
+    (_, index) => `<i style="--gate-index:${index};--gate-thickness:${(index % 3) + 1}px"></i>`,
   ).join('');
   shards.innerHTML = Array.from(
     { length: GATE_SHARD_COUNT },
