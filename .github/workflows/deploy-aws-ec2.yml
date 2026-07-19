@@ -1,4 +1,4 @@
-name: AWS EC2へデプロイ
+name: AWS共有Runtimeへデプロイ
 
 on:
   push:
@@ -16,14 +16,14 @@ permissions:
   contents: read
 
 concurrency:
-  group: aws-ec2-production
+  group: aws-runtime-ivuru-web
   cancel-in-progress: false
 
 env:
   AWS_REGION: ${{ vars.AWS_REGION || 'ap-northeast-1' }}
-  AWS_INSTANCE_ID: ${{ vars.AWS_INSTANCE_ID }}
-  AWS_DEPLOY_ROLE_ARN: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
-  SITE_URL: ${{ vars.AWS_SITE_URL || 'https://runtime.ivrm.jp' }}
+  AWS_INSTANCE_ID: ${{ vars.AWS_RUNTIME_INSTANCE_ID }}
+  AWS_DEPLOY_ROLE_ARN: ${{ vars.AWS_RUNTIME_DEPLOY_ROLE_ARN }}
+  SITE_URL: ${{ vars.AWS_RUNTIME_SITE_URL || 'https://runtime.ivrm.jp' }}
 
 jobs:
   validate:
@@ -58,19 +58,25 @@ jobs:
         run: npm run build
 
   deploy:
-    name: OIDC + SSMでEC2へデプロイ
+    name: OIDC + SSMで共有EC2へデプロイ
     needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    environment: production
+    environment: aws-runtime
 
     steps:
       - name: 必須変数を検証
         shell: bash
         run: |
           set -Eeuo pipefail
-          test -n "$AWS_INSTANCE_ID" || { echo 'AWS_INSTANCE_ID repository variable is required.'; exit 1; }
-          test -n "$AWS_DEPLOY_ROLE_ARN" || { echo 'AWS_DEPLOY_ROLE_ARN repository variable is required.'; exit 1; }
+          test -n "$AWS_INSTANCE_ID" || {
+            echo 'AWS_RUNTIME_INSTANCE_ID repository variable is required.'
+            exit 1
+          }
+          test -n "$AWS_DEPLOY_ROLE_ARN" || {
+            echo 'AWS_RUNTIME_DEPLOY_ROLE_ARN repository variable is required.'
+            exit 1
+          }
 
       - name: AWS認証情報をOIDCで取得
         uses: aws-actions/configure-aws-credentials@v6
@@ -114,7 +120,7 @@ jobs:
               "git clone --filter=blob:none --no-checkout https://github.com/" + $repository + ".git \"$DEPLOY_WORK\"",
               "git -C \"$DEPLOY_WORK\" fetch --depth 1 origin " + $sha,
               "git -C \"$DEPLOY_WORK\" checkout --detach " + $sha,
-              "sudo REPOSITORY=" + $repository + " DEPLOY_SHA=" + $sha + " SITE_URL=" + $siteUrl + " bash \"$DEPLOY_WORK/scripts/deploy-ec2.sh\"",
+              "sudo REPOSITORY=" + $repository + " DEPLOY_SHA=" + $sha + " SITE_URL=" + ($siteUrl | @sh) + " bash \"$DEPLOY_WORK/scripts/deploy-ec2.sh\"",
               "rm -rf \"$DEPLOY_WORK\""
             ]}' > ssm-parameters.json
 
@@ -174,7 +180,7 @@ jobs:
         shell: bash
         run: |
           {
-            echo '## AWS EC2デプロイ'
+            echo '## AWS共有Runtimeデプロイ'
             echo
             echo "- Repository: \`${GITHUB_REPOSITORY}\`"
             echo "- Commit: \`${{ steps.target.outputs.sha }}\`"
