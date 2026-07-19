@@ -1,0 +1,80 @@
+<script is:inline>
+  (() => {
+    const root = document.documentElement;
+
+    const releaseLoader = (reason) => {
+      const loader = document.querySelector('[data-spatial-loader]');
+      if (!(loader instanceof HTMLElement)) return;
+      if (loader.dataset.guardReleased === 'true') return;
+
+      loader.dataset.guardReleased = 'true';
+      loader.dataset.releaseReason = reason;
+      loader.dataset.state = 'ready';
+      loader.classList.add('loaded');
+      loader.style.pointerEvents = 'none';
+      root.dataset.loaderReleased = 'true';
+      document.body?.classList.remove('site-loading');
+
+      const state = loader.querySelector('[data-loader-state]');
+      const progress = loader.querySelector('[role="progressbar"]');
+      const progressText = loader.querySelector('[data-loader-progress]');
+      if (state) state.textContent = 'READY';
+      progress?.setAttribute('aria-valuenow', '100');
+      if (progressText) progressText.textContent = '100';
+      loader.style.setProperty('--loader-progress', '100%');
+
+      window.setTimeout(() => {
+        loader.setAttribute('aria-hidden', 'true');
+        loader.hidden = true;
+        loader.style.display = 'none';
+        document.dispatchEvent(new CustomEvent('ivuru:loader-released', { detail: { reason } }));
+      }, 580);
+    };
+
+    const armGuard = () => {
+      const loader = document.querySelector('[data-spatial-loader]');
+      if (!(loader instanceof HTMLElement)) return;
+      if (loader.dataset.releaseGuardBound === 'true') return;
+      loader.dataset.releaseGuardBound = 'true';
+
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const seen = (() => {
+        try {
+          return sessionStorage.getItem('ivuru-intro-seen') === '1';
+        } catch {
+          return true;
+        }
+      })();
+
+      const readyDelay = reduced ? 80 : seen ? 900 : 1850;
+      const hardLimit = reduced ? 350 : 2800;
+      const releaseAfterReady = () =>
+        window.setTimeout(() => releaseLoader('document-ready'), readyDelay);
+
+      if (document.readyState === 'complete') releaseAfterReady();
+      else window.addEventListener('load', releaseAfterReady, { once: true });
+
+      window.setTimeout(() => releaseLoader('hard-timeout'), hardLimit);
+      window.addEventListener('wheel', () => releaseLoader('wheel-input'), {
+        once: true,
+        passive: true,
+      });
+      window.addEventListener('touchmove', () => releaseLoader('touch-input'), {
+        once: true,
+        passive: true,
+      });
+      window.addEventListener('keydown', () => releaseLoader('keyboard-input'), { once: true });
+      window.addEventListener(
+        'pageshow',
+        (event) => {
+          if (event.persisted) releaseLoader('bfcache-restore');
+        },
+        { once: true },
+      );
+    };
+
+    armGuard();
+    document.addEventListener('astro:page-load', armGuard);
+    document.addEventListener('astro:after-swap', armGuard);
+  })();
+</script>

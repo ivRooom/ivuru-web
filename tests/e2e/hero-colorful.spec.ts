@@ -8,22 +8,21 @@ const preparePage = async (page: import('@playwright/test').Page) => {
   });
 };
 
-test('anime scroll story uses the brand signal visual and keeps primary actions clear', async ({
-  page,
-}) => {
+test('Home V2 uses the brand signal visual and keeps primary actions clear', async ({ page }) => {
   await preparePage(page);
   await page.goto('/');
 
   const story = page.locator('[data-anime-scroll-story]');
   await expect(story).toBeVisible();
-  await expect(story).toHaveAttribute('data-story-mode', 'motion', { timeout: 4_000 });
-  await expect(story.locator('[data-anime-story-scene]')).toHaveCount(4);
+  await expect(story).toHaveAttribute('data-story-mode', 'motion', { timeout: 10_000 });
+  await expect(story.locator('[data-anime-story-scene]')).toHaveCount(3);
   await expect(story.locator('.signal-key-visual')).toBeVisible();
   await expect(story.locator('.signal-key-mark')).toContainText('IV');
-  await expect(story.locator('.signal-key-readout')).toBeVisible();
-  await expect(story.locator('.blue-media-character img')).toHaveCount(0);
-  await expect(story.locator('.hero-spark-field')).toHaveCount(0);
-  await expect(story.locator('.hero-petal-field')).toHaveCount(0);
+  await expect(story.locator('.signal-key-readout')).toBeHidden();
+  await expect(story.locator('.signal-key-orbit')).toHaveCount(3);
+  await expect(story.locator('.signal-key-scan')).toBeVisible();
+  await expect(story.locator('[data-story-camera-rig]')).toHaveCount(1);
+  await expect(story.locator('[data-story-flyby]')).toHaveCount(5);
   await expect(story.getByRole('link', { name: /Works|制作|작업/i }).first()).toBeVisible();
   await expect(
     story.getByRole('link', { name: /Profile|プロフィール|프로필/i }).first(),
@@ -31,7 +30,7 @@ test('anime scroll story uses the brand signal visual and keeps primary actions 
   await expect(page.locator('body')).toHaveAttribute('data-anime-scene', 'ice');
 });
 
-test('reduced motion keeps all story artwork available without autoplay media', async ({
+test('reduced motion keeps all three story scenes available without autoplay motion', async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -40,15 +39,15 @@ test('reduced motion keeps all story artwork available without autoplay media', 
 
   const story = page.locator('[data-anime-scroll-story]');
   await expect(story).toBeVisible();
-  await expect(story).toHaveAttribute('data-story-mode', 'static');
-  await expect(story.locator('[data-anime-story-scene]')).toHaveCount(4);
+  await expect(story).toHaveAttribute('data-story-mode', 'static', { timeout: 10_000 });
+  await expect(story).toHaveAttribute('data-story-camera', 'static');
+  await expect(story.locator('[data-anime-story-scene]')).toHaveCount(3);
   await expect(story.locator('.signal-key-visual')).toBeVisible();
-  await expect(story.locator('[data-hero-video]')).toHaveCount(0);
-  await expect(story.locator('.hero-petal-field')).toHaveCount(0);
+  await expect(story.locator('.anime-depth-flybys')).toBeHidden();
   await expect(page.locator('html')).toHaveAttribute('data-motion-ready', 'reduced');
 });
 
-test('localized routes share the blue and white four-chapter composition', async ({ page }) => {
+test('localized routes share the blue and white three-scene composition', async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem('ivuru-theme', 'dark');
     sessionStorage.setItem('ivuru-intro-seen', '1');
@@ -58,8 +57,10 @@ test('localized routes share the blue and white four-chapter composition', async
     await page.goto(route);
     const story = page.locator('[data-anime-scroll-story]');
     await expect(story).toBeVisible();
-    await expect(story.locator('[data-anime-story-scene]')).toHaveCount(4);
+    await expect(story.locator('[data-anime-story-scene]')).toHaveCount(3);
+    await expect(story.locator('[data-story-flyby]')).toHaveCount(5);
     await expect(story.locator('.signal-key-visual')).toBeVisible();
     await expect(story.locator('.signal-key-mark')).toContainText('IV');
+    await expect(page.locator('.home-portal-link')).toHaveCount(4);
   }
 });

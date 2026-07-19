@@ -1,0 +1,284 @@
+---
+import '@/styles/quantum-gate-loader.css';
+
+type Locale = 'ja' | 'en' | 'ko';
+
+const { locale = 'ja' } = Astro.props as { locale?: Locale };
+const copy = {
+  ja: {
+    label: 'いゔる。のワールドゲートを起動しています',
+    status: 'ページを読み込んでいます。',
+    phases: [
+      '世界レイヤーを同期しています',
+      'チャプターゲートを構築しています',
+      'シンギュラリティを点火しています',
+      'ワールドリンクを開放しています',
+    ],
+    tagline: 'BUILD. PLAY. CONNECT.',
+  },
+  en: {
+    label: 'Opening the ivuru world gate',
+    status: 'Loading the page.',
+    phases: [
+      'Synchronizing world layers',
+      'Forging the chapter gate',
+      'Igniting the singularity',
+      'Opening the world link',
+    ],
+    tagline: 'BUILD. PLAY. CONNECT.',
+  },
+  ko: {
+    label: 'ivuru 월드 게이트를 기동하는 중입니다',
+    status: '페이지를 불러오는 중입니다.',
+    phases: [
+      '월드 레이어 동기화 중',
+      '챕터 게이트 구축 중',
+      '싱귤래리티 점화 중',
+      '월드 링크 개방 중',
+    ],
+    tagline: 'BUILD. PLAY. CONNECT.',
+  },
+}[locale];
+---
+
+<noscript>
+  <style>
+    .anime-intro-loader {
+      display: none !important;
+    }
+  </style>
+</noscript>
+
+<div
+  class="intro-loader world-loader anime-intro-loader spatial-loader quantum-gate-loader"
+  data-spatial-loader
+  data-loader-theme="quantum-world-gate"
+  data-loader-phase="sync"
+  style="--loader-progress: 0%; --loader-progress-ratio: 0;"
+>
+  <span class="sr-only" role="status" aria-live="polite" aria-atomic="true">
+    {copy.status}
+  </span>
+
+  <div class="quantum-loader__chrome" aria-hidden="true">
+    <span>IVURU / WORLD GATE OS</span>
+    <span>SEQUENCE 00 · SINGULARITY BOOT</span>
+  </div>
+
+  <div class="quantum-loader__stage" aria-hidden="true">
+    <div class="quantum-loader__starfield">
+      {
+        Array.from({ length: 24 }, (_, index) => {
+          const x = 4 + ((index * 17) % 92);
+          const y = 8 + ((index * 13) % 82);
+          const size = 1 + (index % 3) * 0.7;
+          const driftX = (index % 2 === 0 ? -1 : 1) * (24 + (index % 5) * 14);
+          const driftY = ((index % 3) - 1) * (26 + (index % 4) * 12);
+          const duration = 3.8 + (index % 6) * 0.36;
+          return (
+            <i
+              style={`--star-index:${index};--star-x:${x}%;--star-y:${y}%;--star-size:${size}px;--star-drift-x:${driftX}px;--star-drift-y:${driftY}px;--star-duration:${duration}s`}
+            />
+          );
+        })
+      }
+    </div>
+
+    <div class="quantum-loader__tunnel">
+      {
+        Array.from({ length: 18 }, (_, index) => {
+          const x = 50 + ((index % 5) - 2) * 9;
+          const y = 50 + ((index % 6) - 3) * 8;
+          const angle = (index - 9) * 19;
+          const height = 1 + (index % 3);
+          return (
+            <i
+              style={`--tunnel-index:${index};--tunnel-x:${x}%;--tunnel-y:${y}%;--tunnel-angle:${angle}deg;--tunnel-height:${height}px`}
+            />
+          );
+        })
+      }
+    </div>
+
+    <div class="quantum-loader__gate">
+      <span class="quantum-loader__aura"></span>
+      <span class="quantum-loader__ring quantum-loader__ring--outer"></span>
+      <span class="quantum-loader__ring quantum-loader__ring--middle"></span>
+      <span class="quantum-loader__ring quantum-loader__ring--inner"></span>
+
+      <div class="quantum-loader__blades">
+        {Array.from({ length: 12 }, (_, index) => <i style={`--blade-index:${index}`} />)}
+      </div>
+
+      <div class="quantum-loader__core">
+        <span class="quantum-loader__core-pulse"></span>
+        <span class="quantum-loader__core-grid"></span>
+        <div class="quantum-loader__mark">
+          <small>IVURU</small>
+          <strong>IV</strong>
+          <span>WORLD / 00</span>
+        </div>
+      </div>
+
+      <div class="quantum-loader__shards">
+        {
+          Array.from({ length: 10 }, (_, index) => {
+            const duration = 3.2 + (index % 4) * 0.4;
+            return <i style={`--shard-index:${index};--shard-duration:${duration}s`} />;
+          })
+        }
+      </div>
+    </div>
+
+    <div class="quantum-loader__reticle">
+      <span></span><span></span><span></span><span></span>
+    </div>
+  </div>
+
+  <div class="quantum-loader__copy">
+    <p data-loader-phase-text>{copy.phases[0]}</p>
+    <strong>いゔる。</strong>
+    <span>{copy.tagline}</span>
+  </div>
+
+  <div class="quantum-loader__footer">
+    <div class="quantum-loader__metadata" aria-hidden="true">
+      <span>SYSTEM.STATUS: <b data-loader-state>SYNCING</b></span>
+      <span>ENGINE: WORLD_FORGE / PORTAL_FORWARD</span>
+    </div>
+
+    <div
+      class="quantum-loader__progress"
+      role="progressbar"
+      aria-label={copy.label}
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-valuenow="0"
+    >
+      <span class="quantum-loader__progress-track"><i></i></span>
+      <b data-loader-progress>000</b>
+    </div>
+  </div>
+
+  <span class="quantum-loader__curtain quantum-loader__curtain--left" aria-hidden="true"></span>
+  <span class="quantum-loader__curtain quantum-loader__curtain--right" aria-hidden="true"></span>
+  <span class="quantum-loader__release-flash" aria-hidden="true"></span>
+</div>
+
+<script is:inline define:vars={{ phases: copy.phases }}>
+  (() => {
+    const loader = document.querySelector('[data-spatial-loader]');
+    if (!(loader instanceof HTMLElement) || loader.dataset.bound === 'true') return;
+    loader.dataset.bound = 'true';
+
+    const root = document.documentElement;
+    const progressbar = loader.querySelector('[role="progressbar"]');
+    const progressText = loader.querySelector('[data-loader-progress]');
+    const stateText = loader.querySelector('[data-loader-state]');
+    const phaseText = loader.querySelector('[data-loader-phase-text]');
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (root.dataset.loaderReleased === 'true') {
+      loader.classList.add('loaded');
+      loader.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('site-loading');
+      return;
+    }
+
+    const seen = (() => {
+      try {
+        const hasSeen = sessionStorage.getItem('ivuru-intro-seen') === '1';
+        sessionStorage.setItem('ivuru-intro-seen', '1');
+        return hasSeen;
+      } catch {
+        return true;
+      }
+    })();
+
+    const duration = reduced ? 80 : seen ? 820 : 1780;
+    const exitDuration = reduced ? 1 : 560;
+    const startedAt = performance.now();
+    let readyAt = document.readyState === 'complete' ? startedAt : null;
+    let frame = 0;
+    let released = false;
+    let activePhase = '';
+
+    const resolvePhase = (value) => {
+      if (value < 27) return { key: 'sync', index: 0, state: 'SYNCING' };
+      if (value < 61) return { key: 'forge', index: 1, state: 'FORGING' };
+      if (value < 91) return { key: 'ignite', index: 2, state: 'IGNITING' };
+      return { key: 'open', index: 3, state: 'OPENING' };
+    };
+
+    const renderProgress = (value) => {
+      const next = Math.max(0, Math.min(100, Math.round(value)));
+      loader.style.setProperty('--loader-progress', `${next}%`);
+      loader.style.setProperty('--loader-progress-ratio', String(next / 100));
+      progressbar?.setAttribute('aria-valuenow', String(next));
+      if (progressText) progressText.textContent = String(next).padStart(3, '0');
+
+      const phase = resolvePhase(next);
+      if (activePhase === phase.key) return;
+      activePhase = phase.key;
+      loader.dataset.loaderPhase = phase.key;
+      if (stateText) stateText.textContent = phase.state;
+      if (phaseText) phaseText.textContent = phases[phase.index] ?? phases[0];
+    };
+
+    const release = () => {
+      if (released) return;
+      released = true;
+      renderProgress(100);
+      loader.dataset.loaderPhase = 'open';
+      loader.dataset.state = 'ready';
+      if (stateText) stateText.textContent = 'WORLD LINK READY';
+      root.dataset.loaderReleased = 'true';
+      loader.classList.add('loaded');
+
+      window.setTimeout(() => {
+        document.body.classList.remove('site-loading');
+        loader.setAttribute('aria-hidden', 'true');
+        document.dispatchEvent(
+          new CustomEvent('ivuru:loader-released', {
+            detail: { reason: 'quantum-gate-open' },
+          }),
+        );
+      }, exitDuration);
+    };
+
+    const tick = (now) => {
+      const elapsed = now - startedAt;
+      const waiting = Math.min(91, (elapsed / Math.max(duration, 1)) * 91);
+      const readyRatio =
+        readyAt === null ? 0 : Math.min(1, (now - readyAt) / Math.max(duration * 0.14, 1));
+      renderProgress(waiting + (100 - waiting) * readyRatio);
+
+      if ((readyAt !== null && elapsed >= duration) || elapsed >= duration + 420) {
+        release();
+        return;
+      }
+
+      frame = requestAnimationFrame(tick);
+    };
+
+    const markReady = () => {
+      readyAt ??= performance.now();
+    };
+
+    document.body.classList.add('site-loading');
+    loader.dataset.state = 'loading';
+    renderProgress(0);
+    if (readyAt === null) window.addEventListener('load', markReady, { once: true });
+    frame = requestAnimationFrame(tick);
+
+    window.addEventListener(
+      'pagehide',
+      () => {
+        cancelAnimationFrame(frame);
+        window.removeEventListener('load', markReady);
+        document.body.classList.remove('site-loading');
+      },
+      { once: true },
+    );
+  })();
+</script>

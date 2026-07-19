@@ -254,22 +254,19 @@ test('profile renders brand identity, social nodes, contact email, game clips, a
   await expect(page.locator('#favorites .profile-favorite-card')).toHaveCount(4);
 });
 
-test('social embeds require an explicit action before third-party scripts load', async ({
+test('Home V2 keeps third-party social scripts unloaded and routes to focused pages', async ({
   page,
 }) => {
   await page.route('https://platform.x.com/**', (route) => route.abort());
   await page.route('https://platform.twitter.com/**', (route) => route.abort());
   await page.goto('/');
-  await expect(page.locator('.world-loader')).toBeHidden({ timeout: 4000 });
-  const socialDock = page.locator('.social-dock');
-  await socialDock.scrollIntoViewIfNeeded();
+  await expect(page.locator('.world-loader')).toBeHidden({ timeout: 4_000 });
   await expect(page.locator('#x-widgets-script')).toHaveCount(0);
   await expect(page.locator('#instagram-embed-script')).toHaveCount(0);
-  const loadX = page.getByRole('button', { name: 'Xタイムラインを読み込む' });
-  await expect(loadX).toBeVisible();
-  await loadX.click();
-  await expect(page.locator('#x-widgets-script')).toHaveCount(1);
-  await expect(page.locator('a.twitter-timeline')).toHaveAttribute('href', /x\.com\/ivuruGG/);
+  const portals = page.locator('.home-portals');
+  await portals.scrollIntoViewIfNeeded();
+  await expect(portals.locator('a[href="/profile"]')).toBeVisible();
+  await expect(portals.locator('a[href="https://ivrm.jp"]')).toBeVisible();
 });
 
 test('brand OGP and Twitter fallback metadata are present', async ({ page }) => {

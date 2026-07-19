@@ -1,0 +1,597 @@
+.anime-scroll-story {
+  --entertainment-hot: #ff4fd8;
+  --entertainment-blue: #2bc8ff;
+  --entertainment-violet: #795cff;
+  --entertainment-night: #020512;
+}
+
+.is-opening {
+  background:
+    radial-gradient(circle at 76% 28%, rgb(43 210 255 / 30%), transparent 20%),
+    radial-gradient(circle at 18% 84%, rgb(255 79 216 / 18%), transparent 28%),
+    radial-gradient(circle at 54% 112%, rgb(53 116 255 / 32%), transparent 42%),
+    linear-gradient(135deg, #020512 0%, #071739 42%, #0a3971 72%, #075f94 100%);
+}
+
+.is-opening::before {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  pointer-events: none;
+  content: '';
+  background-image:
+    radial-gradient(circle at 12% 18%, rgb(255 255 255 / 75%) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 28% 70%, rgb(108 231 255 / 68%) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 62% 14%, rgb(255 255 255 / 70%) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 88% 68%, rgb(255 104 226 / 48%) 0 1.2px, transparent 2px),
+    radial-gradient(circle at 48% 48%, rgb(151 222 255 / 44%) 0 1px, transparent 1.6px);
+  background-size:
+    260px 220px,
+    330px 290px,
+    410px 360px,
+    370px 310px,
+    290px 250px;
+  opacity: 0.5;
+  animation: anime-star-drift 18s linear infinite;
+}
+
+.is-opening .anime-scene-sky::before {
+  background:
+    conic-gradient(
+      from 235deg at 72% 34%,
+      transparent 0 38%,
+      rgb(87 224 255 / 16%) 42%,
+      transparent 48%
+    ),
+    linear-gradient(118deg, transparent 40%, rgb(105 221 255 / 9%) 49%, transparent 58%);
+  mix-blend-mode: screen;
+}
+
+.is-opening .anime-sun {
+  top: 17%;
+  right: 18%;
+  width: clamp(70px, 9vw, 138px);
+  background: radial-gradient(
+    circle at 38% 34%,
+    #fff 0 9%,
+    #b8f7ff 28%,
+    #55dfff 58%,
+    transparent 70%
+  );
+  box-shadow:
+    0 0 0 18px rgb(86 226 255 / 5%),
+    0 0 80px 30px rgb(44 200 255 / 32%),
+    0 0 180px 70px rgb(69 105 255 / 18%);
+}
+
+.is-opening .anime-cloud {
+  background: linear-gradient(
+    90deg,
+    rgb(74 169 255 / 8%),
+    rgb(146 234 255 / 24%),
+    rgb(79 117 255 / 8%)
+  );
+  filter: blur(8px);
+}
+
+.is-opening .anime-cloud.cloud-a {
+  opacity: 0.2;
+}
+
+.is-opening .anime-cloud.cloud-b {
+  opacity: 0.28;
+}
+
+.is-opening .anime-cloud.cloud-c {
+  opacity: 0.15;
+}
+
+.is-opening .anime-sea-line {
+  height: 55%;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 34px, rgb(93 216 255 / 10%) 35px 36px),
+    repeating-linear-gradient(90deg, transparent 0 94px, rgb(99 175 255 / 7%) 95px 96px),
+    linear-gradient(180deg, rgb(5 28 68 / 0%), rgb(1 8 30 / 78%) 72%);
+  clip-path: polygon(0 21%, 100% 0, 100% 100%, 0 100%);
+  opacity: 0.88;
+}
+
+.is-opening .anime-light-road {
+  right: 0;
+  width: 62%;
+  background: linear-gradient(
+    180deg,
+    rgb(137 239 255 / 55%),
+    rgb(92 122 255 / 14%) 38%,
+    transparent 80%
+  );
+  filter: blur(14px);
+  opacity: 0.36;
+}
+
+.is-opening .anime-story-copy {
+  z-index: 55;
+  max-width: 760px;
+}
+
+.is-opening .anime-story-copy > p:first-child {
+  color: #8defff;
+  text-shadow: 0 0 22px rgb(71 221 255 / 46%);
+}
+
+.is-opening .blue-media-title > span {
+  color: transparent;
+  background: linear-gradient(105deg, #fff 4%, #c5f8ff 38%, #6edfff 64%, #a894ff 82%, #fff 100%);
+  background-size: 220% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-stroke: 1px rgb(255 255 255 / 24%);
+  filter: drop-shadow(0 18px 34px rgb(0 4 18 / 42%));
+  text-shadow:
+    0 0 18px rgb(104 229 255 / 28%),
+    0 0 80px rgb(73 107 255 / 30%);
+  animation: anime-title-shimmer 5.8s ease-in-out infinite alternate;
+}
+
+.is-opening .blue-media-title > small {
+  max-width: 10ch;
+  color: #f6fbff;
+  font-size: clamp(2.35rem, 4.5vw, 5.4rem);
+  line-height: 0.98;
+  text-shadow:
+    0 4px 22px rgb(0 4 20 / 56%),
+    0 0 38px rgb(68 182 255 / 16%);
+}
+
+.is-opening .anime-story-lede {
+  color: rgb(234 248 255 / 76%);
+  text-shadow: 0 2px 12px rgb(0 4 20 / 48%);
+}
+
+.is-opening .anime-story-actions a {
+  border-color: rgb(150 232 255 / 34%);
+  background: rgb(3 12 35 / 58%);
+  box-shadow:
+    inset 0 1px rgb(255 255 255 / 10%),
+    0 14px 38px rgb(0 5 24 / 28%);
+}
+
+.is-opening .anime-story-actions a:first-child {
+  color: #031027;
+  border-color: #b9f5ff;
+  background: linear-gradient(100deg, #fff, #9eecff);
+  box-shadow:
+    0 16px 46px rgb(45 195 255 / 24%),
+    0 0 0 1px rgb(255 255 255 / 58%);
+}
+
+.anime-opening-emblem {
+  display: grid;
+  width: min(38vw, 570px);
+  aspect-ratio: 1;
+  place-items: center;
+  margin-right: clamp(20px, 4vw, 76px);
+  filter: drop-shadow(0 42px 70px rgb(0 4 25 / 42%));
+}
+
+.anime-opening-emblem .cinematic-character-aura {
+  position: absolute;
+  inset: -20%;
+  border-radius: 50%;
+  background:
+    conic-gradient(
+      from 40deg,
+      transparent 0 18%,
+      rgb(60 219 255 / 24%) 23%,
+      transparent 30% 58%,
+      rgb(255 79 216 / 18%) 65%,
+      transparent 74%
+    ),
+    radial-gradient(circle, rgb(50 198 255 / 24%), transparent 62%);
+  filter: blur(18px);
+  animation: anime-aura-turn 12s linear infinite;
+}
+
+.anime-opening-emblem .signal-key-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: visible;
+  border: 0;
+  border-radius: 50%;
+  clip-path: none;
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      rgb(255 255 255 / 96%) 0 1.5%,
+      rgb(105 229 255 / 88%) 2.5%,
+      transparent 5%
+    ),
+    radial-gradient(
+      circle at 50% 50%,
+      rgb(68 211 255 / 18%) 0 22%,
+      transparent 23% 36%,
+      rgb(95 121 255 / 13%) 37% 38%,
+      transparent 39%
+    ),
+    conic-gradient(
+      from 12deg,
+      transparent 0 8%,
+      rgb(92 229 255 / 62%) 9% 10%,
+      transparent 11% 33%,
+      rgb(127 95 255 / 52%) 34% 36%,
+      transparent 37% 68%,
+      rgb(255 91 220 / 38%) 69% 70%,
+      transparent 71%
+    ),
+    radial-gradient(circle, rgb(3 20 55 / 84%) 0 54%, rgb(2 8 27 / 94%) 70%);
+  box-shadow:
+    inset 0 0 70px rgb(53 214 255 / 18%),
+    0 0 0 1px rgb(153 239 255 / 38%),
+    0 0 46px rgb(58 208 255 / 24%),
+    0 0 140px rgb(67 98 255 / 28%);
+  backdrop-filter: blur(2px);
+  transform: rotateX(62deg) rotateZ(-8deg);
+  animation: anime-portal-float 4.8s ease-in-out infinite;
+}
+
+.anime-opening-emblem .signal-key-frame::before,
+.anime-opening-emblem .signal-key-frame::after {
+  position: absolute;
+  content: '';
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.anime-opening-emblem .signal-key-frame::before {
+  inset: -9%;
+  border: 1px solid rgb(127 230 255 / 38%);
+  background: conic-gradient(
+    from 0deg,
+    transparent 0 13%,
+    rgb(112 233 255 / 48%) 14% 15%,
+    transparent 16% 48%,
+    rgb(255 88 220 / 32%) 49% 50%,
+    transparent 51%
+  );
+  box-shadow: 0 0 38px rgb(83 217 255 / 16%);
+  animation: anime-portal-spin 9s linear infinite;
+}
+
+.anime-opening-emblem .signal-key-frame::after {
+  inset: 12%;
+  border: 1px dashed rgb(181 243 255 / 44%);
+  box-shadow:
+    0 0 0 12px rgb(92 214 255 / 4%),
+    inset 0 0 34px rgb(87 204 255 / 12%);
+  animation: anime-portal-spin-reverse 6.5s linear infinite;
+}
+
+.anime-opening-emblem .signal-key-grid,
+.anime-opening-emblem .signal-key-readout {
+  display: none;
+}
+
+.anime-opening-emblem .signal-key-orbit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border: 1px solid rgb(145 235 255 / 32%);
+  border-radius: 50%;
+  background: transparent;
+  transform-origin: center;
+}
+
+.anime-opening-emblem .signal-key-orbit.orbit-a {
+  width: 118%;
+  aspect-ratio: 1.75;
+  transform: translate(-50%, -50%) rotate(24deg);
+  animation: anime-orbit-rock-a 5.4s ease-in-out infinite alternate;
+}
+
+.anime-opening-emblem .signal-key-orbit.orbit-b {
+  width: 106%;
+  aspect-ratio: 1.45;
+  transform: translate(-50%, -50%) rotate(-38deg);
+  animation: anime-orbit-rock-b 6.8s ease-in-out infinite alternate;
+}
+
+.anime-opening-emblem .signal-key-orbit.orbit-c {
+  width: 82%;
+  aspect-ratio: 1;
+  border-style: dashed;
+  transform: translate(-50%, -50%);
+  animation: anime-portal-spin 10s linear infinite;
+}
+
+.anime-opening-emblem .signal-key-scan {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  left: -15%;
+  width: 130%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #a4f2ff, #fff, #b481ff, transparent);
+  box-shadow:
+    0 0 12px #79e8ff,
+    0 0 36px rgb(92 116 255 / 52%);
+  transform: rotate(-9deg);
+  animation: anime-portal-scan 2.6s ease-in-out infinite;
+}
+
+.anime-opening-emblem .signal-key-mark {
+  position: absolute;
+  z-index: 6;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  color: #fff;
+  text-align: center;
+  transform: rotateZ(8deg) rotateX(-62deg) translateZ(34px);
+  transform-style: preserve-3d;
+}
+
+.anime-opening-emblem .signal-key-mark small {
+  color: #8eefff;
+  font-size: clamp(0.62rem, 0.8vw, 0.78rem);
+  font-weight: 800;
+  letter-spacing: 0.42em;
+  text-shadow: 0 0 18px #36d9ff;
+}
+
+.anime-opening-emblem .signal-key-mark strong {
+  margin: -0.04em 0 0;
+  color: transparent;
+  font-size: clamp(5.8rem, 11vw, 10.8rem);
+  font-weight: 950;
+  line-height: 0.86;
+  letter-spacing: -0.13em;
+  background: linear-gradient(145deg, #fff 8%, #baf5ff 42%, #6bdcff 64%, #b08cff 90%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  filter: drop-shadow(0 0 28px rgb(83 222 255 / 46%));
+}
+
+.anime-opening-emblem .signal-key-mark span {
+  color: rgb(220 245 255 / 66%);
+  font:
+    700 clamp(0.52rem, 0.7vw, 0.66rem) / 1 ui-monospace,
+    monospace;
+  letter-spacing: 0.2em;
+}
+
+.anime-opening-emblem figcaption {
+  position: absolute;
+  right: 0;
+  bottom: -6%;
+  left: 0;
+  color: rgb(212 243 255 / 56%);
+  font-size: 0.65rem;
+  letter-spacing: 0.22em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.is-build {
+  background:
+    radial-gradient(circle at 18% 18%, rgb(122 235 255 / 22%), transparent 20%),
+    radial-gradient(circle at 78% 72%, rgb(106 85 255 / 24%), transparent 32%),
+    linear-gradient(145deg, #031027, #082f68 48%, #124e87 72%, #07152e);
+}
+
+.is-build .anime-build-world::before {
+  background:
+    linear-gradient(115deg, transparent 44%, rgb(127 229 255 / 13%) 45%, transparent 55%),
+    radial-gradient(circle at 16% 16%, rgb(165 243 255 / 24%), transparent 18%);
+}
+
+.is-build .anime-build-sun {
+  background: radial-gradient(circle, #efffff 0 4%, #72e5ff 24%, transparent 70%);
+  box-shadow:
+    0 0 72px 26px rgb(63 215 255 / 28%),
+    0 0 150px 60px rgb(73 93 255 / 16%);
+}
+
+.is-build .anime-city.city-back {
+  opacity: 0.2;
+}
+
+.is-build .anime-city.city-front {
+  background: linear-gradient(180deg, rgb(11 65 126 / 68%), rgb(2 12 34 / 96%));
+}
+
+.is-build .anime-device-screen {
+  border-color: rgb(150 237 255 / 42%);
+  background:
+    radial-gradient(circle at 74% 24%, rgb(95 220 255 / 18%), transparent 26%),
+    radial-gradient(circle at 16% 82%, rgb(127 84 255 / 18%), transparent 30%),
+    linear-gradient(135deg, rgb(2 10 31 / 92%), rgb(5 38 88 / 78%));
+  box-shadow:
+    inset 0 1px rgb(255 255 255 / 14%),
+    inset 0 0 80px rgb(65 197 255 / 9%),
+    0 50px 110px rgb(0 4 25 / 52%),
+    0 0 60px rgb(60 203 255 / 12%);
+}
+
+.is-build .anime-code-line {
+  height: 4px;
+  background: linear-gradient(90deg, transparent, #83eaff 12%, #fff 45%, #916dff 76%, transparent);
+  box-shadow: 0 0 22px rgb(88 221 255 / 38%);
+  animation: anime-code-streak 2.8s ease-in-out infinite alternate;
+}
+
+.is-build .anime-code-line:nth-of-type(2) {
+  animation-delay: -0.8s;
+}
+
+.is-build .anime-code-line:nth-of-type(3) {
+  animation-delay: -1.6s;
+}
+
+.is-build .anime-code-line:nth-of-type(4) {
+  animation-delay: -2.2s;
+}
+
+.is-build .anime-device-screen strong {
+  color: transparent;
+  background: linear-gradient(105deg, #fff, #82eaff 48%, #a38aff 86%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  filter: drop-shadow(0 14px 32px rgb(29 182 255 / 22%));
+}
+
+.is-connect .anime-community-emblem {
+  filter: drop-shadow(0 0 54px rgb(75 212 255 / 32%));
+}
+
+.is-connect .anime-community-emblem strong {
+  color: transparent;
+  background: linear-gradient(115deg, #fff, #83e9ff 48%, #bd8cff);
+  background-clip: text;
+  -webkit-background-clip: text;
+  text-shadow: none;
+  filter: drop-shadow(0 0 28px rgb(88 217 255 / 38%));
+}
+
+@keyframes anime-star-drift {
+  to {
+    background-position:
+      260px 110px,
+      -330px 145px,
+      205px -180px,
+      -185px -155px,
+      145px 125px;
+  }
+}
+
+@keyframes anime-title-shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes anime-aura-turn {
+  to {
+    transform: rotate(360deg) scale(1.04);
+  }
+}
+
+@keyframes anime-portal-float {
+  0%,
+  100% {
+    transform: rotateX(62deg) rotateZ(-8deg) translate3d(0, -5px, 0) scale(0.98);
+  }
+  50% {
+    transform: rotateX(62deg) rotateZ(-4deg) translate3d(0, 8px, 34px) scale(1.025);
+  }
+}
+
+@keyframes anime-portal-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes anime-portal-spin-reverse {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes anime-orbit-rock-a {
+  to {
+    transform: translate(-50%, -50%) rotate(52deg) scaleX(0.9);
+  }
+}
+
+@keyframes anime-orbit-rock-b {
+  to {
+    transform: translate(-50%, -50%) rotate(-8deg) scaleY(0.92);
+  }
+}
+
+@keyframes anime-portal-scan {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translateY(-110px) rotate(-9deg) scaleX(0.42);
+  }
+  48% {
+    opacity: 0.95;
+  }
+  62% {
+    opacity: 0.36;
+    transform: translateY(110px) rotate(-9deg) scaleX(1);
+  }
+}
+
+@keyframes anime-code-streak {
+  0% {
+    opacity: 0.32;
+    transform: translateX(-8%) scaleX(0.84);
+  }
+  100% {
+    opacity: 0.95;
+    transform: translateX(9%) scaleX(1.06);
+  }
+}
+
+@media (max-width: 767px) {
+  .is-opening {
+    background:
+      radial-gradient(circle at 72% 22%, rgb(53 216 255 / 26%), transparent 22%),
+      radial-gradient(circle at 12% 70%, rgb(255 79 216 / 15%), transparent 28%),
+      linear-gradient(155deg, #020512, #092451 58%, #075d92);
+  }
+
+  .is-opening .anime-story-copy {
+    z-index: 58;
+  }
+
+  .is-opening .blue-media-title > span {
+    font-size: clamp(4.8rem, 25vw, 7.2rem);
+  }
+
+  .is-opening .blue-media-title > small {
+    font-size: clamp(2.1rem, 12vw, 3.8rem);
+  }
+
+  .anime-opening-emblem {
+    width: min(78vw, 410px);
+    margin: 24px auto 0;
+  }
+
+  .anime-opening-emblem .signal-key-frame {
+    transform: rotateX(66deg) rotateZ(-6deg);
+  }
+
+  .anime-opening-emblem .signal-key-mark {
+    transform: rotateZ(6deg) rotateX(-66deg) translateZ(24px);
+  }
+
+  .anime-opening-emblem figcaption {
+    bottom: -2%;
+  }
+
+  .is-build .anime-device-screen {
+    min-height: 360px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .is-opening::before,
+  .is-opening .blue-media-title > span,
+  .anime-opening-emblem .cinematic-character-aura,
+  .anime-opening-emblem .signal-key-frame,
+  .anime-opening-emblem .signal-key-frame::before,
+  .anime-opening-emblem .signal-key-frame::after,
+  .anime-opening-emblem .signal-key-orbit,
+  .anime-opening-emblem .signal-key-scan,
+  .is-build .anime-code-line {
+    animation: none !important;
+  }
+}

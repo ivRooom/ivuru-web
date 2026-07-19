@@ -3,24 +3,35 @@
   --motion-apple-spring: cubic-bezier(0.22, 1.24, 0.36, 1);
 }
 
+[data-scroll-space='true'] {
+  perspective: clamp(900px, 84vw, 1450px);
+  perspective-origin: 50% 46%;
+  transform-style: preserve-3d;
+}
+
 [data-scroll-reveal] {
   backface-visibility: hidden;
   transform-origin: 50% 50%;
+  transform-style: preserve-3d;
+}
+
+/* Structural sheets must remain inside their layout bounds while revealing. */
+.profile-passport[data-scroll-reveal] {
+  transform: none !important;
+  transition-property: opacity !important;
 }
 
 [data-scroll-reveal='pending'] {
   visibility: visible;
   opacity: 0;
-  transform: translate3d(0, 30px, 0) scale(0.985);
+  transform: translate3d(
+      var(--scroll-enter-x, 0),
+      var(--scroll-enter-y, 30px),
+      var(--scroll-enter-z, -80px)
+    )
+    rotateX(var(--scroll-enter-rotate-x, 0deg)) rotateY(var(--scroll-enter-rotate-y, 0deg))
+    rotateZ(var(--scroll-enter-rotate-z, 0deg)) scale(var(--scroll-enter-scale, 0.985));
   will-change: transform, opacity;
-}
-
-[data-scroll-reveal='pending'][data-scroll-reveal-kind='visual'] {
-  transform: translate3d(0, 46px, 0) scale(0.955);
-}
-
-[data-scroll-reveal='pending'][data-scroll-reveal-kind='stagger'] {
-  transform: translate3d(0, 24px, 0) scale(0.98);
 }
 
 [data-scroll-reveal='pending'][data-scroll-reveal-kind='line'] {
@@ -33,21 +44,33 @@
 [data-scroll-reveal='visible'] {
   visibility: visible;
   opacity: 1;
-  transform: translate3d(0, 0, 0) scale(1);
+  transform: translate3d(0, 0, 0) rotateX(0) rotateY(0) rotateZ(0) scale(1);
   transition:
-    transform 820ms var(--motion-apple-ease) var(--scroll-reveal-delay, 0ms),
-    opacity 620ms ease-out var(--scroll-reveal-delay, 0ms);
+    transform 940ms var(--motion-apple-ease) var(--scroll-reveal-delay, 0ms),
+    opacity 660ms ease-out var(--scroll-reveal-delay, 0ms);
   will-change: transform, opacity;
 }
 
 [data-scroll-reveal='visible'][data-scroll-reveal-kind='visual'] {
+  transition-duration: 1080ms, 720ms;
   transition-timing-function: var(--motion-apple-spring), ease-out;
+}
+
+[data-scroll-reveal='visible'][data-scroll-reveal-kind='stagger'] {
+  transition-duration: 860ms, 620ms;
+  transition-timing-function: var(--motion-apple-spring), ease-out;
+}
+
+[data-scroll-reveal='visible'][data-scroll-reveal-kind='line'] {
+  transform: scaleX(1);
+  transform-origin: left center;
+  transform-box: fill-box;
 }
 
 [data-scroll-reveal='settled'] {
   visibility: visible;
   opacity: 1;
-  transform: translate3d(0, 0, 0) scale(1);
+  transform: translate3d(0, 0, 0) rotateX(0) rotateY(0) rotateZ(0) scale(1);
   transition: none;
   will-change: auto;
 }
@@ -62,6 +85,7 @@
 [data-pointer-plane] {
   backface-visibility: hidden;
   transform: translate3d(0, 0, 0);
+  transform-style: preserve-3d;
   transition: transform 620ms var(--motion-apple-ease);
 }
 
@@ -73,34 +97,42 @@
 
 @supports (animation-timeline: view()) {
   [data-scroll-parallax='native'] {
-    animation: native-view-parallax linear both;
+    animation: native-view-parallax-3d linear both;
     animation-timeline: view();
     animation-range: entry 0% exit 100%;
     backface-visibility: hidden;
+    transform-style: preserve-3d;
+    will-change: transform;
   }
 
-  @keyframes native-view-parallax {
+  @keyframes native-view-parallax-3d {
     from {
-      transform: translate3d(0, calc(var(--scroll-parallax-distance, 4%) * -1), 0);
+      transform: translate3d(
+          calc(var(--scroll-parallax-x, 0px) * -1),
+          calc(var(--scroll-parallax-y, 0px) * -1),
+          calc(var(--scroll-parallax-z, 0px) * -1)
+        )
+        rotateX(calc(var(--scroll-parallax-rotate-x, 0deg) * -1))
+        rotateY(calc(var(--scroll-parallax-rotate-y, 0deg) * -1))
+        rotateZ(calc(var(--scroll-parallax-rotate-z, 0deg) * -1));
     }
 
     to {
-      transform: translate3d(0, var(--scroll-parallax-distance, 4%), 0);
+      transform: translate3d(
+          var(--scroll-parallax-x, 0px),
+          var(--scroll-parallax-y, 0px),
+          var(--scroll-parallax-z, 0px)
+        )
+        rotateX(var(--scroll-parallax-rotate-x, 0deg))
+        rotateY(var(--scroll-parallax-rotate-y, 0deg))
+        rotateZ(var(--scroll-parallax-rotate-z, 0deg));
     }
   }
 }
 
 @media (max-width: 767px) {
-  [data-scroll-reveal='pending'] {
-    transform: translate3d(0, 20px, 0) scale(0.99);
-  }
-
-  [data-scroll-reveal='pending'][data-scroll-reveal-kind='visual'] {
-    transform: translate3d(0, 28px, 0) scale(0.975);
-  }
-
-  [data-scroll-parallax='native'] {
-    --scroll-parallax-distance: 1.5% !important;
+  [data-scroll-space='true'] {
+    perspective: 1050px;
   }
 }
 

@@ -26,8 +26,12 @@ test('profile passport stays single-column between 861px and 1040px', async ({ p
     expect(dataBox).not.toBeNull();
 
     expect(Math.abs((headerBox?.width ?? 0) - (passportBox?.width ?? 0))).toBeLessThanOrEqual(2);
-    expect(avatarBox?.y ?? 0).toBeGreaterThanOrEqual((headerBox?.y ?? 0) + (headerBox?.height ?? 0) - 1);
-    expect(dataBox?.y ?? 0).toBeGreaterThanOrEqual((avatarBox?.y ?? 0) + (avatarBox?.height ?? 0) - 1);
+    expect(avatarBox?.y ?? 0).toBeGreaterThanOrEqual(
+      (headerBox?.y ?? 0) + (headerBox?.height ?? 0) - 1,
+    );
+    expect(dataBox?.y ?? 0).toBeGreaterThanOrEqual(
+      (avatarBox?.y ?? 0) + (avatarBox?.height ?? 0) - 1,
+    );
 
     const dimensions = await page.evaluate(() => ({
       viewport: window.innerWidth,

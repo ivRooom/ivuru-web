@@ -1,0 +1,85 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import LoaderReleaseGuard from '@/components/common/LoaderReleaseGuard.astro';
+import AnimeScrollStory from '@/components/home/AnimeScrollStory.astro';
+import FeaturedWorks from '@/components/home/FeaturedWorks.astro';
+import HomePortalGrid from '@/components/home/HomePortalGrid.astro';
+import LatestPosts from '@/components/blog/LatestPosts.astro';
+import ContactCTA from '@/components/home/ContactCTA.astro';
+import CinematicPointerEffects from '@/components/effects/CinematicPointerEffects';
+import AnimeScrollDirector from '@/components/effects/AnimeScrollDirector';
+import SpatialCameraEnhancer from '@/components/effects/SpatialCameraEnhancer';
+import CinematicEntertainmentDirector from '@/components/effects/CinematicEntertainmentDirector';
+import SingularityOverdriveDirector from '@/components/effects/SingularityOverdriveDirector';
+import AdaptiveRealityDirector from '@/components/effects/AdaptiveRealityDirector';
+import StoryProgressAuthority from '@/components/effects/StoryProgressAuthority';
+import QuantumLoaderEvolution from '@/components/effects/QuantumLoaderEvolution.astro';
+import OmegaWorldRift from '@/components/effects/OmegaWorldRift.astro';
+import { siteConfig, type Locale } from '@/data/site-config';
+import '@/styles/anime-scroll-story.css';
+import '@/styles/anime-scroll-story-overrides.css';
+import '@/styles/anime-scroll-performance.css';
+import '@/styles/spatial-home-v2.css';
+import '@/styles/cinematic-entertainment.css';
+import '@/styles/cinematic-entertainment-polish.css';
+import '@/styles/cinematic-entertainment-compat.css';
+import '@/styles/singularity-overdrive.css';
+import '@/styles/chapter-gate-transitions.css';
+import '@/styles/adaptive-reality-overdrive.css';
+import '@/styles/home-loader-insets.css';
+import '@/styles/story-static-fallback.css';
+
+const { locale } = Astro.props as { locale: Locale };
+const descriptions = {
+  ja: 'Developer、Gamer、Communityをつなぐ「いゔる。」の公式サイト。制作物、プロフィール、活動記録、ivRmコミュニティへの入口をまとめています。',
+  en: 'The official ivuru site connecting development, gaming, and community through selected projects and focused destinations.',
+  ko: '개발, 게임, 커뮤니티를 연결하는 ivuru 공식 사이트입니다. 프로젝트와 주요 페이지로 간결하게 안내합니다.',
+};
+---
+
+<BaseLayout
+  title={siteConfig.title}
+  description={descriptions[locale]}
+  locale={locale}
+  chapter={{ code: '00', title: 'HOME', world: 'BLUE STORY' }}
+>
+  <LoaderReleaseGuard />
+  <QuantumLoaderEvolution />
+  <CinematicPointerEffects client:idle />
+  <AnimeScrollDirector client:load />
+  <StoryProgressAuthority client:load />
+  <SpatialCameraEnhancer client:load />
+  <CinematicEntertainmentDirector client:load />
+  <SingularityOverdriveDirector client:load />
+  <AdaptiveRealityDirector client:load />
+
+  <AnimeScrollStory locale={locale} />
+  <OmegaWorldRift />
+
+  <div class="anime-story-after">
+    <div class="anime-scene-anchor" data-anime-scene="ice" data-cinematic-section>
+      <FeaturedWorks locale={locale} />
+    </div>
+
+    <div class="anime-scene-anchor" data-anime-scene="sky" data-cinematic-section>
+      <HomePortalGrid locale={locale} />
+    </div>
+
+    <div class="anime-scene-anchor" data-anime-scene="deep" data-cinematic-section>
+      <LatestPosts locale={locale} />
+      <ContactCTA locale={locale} />
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .anime-scene-anchor {
+    position: relative;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(.world-loader) {
+      pointer-events: none !important;
+    }
+  }
+</style>

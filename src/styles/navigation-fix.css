@@ -18,6 +18,7 @@ body.menu-open {
   width: 100vw;
   height: 100dvh;
   min-height: 100svh;
+  box-sizing: border-box;
   padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right))
     max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
   display: flex !important;
@@ -28,6 +29,7 @@ body.menu-open {
   overscroll-behavior: contain;
   background: rgb(2 4 14 / 92%);
   backdrop-filter: blur(22px) saturate(145%);
+  transform: none !important;
 }
 
 .mobile-menu-panel {

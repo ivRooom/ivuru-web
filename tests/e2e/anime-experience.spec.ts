@@ -18,18 +18,14 @@ const fetchMarkup = async (page: import('@playwright/test').Page, route: string)
   return response.text();
 };
 
-test.describe('blue signal loading experience', () => {
-  test('ships the title sequence without a placeholder mascot and then releases the page', async ({
-    page,
-  }) => {
+test.describe('quantum world gate loading experience', () => {
+  test('ships the world gate title sequence and then releases the page', async ({ page }) => {
     const markup = await fetchMarkup(page, '/');
     expect(markup).toContain('anime-intro-loader');
-    expect(markup).toContain('signal-title-loader');
-    expect(markup).toContain('signal-loader-core');
-    expect(markup).toContain('signal-loader-copy');
+    expect(markup).toContain('IVURU / WORLD GATE OS');
+    expect(markup).toContain('SEQUENCE 00 · SINGULARITY BOOT');
+    expect(markup).toContain('ENGINE: WORLD_FORGE / PORTAL_FORWARD');
     expect(markup).toContain('いゔる。');
-    expect(markup).toContain('blue-loader-signal');
-    expect(markup).toContain('anime-loader-meter');
     expect(markup).not.toMatch(/class="[^"]*anime-loader-mascot/);
 
     await page.emulateMedia({ reducedMotion: 'no-preference' });
@@ -54,9 +50,9 @@ test.describe('blue signal loading experience', () => {
 
   test('localizes the accessible loading metadata in SSR output', async ({ page }) => {
     for (const [route, label, status] of [
-      ['/', 'いゔる。を読み込んでいます', 'ページを読み込んでいます。'],
-      ['/en', 'Loading ivuru', 'Loading the page.'],
-      ['/ko', 'ivuru를 불러오는 중입니다', '페이지를 불러오는 중입니다.'],
+      ['/', 'いゔる。のワールドゲートを起動しています', 'ページを読み込んでいます。'],
+      ['/en', 'Opening the ivuru world gate', 'Loading the page.'],
+      ['/ko', 'ivuru 월드 게이트를 기동하는 중입니다', '페이지를 불러오는 중입니다.'],
     ]) {
       const markup = await fetchMarkup(page, route);
       expect(markup).toContain(`aria-label="${label}"`);
@@ -82,19 +78,24 @@ test.describe('blue signal loading experience', () => {
       await expect(page.locator('.anime-intro-loader')).toBeHidden();
       const main = page.locator('#main-content');
       await expect(main).toBeVisible();
-      await expect(main.getByRole('link', { name: /Works|制作|작업/i }).first()).toBeVisible();
+      await expect(page.locator('[data-anime-story-scene]')).toHaveCount(3);
+      await expect(page.locator('.home-portal-link')).toHaveCount(4);
     } finally {
       await context.close();
     }
   });
 
-  test('reduced motion completes quickly and leaves content accessible', async ({ page }) => {
+  test('reduced motion completes quickly and leaves Home V2 accessible', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await prepareLocale(page, false);
     await page.goto('/');
 
     await expect(page.locator('.anime-intro-loader')).toBeHidden({ timeout: 1_000 });
-    await expect(page.locator('[data-anime-scroll-story]')).toBeVisible();
-    await expect(page.locator('.anime-portal-card')).toHaveCount(3);
+    const story = page.locator('[data-anime-scroll-story]');
+    await expect(story).toBeVisible();
+    await expect(story).toHaveAttribute('data-story-mode', 'static');
+    await expect(story).toHaveAttribute('data-story-director', 'ready');
+    await expect(story.locator('[data-anime-story-scene]')).toHaveCount(3);
+    await expect(page.locator('.home-portal-link')).toHaveCount(4);
   });
 });

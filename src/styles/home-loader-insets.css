@@ -1,0 +1,13 @@
+@media (max-width: 680px) {
+  .world-loader.anime-intro-loader.spatial-loader {
+    padding-inline-start: max(18px, env(safe-area-inset-left)) !important;
+    padding-inline-end: max(18px, env(safe-area-inset-right)) !important;
+  }
+}
+
+@media (max-height: 620px) {
+  .world-loader.anime-intro-loader.spatial-loader {
+    padding-block-start: max(14px, env(safe-area-inset-top)) !important;
+    padding-block-end: max(14px, env(safe-area-inset-bottom)) !important;
+  }
+}

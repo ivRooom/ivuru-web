@@ -4,7 +4,7 @@ import { localePath, type Locale } from '@/data/site-config';
 import { getDictionary } from '@/i18n/dictionaries';
 const { locale } = Astro.props as { locale: Locale };
 const d = getDictionary(locale);
-const featured = projects.filter((project) => project.featured);
+const featured = projects.filter((project) => project.featured).slice(0, 3);
 ---
 
 <section class="featured section" id="works">
@@ -34,7 +34,7 @@ const featured = projects.filter((project) => project.featured);
               <h3>{project.title}</h3>
               <p>{project.description[locale]}</p>
               <div class="project-tech">
-                {project.technologies.map((tech) => (
+                {project.technologies.slice(0, 4).map((tech) => (
                   <span class="chip">{tech}</span>
                 ))}
               </div>

@@ -1,0 +1,102 @@
+---
+import '@/styles/quantum-reality-reactor.css';
+---
+
+<script is:inline>
+  (() => {
+    const install = () => {
+      const loader = document.querySelector('[data-spatial-loader]');
+      if (!(loader instanceof HTMLElement) || loader.dataset.realityReactorBound === 'true') return;
+      loader.dataset.realityReactorBound = 'true';
+
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const hints = navigator;
+      const memory = Number(hints.deviceMemory ?? 4);
+      const threads = Number(hints.hardwareConcurrency ?? 4);
+      const saveData = hints.connection?.saveData === true;
+      const quality =
+        reduced || saveData || memory <= 2 || threads <= 2
+          ? 'lite'
+          : memory >= 8 && threads >= 8 && innerWidth >= 1024 && devicePixelRatio <= 2
+            ? 'ultra'
+            : 'balanced';
+
+      loader.dataset.loaderQuality = quality;
+      loader.dataset.loaderEvolution = 'reality-reactor';
+
+      if (reduced) {
+        loader.dataset.loaderEvolutionState = 'static';
+        return;
+      }
+
+      const reactor = document.createElement('div');
+      reactor.className = 'quantum-reality-reactor';
+      reactor.dataset.reactorPhase = loader.dataset.loaderPhase ?? 'sync';
+      reactor.dataset.reactorQuality = quality;
+      reactor.setAttribute('data-quantum-reality-reactor', 'true');
+      reactor.setAttribute('aria-hidden', 'true');
+
+      const plates = Array.from(
+        { length: 12 },
+        (_, index) => `<i style="--reactor-index:${index}"></i>`,
+      ).join('');
+      const orbitals = Array.from(
+        { length: 4 },
+        (_, index) => `<i style="--orbital-index:${index}"></i>`,
+      ).join('');
+      const scanlines = Array.from(
+        { length: 6 },
+        (_, index) => `<i style="--scan-index:${index}"></i>`,
+      ).join('');
+
+      reactor.innerHTML = `
+        <span class="quantum-reality-reactor__singularity"></span>
+        <span class="quantum-reality-reactor__beam"></span>
+        <div class="quantum-reality-reactor__orbitals">${orbitals}</div>
+        <div class="quantum-reality-reactor__plates">${plates}</div>
+        <div class="quantum-reality-reactor__scanlines">${scanlines}</div>
+        <div class="quantum-reality-reactor__diagnostics">
+          <span>MEMORY <b>${memory.toFixed(0)}G</b></span>
+          <span>THREADS <b>${threads}</b></span>
+          <span>QUALITY <b>${quality.toUpperCase()}</b></span>
+          <span>LINK <b>PORTAL_FORWARD</b></span>
+        </div>
+      `;
+
+      loader.append(reactor);
+      loader.dataset.loaderEvolutionState = 'ready';
+
+      const syncPhase = () => {
+        reactor.dataset.reactorPhase = loader.dataset.loaderPhase ?? 'sync';
+        if (loader.classList.contains('loaded')) reactor.dataset.reactorPhase = 'release';
+      };
+      const observer = new MutationObserver(syncPhase);
+      observer.observe(loader, {
+        attributes: true,
+        attributeFilter: ['data-loader-phase', 'class'],
+      });
+
+      const onPointerMove = (event) => {
+        const x = (event.clientX / Math.max(innerWidth, 1) - 0.5) * 2;
+        const y = (event.clientY / Math.max(innerHeight, 1) - 0.5) * 2;
+        loader.style.setProperty('--reactor-pointer-x', Math.max(-1, Math.min(1, x)).toFixed(3));
+        loader.style.setProperty('--reactor-pointer-y', Math.max(-1, Math.min(1, y)).toFixed(3));
+      };
+
+      if (quality !== 'lite')
+        window.addEventListener('pointermove', onPointerMove, { passive: true });
+
+      document.addEventListener(
+        'ivuru:loader-released',
+        () => {
+          observer.disconnect();
+          window.removeEventListener('pointermove', onPointerMove);
+        },
+        { once: true },
+      );
+    };
+
+    install();
+    document.addEventListener('astro:page-load', install);
+  })();
+</script>
