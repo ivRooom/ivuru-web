@@ -60,6 +60,9 @@ jobs:
   deploy:
     name: OIDC + SSMで共有EC2へデプロイ
     needs: validate
+    if: >-
+      vars.AWS_RUNTIME_INSTANCE_ID != '' &&
+      vars.AWS_RUNTIME_DEPLOY_ROLE_ARN != ''
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: aws-runtime
