@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: "2010-09-09"
+AWSTemplateFormatVersion: '2010-09-09'
 Description: >-
   GitHub Actions OIDC role for deploying ivRooom/ivuru-web to the shared IVRM
   EC2 runtime through AWS Systems Manager.
@@ -18,19 +18,19 @@ Parameters:
     Default: i-05e3efb4c02b39824
   CreateGitHubOidcProvider:
     Type: String
-    Default: "true"
+    Default: 'true'
     AllowedValues:
-      - "true"
-      - "false"
+      - 'true'
+      - 'false'
   ExistingGitHubOidcProviderArn:
     Type: String
-    Default: ""
+    Default: ''
     Description: Required when CreateGitHubOidcProvider is false.
 
 Conditions:
   ShouldCreateGitHubOidcProvider: !Equals
     - !Ref CreateGitHubOidcProvider
-    - "true"
+    - 'true'
 
 Resources:
   GitHubOidcProvider:
@@ -57,7 +57,7 @@ Resources:
         OIDC for the shared EC2 runtime.
       MaxSessionDuration: 3600
       AssumeRolePolicyDocument:
-        Version: "2012-10-17"
+        Version: '2012-10-17'
         Statement:
           - Effect: Allow
             Principal:
@@ -73,7 +73,7 @@ Resources:
       Policies:
         - PolicyName: SendDeploymentCommand
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: '2012-10-17'
             Statement:
               - Sid: SendCommandToRuntimeInstance
                 Effect: Allow
@@ -88,7 +88,7 @@ Resources:
                   - ssm:GetCommandInvocation
                   - ssm:ListCommandInvocations
                   - ssm:ListCommands
-                Resource: "*"
+                Resource: '*'
       Tags:
         - Key: Project
           Value: IVRM
