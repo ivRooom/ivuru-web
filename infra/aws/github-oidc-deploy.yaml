@@ -1,5 +1,7 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Description: GitHub Actions OIDC role for deploying ivRooom/ivuru-web to EC2 through AWS Systems Manager.
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  GitHub Actions OIDC role for deploying ivRooom/ivuru-web to the shared IVRM
+  EC2 runtime through AWS Systems Manager.
 
 Parameters:
   GitHubOrganization:
@@ -10,23 +12,25 @@ Parameters:
     Default: ivuru-web
   GitHubEnvironment:
     Type: String
-    Default: production
+    Default: aws-runtime
   InstanceId:
     Type: AWS::EC2::Instance::Id
     Default: i-05e3efb4c02b39824
   CreateGitHubOidcProvider:
     Type: String
-    Default: 'true'
+    Default: "true"
     AllowedValues:
-      - 'true'
-      - 'false'
+      - "true"
+      - "false"
   ExistingGitHubOidcProviderArn:
     Type: String
-    Default: ''
+    Default: ""
     Description: Required when CreateGitHubOidcProvider is false.
 
 Conditions:
-  ShouldCreateGitHubOidcProvider: !Equals [!Ref CreateGitHubOidcProvider, 'true']
+  ShouldCreateGitHubOidcProvider: !Equals
+    - !Ref CreateGitHubOidcProvider
+    - "true"
 
 Resources:
   GitHubOidcProvider:
@@ -47,11 +51,13 @@ Resources:
   GitHubDeployRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: ivrm-ivuru-web-ec2-deploy
-      Description: Short-lived role assumed by ivRooom/ivuru-web GitHub Actions through OIDC.
+      RoleName: ivrm-shared-runtime-ivuru-web-deploy
+      Description: >-
+        Short-lived role assumed by ivRooom/ivuru-web GitHub Actions through
+        OIDC for the shared EC2 runtime.
       MaxSessionDuration: 3600
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
           - Effect: Allow
             Principal:
@@ -67,7 +73,7 @@ Resources:
       Policies:
         - PolicyName: SendDeploymentCommand
           PolicyDocument:
-            Version: '2012-10-17'
+            Version: "2012-10-17"
             Statement:
               - Sid: SendCommandToRuntimeInstance
                 Effect: Allow
@@ -82,18 +88,22 @@ Resources:
                   - ssm:GetCommandInvocation
                   - ssm:ListCommandInvocations
                   - ssm:ListCommands
-                Resource: '*'
+                Resource: "*"
       Tags:
         - Key: Project
           Value: IVRM
         - Key: Service
           Value: ivuru-web
+        - Key: Runtime
+          Value: shared-ec2
         - Key: ManagedBy
           Value: CloudFormation
 
 Outputs:
   GitHubDeployRoleArn:
-    Description: Set this value as the AWS_DEPLOY_ROLE_ARN GitHub Actions repository variable.
+    Description: >-
+      Set this value as the AWS_RUNTIME_DEPLOY_ROLE_ARN GitHub Actions
+      repository variable.
     Value: !GetAtt GitHubDeployRole.Arn
   GitHubOidcProviderArn:
     Value: !If
