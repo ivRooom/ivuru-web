@@ -1,10 +1,12 @@
-# AWS EC2ゼロタッチデプロイ
+# AWS共有Runtimeへのゼロタッチデプロイ
 
 ## 目的
 
-`main` ブランチへの反映を起点に、GitHub ActionsがOIDCで短期AWS認証情報を取得し、AWS Systems Manager経由でEC2へ静的サイトをデプロイします。
+`main` ブランチへの反映を起点に、GitHub ActionsがOIDCで短期AWS認証情報を取得し、AWS Systems Manager経由で既存EC2へ静的サイトをデプロイします。
 
 AWSアクセスキーやSSH秘密鍵はGitHubへ保存しません。
+
+このデプロイ先は `ivuru.ivrm.jp` の本番置き換えではなく、AWS学習・検証用の共有Runtimeです。既存のCloudflare Workers / Pages環境は維持します。
 
 ## デプロイ経路
 
@@ -14,11 +16,49 @@ GitHub main
   → GitHub OIDC
   → AWS IAM Role
   → SSM Run Command
-  → EC2上のDockerでAstroをビルド
-  → Caddy公開ディレクトリを更新
+  → 既存EC2上のDockerでAstroをビルド
+  → ivuru-web専用公開ディレクトリを更新
   → localhost:8080を確認
   → Cloudflare Tunnel経由の公開URLを確認
 ```
+
+## リポジトリと実行基盤の方針
+
+リポジトリごとにEC2を1台用意する必要はありません。アプリケーションの実行特性に応じて配置先を分けます。
+
+- `ivuru-web`
+  - 本番は既存のCloudflare Workers / Pagesを維持
+  - AWS共有Runtimeには検証用として配置
+  - 追加インスタンスは作成しない
+- `ivrm-web`
+  - `ivrm.jp`、`member.ivrm.jp`、`admin.ivrm.jp`、`api.ivrm.jp` はCloudflare Pages / Workers / D1を継続
+  - AWS EC2へ移行しない
+- `Herta`
+  - Discord Bot、API、Worker、Studio、PostgreSQL、Redisを常時稼働させるため、将来的に専用Lightsailへ分離
+  - 初期検証は2 GB、安定運用は4 GBを推奨
+- `ivrm-minecraft-activity`
+  - Activity APIはCloud Runを継続
+  - Minecraft側Mod / PluginはMinecraftサーバー側で稼働
+  - AWS EC2へ移行しない
+
+したがって、当面のAWS構成は次の2台以内に抑えます。
+
+```text
+既存EC2
+  └─ AWS Runtime Foundation
+      └─ ivuru-web検証配信
+
+Lightsail（Herta本番化時のみ追加）
+  └─ Herta
+      ├─ Studio
+      ├─ API
+      ├─ Bot
+      ├─ Worker
+      ├─ PostgreSQL
+      └─ Redis
+```
+
+LightsailのLinux/Unix一般用途プランは、パブリックIPv4込みで2 GBが月額12 USD、4 GBが月額24 USDです。Hertaを本番化するまでは追加契約せず、現在のEC2だけで進めます。
 
 ## 現在の対象範囲
 
@@ -39,7 +79,7 @@ aws cloudformation deploy \
   --parameter-overrides \
     GitHubOrganization=ivRooom \
     GitHubRepository=ivuru-web \
-    GitHubEnvironment=production \
+    GitHubEnvironment=aws-runtime \
     InstanceId=i-05e3efb4c02b39824 \
     CreateGitHubOidcProvider=true
 ```
@@ -57,7 +97,7 @@ aws cloudformation deploy \
   --parameter-overrides \
     GitHubOrganization=ivRooom \
     GitHubRepository=ivuru-web \
-    GitHubEnvironment=production \
+    GitHubEnvironment=aws-runtime \
     InstanceId=i-05e3efb4c02b39824 \
     CreateGitHubOidcProvider=false \
     ExistingGitHubOidcProviderArn="$PROVIDER_ARN"
@@ -81,27 +121,23 @@ Repository Settingsから次を作成します。
 Settings
 → Environments
 → New environment
-→ production
+→ aws-runtime
 ```
-
-本番保護を強くする場合は、Required reviewersを設定します。完全自動デプロイを優先する場合は承認必須にしません。
 
 IAMの信頼条件は次のSubjectに限定されています。
 
 ```text
-repo:ivRooom/ivuru-web:environment:production
+repo:ivRooom/ivuru-web:environment:aws-runtime
 ```
 
 ## 3. GitHub Actions Repository Variables
 
 次のRepository Variablesを登録します。
 
-| Name | Value |
-|---|---|
-| `AWS_DEPLOY_ROLE_ARN` | CloudFormation出力 `GitHubDeployRoleArn` |
-| `AWS_INSTANCE_ID` | `i-05e3efb4c02b39824` |
-| `AWS_REGION` | `ap-northeast-1` |
-| `AWS_SITE_URL` | `https://runtime.ivrm.jp` |
+- `AWS_RUNTIME_DEPLOY_ROLE_ARN`: CloudFormation出力 `GitHubDeployRoleArn`
+- `AWS_RUNTIME_INSTANCE_ID`: `i-05e3efb4c02b39824`
+- `AWS_REGION`: `ap-northeast-1`
+- `AWS_RUNTIME_SITE_URL`: `https://runtime.ivrm.jp`
 
 SecretsにAWSアクセスキーを登録する必要はありません。
 
@@ -132,7 +168,7 @@ Actions画面から手動実行します。
 
 ```text
 Actions
-→ AWS EC2へデプロイ
+→ AWS共有Runtimeへデプロイ
 → Run workflow
 ```
 
@@ -140,7 +176,7 @@ Actions
 
 ## 安全対策
 
-- OIDCのSubjectをRepositoryと`production` Environmentへ限定
+- OIDCのSubjectをRepositoryと `aws-runtime` Environmentへ限定
 - IAM Roleは対象EC2へのSSM SendCommandだけを許可
 - 同時デプロイをConcurrencyで直列化
 - デプロイ前にcheck、lint、test、buildを実行
