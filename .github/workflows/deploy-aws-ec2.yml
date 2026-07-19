@@ -1,0 +1,185 @@
+name: AWS EC2へデプロイ
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      deploy_sha:
+        description: デプロイするコミットSHA（未指定時は実行対象SHA）
+        required: false
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: aws-ec2-production
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'ap-northeast-1' }}
+  AWS_INSTANCE_ID: ${{ vars.AWS_INSTANCE_ID }}
+  AWS_DEPLOY_ROLE_ARN: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+  SITE_URL: ${{ vars.AWS_SITE_URL || 'https://runtime.ivrm.jp' }}
+
+jobs:
+  validate:
+    name: ビルド・品質確認
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: リポジトリを取得
+        uses: actions/checkout@v5
+
+      - name: Node.jsを設定
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: 依存関係をインストール
+        run: npm ci
+
+      - name: 型・Astroチェック
+        run: npm run check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: テスト
+        run: npm test
+
+      - name: 本番ビルド
+        env:
+          SITE_URL: ${{ env.SITE_URL }}
+        run: npm run build
+
+  deploy:
+    name: OIDC + SSMでEC2へデプロイ
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+
+    steps:
+      - name: 必須変数を検証
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          test -n "$AWS_INSTANCE_ID" || { echo 'AWS_INSTANCE_ID repository variable is required.'; exit 1; }
+          test -n "$AWS_DEPLOY_ROLE_ARN" || { echo 'AWS_DEPLOY_ROLE_ARN repository variable is required.'; exit 1; }
+
+      - name: AWS認証情報をOIDCで取得
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ env.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: ivuru-web-${{ github.run_id }}
+          mask-aws-account-id: true
+
+      - name: デプロイ対象を決定
+        id: target
+        shell: bash
+        env:
+          INPUT_SHA: ${{ inputs.deploy_sha }}
+        run: |
+          set -Eeuo pipefail
+          DEPLOY_SHA="${INPUT_SHA:-${GITHUB_SHA}}"
+          [[ "$DEPLOY_SHA" =~ ^[0-9a-fA-F]{40}$ ]] || {
+            echo "Invalid deploy SHA: $DEPLOY_SHA"
+            exit 1
+          }
+          echo "sha=$DEPLOY_SHA" >> "$GITHUB_OUTPUT"
+
+      - name: SSM経由でデプロイを実行
+        id: deploy
+        shell: bash
+        env:
+          DEPLOY_SHA: ${{ steps.target.outputs.sha }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -Eeuo pipefail
+
+          jq -n \
+            --arg repository "$REPOSITORY" \
+            --arg sha "$DEPLOY_SHA" \
+            --arg siteUrl "$SITE_URL" \
+            '{commands: [
+              "set -Eeuo pipefail",
+              "DEPLOY_WORK=/tmp/ivuru-web-deploy-" + $sha,
+              "rm -rf \"$DEPLOY_WORK\"",
+              "git clone --filter=blob:none --no-checkout https://github.com/" + $repository + ".git \"$DEPLOY_WORK\"",
+              "git -C \"$DEPLOY_WORK\" fetch --depth 1 origin " + $sha,
+              "git -C \"$DEPLOY_WORK\" checkout --detach " + $sha,
+              "sudo REPOSITORY=" + $repository + " DEPLOY_SHA=" + $sha + " SITE_URL=" + $siteUrl + " bash \"$DEPLOY_WORK/scripts/deploy-ec2.sh\"",
+              "rm -rf \"$DEPLOY_WORK\""
+            ]}' > ssm-parameters.json
+
+          COMMAND_ID="$(aws ssm send-command \
+            --region "$AWS_REGION" \
+            --instance-ids "$AWS_INSTANCE_ID" \
+            --document-name AWS-RunShellScript \
+            --comment "Deploy $REPOSITORY@$DEPLOY_SHA" \
+            --parameters file://ssm-parameters.json \
+            --query 'Command.CommandId' \
+            --output text)"
+
+          echo "command_id=$COMMAND_ID" >> "$GITHUB_OUTPUT"
+          echo "SSM Command ID: $COMMAND_ID"
+
+          set +e
+          aws ssm wait command-executed \
+            --region "$AWS_REGION" \
+            --command-id "$COMMAND_ID" \
+            --instance-id "$AWS_INSTANCE_ID"
+          WAIT_STATUS=$?
+          set -e
+
+          aws ssm get-command-invocation \
+            --region "$AWS_REGION" \
+            --command-id "$COMMAND_ID" \
+            --instance-id "$AWS_INSTANCE_ID" \
+            --query '{Status:Status,ResponseCode:ResponseCode,Output:StandardOutputContent,Error:StandardErrorContent}' \
+            --output json | tee deployment-result.json
+
+          STATUS="$(jq -r '.Status' deployment-result.json)"
+          RESPONSE_CODE="$(jq -r '.ResponseCode' deployment-result.json)"
+
+          if [[ "$WAIT_STATUS" -ne 0 || "$STATUS" != "Success" || "$RESPONSE_CODE" != "0" ]]; then
+            echo "Deployment failed: status=$STATUS responseCode=$RESPONSE_CODE"
+            exit 1
+          fi
+
+      - name: 公開URLを確認
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          for attempt in {1..12}; do
+            STATUS_CODE="$(curl --silent --show-error --location --output /dev/null --write-out '%{http_code}' "$SITE_URL" || true)"
+            if [[ "$STATUS_CODE" == "200" ]]; then
+              echo "Deployment health check passed: $SITE_URL"
+              exit 0
+            fi
+            echo "Health check attempt $attempt failed: HTTP $STATUS_CODE"
+            sleep 5
+          done
+          echo "Deployment health check failed: $SITE_URL"
+          exit 1
+
+      - name: 実行結果をサマリーへ出力
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo '## AWS EC2デプロイ'
+            echo
+            echo "- Repository: \`${GITHUB_REPOSITORY}\`"
+            echo "- Commit: \`${{ steps.target.outputs.sha }}\`"
+            echo "- Region: \`${AWS_REGION}\`"
+            echo "- Instance: \`${AWS_INSTANCE_ID}\`"
+            echo "- SSM Command: \`${{ steps.deploy.outputs.command_id }}\`"
+            echo "- URL: ${SITE_URL}"
+          } >> "$GITHUB_STEP_SUMMARY"
