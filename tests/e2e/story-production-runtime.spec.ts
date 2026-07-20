@@ -99,3 +99,21 @@ test('Reduced Motionは3章を順番に読める静的ストーリーへ切り�
   await expect(story.locator('[data-anime-story-scene][inert]')).toHaveCount(0);
   await expect(story.locator('[data-story-chapter-readout]')).toHaveText('01–03 / STATIC STORY');
 });
+
+test.describe('JavaScript無効時の静的フォールバック', () => {
+  test.use({ javaScriptEnabled: false });
+
+  test('3章と後続コンテンツを読み進められる', async ({ page }) => {
+    await page.goto('/');
+
+    const story = page.locator('[data-anime-scroll-story]');
+    await expect(story).toBeVisible();
+    await expect(story).not.toHaveAttribute('data-story-mode', 'motion');
+    await expect(story.locator('[data-anime-story-scene]')).toHaveCount(3);
+    await expect(story.locator('[data-anime-story-scene]').nth(0)).toBeVisible();
+    await expect(story.locator('[data-anime-story-scene]').nth(1)).toBeVisible();
+    await expect(story.locator('[data-anime-story-scene]').nth(2)).toBeVisible();
+    await expect(page.locator('#anime-story-after')).toBeVisible();
+    await expect(page.locator('[data-story-skip]')).toHaveAttribute('href', '#anime-story-after');
+  });
+});
