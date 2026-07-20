@@ -5,13 +5,12 @@ type ScrollTriggerLike = {
   end: number;
   progress: number;
   vars: { trigger?: Element | string; pin?: Element | string | boolean };
-  refresh?: () => void;
-  update?: () => void;
 };
 
 type ScrollTriggerStaticLike = {
   getAll: () => unknown[];
   refresh: () => void;
+  update?: () => void;
   addEventListener: (name: string, callback: () => void) => void;
   removeEventListener: (name: string, callback: () => void) => void;
 };
@@ -26,10 +25,18 @@ type StoryElements = {
   afterStory: HTMLElement | null;
 };
 
+type StoredStoryPosition = {
+  progress: number;
+  updatedAt: number;
+};
+
 const STORY_DURATION = 6;
 const CHAPTER_BREAKS = [0, 1.72 / STORY_DURATION, 4.12 / STORY_DURATION] as const;
 const BOOT_TIMEOUT_MS = 4500;
 const TRIGGER_PROBE_INTERVAL_MS = 100;
+const POSITION_TTL_MS = 30 * 60 * 1000;
+const POSITION_PROGRESS_DELTA = 0.004;
+const POSITION_WRITE_INTERVAL_MS = 250;
 
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
 
@@ -37,6 +44,30 @@ const chapterAt = (progress: number) => {
   if (progress >= CHAPTER_BREAKS[2]) return 2;
   if (progress >= CHAPTER_BREAKS[1]) return 1;
   return 0;
+};
+
+const storyPositionKey = () => `ivuru:story-position:${window.location.pathname}`;
+
+const readStoredPosition = (): StoredStoryPosition | null => {
+  try {
+    const raw = window.sessionStorage.getItem(storyPositionKey());
+    if (!raw) return null;
+    const value = JSON.parse(raw) as Partial<StoredStoryPosition>;
+    if (!Number.isFinite(value.progress) || !Number.isFinite(value.updatedAt)) return null;
+    if (Date.now() - Number(value.updatedAt) > POSITION_TTL_MS) return null;
+    return {
+      progress: clamp01(Number(value.progress)),
+      updatedAt: Number(value.updatedAt),
+    };
+  } catch {
+    return null;
+  }
+};
+
+const shouldRestoreStoredPosition = () => {
+  const navigation = performance.getEntriesByType('navigation')[0] as
+    PerformanceNavigationTiming | undefined;
+  return navigation?.type === 'reload' || navigation?.type === 'back_forward';
 };
 
 const readElements = (): StoryElements | null => {
@@ -113,10 +144,13 @@ export default function StoryProductionRuntime() {
       let bootTimer = 0;
       let activeChapter = -1;
       let lastProgress = -1;
+      let lastPersistedProgress = -1;
+      let lastPersistedAt = 0;
       let trigger: ScrollTriggerLike | undefined;
       let ScrollTrigger: ScrollTriggerStaticLike | undefined;
       let disposed = false;
       let lastViewportWidth = window.visualViewport?.width ?? window.innerWidth;
+      let pendingRestore = shouldRestoreStoredPosition() ? readStoredPosition() : null;
 
       root.dataset.storyProgressAuthority = 'booting';
       root.dataset.storyRuntime = 'booting';
@@ -174,7 +208,11 @@ export default function StoryProductionRuntime() {
         activeChapter = nextIndex;
         window.dispatchEvent(
           new CustomEvent('ivuru:story-chapter-change', {
-            detail: { chapter: code, index: nextIndex, source: 'production-runtime' },
+            detail: {
+              chapter: code,
+              index: nextIndex,
+              source: 'production-runtime',
+            },
           }),
         );
       };
@@ -187,6 +225,38 @@ export default function StoryProductionRuntime() {
         root.dataset.storyAuthorityProgress = normalized.toFixed(4);
         if (progressLine) progressLine.style.transform = `scaleX(${normalized})`;
         activateChapter(chapterAt(normalized));
+      };
+
+      const persistPosition = (progress: number, range: { start: number; end: number }) => {
+        if (window.scrollY < range.start - 2 || window.scrollY > range.end + 2) return;
+        const now = performance.now();
+        const normalized = clamp01(progress);
+        if (
+          Math.abs(normalized - lastPersistedProgress) < POSITION_PROGRESS_DELTA &&
+          now - lastPersistedAt < POSITION_WRITE_INTERVAL_MS
+        )
+          return;
+
+        try {
+          window.sessionStorage.setItem(
+            storyPositionKey(),
+            JSON.stringify({ progress: normalized, updatedAt: Date.now() }),
+          );
+          lastPersistedProgress = normalized;
+          lastPersistedAt = now;
+        } catch {
+          // Storage access can be unavailable in privacy-restricted contexts.
+        }
+      };
+
+      const restorePosition = (currentTrigger: ScrollTriggerLike) => {
+        if (!pendingRestore) return;
+        const restored = pendingRestore;
+        pendingRestore = null;
+        const distance = Math.max(1, currentTrigger.end - currentTrigger.start);
+        window.scrollTo(0, currentTrigger.start + distance * restored.progress);
+        ScrollTrigger?.update?.();
+        applyProgress(restored.progress);
       };
 
       const render = () => {
@@ -208,6 +278,7 @@ export default function StoryProductionRuntime() {
             ? currentTrigger.progress
             : (window.scrollY - range.start) / Math.max(1, range.end - range.start);
         applyProgress(progress);
+        persistPosition(progress, range);
       };
 
       const requestRender = () => {
@@ -217,7 +288,8 @@ export default function StoryProductionRuntime() {
       const refreshAndRender = () => {
         if (disposed || token !== generation) return;
         ScrollTrigger?.refresh();
-        findTrigger();
+        const currentTrigger = findTrigger();
+        if (currentTrigger) restorePosition(currentTrigger);
         requestRender();
       };
 
@@ -241,7 +313,19 @@ export default function StoryProductionRuntime() {
         if (!document.hidden) scheduleRefresh();
       };
 
-      const onPageRestore = () => scheduleRefresh();
+      const onPageRestore = () => {
+        if (!pendingRestore) pendingRestore = readStoredPosition();
+        scheduleRefresh();
+      };
+
+      const onPageHide = () => {
+        const currentTrigger = trigger ?? findTrigger();
+        if (!currentTrigger) return;
+        persistPosition(currentTrigger.progress, {
+          start: currentTrigger.start,
+          end: currentTrigger.end,
+        });
+      };
 
       const onSkip = (event: Event) => {
         if (!afterStory) return;
@@ -290,7 +374,9 @@ export default function StoryProductionRuntime() {
       if (ScrollTrigger) {
         ScrollTrigger.addEventListener('refresh', requestRender);
         triggerProbe = window.setInterval(() => {
-          if (!findTrigger()) return;
+          const currentTrigger = findTrigger();
+          if (!currentTrigger) return;
+          restorePosition(currentTrigger);
           root.dataset.storyProgressAuthority = 'ready';
           root.dataset.storyRuntime = 'ready';
           window.clearInterval(triggerProbe);
@@ -306,11 +392,17 @@ export default function StoryProductionRuntime() {
 
       window.addEventListener('scroll', requestRender, { passive: true });
       window.addEventListener('resize', onViewportResize, { passive: true });
-      window.addEventListener('orientationchange', scheduleRefresh, { passive: true });
+      window.addEventListener('orientationchange', scheduleRefresh, {
+        passive: true,
+      });
       window.addEventListener('pageshow', onPageRestore);
       window.addEventListener('popstate', onPageRestore);
+      window.addEventListener('pagehide', onPageHide);
+      window.addEventListener('beforeunload', onPageHide);
       document.addEventListener('visibilitychange', onVisibilityChange);
-      window.visualViewport?.addEventListener('resize', onViewportResize, { passive: true });
+      window.visualViewport?.addEventListener('resize', onViewportResize, {
+        passive: true,
+      });
       skipLink?.addEventListener('click', onSkip);
       requestRender();
 
@@ -327,6 +419,8 @@ export default function StoryProductionRuntime() {
         window.removeEventListener('orientationchange', scheduleRefresh);
         window.removeEventListener('pageshow', onPageRestore);
         window.removeEventListener('popstate', onPageRestore);
+        window.removeEventListener('pagehide', onPageHide);
+        window.removeEventListener('beforeunload', onPageHide);
         document.removeEventListener('visibilitychange', onVisibilityChange);
         window.visualViewport?.removeEventListener('resize', onViewportResize);
         skipLink?.removeEventListener('click', onSkip);
