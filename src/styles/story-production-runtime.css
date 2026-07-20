@@ -74,9 +74,7 @@
   .anime-reality-overdrive__glyphs
   > i:nth-child(n + 7),
 .anime-scroll-story[data-story-reality-quality='balanced'] [data-gate-rays] > i:nth-child(n + 15),
-.anime-scroll-story[data-story-reality-quality='balanced']
-  [data-gate-shards]
-  > i:nth-child(n + 9) {
+.anime-scroll-story[data-story-reality-quality='balanced'] [data-gate-shards] > i:nth-child(n + 9) {
   display: none;
 }
 
