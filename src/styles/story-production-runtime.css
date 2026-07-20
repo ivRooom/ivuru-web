@@ -1,0 +1,153 @@
+.anime-scroll-story {
+  --story-runtime-height: 100svh;
+
+  width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+  touch-action: pan-y pinch-zoom;
+}
+
+.anime-scroll-story[data-story-mode='booting'] .anime-scroll-stage,
+.anime-scroll-story[data-story-mode='motion'] .anime-scroll-stage {
+  height: var(--story-runtime-height, 100svh);
+  min-height: 0;
+  max-height: 100dvh;
+}
+
+.anime-scroll-story .anime-story-scene {
+  will-change: auto;
+}
+
+.anime-scroll-story[data-story-mode='motion'][data-story-in-view='true']
+  .anime-story-scene[data-active='true'],
+.anime-scroll-story[data-story-mode='motion'][data-story-in-view='true']
+  .anime-story-progress-line {
+  will-change: transform, opacity;
+}
+
+.anime-scroll-story[data-story-runtime-visibility='hidden'] *,
+.anime-scroll-story[data-story-in-view='false'] * {
+  animation-play-state: paused !important;
+}
+
+.anime-story-skip {
+  position: fixed;
+  z-index: 10000;
+  top: max(10px, env(safe-area-inset-top));
+  left: max(10px, env(safe-area-inset-left));
+  max-width: min(88vw, 34rem);
+  padding: 0.8rem 1rem;
+  color: #031127;
+  font-weight: 800;
+  line-height: 1.4;
+  text-decoration: none;
+  background: #f7fcff;
+  border: 2px solid #1769ff;
+  border-radius: 999px;
+  box-shadow: 0 8px 28px rgb(0 17 39 / 28%);
+  transform: translateY(calc(-100% - max(18px, env(safe-area-inset-top))));
+  transition: transform 180ms ease;
+}
+
+.anime-story-skip:focus-visible {
+  outline: 3px solid #9cecff;
+  outline-offset: 3px;
+  transform: translateY(0);
+}
+
+#anime-story-after {
+  scroll-margin-top: max(88px, calc(env(safe-area-inset-top) + 68px));
+}
+
+#anime-story-after:focus {
+  outline: none;
+}
+
+.anime-scroll-story[data-story-reality-quality='balanced']
+  .anime-reality-overdrive__fractures
+  > i:nth-child(n + 11),
+.anime-scroll-story[data-story-reality-quality='balanced']
+  .anime-reality-overdrive__particles
+  > i:nth-child(n + 17),
+.anime-scroll-story[data-story-reality-quality='balanced']
+  .anime-reality-overdrive__glyphs
+  > i:nth-child(n + 7),
+.anime-scroll-story[data-story-reality-quality='balanced'] [data-gate-rays] > i:nth-child(n + 15),
+.anime-scroll-story[data-story-reality-quality='balanced'] [data-gate-shards] > i:nth-child(n + 9) {
+  display: none;
+}
+
+.anime-scroll-story[data-story-reality-quality='lite']
+  .anime-reality-overdrive__fractures
+  > i:nth-child(n + 7),
+.anime-scroll-story[data-story-reality-quality='lite']
+  .anime-reality-overdrive__particles
+  > i:nth-child(n + 11),
+.anime-scroll-story[data-story-reality-quality='lite']
+  .anime-reality-overdrive__glyphs
+  > i:nth-child(n + 5),
+.anime-scroll-story[data-story-reality-quality='lite']
+  .anime-reality-overdrive__shockwaves
+  > i:nth-child(n + 2),
+.anime-scroll-story[data-story-reality-quality='lite'] [data-gate-rays] > i:nth-child(n + 11),
+.anime-scroll-story[data-story-reality-quality='lite'] [data-gate-blades] > i:nth-child(n + 9),
+.anime-scroll-story[data-story-reality-quality='lite'] [data-gate-shards] > i:nth-child(n + 7) {
+  display: none;
+}
+
+.anime-scroll-story[data-story-reality-quality='lite'] .anime-reality-overdrive__chromatic,
+.anime-scroll-story[data-story-reality-quality='lite'] .anime-reality-overdrive__telemetry,
+.anime-scroll-story[data-story-reality-quality='lite'] .anime-story-scene::after {
+  display: none;
+}
+
+.anime-scroll-story[data-story-reality-quality='lite'] .anime-chapter-gate,
+.anime-scroll-story[data-story-reality-quality='lite'] .anime-story-scene,
+.anime-scroll-story[data-story-reality-quality='lite'] [data-story-visual] {
+  filter: none !important;
+  backdrop-filter: none !important;
+  mix-blend-mode: normal !important;
+}
+
+@media (max-width: 767px) {
+  .anime-scroll-story .anime-story-scene {
+    padding-top: max(108px, calc(env(safe-area-inset-top) + 84px));
+    padding-right: max(20px, calc(env(safe-area-inset-right) + 16px));
+    padding-bottom: max(64px, calc(env(safe-area-inset-bottom) + 36px));
+    padding-left: max(20px, calc(env(safe-area-inset-left) + 16px));
+  }
+
+  .anime-scroll-story .anime-story-chrome {
+    top: max(82px, calc(env(safe-area-inset-top) + 64px));
+    right: max(18px, calc(env(safe-area-inset-right) + 14px));
+    left: max(18px, calc(env(safe-area-inset-left) + 14px));
+  }
+
+  .anime-scroll-story .anime-story-progress {
+    right: max(12px, calc(env(safe-area-inset-right) + 8px));
+  }
+}
+
+@media (orientation: landscape) and (max-height: 540px) {
+  .anime-scroll-story .anime-story-scene {
+    padding-top: max(76px, calc(env(safe-area-inset-top) + 58px));
+    padding-bottom: max(28px, calc(env(safe-area-inset-bottom) + 18px));
+  }
+
+  .anime-scroll-story .anime-story-chrome {
+    top: max(58px, calc(env(safe-area-inset-top) + 44px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anime-story-skip {
+    transition: none;
+  }
+
+  .anime-scroll-story[data-story-mode='static'] .anime-story-scene {
+    min-height: 100svh !important;
+    min-height: 100dvh !important;
+    scroll-margin-top: max(76px, calc(env(safe-area-inset-top) + 58px));
+  }
+}
