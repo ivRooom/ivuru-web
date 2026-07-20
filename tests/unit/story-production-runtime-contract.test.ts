@@ -8,7 +8,9 @@ describe('story production runtime contract', () => {
   it('Homeは旧Progress Authorityではなく本番Runtimeを一度だけ起動する', () => {
     const source = readSource('src/components/pages/HomePageV2.astro');
 
-    expect(source).toContain("import StoryProductionRuntime from '@/components/effects/StoryProductionRuntime'");
+    expect(source).toContain(
+      "import StoryProductionRuntime from '@/components/effects/StoryProductionRuntime'",
+    );
     expect(source).toContain('<StoryProductionRuntime client:load />');
     expect(source).not.toContain('StoryProgressAuthority');
     expect(source.match(/<StoryProductionRuntime client:load \/>/g)).toHaveLength(1);
@@ -18,7 +20,8 @@ describe('story production runtime contract', () => {
     const source = readSource('src/components/effects/StoryProductionRuntime.tsx');
 
     expect(source).toContain('currentTrigger.progress');
-    expect(source).toContain('data-story-scroll-start');
+    expect(source).toContain('storyScrollStart');
+    expect(source).toContain('storyScrollEnd');
     expect(source).not.toContain('animation.progress(');
     expect(source).not.toContain('pinned.animation');
     expect(source).toContain("window.addEventListener('pageshow'");
