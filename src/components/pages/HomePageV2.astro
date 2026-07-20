@@ -2,6 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import LoaderReleaseGuard from '@/components/common/LoaderReleaseGuard.astro';
 import AnimeScrollStory from '@/components/home/AnimeScrollStory.astro';
+import StorySkipLink from '@/components/home/StorySkipLink.astro';
 import FeaturedWorks from '@/components/home/FeaturedWorks.astro';
 import HomePortalGrid from '@/components/home/HomePortalGrid.astro';
 import LatestPosts from '@/components/blog/LatestPosts.astro';
@@ -12,7 +13,7 @@ import SpatialCameraEnhancer from '@/components/effects/SpatialCameraEnhancer';
 import CinematicEntertainmentDirector from '@/components/effects/CinematicEntertainmentDirector';
 import SingularityOverdriveDirector from '@/components/effects/SingularityOverdriveDirector';
 import AdaptiveRealityDirector from '@/components/effects/AdaptiveRealityDirector';
-import StoryProgressAuthority from '@/components/effects/StoryProgressAuthority';
+import StoryProductionRuntime from '@/components/effects/StoryProductionRuntime';
 import QuantumLoaderEvolution from '@/components/effects/QuantumLoaderEvolution.astro';
 import OmegaWorldRift from '@/components/effects/OmegaWorldRift.astro';
 import { siteConfig, type Locale } from '@/data/site-config';
@@ -28,6 +29,7 @@ import '@/styles/chapter-gate-transitions.css';
 import '@/styles/adaptive-reality-overdrive.css';
 import '@/styles/home-loader-insets.css';
 import '@/styles/story-static-fallback.css';
+import '@/styles/story-production-runtime.css';
 
 const { locale } = Astro.props as { locale: Locale };
 const descriptions = {
@@ -47,16 +49,17 @@ const descriptions = {
   <QuantumLoaderEvolution />
   <CinematicPointerEffects client:idle />
   <AnimeScrollDirector client:load />
-  <StoryProgressAuthority client:load />
+  <StoryProductionRuntime client:load />
   <SpatialCameraEnhancer client:load />
   <CinematicEntertainmentDirector client:load />
   <SingularityOverdriveDirector client:load />
   <AdaptiveRealityDirector client:load />
 
+  <StorySkipLink locale={locale} />
   <AnimeScrollStory locale={locale} />
   <OmegaWorldRift />
 
-  <div class="anime-story-after">
+  <div id="anime-story-after" class="anime-story-after" tabindex="-1">
     <div class="anime-scene-anchor" data-anime-scene="ice" data-cinematic-section>
       <FeaturedWorks locale={locale} />
     </div>
