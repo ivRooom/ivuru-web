@@ -149,6 +149,7 @@ export default function StoryProductionRuntime() {
       let trigger: ScrollTriggerLike | undefined;
       let ScrollTrigger: ScrollTriggerStaticLike | undefined;
       let disposed = false;
+      let runtimeReady = false;
       let lastViewportWidth = window.visualViewport?.width ?? window.innerWidth;
       const restoreOnNavigation = shouldRestoreStoredPosition();
       let pendingRestore = restoreOnNavigation ? readStoredPosition() : null;
@@ -229,6 +230,7 @@ export default function StoryProductionRuntime() {
       };
 
       const persistPosition = (progress: number, range: { start: number; end: number }) => {
+        if (!runtimeReady || pendingRestore) return;
         if (window.scrollY < range.start - 2 || window.scrollY > range.end + 2) return;
         const now = performance.now();
         const normalized = clamp01(progress);
@@ -290,7 +292,10 @@ export default function StoryProductionRuntime() {
         if (disposed || token !== generation) return;
         ScrollTrigger?.refresh();
         const currentTrigger = findTrigger();
-        if (currentTrigger) restorePosition(currentTrigger);
+        if (currentTrigger) {
+          restorePosition(currentTrigger);
+          runtimeReady = true;
+        }
         requestRender();
       };
 
@@ -316,6 +321,7 @@ export default function StoryProductionRuntime() {
 
       const restoreStoredPosition = () => {
         pendingRestore = readStoredPosition();
+        runtimeReady = false;
         scheduleRefresh();
       };
 
@@ -388,6 +394,7 @@ export default function StoryProductionRuntime() {
           const currentTrigger = findTrigger();
           if (!currentTrigger) return;
           restorePosition(currentTrigger);
+          runtimeReady = true;
           root.dataset.storyProgressAuthority = 'ready';
           root.dataset.storyRuntime = 'ready';
           window.clearInterval(triggerProbe);
@@ -419,6 +426,7 @@ export default function StoryProductionRuntime() {
 
       disposeCurrent = () => {
         disposed = true;
+        runtimeReady = false;
         cancelAnimationFrame(frame);
         window.clearTimeout(resizeTimer);
         window.clearTimeout(focusTimer);
