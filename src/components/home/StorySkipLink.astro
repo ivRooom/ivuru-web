@@ -1,0 +1,12 @@
+---
+import type { Locale } from '@/data/site-config';
+
+const { locale } = Astro.props as { locale: Locale };
+const labels = {
+  ja: 'スクロール演出をスキップして次のコンテンツへ',
+  en: 'Skip the scroll story and continue to the next content',
+  ko: '스크롤 연출을 건너뛰고 다음 콘텐츠로 이동',
+} as const;
+---
+
+<a class="anime-story-skip" data-story-skip href="#anime-story-after">{labels[locale]}</a>
