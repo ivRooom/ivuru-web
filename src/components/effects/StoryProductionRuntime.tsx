@@ -150,7 +150,8 @@ export default function StoryProductionRuntime() {
       let ScrollTrigger: ScrollTriggerStaticLike | undefined;
       let disposed = false;
       let lastViewportWidth = window.visualViewport?.width ?? window.innerWidth;
-      let pendingRestore = shouldRestoreStoredPosition() ? readStoredPosition() : null;
+      const restoreOnNavigation = shouldRestoreStoredPosition();
+      let pendingRestore = restoreOnNavigation ? readStoredPosition() : null;
 
       root.dataset.storyProgressAuthority = 'booting';
       root.dataset.storyRuntime = 'booting';
@@ -313,10 +314,20 @@ export default function StoryProductionRuntime() {
         if (!document.hidden) scheduleRefresh();
       };
 
-      const onPageRestore = () => {
-        if (!pendingRestore) pendingRestore = readStoredPosition();
+      const restoreStoredPosition = () => {
+        pendingRestore = readStoredPosition();
         scheduleRefresh();
       };
+
+      const onPageShow = (event: PageTransitionEvent) => {
+        if (event.persisted || restoreOnNavigation) {
+          restoreStoredPosition();
+          return;
+        }
+        scheduleRefresh();
+      };
+
+      const onPopState = () => restoreStoredPosition();
 
       const onPageHide = () => {
         const currentTrigger = trigger ?? findTrigger();
@@ -395,8 +406,8 @@ export default function StoryProductionRuntime() {
       window.addEventListener('orientationchange', scheduleRefresh, {
         passive: true,
       });
-      window.addEventListener('pageshow', onPageRestore);
-      window.addEventListener('popstate', onPageRestore);
+      window.addEventListener('pageshow', onPageShow);
+      window.addEventListener('popstate', onPopState);
       window.addEventListener('pagehide', onPageHide);
       window.addEventListener('beforeunload', onPageHide);
       document.addEventListener('visibilitychange', onVisibilityChange);
@@ -417,8 +428,8 @@ export default function StoryProductionRuntime() {
         window.removeEventListener('scroll', requestRender);
         window.removeEventListener('resize', onViewportResize);
         window.removeEventListener('orientationchange', scheduleRefresh);
-        window.removeEventListener('pageshow', onPageRestore);
-        window.removeEventListener('popstate', onPageRestore);
+        window.removeEventListener('pageshow', onPageShow);
+        window.removeEventListener('popstate', onPopState);
         window.removeEventListener('pagehide', onPageHide);
         window.removeEventListener('beforeunload', onPageHide);
         document.removeEventListener('visibilitychange', onVisibilityChange);
