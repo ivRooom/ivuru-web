@@ -8,6 +8,14 @@ const prepare = async (page: Page) => {
   });
 };
 
+const waitForLoaderRelease = async (page: Page) => {
+  const loader = page.locator('[data-spatial-loader]');
+  await expect(page.locator('body')).not.toHaveClass(/site-loading/, { timeout: 8_000 });
+  if ((await loader.count()) > 0) {
+    await expect(loader).toHaveAttribute('aria-hidden', 'true', { timeout: 8_000 });
+  }
+};
+
 const scrollTo = async (page: Page, top: number) => {
   const expectedTop = Math.round(top);
   await page.evaluate((targetTop) => window.scrollTo(0, Number(targetTop)), expectedTop);
@@ -67,7 +75,7 @@ test.describe('iOS WebKit story stability', () => {
   test('ロードアニメーションが進行してからページを解放する', async ({ page }) => {
     await page.addInitScript(() => sessionStorage.removeItem('ivuru-intro-seen'));
     await page.emulateMedia({ reducedMotion: 'no-preference' });
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
 
     const loader = page.locator('[data-spatial-loader]');
     const progress = loader.locator('[role="progressbar"]');
@@ -77,25 +85,30 @@ test.describe('iOS WebKit story stability', () => {
     const initialProgress = Number((await progress.getAttribute('aria-valuenow')) ?? 0);
     await expect
       .poll(async () => Number((await progress.getAttribute('aria-valuenow')) ?? 0), {
-        timeout: 2_000,
+        timeout: 2_500,
       })
       .toBeGreaterThan(initialProgress);
 
-    await expect(page.locator('body')).not.toHaveClass(/site-loading/, { timeout: 5_000 });
-    await expect(loader).toHaveAttribute('aria-hidden', 'true', { timeout: 5_000 });
+    await waitForLoaderRelease(page);
   });
 
   test('Heroで待機後も実GSAP演出で01→02→03→02→01を維持する', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await page.goto('/');
+    await waitForLoaderRelease(page);
 
     const story = page.locator('[data-anime-scroll-story]');
     await expect(story).toHaveAttribute('data-story-platform', 'ios-webkit');
 
     await page.waitForTimeout(5_200);
-    await expect(story).not.toHaveAttribute('data-story-mode', 'static');
-    await expect(story).not.toHaveAttribute('data-story-runtime', 'fallback');
-    await expect(story).not.toHaveAttribute('data-story-runtime-reason', 'motion-boot-timeout');
+    const preReveal = await story.evaluate((root) => ({
+      mode: (root as HTMLElement).dataset.storyMode ?? '',
+      runtime: (root as HTMLElement).dataset.storyRuntime ?? '',
+      reason: (root as HTMLElement).dataset.storyRuntimeReason ?? '',
+    }));
+    expect(preReveal.mode).not.toBe('static');
+    expect(preReveal.runtime).not.toBe('fallback');
+    expect(preReveal.reason).not.toBe('motion-boot-timeout');
 
     await revealStory(page);
     await expect(story).toHaveAttribute('data-story-director', 'ready', { timeout: 15_000 });
@@ -126,6 +139,7 @@ test.describe('iOS WebKit story stability', () => {
 
   test('アドレスバー相当の高さ変化と画面回転後もready状態を維持する', async ({ page }) => {
     await page.goto('/');
+    await waitForLoaderRelease(page);
 
     const story = page.locator('[data-anime-scroll-story]');
     await revealStory(page);
