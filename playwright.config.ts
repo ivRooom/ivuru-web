@@ -1,5 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const chromiumLaunchOptions = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
+  ? { launchOptions: { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH } }
+  : {};
+
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
@@ -10,9 +14,6 @@ export default defineConfig({
     : 'list',
   outputDir: 'test-results',
   use: {
-    launchOptions: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
-      ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH }
-      : undefined,
     baseURL: 'http://127.0.0.1:4321',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
@@ -25,8 +26,14 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'mobile', use: { ...devices['Pixel 7'] } },
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'], ...chromiumLaunchOptions },
+    },
+    {
+      name: 'mobile',
+      use: { ...devices['Pixel 7'], ...chromiumLaunchOptions },
+    },
     {
       name: 'webkit-iphone',
       use: { ...devices['iPhone 13'], browserName: 'webkit' },
