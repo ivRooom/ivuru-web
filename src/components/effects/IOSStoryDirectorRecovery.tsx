@@ -103,7 +103,10 @@ export default function IOSStoryDirectorRecovery() {
         }
         if (!recoveryActive) return;
 
-        const progress = Math.max(0, Math.min(1, (window.scrollY - start) / Math.max(1, end - start)));
+        const progress = Math.max(
+          0,
+          Math.min(1, (window.scrollY - start) / Math.max(1, end - start)),
+        );
         const chapterIndex = progress < 0.34 ? 0 : progress < 0.67 ? 1 : 2;
         const rect = root.getBoundingClientRect();
         root.dataset.storyInView =
