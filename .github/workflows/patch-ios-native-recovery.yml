@@ -1,0 +1,334 @@
+name: Patch iOS Native Recovery
+
+on:
+  push:
+    branches:
+      - fix/ios-webkit-story-scroll
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/ios-webkit-story-scroll
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Stability BridgeへNative Recoveryを統合
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          bridge = Path('src/components/effects/IOSStoryStabilityBridge.tsx')
+          text = bridge.read_text()
+
+          replacements = [
+              (
+                  "const RECOVERY_GRACE_MS = 30_000;\nconst CHAPTERS = ['01', '02', '03'] as const;",
+                  "const RECOVERY_GRACE_MS = 30_000;\nconst NATIVE_RECOVERY_DELAY_MS = 1_200;\nconst CHAPTERS = ['01', '02', '03'] as const;",
+              ),
+              (
+                  """      let terminalFallback = false;
+      let lastChapter = '';
+      let repairingStatic = false;
+""",
+                  """      let terminalFallback = false;
+      let nativeRecovery = false;
+      let nativeRecoveryTimer = 0;
+      let nativeRecoveryFrame = 0;
+      let nativeStart = 0;
+      let nativeEnd = 1;
+      let lastChapter = '';
+      let repairingStatic = false;
+""",
+              ),
+              (
+                  """      const repairStaticScenes = () => {
+""",
+                  """      const setDataset = (key: string, value: string) => {
+        if (root.dataset[key] !== value) root.dataset[key] = value;
+      };
+
+      const setStyle = (element: HTMLElement, property: string, value: string) => {
+        if (element.style.getPropertyValue(property) !== value) {
+          element.style.setProperty(property, value);
+        }
+      };
+
+      const updateNativeRange = () => {
+        const rootTop = root.getBoundingClientRect().top + window.scrollY;
+        const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+        nativeStart = Math.max(0, rootTop);
+        nativeEnd = nativeStart + Math.max(1, Math.round(viewportHeight * 5.7));
+        setDataset('storyScrollStart', String(Math.round(nativeStart)));
+        setDataset('storyScrollEnd', String(Math.round(nativeEnd)));
+      };
+
+      const syncNativeRecovery = () => {
+        if (!nativeRecovery || terminalFallback || !isCurrent()) return;
+
+        const realTrigger = findStoryTrigger();
+        if (realTrigger && root.dataset.storyTransitionEngine === 'world-forge') {
+          nativeRecovery = false;
+          window.clearTimeout(nativeRecoveryTimer);
+          nativeRecoveryTimer = 0;
+          syncMotionState(realTrigger);
+          return;
+        }
+
+        const progress = Math.max(
+          0,
+          Math.min(1, (window.scrollY - nativeStart) / Math.max(1, nativeEnd - nativeStart)),
+        );
+        const activeIndex = progress < 0.34 ? 0 : progress < 0.67 ? 1 : 2;
+        const code = CHAPTERS[activeIndex];
+        const chapterChanged = lastChapter !== code;
+        lastChapter = code;
+
+        setDataset('storyDirector', 'ready');
+        setDataset('storyRuntime', 'ready');
+        setDataset('storyProgressAuthority', 'ready');
+        setDataset('storyMobileStability', 'ready');
+        setDataset('storyMode', 'motion');
+        setDataset('storyMask', 'active');
+        setDataset('storyPerformance', 'ios-native-recovery');
+        setDataset('storyTransitionEngine', 'ios-native-recovery');
+        setDataset('storySnap', 'disabled-mobile');
+        setDataset('storySnapState', 'ready');
+        setDataset('storyNativeRecovery', 'true');
+        setDataset('storyChapter', code);
+        setDataset('storyAuthorityChapter', code);
+        setDataset('storyAuthorityProgress', progress.toFixed(4));
+        setStyle(root, '--story-authority-progress', progress.toFixed(4));
+        setStyle(root, 'overflow-x', 'clip');
+
+        const rect = root.getBoundingClientRect();
+        setDataset(
+          'storyInView',
+          rect.bottom >= 0 && rect.top <= (window.visualViewport?.height ?? window.innerHeight)
+            ? 'true'
+            : 'false',
+        );
+
+        scenes.forEach((scene, index) => {
+          const active = index === activeIndex;
+          const activeValue = active ? 'true' : 'false';
+          if (scene.dataset.active !== activeValue) scene.dataset.active = activeValue;
+          if (scene.getAttribute('aria-hidden') !== activeValue) {
+            scene.setAttribute('aria-hidden', active ? 'false' : 'true');
+          }
+          scene.toggleAttribute('inert', !active);
+          setStyle(scene, 'opacity', active ? '1' : '0');
+          setStyle(scene, 'visibility', active ? 'visible' : 'hidden');
+          setStyle(scene, 'pointer-events', active ? 'auto' : 'none');
+          setStyle(
+            scene,
+            'transform',
+            active ? 'translate3d(0, 0, 0)' : 'translate3d(0, 20px, 0)',
+          );
+          setStyle(scene, 'transition', 'opacity 220ms ease, transform 260ms ease');
+          if (active) {
+            scene.querySelectorAll<HTMLElement>(STORY_CONTENT_SELECTOR).forEach((node) => {
+              if (node.style.opacity) node.style.removeProperty('opacity');
+              if (node.style.visibility) node.style.removeProperty('visibility');
+            });
+          }
+        });
+
+        dots.forEach((dot, index) => {
+          const activeValue = index === activeIndex ? 'true' : 'false';
+          if (dot.dataset.active !== activeValue) dot.dataset.active = activeValue;
+        });
+        if (readout && readout.textContent !== `${code} / 03`) readout.textContent = `${code} / 03`;
+        if (progressLine) setStyle(progressLine, 'transform', `scaleX(${progress})`);
+        document.body.dataset.animeScene = scenes[activeIndex]?.dataset.storyScene ?? 'ice';
+        delete root.dataset.storyRuntimeReason;
+        delete root.dataset.storyMobileRecovery;
+        delete root.dataset.storyMobileTerminalFallback;
+
+        if (chapterChanged) {
+          window.dispatchEvent(
+            new CustomEvent('ivuru:story-chapter-change', {
+              detail: { chapter: code, index: activeIndex, source: 'ios-native-recovery' },
+            }),
+          );
+        }
+      };
+
+      const scheduleNativeSync = () => {
+        cancelAnimationFrame(nativeRecoveryFrame);
+        nativeRecoveryFrame = requestAnimationFrame(syncNativeRecovery);
+      };
+
+      const activateNativeRecovery = () => {
+        if (nativeRecovery || terminalFallback || !isCurrent()) return;
+        const realTrigger = findStoryTrigger();
+        if (realTrigger && root.dataset.storyDirector === 'ready') {
+          syncMotionState(realTrigger);
+          return;
+        }
+        nativeRecovery = true;
+        updateNativeRange();
+        syncNativeRecovery();
+      };
+
+      const repairStaticScenes = () => {
+""",
+              ),
+              (
+                  """      const evaluate = () => {
+        if (!isCurrent() || terminalFallback) return;
+        recoverPrematureFallback();
+""",
+                  """      const evaluate = () => {
+        if (!isCurrent() || terminalFallback) return;
+        if (nativeRecovery) {
+          scheduleNativeSync();
+          return;
+        }
+        recoverPrematureFallback();
+""",
+              ),
+              (
+                  """        if (root.dataset.storyDirector === 'ready' && trigger) {
+          syncMotionState(trigger);
+          window.clearInterval(probeTimer);
+""",
+                  """        if (root.dataset.storyDirector === 'ready' && trigger) {
+          window.clearTimeout(nativeRecoveryTimer);
+          nativeRecoveryTimer = 0;
+          syncMotionState(trigger);
+          window.clearInterval(probeTimer);
+""",
+              ),
+              (
+                  """      const onScroll = () => {
+        if (terminalFallback) {
+          repairStaticScenes();
+          return;
+        }
+        ScrollTrigger?.update();
+        const trigger = findStoryTrigger();
+        if (trigger && root.dataset.storyDirector === 'ready') syncMotionState(trigger);
+        else evaluate();
+      };
+""",
+                  """      const onScroll = () => {
+        if (terminalFallback) {
+          repairStaticScenes();
+          return;
+        }
+        if (nativeRecovery) {
+          scheduleNativeSync();
+          return;
+        }
+        ScrollTrigger?.update();
+        const trigger = findStoryTrigger();
+        if (trigger && root.dataset.storyDirector === 'ready') syncMotionState(trigger);
+        else activateNativeRecovery();
+      };
+""",
+              ),
+              (
+                  """      const onViewportChange = () => {
+        const width = window.visualViewport?.width ?? window.innerWidth;
+""",
+                  """      const onViewportChange = () => {
+        if (nativeRecovery) {
+          updateNativeRange();
+          scheduleNativeSync();
+          return;
+        }
+        const width = window.visualViewport?.width ?? window.innerWidth;
+""",
+              ),
+              (
+                  """        window.clearTimeout(refreshTimer);
+        window.clearInterval(probeTimer);
+        cancelAnimationFrame(firstFrame);
+""",
+                  """        window.clearTimeout(refreshTimer);
+        window.clearTimeout(nativeRecoveryTimer);
+        window.clearInterval(probeTimer);
+        cancelAnimationFrame(firstFrame);
+        cancelAnimationFrame(nativeRecoveryFrame);
+""",
+              ),
+              (
+                  """      syncViewportHeight();
+      probeTimer = window.setInterval(evaluate, 250);
+""",
+                  """      syncViewportHeight();
+      nativeRecoveryTimer = window.setTimeout(activateNativeRecovery, NATIVE_RECOVERY_DELAY_MS);
+      probeTimer = window.setInterval(evaluate, 250);
+""",
+              ),
+          ]
+
+          for old, new in replacements:
+              if old not in text:
+                  raise SystemExit(f'Bridge patch target not found:\n{old}')
+              text = text.replace(old, new, 1)
+
+          bridge.write_text(text)
+
+          home = Path('src/components/pages/HomePageV2.astro')
+          text = home.read_text()
+          text = text.replace(
+              "import IOSStoryDirectorRecovery from '@/components/effects/IOSStoryDirectorRecovery';\n",
+              '',
+              1,
+          )
+          text = text.replace('  <IOSStoryDirectorRecovery client:load />\n', '', 1)
+          home.write_text(text)
+
+          contract = Path('tests/unit/ios-story-stability-contract.test.ts')
+          text = contract.read_text()
+          anchor = """    expect(source).toContain('syncAuthorityFromDirector');
+"""
+          if anchor in text:
+              addition = """    expect(source).toContain('syncAuthorityFromDirector');
+    expect(source).toContain('const NATIVE_RECOVERY_DELAY_MS = 1_200');
+    expect(source).toContain('activateNativeRecovery');
+    expect(source).toContain("source: 'ios-native-recovery'");
+    expect(source).toContain("root.dataset[key] = value");
+"""
+              text = text.replace(anchor, addition, 1)
+          else:
+              fallback_anchor = """    expect(source).toContain("source: 'ios-stability-bridge'");
+"""
+              addition = """    expect(source).toContain("source: 'ios-stability-bridge'");
+    expect(source).toContain('const NATIVE_RECOVERY_DELAY_MS = 1_200');
+    expect(source).toContain('activateNativeRecovery');
+    expect(source).toContain("source: 'ios-native-recovery'");
+    expect(source).toContain("root.dataset[key] = value");
+"""
+              if fallback_anchor not in text:
+                  raise SystemExit('Contract anchor not found')
+              text = text.replace(fallback_anchor, addition, 1)
+          contract.write_text(text)
+
+          Path('src/components/effects/IOSStoryDirectorRecovery.tsx').unlink(missing_ok=True)
+          Path('tests/unit/ios-story-director-recovery-contract.test.ts').unlink(missing_ok=True)
+          PY
+          npx prettier --write \
+            src/components/effects/IOSStoryStabilityBridge.tsx \
+            src/components/pages/HomePageV2.astro \
+            tests/unit/ios-story-stability-contract.test.ts
+          npm run check
+          npm test
+      - name: 統合結果をコミット
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "4189822+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "iOS Native RecoveryをStability Bridgeへ統合"
+          git push origin HEAD:fix/ios-webkit-story-scroll
