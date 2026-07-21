@@ -126,11 +126,7 @@
           setStyle(scene, 'opacity', active ? '1' : '0');
           setStyle(scene, 'visibility', active ? 'visible' : 'hidden');
           setStyle(scene, 'pointer-events', active ? 'auto' : 'none');
-          setStyle(
-            scene,
-            'transform',
-            active ? 'translate3d(0, 0, 0)' : 'translate3d(0, 20px, 0)',
-          );
+          setStyle(scene, 'transform', active ? 'translate3d(0, 0, 0)' : 'translate3d(0, 20px, 0)');
           setStyle(scene, 'transition', 'opacity 220ms ease, transform 260ms ease');
 
           if (active) {
