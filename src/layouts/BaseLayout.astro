@@ -214,15 +214,25 @@ const pageWorld = chapter.world
     {isHome && <IntroLoader locale={locale} transition:persist="intro-loader" />}
     <script is:inline>
       (() => {
-        const delay = matchMedia('(prefers-reduced-motion: reduce)').matches ? 350 : 2400;
-        window.setTimeout(() => {
+        const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const releaseFailsafe = () => {
           const loader = document.querySelector('.world-loader');
           if (!(loader instanceof HTMLElement)) return;
+          if (
+            loader.classList.contains('loaded') ||
+            document.documentElement.dataset.loaderReleased === 'true'
+          ) {
+            return;
+          }
           document.documentElement.dataset.loaderReleased = 'true';
           loader.classList.add('loaded');
           loader.dataset.failsafeHidden = 'true';
           document.body.classList.remove('site-loading');
-        }, delay);
+        };
+        const armFailsafe = () => window.setTimeout(releaseFailsafe, reduced ? 500 : 5_000);
+
+        if (document.readyState === 'complete') armFailsafe();
+        else window.addEventListener('load', armFailsafe, { once: true });
       })();
     </script>
     <ChapterCut client:load transition:persist="chapter-cut" />

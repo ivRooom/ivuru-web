@@ -34,6 +34,10 @@ const GATE_BLADE_COUNT = 12;
 const GATE_RAY_COUNT = 18;
 const GATE_SHARD_COUNT = 10;
 
+const isIOSWebKit = () =>
+  /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
 const readStoryElements = (): StoryElements | null => {
   const root = document.querySelector<HTMLElement>('[data-anime-scroll-story]');
   const stage = root?.querySelector<HTMLElement>('[data-anime-scroll-stage]');
@@ -532,6 +536,12 @@ export default function AnimeScrollDirector() {
       elements.root.dataset.storyMode = 'booting';
       elements.root.dataset.storyMask = 'active';
       elements.root.dataset.storyInView = 'false';
+
+      if (isIOSWebKit()) {
+        elements.root.dataset.storyInView = 'true';
+        void initializeMotion(elements, token);
+        return;
+      }
 
       if (!('IntersectionObserver' in window)) {
         void initializeMotion(elements, token);

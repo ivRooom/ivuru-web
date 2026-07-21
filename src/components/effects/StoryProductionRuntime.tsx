@@ -40,6 +40,10 @@ const POSITION_WRITE_INTERVAL_MS = 250;
 
 const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
 
+const isIOSWebKit = () =>
+  /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
 const chapterAt = (progress: number) => {
   if (progress >= CHAPTER_BREAKS[2]) return 2;
   if (progress >= CHAPTER_BREAKS[1]) return 1;
@@ -406,6 +410,14 @@ export default function StoryProductionRuntime() {
 
         bootTimer = window.setTimeout(() => {
           if (findTrigger()) return;
+          if (isIOSWebKit()) {
+            root.dataset.storyRuntime = 'booting';
+            root.dataset.storyProgressAuthority = 'booting';
+            root.dataset.storyRuntimeReason = 'waiting-for-ios-director';
+            ScrollTrigger?.refresh();
+            requestRender();
+            return;
+          }
           applyStaticStory(elements, 'motion-boot-timeout');
         }, BOOT_TIMEOUT_MS);
       }
