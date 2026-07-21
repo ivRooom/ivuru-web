@@ -6,13 +6,221 @@ on:
   pull_request:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
+  patch-ios-story-owner:
+    if: ${{ github.event_name == 'pull_request' && github.head_ref == 'fix/ios-webkit-story-scroll' && github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: iOS Story制御をInline Recoveryへ一本化
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_once(path: str, old: str, new: str) -> None:
+              file = Path(path)
+              text = file.read_text()
+              if old not in text:
+                  raise SystemExit(f'Patch target not found: {path}\n{old}')
+              file.write_text(text.replace(old, new, 1))
+
+          replace_once(
+              'src/components/effects/AnimeScrollDirector.tsx',
+              """    const setup = () => {
+                cleanup();
+          """,
+              """    const setup = () => {
+                const recoveryRoot = document.querySelector<HTMLElement>('[data-anime-scroll-story]');
+                if (recoveryRoot?.dataset.storyNativeRecovery === 'true') return;
+                cleanup();
+          """,
+          )
+
+          replace_once(
+              'src/components/effects/StoryProductionRuntime.tsx',
+              """    const setup = async () => {
+                disposeCurrent();
+          """,
+              """    const setup = async () => {
+                const recoveryRoot = document.querySelector<HTMLElement>('[data-anime-scroll-story]');
+                if (recoveryRoot?.dataset.storyNativeRecovery === 'true') return;
+                disposeCurrent();
+          """,
+          )
+
+          replace_once(
+              'src/components/effects/IOSStoryStabilityBridge.tsx',
+              """    const setup = async () => {
+                disposeCurrent();
+          """,
+              """    const setup = async () => {
+                const recoveryRoot = document.querySelector<HTMLElement>('[data-anime-scroll-story]');
+                if (recoveryRoot?.dataset.storyNativeRecovery === 'true') return;
+                disposeCurrent();
+          """,
+          )
+
+          recovery = Path('src/components/effects/IOSStoryDirectorRecovery.astro')
+          text = recovery.read_text()
+          old = """      let frame = 0;
+                let observer;
+
+                root.dataset.storyNativeRecovery = 'true';
+          """
+          new = """      let frame = 0;
+                let observer;
+
+                const scrollingElement = () => document.scrollingElement ?? document.documentElement;
+                const readScrollTop = () =>
+                  Math.max(
+                    window.scrollY,
+                    scrollingElement().scrollTop,
+                    document.documentElement.scrollTop,
+                    document.body.scrollTop,
+                  );
+                const writeScrollTop = (top) => {
+                  const nextTop = Math.max(0, Number(top));
+                  scrollingElement().scrollTop = nextTop;
+                  document.documentElement.scrollTop = nextTop;
+                  document.body.scrollTop = nextTop;
+                  window.scrollTo(0, nextTop);
+                };
+
+                root.dataset.storyNativeRecovery = 'true';
+          """
+          if old not in text:
+              raise SystemExit('Recovery scroller anchor not found')
+          text = text.replace(old, new, 1)
+          text = text.replace(
+              "Math.max(0, Math.min(1, (window.scrollY - start) / Math.max(1, end - start)))",
+              "Math.max(0, Math.min(1, (readScrollTop() - start) / Math.max(1, end - start)))",
+              1,
+          )
+          text = text.replace(
+              "const rootTop = root.getBoundingClientRect().top + window.scrollY;",
+              "const rootTop = root.getBoundingClientRect().top + readScrollTop();",
+              1,
+          )
+          text = text.replace(
+              "window.scrollTo(0, start + (end - start) * progress);",
+              "writeScrollTop(start + (end - start) * progress);",
+              1,
+          )
+          recovery.write_text(text)
+
+          e2e = Path('tests/e2e/story-ios-webkit.spec.ts')
+          text = e2e.read_text()
+          old = """const scrollTo = async (page: Page, top: number) => {
+            await page.evaluate((targetTop) => {
+              window.scrollTo(0, Number(targetTop));
+              window.dispatchEvent(new Event('scroll'));
+            }, top);
+            await expect
+              .poll(() => page.evaluate(() => window.scrollY), { timeout: 5_000 })
+              .toBeCloseTo(top, 0);
+          };
+
+          const revealStory = async (page: Page) => {
+            const top = await page.evaluate(() => {
+              const root = document.querySelector<HTMLElement>('[data-anime-scroll-story]');
+              if (!root) throw new Error('story root is missing');
+              return Math.max(0, root.getBoundingClientRect().top + window.scrollY + 1);
+            });
+            await scrollTo(page, top);
+          };
+          """
+          new = """const readScrollTop = (page: Page) =>
+            page.evaluate(() =>
+              Math.max(
+                window.scrollY,
+                document.scrollingElement?.scrollTop ?? 0,
+                document.documentElement.scrollTop,
+                document.body.scrollTop,
+              ),
+            );
+
+          const scrollTo = async (page: Page, top: number) => {
+            await page.evaluate((targetTop) => {
+              const nextTop = Math.max(0, Number(targetTop));
+              const scroller = document.scrollingElement ?? document.documentElement;
+              scroller.scrollTop = nextTop;
+              document.documentElement.scrollTop = nextTop;
+              document.body.scrollTop = nextTop;
+              window.scrollTo(0, nextTop);
+              window.dispatchEvent(new Event('scroll'));
+            }, top);
+            await expect.poll(() => readScrollTop(page), { timeout: 5_000 }).toBeCloseTo(top, 0);
+          };
+
+          const revealStory = async (page: Page) => {
+            const story = page.locator('[data-anime-scroll-story]');
+            await story.scrollIntoViewIfNeeded();
+            await page.evaluate(() => window.dispatchEvent(new Event('scroll')));
+          };
+          """
+          if old not in text:
+              raise SystemExit('E2E scroll helper anchor not found')
+          e2e.write_text(text.replace(old, new, 1))
+
+          contract = Path('tests/unit/ios-story-director-recovery-contract.test.ts')
+          text = contract.read_text()
+          anchor = """    expect(source).toContain('const repairRootState = () =>');
+          """
+          addition = """    expect(source).toContain('const repairRootState = () =>');
+              expect(source).toContain('const scrollingElement = () =>');
+              expect(source).toContain('const readScrollTop = () =>');
+              expect(source).toContain('const writeScrollTop = (top) =>');
+
+              const director = readSource('src/components/effects/AnimeScrollDirector.tsx');
+              const runtime = readSource('src/components/effects/StoryProductionRuntime.tsx');
+              const bridge = readSource('src/components/effects/IOSStoryStabilityBridge.tsx');
+              expect(director).toContain("storyNativeRecovery === 'true'");
+              expect(runtime).toContain("storyNativeRecovery === 'true'");
+              expect(bridge).toContain("storyNativeRecovery === 'true'");
+          """
+          if anchor not in text:
+              raise SystemExit('Contract anchor not found')
+          contract.write_text(text.replace(anchor, addition, 1))
+          PY
+          npx prettier --write \
+            src/components/effects/AnimeScrollDirector.tsx \
+            src/components/effects/StoryProductionRuntime.tsx \
+            src/components/effects/IOSStoryStabilityBridge.tsx \
+            src/components/effects/IOSStoryDirectorRecovery.astro \
+            tests/e2e/story-ios-webkit.spec.ts \
+            tests/unit/ios-story-director-recovery-contract.test.ts
+          npm run check
+          npm test
+      - name: 修正をコミット
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "4189822+github-actions[bot]@users.noreply.github.com"
+          git add \
+            src/components/effects/AnimeScrollDirector.tsx \
+            src/components/effects/StoryProductionRuntime.tsx \
+            src/components/effects/IOSStoryStabilityBridge.tsx \
+            src/components/effects/IOSStoryDirectorRecovery.astro \
+            tests/e2e/story-ios-webkit.spec.ts \
+            tests/unit/ios-story-director-recovery-contract.test.ts
+          git commit -m "iOS Story制御をInline Recoveryへ一本化"
+          git push origin HEAD:${{ github.head_ref }}
+
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 20
