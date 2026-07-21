@@ -2,7 +2,7 @@
   (() => {
     const cleanupKey = '__ivuruIOSStoryDirectorRecoveryDispose';
     const recoveryDelay = 0;
-    const recoveryHeartbeatMs = 120;
+    const recoveryHeartbeatMs = 50;
     const chapters = ['01', '02', '03'];
     const contentSelector =
       '[data-story-copy], [data-story-visual], [data-story-pop], [data-story-depth]';
@@ -80,6 +80,7 @@
       };
 
       const sync = () => {
+        frame = 0;
         if (disposed || !recoveryActive || !root.isConnected) return;
         if (realDirectorIsReady()) {
           recoveryActive = false;
@@ -132,7 +133,11 @@
           if (scene.getAttribute('aria-hidden') !== ariaHidden) {
             scene.setAttribute('aria-hidden', ariaHidden);
           }
-          scene.toggleAttribute('inert', !active);
+          if (active) {
+            if (scene.hasAttribute('inert')) scene.removeAttribute('inert');
+          } else if (!scene.hasAttribute('inert')) {
+            scene.setAttribute('inert', '');
+          }
           setStyle(scene, 'opacity', active ? '1' : '0');
           setStyle(scene, 'visibility', active ? 'visible' : 'hidden');
           setStyle(scene, 'pointer-events', active ? 'auto' : 'none');
@@ -173,7 +178,7 @@
       };
 
       const scheduleSync = () => {
-        cancelAnimationFrame(frame);
+        if (frame) return;
         frame = requestAnimationFrame(sync);
       };
 
@@ -186,13 +191,11 @@
 
       const onScroll = () => {
         if (!recoveryActive && !realDirectorIsReady()) activate();
-        sync();
         scheduleSync();
       };
       const onViewportChange = () => {
         if (!recoveryActive || realDirectorIsReady()) return;
         updateRange();
-        sync();
         scheduleSync();
       };
       const onVisibilityChange = () => {
@@ -200,9 +203,10 @@
       };
 
       observer = new MutationObserver(() => {
-        if (recoveryActive) sync();
+        if (recoveryActive) scheduleSync();
       });
       observer.observe(root, {
+        subtree: true,
         attributes: true,
         attributeFilter: [
           'data-story-runtime',
@@ -212,11 +216,15 @@
           'data-story-chapter',
           'data-story-transition-engine',
           'data-story-mobile-stability',
+          'data-active',
+          'aria-hidden',
+          'inert',
+          'style',
         ],
       });
 
       timer = window.setTimeout(activate, recoveryDelay);
-      heartbeat = window.setInterval(sync, recoveryHeartbeatMs);
+      heartbeat = window.setInterval(scheduleSync, recoveryHeartbeatMs);
       window.addEventListener('scroll', onScroll, { passive: true });
       window.addEventListener('resize', onViewportChange, { passive: true });
       window.addEventListener('orientationchange', onViewportChange, { passive: true });
