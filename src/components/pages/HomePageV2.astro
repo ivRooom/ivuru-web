@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import LoaderReleaseGuard from '@/components/common/LoaderReleaseGuard.astro';
+import LoaderCompletionBridge from '@/components/common/LoaderCompletionBridge.astro';
 import AnimeScrollStory from '@/components/home/AnimeScrollStory.astro';
 import StorySkipLink from '@/components/home/StorySkipLink.astro';
 import FeaturedWorks from '@/components/home/FeaturedWorks.astro';
@@ -45,6 +46,7 @@ const descriptions = {
   <IOSStoryRuntimeIsolation />
   <LoaderReleaseGuard />
   <QuantumLoaderEvolution />
+  <LoaderCompletionBridge />
   <StoryEffectsRuntime client:load />
 
   <StorySkipLink locale={locale} />
