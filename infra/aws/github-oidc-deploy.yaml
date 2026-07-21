@@ -1,0 +1,114 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  GitHub Actions OIDC role for deploying ivRooom/ivuru-web to the shared IVRM
+  EC2 runtime through AWS Systems Manager.
+
+Parameters:
+  GitHubOrganization:
+    Type: String
+    Default: ivRooom
+  GitHubRepository:
+    Type: String
+    Default: ivuru-web
+  GitHubEnvironment:
+    Type: String
+    Default: aws-runtime
+  InstanceId:
+    Type: AWS::EC2::Instance::Id
+    Default: i-05e3efb4c02b39824
+  CreateGitHubOidcProvider:
+    Type: String
+    Default: 'true'
+    AllowedValues:
+      - 'true'
+      - 'false'
+  ExistingGitHubOidcProviderArn:
+    Type: String
+    Default: ''
+    Description: Required when CreateGitHubOidcProvider is false.
+
+Conditions:
+  ShouldCreateGitHubOidcProvider: !Equals
+    - !Ref CreateGitHubOidcProvider
+    - 'true'
+
+Resources:
+  GitHubOidcProvider:
+    Type: AWS::IAM::OIDCProvider
+    Condition: ShouldCreateGitHubOidcProvider
+    Properties:
+      Url: https://token.actions.githubusercontent.com
+      ClientIdList:
+        - sts.amazonaws.com
+      ThumbprintList:
+        - 6938fd4d98bab03faadb97b34396831e3780aea1
+      Tags:
+        - Key: Project
+          Value: IVRM
+        - Key: ManagedBy
+          Value: CloudFormation
+
+  GitHubDeployRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: ivrm-shared-runtime-ivuru-web-deploy
+      Description: >-
+        Short-lived role assumed by ivRooom/ivuru-web GitHub Actions through
+        OIDC for the shared EC2 runtime.
+      MaxSessionDuration: 3600
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !If
+                - ShouldCreateGitHubOidcProvider
+                - !Ref GitHubOidcProvider
+                - !Ref ExistingGitHubOidcProviderArn
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+                token.actions.githubusercontent.com:sub: !Sub repo:${GitHubOrganization}/${GitHubRepository}:environment:${GitHubEnvironment}
+      Policies:
+        - PolicyName: SendDeploymentCommand
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Sid: SendCommandToRuntimeInstance
+                Effect: Allow
+                Action:
+                  - ssm:SendCommand
+                Resource:
+                  - !Sub arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:instance/${InstanceId}
+                  - !Sub arn:${AWS::Partition}:ssm:${AWS::Region}::document/AWS-RunShellScript
+              - Sid: ReadDeploymentCommandResult
+                Effect: Allow
+                Action:
+                  - ssm:GetCommandInvocation
+                  - ssm:ListCommandInvocations
+                  - ssm:ListCommands
+                Resource: '*'
+      Tags:
+        - Key: Project
+          Value: IVRM
+        - Key: Service
+          Value: ivuru-web
+        - Key: Runtime
+          Value: shared-ec2
+        - Key: ManagedBy
+          Value: CloudFormation
+
+Outputs:
+  GitHubDeployRoleArn:
+    Description: >-
+      Set this value as the AWS_RUNTIME_DEPLOY_ROLE_ARN GitHub Actions
+      repository variable.
+    Value: !GetAtt GitHubDeployRole.Arn
+  GitHubOidcProviderArn:
+    Value: !If
+      - ShouldCreateGitHubOidcProvider
+      - !Ref GitHubOidcProvider
+      - !Ref ExistingGitHubOidcProviderArn
+  TrustedSubject:
+    Value: !Sub repo:${GitHubOrganization}/${GitHubRepository}:environment:${GitHubEnvironment}
