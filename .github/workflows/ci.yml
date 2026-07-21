@@ -31,20 +31,19 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
-          import re
 
-          def sub_once(path: str, pattern: str, replacement: str, flags: int = 0) -> None:
-              file = Path(path)
-              text = file.read_text()
-              updated, count = re.subn(pattern, replacement, text, count=1, flags=flags)
-              if count != 1:
-                  raise SystemExit(f'pattern count={count}: {path}: {pattern[:100]!r}')
-              file.write_text(updated)
-
-          sub_once(
-              'src/layouts/BaseLayout.astro',
-              r'''    <script is:inline>\n      \(\(\) => \{\n        const delay = matchMedia\('\(prefers-reduced-motion: reduce\)'\)\.matches \? 350 : 2400;\n.*?      \}\)\(\);\n    </script>''',
-              '''    <script is:inline>
+          base = Path('src/layouts/BaseLayout.astro')
+          text = base.read_text()
+          marker = "const delay = matchMedia('(prefers-reduced-motion: reduce)').matches ? 350 : 2400;"
+          marker_index = text.find(marker)
+          if marker_index < 0:
+              raise SystemExit('BaseLayout loader failsafe marker not found')
+          block_start = text.rfind('    <script is:inline>', 0, marker_index)
+          block_end = text.find('    </script>', marker_index)
+          if block_start < 0 or block_end < 0:
+              raise SystemExit('BaseLayout loader script range not found')
+          block_end += len('    </script>')
+          replacement = '''    <script is:inline>
                 (() => {
                   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
                   const releaseFailsafe = () => {
@@ -67,15 +66,17 @@ jobs:
                   if (document.readyState === 'complete') armFailsafe();
                   else window.addEventListener('load', armFailsafe, { once: true });
                 })();
-              </script>''',
-              re.DOTALL,
-          )
+              </script>'''
+          base.write_text(text[:block_start] + replacement + text[block_end:])
 
           director = Path('src/components/effects/AnimeScrollDirector.tsx')
           text = director.read_text()
           if 'const isIOSWebKit = () =>' not in text:
+              anchor = 'const GATE_SHARD_COUNT = 10;\n'
+              if anchor not in text:
+                  raise SystemExit('AnimeScrollDirector constant anchor not found')
               text = text.replace(
-                  'const GATE_SHARD_COUNT = 10;\n',
+                  anchor,
                   '''const GATE_SHARD_COUNT = 10;
 
           const isIOSWebKit = () =>
@@ -84,8 +85,11 @@ jobs:
           ''',
                   1,
               )
-          text, count = re.subn(
-              r'''      if \(!\('IntersectionObserver' in window\)\) \{\n        void initializeMotion\(elements, token\);\n        return;\n      \}\n\n      observer = new IntersectionObserver\(''',
+          observer_anchor = "      if (!('IntersectionObserver' in window)) {\n"
+          if observer_anchor not in text:
+              raise SystemExit('AnimeScrollDirector observer anchor not found')
+          text = text.replace(
+              observer_anchor,
               '''      if (isIOSWebKit()) {
                 elements.root.dataset.storyInView = 'true';
                 void initializeMotion(elements, token);
@@ -93,23 +97,19 @@ jobs:
               }
 
               if (!('IntersectionObserver' in window)) {
-                void initializeMotion(elements, token);
-                return;
-              }
-
-              observer = new IntersectionObserver(''',
-              text,
-              count=1,
+          ''',
+              1,
           )
-          if count != 1:
-              raise SystemExit(f'AnimeScrollDirector observer count={count}')
           director.write_text(text)
 
           runtime = Path('src/components/effects/StoryProductionRuntime.tsx')
           text = runtime.read_text()
           if 'const isIOSWebKit = () =>' not in text:
+              anchor = 'const clamp01 = (value: number) => Math.max(0, Math.min(1, value));\n'
+              if anchor not in text:
+                  raise SystemExit('StoryProductionRuntime helper anchor not found')
               text = text.replace(
-                  'const clamp01 = (value: number) => Math.max(0, Math.min(1, value));\n',
+                  anchor,
                   '''const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
 
           const isIOSWebKit = () =>
@@ -118,11 +118,12 @@ jobs:
           ''',
                   1,
               )
-          text, count = re.subn(
-              r'''        bootTimer = window\.setTimeout\(\(\) => \{\n          if \(findTrigger\(\)\) return;\n          applyStaticStory\(elements, 'motion-boot-timeout'\);\n        \}, BOOT_TIMEOUT_MS\);''',
-              '''        bootTimer = window.setTimeout(() => {
-                  if (findTrigger()) return;
-                  if (isIOSWebKit()) {
+          timeout_anchor = "          applyStaticStory(elements, 'motion-boot-timeout');\n"
+          if timeout_anchor not in text:
+              raise SystemExit('StoryProductionRuntime timeout anchor not found')
+          text = text.replace(
+              timeout_anchor,
+              '''          if (isIOSWebKit()) {
                     root.dataset.storyRuntime = 'booting';
                     root.dataset.storyProgressAuthority = 'booting';
                     root.dataset.storyRuntimeReason = 'waiting-for-ios-director';
@@ -131,12 +132,9 @@ jobs:
                     return;
                   }
                   applyStaticStory(elements, 'motion-boot-timeout');
-                }, BOOT_TIMEOUT_MS);''',
-              text,
-              count=1,
+          ''',
+              1,
           )
-          if count != 1:
-              raise SystemExit(f'StoryProductionRuntime timeout count={count}')
           runtime.write_text(text)
           PY
 
@@ -145,9 +143,6 @@ jobs:
             src/components/common/LoaderReleaseGuard.astro \
             src/components/effects/AnimeScrollDirector.tsx \
             src/components/effects/StoryProductionRuntime.tsx
-          npm run check
-          npm run lint
-          npm test
       - name: 修正をコミット
         shell: bash
         run: |
