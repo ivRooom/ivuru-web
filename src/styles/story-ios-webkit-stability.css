@@ -1,18 +1,18 @@
 @supports (-webkit-touch-callout: none) {
-  .anime-scroll-story[data-story-platform='ios-webkit'] {
+  .anime-scroll-story[data-story-platform="ios-webkit"] {
     overflow-x: hidden;
     overscroll-behavior-y: auto;
     -webkit-tap-highlight-color: transparent;
   }
 
-  .anime-scroll-story[data-story-platform='ios-webkit'][data-story-native-recovery='true'] {
+  .anime-scroll-story[data-story-platform="ios-webkit"][data-story-native-recovery="true"] {
     height: auto !important;
     min-height: var(--story-native-runtime-height, 670svh) !important;
     overflow: visible !important;
     overflow-x: clip !important;
   }
 
-  .anime-scroll-story[data-story-platform='ios-webkit'][data-story-native-recovery='true']
+  .anime-scroll-story[data-story-platform="ios-webkit"][data-story-native-recovery="true"]
     .anime-scroll-stage {
     position: sticky !important;
     top: 0;
@@ -21,59 +21,68 @@
     overflow: clip !important;
   }
 
-  .anime-scroll-story[data-story-platform='ios-webkit'] .anime-scroll-stage,
-  .anime-scroll-story[data-story-platform='ios-webkit'] .anime-story-camera,
-  .anime-scroll-story[data-story-platform='ios-webkit'] .anime-story-scene,
-  .anime-scroll-story[data-story-platform='ios-webkit'] [data-story-visual],
-  .anime-scroll-story[data-story-platform='ios-webkit'] .anime-chapter-gate {
+  .anime-scroll-story[data-story-platform="ios-webkit"] .anime-scroll-stage,
+  .anime-scroll-story[data-story-platform="ios-webkit"] .anime-story-camera,
+  .anime-scroll-story[data-story-platform="ios-webkit"] .anime-story-scene,
+  .anime-scroll-story[data-story-platform="ios-webkit"] [data-story-visual],
+  .anime-scroll-story[data-story-platform="ios-webkit"] .anime-chapter-gate {
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
   }
 
-  .anime-scroll-story[data-story-platform='ios-webkit'] .anime-story-scene {
+  .anime-scroll-story[data-story-platform="ios-webkit"] .anime-story-scene {
     transform: translate3d(0, 0, 0) !important;
     filter: none !important;
   }
 
-  .anime-scroll-story[data-story-platform='ios-webkit'] [data-story-visual],
-  .anime-scroll-story[data-story-platform='ios-webkit'] .anime-chapter-gate,
-  .anime-scroll-story[data-story-platform='ios-webkit'] .anime-reality-overdrive {
+  .anime-scroll-story[data-story-platform="ios-webkit"] [data-story-visual],
+  .anime-scroll-story[data-story-platform="ios-webkit"] .anime-chapter-gate,
+  .anime-scroll-story[data-story-platform="ios-webkit"]
+    .anime-reality-overdrive {
     filter: none !important;
     backdrop-filter: none !important;
     mix-blend-mode: normal !important;
   }
 
-  .anime-scroll-story[data-story-platform='ios-webkit'] .anime-reality-overdrive__chromatic,
-  .anime-scroll-story[data-story-platform='ios-webkit'] .anime-reality-overdrive__telemetry,
-  .anime-scroll-story[data-story-platform='ios-webkit']
+  .anime-scroll-story[data-story-platform="ios-webkit"]
+    .anime-reality-overdrive__chromatic,
+  .anime-scroll-story[data-story-platform="ios-webkit"]
+    .anime-reality-overdrive__telemetry,
+  .anime-scroll-story[data-story-platform="ios-webkit"]
     .anime-reality-overdrive__fractures
     > i:nth-child(n + 7),
-  .anime-scroll-story[data-story-platform='ios-webkit']
+  .anime-scroll-story[data-story-platform="ios-webkit"]
     .anime-reality-overdrive__particles
     > i:nth-child(n + 11),
-  .anime-scroll-story[data-story-platform='ios-webkit']
+  .anime-scroll-story[data-story-platform="ios-webkit"]
     .anime-reality-overdrive__glyphs
     > i:nth-child(n + 5),
-  .anime-scroll-story[data-story-platform='ios-webkit'] [data-gate-rays] > i:nth-child(n + 9),
-  .anime-scroll-story[data-story-platform='ios-webkit'] [data-gate-blades] > i:nth-child(n + 9),
-  .anime-scroll-story[data-story-platform='ios-webkit'] [data-gate-shards] > i:nth-child(n + 7) {
+  .anime-scroll-story[data-story-platform="ios-webkit"]
+    [data-gate-rays]
+    > i:nth-child(n + 9),
+  .anime-scroll-story[data-story-platform="ios-webkit"]
+    [data-gate-blades]
+    > i:nth-child(n + 9),
+  .anime-scroll-story[data-story-platform="ios-webkit"]
+    [data-gate-shards]
+    > i:nth-child(n + 7) {
     display: none !important;
   }
 
-  .anime-scroll-story[data-story-platform='ios-webkit'][data-story-mobile-stability='booting']
-    .anime-story-scene[data-active='true'],
-  .anime-scroll-story[data-story-platform='ios-webkit'][data-story-mobile-stability='syncing']
-    .anime-story-scene[data-active='true'],
-  .anime-scroll-story[data-story-platform='ios-webkit'][data-story-native-recovery='true']
-    .anime-story-scene[data-active='true'] {
+  .anime-scroll-story[data-story-platform="ios-webkit"][data-story-mobile-stability="booting"]
+    .anime-story-scene[data-active="true"],
+  .anime-scroll-story[data-story-platform="ios-webkit"][data-story-mobile-stability="syncing"]
+    .anime-story-scene[data-active="true"],
+  .anime-scroll-story[data-story-platform="ios-webkit"][data-story-native-recovery="true"]
+    .anime-story-scene[data-active="true"] {
     visibility: visible !important;
     opacity: 1 !important;
     pointer-events: auto !important;
     transform: translate3d(0, 0, 0) !important;
   }
 
-  .anime-scroll-story[data-story-platform='ios-webkit'][data-story-native-recovery='true']
-    .anime-story-scene[data-active='false'] {
+  .anime-scroll-story[data-story-platform="ios-webkit"][data-story-native-recovery="true"]
+    .anime-story-scene[data-active="false"] {
     visibility: hidden !important;
     opacity: 0 !important;
     pointer-events: none !important;
