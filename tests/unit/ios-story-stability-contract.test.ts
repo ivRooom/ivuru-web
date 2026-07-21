@@ -5,13 +5,17 @@ const readSource = (relativePath: string) =>
   readFileSync(new URL(`../../${relativePath}`, import.meta.url), 'utf8');
 
 describe('iOS story stability contract', () => {
-  it('Homeはローダー完了後に単一RuntimeからiOS BridgeとDirectorを起動する', () => {
+  it('Homeはローダー完了Bridge後に単一RuntimeからiOS BridgeとDirectorを起動する', () => {
     const home = readSource('src/components/pages/HomePageV2.astro');
     const runtime = readSource('src/components/effects/StoryEffectsRuntime.tsx');
 
     expect(home).toContain(
+      "import LoaderCompletionBridge from '@/components/common/LoaderCompletionBridge.astro'",
+    );
+    expect(home).toContain(
       "import StoryEffectsRuntime from '@/components/effects/StoryEffectsRuntime'",
     );
+    expect(home.match(/<LoaderCompletionBridge \/>/g)).toHaveLength(1);
     expect(home.match(/<StoryEffectsRuntime client:load \/>/g)).toHaveLength(1);
     expect(runtime.indexOf('<IOSStoryStabilityBridge />')).toBeLessThan(
       runtime.indexOf('<AnimeScrollDirector />'),
@@ -73,17 +77,22 @@ describe('iOS story stability contract', () => {
     expect(runtime).toContain("applyStaticStory(elements, 'motion-boot-timeout')");
   });
 
-  it('ローダー安全装置は自然な演出時間を確保しDOMContentLoaded後に必ず解放する', () => {
+  it('ローダーは途中描画を記録し、100%到達時にタイマーを待たず解放する', () => {
     const layout = readSource('src/layouts/BaseLayout.astro');
     const guard = readSource('src/components/common/LoaderReleaseGuard.astro');
+    const bridge = readSource('src/components/common/LoaderCompletionBridge.astro');
 
     expect(layout).toContain('const releaseFailsafe = () =>');
     expect(guard).toContain('const readyDelay = reduced ? 120 : seen ? 2_400 : 3_500');
     expect(guard).toContain('const hardLimit = reduced ? 600 : seen ? 4_500 : 6_500');
     expect(guard).toContain('armTimers()');
-    expect(guard).toContain("releaseLoader('animation-safety-release')");
-    expect(guard).toContain("releaseLoader('hard-timeout')");
-    expect(guard).not.toContain("window.addEventListener('load', armAfterLoad");
+    expect(bridge).toContain("loader.dataset.loaderAnimationRan = 'true'");
+    expect(bridge).toContain("loader.dataset.completionBridged = 'true'");
+    expect(bridge).toContain("loader.setAttribute('aria-hidden', 'true')");
+    expect(bridge).toContain("new CustomEvent('ivuru:loader-released'");
+    expect(bridge.indexOf("new CustomEvent('ivuru:loader-released'")).toBeLessThan(
+      bridge.indexOf('hideTimer = window.setTimeout'),
+    );
   });
 
   it('iOS WebKitでは横画面とiPadも奥行き合成を軽量化する', () => {
@@ -109,6 +118,8 @@ describe('iOS story stability contract', () => {
     expect(workflow).toContain('--project=webkit-iphone');
     expect(e2e).toContain("waitUntil: 'domcontentloaded'");
     expect(e2e).toContain('waitForLoaderRelease');
+    expect(e2e).toContain("data-loader-animation-ran', 'true'");
+    expect(e2e).toContain("data-completion-bridged', 'true'");
     expect(e2e).toContain("data-story-transition-engine', 'world-forge'");
     expect(e2e).toContain("expect(preReveal.reason).not.toBe('motion-boot-timeout')");
     expect(e2e).toContain("data-story-native-recovery', 'true'");
