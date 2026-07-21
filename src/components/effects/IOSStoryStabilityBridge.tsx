@@ -75,6 +75,14 @@ export default function IOSStoryStabilityBridge() {
         recoveryProbe = 0;
         stopStoryTrigger();
 
+        const staticStateIsCurrent =
+          root.dataset.storyMobileTerminalFallback === 'true' &&
+          root.dataset.storyMobileStability === 'fallback' &&
+          root.dataset.storyRuntime === 'fallback' &&
+          root.dataset.storyRuntimeReason === reason &&
+          root.dataset.storyMode === 'static';
+        if (staticStateIsCurrent) return;
+
         root.dataset.storyMobileTerminalFallback = 'true';
         root.dataset.storyMobileStability = 'fallback';
         root.dataset.storyProgressAuthority = 'fallback';
