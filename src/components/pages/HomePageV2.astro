@@ -9,7 +9,7 @@ import LatestPosts from '@/components/blog/LatestPosts.astro';
 import ContactCTA from '@/components/home/ContactCTA.astro';
 import CinematicPointerEffects from '@/components/effects/CinematicPointerEffects';
 import IOSStoryStabilityBridge from '@/components/effects/IOSStoryStabilityBridge';
-import IOSStoryDirectorRecovery from '@/components/effects/IOSStoryDirectorRecovery';
+import IOSStoryDirectorRecovery from '@/components/effects/IOSStoryDirectorRecovery.astro';
 import AnimeScrollDirector from '@/components/effects/AnimeScrollDirector';
 import SpatialCameraEnhancer from '@/components/effects/SpatialCameraEnhancer';
 import CinematicEntertainmentDirector from '@/components/effects/CinematicEntertainmentDirector';
@@ -53,7 +53,6 @@ const descriptions = {
   <CinematicPointerEffects client:idle />
   <IOSStoryStabilityBridge client:load />
   <AnimeScrollDirector client:load />
-  <IOSStoryDirectorRecovery client:load />
   <StoryProductionRuntime client:load />
   <SpatialCameraEnhancer client:load />
   <CinematicEntertainmentDirector client:load />
@@ -62,6 +61,7 @@ const descriptions = {
 
   <StorySkipLink locale={locale} />
   <AnimeScrollStory locale={locale} />
+  <IOSStoryDirectorRecovery />
   <OmegaWorldRift />
 
   <div id="anime-story-after" class="anime-story-after" tabindex="-1">
