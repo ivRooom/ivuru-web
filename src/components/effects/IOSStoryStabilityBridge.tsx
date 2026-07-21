@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 
 type ScrollTriggerLike = {
+  progress?: number;
   vars: { trigger?: Element | string };
   kill?: (revert?: boolean) => void;
 };
@@ -13,6 +14,7 @@ type ScrollTriggerStaticLike = {
 };
 
 const RECOVERY_GRACE_MS = 12_000;
+const STORY_CHAPTERS = ['01', '02', '03'] as const;
 
 const isIOSWebKit = () => {
   const userAgent = navigator.userAgent;
@@ -63,10 +65,58 @@ export default function IOSStoryStabilityBridge() {
         root.style.setProperty('--story-runtime-height', `${Math.round(nextHeight)}px`);
       };
 
+      const findStoryTrigger = () =>
+        ScrollTrigger?.getAll().find((candidate) => candidate.vars.trigger === root);
+
       const stopStoryTrigger = () => {
         ScrollTrigger?.getAll().forEach((candidate) => {
           if (candidate.vars.trigger === root) candidate.kill?.(true);
         });
+      };
+
+      const syncAuthorityFromDirector = () => {
+        if (!isCurrent() || terminalFallback || root.dataset.storyMode !== 'motion') return;
+
+        const code = root.dataset.storyChapter;
+        if (!code || !STORY_CHAPTERS.includes(code as (typeof STORY_CHAPTERS)[number])) return;
+
+        const index = STORY_CHAPTERS.indexOf(code as (typeof STORY_CHAPTERS)[number]);
+        const authorityChanged = root.dataset.storyAuthorityChapter !== code;
+        root.dataset.storyAuthorityChapter = code;
+
+        const triggerProgress = findStoryTrigger()?.progress;
+        if (Number.isFinite(triggerProgress)) {
+          const progress = Math.max(0, Math.min(1, Number(triggerProgress)));
+          root.dataset.storyAuthorityProgress = progress.toFixed(4);
+          root.style.setProperty('--story-authority-progress', progress.toFixed(4));
+          const progressLine = root.querySelector<HTMLElement>('[data-story-progress-line]');
+          if (progressLine) progressLine.style.transform = `scaleX(${progress})`;
+        }
+
+        const scenes = Array.from(
+          root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'),
+        );
+        scenes.forEach((scene, sceneIndex) => {
+          const active = sceneIndex === index;
+          scene.dataset.active = active ? 'true' : 'false';
+          scene.setAttribute('aria-hidden', active ? 'false' : 'true');
+          scene.toggleAttribute('inert', !active);
+        });
+        root.querySelectorAll<HTMLElement>('[data-story-progress-dot]').forEach((dot, dotIndex) => {
+          dot.dataset.active = dotIndex === index ? 'true' : 'false';
+        });
+
+        const readout = root.querySelector<HTMLElement>('[data-story-chapter-readout]');
+        if (readout) readout.textContent = `${code} / 03`;
+        document.body.dataset.animeScene = scenes[index]?.dataset.storyScene ?? 'ice';
+
+        if (authorityChanged) {
+          window.dispatchEvent(
+            new CustomEvent('ivuru:story-chapter-change', {
+              detail: { chapter: code, index, source: 'ios-stability-bridge' },
+            }),
+          );
+        }
       };
 
       const applyTerminalFallback = (reason: string) => {
@@ -98,7 +148,9 @@ export default function IOSStoryStabilityBridge() {
         root.style.setProperty('--story-authority-progress', '1');
         root.style.setProperty('--story-runtime-height', 'auto');
 
-        const scenes = Array.from(root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'));
+        const scenes = Array.from(
+          root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'),
+        );
         scenes.forEach((scene) => {
           scene.dataset.active = 'true';
           scene.removeAttribute('aria-hidden');
@@ -140,7 +192,9 @@ export default function IOSStoryStabilityBridge() {
         root.dataset.storyPerformance = iosWebKit ? 'ios-stable' : 'mobile-stable';
         root.dataset.storyMobileRecovery = 'waiting-for-director';
 
-        const scenes = Array.from(root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'));
+        const scenes = Array.from(
+          root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'),
+        );
         scenes.forEach((scene, index) => {
           const active = index === 0;
           scene.dataset.active = active ? 'true' : 'false';
@@ -168,6 +222,7 @@ export default function IOSStoryStabilityBridge() {
           delete root.dataset.storyMobileTerminalFallback;
           window.clearInterval(recoveryProbe);
           recoveryProbe = 0;
+          syncAuthorityFromDirector();
           return;
         }
 
@@ -189,6 +244,7 @@ export default function IOSStoryStabilityBridge() {
             ScrollTrigger?.update();
             refreshedViewportWidth = window.visualViewport?.width ?? window.innerWidth;
             refreshedViewportHeight = window.visualViewport?.height ?? window.innerHeight;
+            syncAuthorityFromDirector();
             updateReadyState();
           });
         });
@@ -205,6 +261,7 @@ export default function IOSStoryStabilityBridge() {
           return;
         }
         ScrollTrigger?.update();
+        syncAuthorityFromDirector();
         updateReadyState();
       };
 
@@ -215,6 +272,7 @@ export default function IOSStoryStabilityBridge() {
         const heightChanged = Math.abs(nextHeight - refreshedViewportHeight) >= 24;
         syncViewport();
         ScrollTrigger?.update();
+        syncAuthorityFromDirector();
         if (widthChanged || heightChanged) scheduleRefresh(260);
       };
 
@@ -224,9 +282,13 @@ export default function IOSStoryStabilityBridge() {
       const onVisibilityChange = () => {
         if (!document.hidden) scheduleRefresh(120);
       };
+      const onStoryMutation = () => {
+        updateReadyState();
+        syncAuthorityFromDirector();
+      };
 
       if ('MutationObserver' in window) {
-        observer = new MutationObserver(updateReadyState);
+        observer = new MutationObserver(onStoryMutation);
         observer.observe(root, {
           attributes: true,
           attributeFilter: [
@@ -234,6 +296,7 @@ export default function IOSStoryStabilityBridge() {
             'data-story-runtime',
             'data-story-director',
             'data-story-mode',
+            'data-story-chapter',
           ],
         });
       }
