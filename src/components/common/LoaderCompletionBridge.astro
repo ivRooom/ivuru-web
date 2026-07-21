@@ -1,0 +1,73 @@
+<script is:inline>
+  (() => {
+    const cleanupKey = '__ivuruLoaderCompletionBridgeDispose';
+
+    const install = () => {
+      window[cleanupKey]?.();
+
+      const loader = document.querySelector('[data-spatial-loader]');
+      if (!(loader instanceof HTMLElement)) return;
+
+      const progress = loader.querySelector('[role="progressbar"]');
+      let disposed = false;
+      let hideTimer = 0;
+      let observer;
+
+      const readProgress = () => Number(progress?.getAttribute('aria-valuenow') ?? 0);
+
+      const finalize = (reason) => {
+        if (disposed || loader.dataset.completionBridged === 'true') return;
+        loader.dataset.completionBridged = 'true';
+        loader.dataset.completionReason = reason;
+        loader.dataset.state = 'ready';
+        loader.classList.add('loaded');
+        loader.setAttribute('aria-hidden', 'true');
+        loader.style.pointerEvents = 'none';
+        document.documentElement.dataset.loaderReleased = 'true';
+        document.body?.classList.remove('site-loading');
+
+        document.dispatchEvent(
+          new CustomEvent('ivuru:loader-released', {
+            detail: { reason },
+          }),
+        );
+
+        hideTimer = window.setTimeout(() => {
+          loader.hidden = true;
+          loader.style.display = 'none';
+        }, 720);
+      };
+
+      const sync = () => {
+        const value = readProgress();
+        if (value > 0 && value < 100) loader.dataset.loaderAnimationRan = 'true';
+
+        if (
+          value >= 100 ||
+          loader.dataset.state === 'ready' ||
+          loader.classList.contains('loaded')
+        ) {
+          finalize(loader.dataset.releaseReason ?? 'loader-progress-complete');
+        }
+      };
+
+      observer = new MutationObserver(sync);
+      observer.observe(loader, {
+        attributes: true,
+        subtree: true,
+        attributeFilter: ['aria-valuenow', 'class', 'data-state', 'data-loader-phase'],
+      });
+      sync();
+
+      window[cleanupKey] = () => {
+        disposed = true;
+        observer?.disconnect();
+        window.clearTimeout(hideTimer);
+        delete window[cleanupKey];
+      };
+    };
+
+    install();
+    document.addEventListener('astro:page-load', install);
+  })();
+</script>
