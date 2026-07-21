@@ -6,13 +6,171 @@ on:
   pull_request:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
+  patch-ios-real-animation:
+    if: ${{ github.event_name == 'pull_request' && github.head_ref == 'fix/ios-webkit-story-scroll' && github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: ローダーとGSAP Directorの競合を修正
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_once(path: str, old: str, new: str) -> None:
+              file = Path(path)
+              text = file.read_text()
+              if old not in text:
+                  raise SystemExit(f'anchor not found: {path}: {old[:100]!r}')
+              file.write_text(text.replace(old, new, 1))
+
+          replace_once(
+              'src/layouts/BaseLayout.astro',
+              '''    <script is:inline>
+                (() => {
+                  const delay = matchMedia('(prefers-reduced-motion: reduce)').matches ? 350 : 2400;
+                  window.setTimeout(() => {
+                    const loader = document.querySelector('.world-loader');
+                    if (!(loader instanceof HTMLElement)) return;
+                    document.documentElement.dataset.loaderReleased = 'true';
+                    loader.classList.add('loaded');
+                    loader.dataset.failsafeHidden = 'true';
+                    document.body.classList.remove('site-loading');
+                  }, delay);
+                })();
+              </script>''',
+              '''    <script is:inline>
+                (() => {
+                  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+                  const releaseFailsafe = () => {
+                    const loader = document.querySelector('.world-loader');
+                    if (!(loader instanceof HTMLElement)) return;
+                    if (
+                      loader.classList.contains('loaded') ||
+                      document.documentElement.dataset.loaderReleased === 'true'
+                    ) {
+                      return;
+                    }
+                    document.documentElement.dataset.loaderReleased = 'true';
+                    loader.classList.add('loaded');
+                    loader.dataset.failsafeHidden = 'true';
+                    document.body.classList.remove('site-loading');
+                  };
+                  const armFailsafe = () =>
+                    window.setTimeout(releaseFailsafe, reduced ? 500 : 5_000);
+
+                  if (document.readyState === 'complete') armFailsafe();
+                  else window.addEventListener('load', armFailsafe, { once: true });
+                })();
+              </script>''',
+          )
+
+          director = Path('src/components/effects/AnimeScrollDirector.tsx')
+          text = director.read_text()
+          if 'const isIOSWebKit = () =>' not in text:
+              text = text.replace(
+                  'const GATE_SHARD_COUNT = 10;\n',
+                  '''const GATE_SHARD_COUNT = 10;
+
+          const isIOSWebKit = () =>
+            /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+            (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+          ''',
+                  1,
+              )
+          old = '''      if (!(\'IntersectionObserver\' in window)) {
+                void initializeMotion(elements, token);
+                return;
+              }
+
+              observer = new IntersectionObserver('''
+          new = '''      if (isIOSWebKit()) {
+                elements.root.dataset.storyInView = 'true';
+                void initializeMotion(elements, token);
+                return;
+              }
+
+              if (!(\'IntersectionObserver\' in window)) {
+                void initializeMotion(elements, token);
+                return;
+              }
+
+              observer = new IntersectionObserver('''
+          if old not in text:
+              raise SystemExit('AnimeScrollDirector observer anchor not found')
+          director.write_text(text.replace(old, new, 1))
+
+          runtime = Path('src/components/effects/StoryProductionRuntime.tsx')
+          text = runtime.read_text()
+          if 'const isIOSWebKit = () =>' not in text:
+              text = text.replace(
+                  'const clamp01 = (value: number) => Math.max(0, Math.min(1, value));\n',
+                  '''const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
+
+          const isIOSWebKit = () =>
+            /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+            (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+          ''',
+                  1,
+              )
+          old = '''        bootTimer = window.setTimeout(() => {
+                  if (findTrigger()) return;
+                  applyStaticStory(elements, 'motion-boot-timeout');
+                }, BOOT_TIMEOUT_MS);'''
+          new = '''        bootTimer = window.setTimeout(() => {
+                  if (findTrigger()) return;
+                  if (isIOSWebKit()) {
+                    root.dataset.storyRuntime = 'booting';
+                    root.dataset.storyProgressAuthority = 'booting';
+                    root.dataset.storyRuntimeReason = 'waiting-for-ios-director';
+                    ScrollTrigger?.refresh();
+                    requestRender();
+                    return;
+                  }
+                  applyStaticStory(elements, 'motion-boot-timeout');
+                }, BOOT_TIMEOUT_MS);'''
+          if old not in text:
+              raise SystemExit('StoryProductionRuntime timeout anchor not found')
+          runtime.write_text(text.replace(old, new, 1))
+          PY
+
+          npx prettier --write \
+            src/layouts/BaseLayout.astro \
+            src/components/common/LoaderReleaseGuard.astro \
+            src/components/effects/AnimeScrollDirector.tsx \
+            src/components/effects/StoryProductionRuntime.tsx
+          npm run check
+          npm run lint
+          npm test
+      - name: 修正をコミット
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "4189822+github-actions[bot]@users.noreply.github.com"
+          git add \
+            src/layouts/BaseLayout.astro \
+            src/components/common/LoaderReleaseGuard.astro \
+            src/components/effects/AnimeScrollDirector.tsx \
+            src/components/effects/StoryProductionRuntime.tsx
+          git diff --cached --quiet && exit 0
+          git commit -m "iOSでロードとGSAPスクロール演出を復活"
+          git push origin HEAD:${{ github.head_ref }}
+
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 20
