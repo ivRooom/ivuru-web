@@ -29,14 +29,16 @@
     body?.style.setProperty('overflow-y', 'auto', 'important');
     body?.style.setProperty('height', 'auto', 'important');
 
-    const releaseReturningLoader = () => {
-      let introSeen = false;
+    const hasSeenIntro = () => {
       try {
-        introSeen = sessionStorage.getItem('ivuru-intro-seen') === '1';
+        return sessionStorage.getItem('ivuru-intro-seen') === '1';
       } catch {
-        introSeen = false;
+        return false;
       }
-      if (!introSeen) return;
+    };
+
+    const releaseReturningLoader = () => {
+      if (!hasSeenIntro()) return;
 
       document.documentElement.dataset.loaderReleased = 'true';
       document.body?.classList.remove('site-loading');
