@@ -1,7 +1,7 @@
 <script is:inline>
   (() => {
     const cleanupKey = '__ivuruIOSStoryDirectorRecoveryDispose';
-    const recoveryDelay = 0;
+    const recoveryDelay = 5_000;
     const recoveryHeartbeatMs = 120;
     const chapters = ['01', '02', '03'];
     const contentSelector =
@@ -35,20 +35,23 @@
       let timer = 0;
       let heartbeat = 0;
       let frame = 0;
-      let observer;
+      let rootObserver;
+      let visibilityObserver;
 
-      root.dataset.storyNativeRecovery = 'true';
       root.dataset.storyPlatform = 'ios-webkit';
-      document.documentElement.dataset.storyNativeScrollOwner = 'true';
-      document.body.dataset.storyNativeScrollOwner = 'true';
 
       const realDirectorIsReady = () =>
-        root.dataset.storyNativeRecovery !== 'true' &&
         root.dataset.storyDirector === 'ready' &&
         root.dataset.storyRuntime === 'ready' &&
         root.dataset.storyMobileStability === 'ready' &&
         root.dataset.storyTransitionEngine === 'world-forge' &&
         root.dataset.storySnapState === 'ready';
+
+      const rootNearViewport = () => {
+        const rect = root.getBoundingClientRect();
+        const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+        return rect.bottom >= -viewportHeight * 0.25 && rect.top <= viewportHeight * 1.25;
+      };
 
       const setData = (key, value) => {
         if (root.dataset[key] !== value) root.dataset[key] = value;
@@ -58,6 +61,11 @@
         if (element.style.getPropertyValue(property) !== value) {
           element.style.setProperty(property, value);
         }
+      };
+
+      const cancelActivation = () => {
+        window.clearTimeout(timer);
+        timer = 0;
       };
 
       const repairRootState = () => {
@@ -95,6 +103,14 @@
         });
       };
 
+      const stopRecovery = () => {
+        if (!recoveryActive) return;
+        recoveryActive = false;
+        window.clearInterval(heartbeat);
+        heartbeat = 0;
+        releaseRecoveryStyles();
+      };
+
       const currentProgress = () =>
         Math.max(0, Math.min(1, (window.scrollY - start) / Math.max(1, end - start)));
 
@@ -115,15 +131,14 @@
 
       const sync = () => {
         frame = 0;
-        if (disposed || !recoveryActive || !root.isConnected) return;
+        if (disposed || !root.isConnected) return;
+
         if (realDirectorIsReady()) {
-          recoveryActive = false;
-          window.clearInterval(heartbeat);
-          heartbeat = 0;
-          releaseRecoveryStyles();
-          observer?.disconnect();
+          cancelActivation();
+          stopRecovery();
           return;
         }
+        if (!recoveryActive) return;
 
         repairRootState();
         const progress = currentProgress();
@@ -148,17 +163,9 @@
 
         scenes.forEach((scene, index) => {
           const active = index === nextIndex;
-          const activeValue = active ? 'true' : 'false';
-          const ariaHidden = active ? 'false' : 'true';
-          if (scene.dataset.active !== activeValue) scene.dataset.active = activeValue;
-          if (scene.getAttribute('aria-hidden') !== ariaHidden) {
-            scene.setAttribute('aria-hidden', ariaHidden);
-          }
-          if (active) {
-            if (scene.hasAttribute('inert')) scene.removeAttribute('inert');
-          } else if (!scene.hasAttribute('inert')) {
-            scene.setAttribute('inert', '');
-          }
+          scene.dataset.active = active ? 'true' : 'false';
+          scene.setAttribute('aria-hidden', active ? 'false' : 'true');
+          scene.toggleAttribute('inert', !active);
           setStyle(scene, 'opacity', active ? '1' : '0');
           setStyle(scene, 'visibility', active ? 'visible' : 'hidden');
           setStyle(scene, 'pointer-events', active ? 'auto' : 'none');
@@ -175,12 +182,9 @@
         });
 
         dots.forEach((dot, index) => {
-          const activeValue = index === nextIndex ? 'true' : 'false';
-          if (dot.dataset.active !== activeValue) dot.dataset.active = activeValue;
+          dot.dataset.active = index === nextIndex ? 'true' : 'false';
         });
-        if (readout instanceof HTMLElement && readout.textContent !== `${chapter} / 03`) {
-          readout.textContent = `${chapter} / 03`;
-        }
+        if (readout instanceof HTMLElement) readout.textContent = `${chapter} / 03`;
         if (progressLine instanceof HTMLElement) {
           setStyle(progressLine, 'transform', `scaleX(${progress})`);
         }
@@ -205,72 +209,102 @@
       };
 
       const activate = () => {
-        if (disposed || recoveryActive || realDirectorIsReady()) return;
+        timer = 0;
+        if (disposed || recoveryActive || realDirectorIsReady() || !rootNearViewport()) return;
+
         recoveryActive = true;
+        root.dataset.storyNativeRecovery = 'true';
+        document.documentElement.dataset.storyNativeScrollOwner = 'true';
+        document.body.dataset.storyNativeScrollOwner = 'true';
         updateRange();
         repairRootState();
         sync();
+        heartbeat = window.setInterval(scheduleSync, recoveryHeartbeatMs);
+      };
+
+      const scheduleActivation = () => {
+        if (disposed || recoveryActive || timer || realDirectorIsReady() || !rootNearViewport()) {
+          return;
+        }
+        timer = window.setTimeout(activate, recoveryDelay);
       };
 
       const onScroll = () => {
-        if (!recoveryActive && !realDirectorIsReady()) activate();
+        if (realDirectorIsReady()) {
+          cancelActivation();
+          stopRecovery();
+          return;
+        }
+        scheduleActivation();
         scheduleSync();
       };
+
       const onViewportChange = () => {
-        if (!recoveryActive || realDirectorIsReady()) return;
+        if (realDirectorIsReady()) {
+          cancelActivation();
+          stopRecovery();
+          return;
+        }
+        scheduleActivation();
+        if (!recoveryActive) return;
         const progress = currentProgress();
         updateRange();
         window.scrollTo(0, start + (end - start) * progress);
         repairRootState();
         scheduleSync();
       };
-      const onVisibilityChange = () => {
-        if (!document.hidden) onViewportChange();
-      };
 
-      observer = new MutationObserver(() => {
-        if (!recoveryActive) return;
-        repairRootState();
-        scheduleSync();
+      rootObserver = new MutationObserver(() => {
+        if (realDirectorIsReady()) {
+          cancelActivation();
+          stopRecovery();
+          return;
+        }
+        if (recoveryActive) scheduleSync();
       });
-      observer.observe(root, {
+      rootObserver.observe(root, {
         attributes: true,
         attributeFilter: [
           'data-story-runtime',
           'data-story-runtime-reason',
           'data-story-director',
           'data-story-mode',
-          'data-story-chapter',
           'data-story-transition-engine',
           'data-story-mobile-stability',
         ],
       });
 
-      timer = window.setTimeout(activate, recoveryDelay);
-      heartbeat = window.setInterval(scheduleSync, recoveryHeartbeatMs);
+      if ('IntersectionObserver' in window) {
+        visibilityObserver = new IntersectionObserver(
+          ([entry]) => {
+            if (entry?.isIntersecting) scheduleActivation();
+            else if (!recoveryActive) cancelActivation();
+          },
+          { root: null, rootMargin: '125% 0px 125% 0px', threshold: 0 },
+        );
+        visibilityObserver.observe(root);
+      } else {
+        scheduleActivation();
+      }
+
       window.addEventListener('scroll', onScroll, { passive: true });
       window.addEventListener('resize', onViewportChange, { passive: true });
-      window.addEventListener('orientationchange', onViewportChange, {
-        passive: true,
-      });
+      window.addEventListener('orientationchange', onViewportChange, { passive: true });
       window.addEventListener('pageshow', onViewportChange);
-      window.visualViewport?.addEventListener('resize', onViewportChange, {
-        passive: true,
-      });
-      document.addEventListener('visibilitychange', onVisibilityChange);
+      window.visualViewport?.addEventListener('resize', onViewportChange, { passive: true });
 
       window[cleanupKey] = () => {
         disposed = true;
-        window.clearTimeout(timer);
+        cancelActivation();
         window.clearInterval(heartbeat);
         cancelAnimationFrame(frame);
-        observer?.disconnect();
+        rootObserver?.disconnect();
+        visibilityObserver?.disconnect();
         window.removeEventListener('scroll', onScroll);
         window.removeEventListener('resize', onViewportChange);
         window.removeEventListener('orientationchange', onViewportChange);
         window.removeEventListener('pageshow', onViewportChange);
         window.visualViewport?.removeEventListener('resize', onViewportChange);
-        document.removeEventListener('visibilitychange', onVisibilityChange);
         if (recoveryActive) releaseRecoveryStyles();
         delete window[cleanupKey];
       };
