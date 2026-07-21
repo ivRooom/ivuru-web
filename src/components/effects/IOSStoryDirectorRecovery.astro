@@ -58,9 +58,30 @@
         }
       };
 
+      const repairRootState = () => {
+        if (disposed || !recoveryActive || !root.isConnected) return;
+        setData('storyDirector', 'ready');
+        setData('storyRuntime', 'ready');
+        setData('storyProgressAuthority', 'ready');
+        setData('storyMobileStability', 'ready');
+        setData('storyMode', 'motion');
+        setData('storyMask', 'active');
+        setData('storyPerformance', 'ios-inline-recovery');
+        setData('storyTransitionEngine', 'ios-inline-recovery');
+        setData('storySnap', 'disabled-mobile');
+        setData('storySnapState', 'ready');
+        setData('storyNativeRecovery', 'true');
+        delete root.dataset.storyRuntimeReason;
+        delete root.dataset.storyMobileRecovery;
+        delete root.dataset.storyMobileTerminalFallback;
+      };
+
       const releaseRecoveryStyles = () => {
         delete root.dataset.storyNativeRecovery;
         root.style.removeProperty('overflow-x');
+        root.style.removeProperty('min-height');
+        root.style.removeProperty('--story-native-runtime-height');
+        root.style.removeProperty('--story-native-scroll-distance');
         scenes.forEach((scene) => {
           scene.style.removeProperty('opacity');
           scene.style.removeProperty('visibility');
@@ -70,11 +91,20 @@
         });
       };
 
+      const currentProgress = () =>
+        Math.max(0, Math.min(1, (window.scrollY - start) / Math.max(1, end - start)));
+
       const updateRange = () => {
+        const viewportHeight = Math.max(1, window.visualViewport?.height ?? window.innerHeight);
+        const scrollDistance = Math.max(1, Math.round(viewportHeight * 5.7));
+        const runtimeHeight = viewportHeight + scrollDistance;
+        setStyle(root, '--story-native-runtime-height', `${runtimeHeight}px`);
+        setStyle(root, '--story-native-scroll-distance', `${scrollDistance}px`);
+        setStyle(root, 'min-height', `${runtimeHeight}px`);
+
         const rootTop = root.getBoundingClientRect().top + window.scrollY;
-        const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
         start = Math.max(0, rootTop);
-        end = start + Math.max(1, Math.round(viewportHeight * 5.7));
+        end = start + scrollDistance;
         setData('storyScrollStart', String(Math.round(start)));
         setData('storyScrollEnd', String(Math.round(end)));
       };
@@ -91,26 +121,13 @@
           return;
         }
 
-        const progress = Math.max(
-          0,
-          Math.min(1, (window.scrollY - start) / Math.max(1, end - start)),
-        );
+        repairRootState();
+        const progress = currentProgress();
         const nextIndex = progress < 0.34 ? 0 : progress < 0.67 ? 1 : 2;
         const chapter = chapters[nextIndex];
         const chapterChanged = nextIndex !== activeIndex;
         activeIndex = nextIndex;
 
-        setData('storyDirector', 'ready');
-        setData('storyRuntime', 'ready');
-        setData('storyProgressAuthority', 'ready');
-        setData('storyMobileStability', 'ready');
-        setData('storyMode', 'motion');
-        setData('storyMask', 'active');
-        setData('storyPerformance', 'ios-inline-recovery');
-        setData('storyTransitionEngine', 'ios-inline-recovery');
-        setData('storySnap', 'disabled-mobile');
-        setData('storySnapState', 'ready');
-        setData('storyNativeRecovery', 'true');
         setData('storyChapter', chapter);
         setData('storyAuthorityChapter', chapter);
         setData('storyAuthorityProgress', progress.toFixed(4));
@@ -164,9 +181,6 @@
           setStyle(progressLine, 'transform', `scaleX(${progress})`);
         }
         document.body.dataset.animeScene = scenes[nextIndex]?.dataset.storyScene ?? 'ice';
-        delete root.dataset.storyRuntimeReason;
-        delete root.dataset.storyMobileRecovery;
-        delete root.dataset.storyMobileTerminalFallback;
 
         if (chapterChanged) {
           window.dispatchEvent(
@@ -186,6 +200,7 @@
         if (disposed || recoveryActive || realDirectorIsReady()) return;
         recoveryActive = true;
         updateRange();
+        repairRootState();
         sync();
       };
 
@@ -195,15 +210,30 @@
       };
       const onViewportChange = () => {
         if (!recoveryActive || realDirectorIsReady()) return;
+        const progress = currentProgress();
         updateRange();
+        window.scrollTo({ top: start + (end - start) * progress, behavior: 'instant' });
+        repairRootState();
         scheduleSync();
       };
       const onVisibilityChange = () => {
         if (!document.hidden) onViewportChange();
       };
 
-      observer = new MutationObserver(() => {
-        if (recoveryActive) scheduleSync();
+      observer = new MutationObserver((records) => {
+        if (!recoveryActive) return;
+        if (
+          records.some(
+            (record) =>
+              record.target === root &&
+              ['data-story-director', 'data-story-runtime', 'data-story-mobile-stability', 'data-story-mode'].includes(
+                record.attributeName ?? '',
+              ),
+          )
+        ) {
+          repairRootState();
+        }
+        scheduleSync();
       });
       observer.observe(root, {
         subtree: true,
