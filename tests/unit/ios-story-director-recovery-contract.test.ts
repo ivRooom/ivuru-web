@@ -5,31 +5,34 @@ const readSource = (relativePath: string) =>
   readFileSync(new URL(`../../${relativePath}`, import.meta.url), 'utf8');
 
 describe('iOS story director recovery contract', () => {
-  it('Homeは通常Directorの直後にiOS Recoveryを起動する', () => {
+  it('HomeはストーリーDOM直後にAstro Recoveryを実行する', () => {
     const source = readSource('src/components/pages/HomePageV2.astro');
-    const directorIndex = source.indexOf('<AnimeScrollDirector client:load />');
-    const recoveryIndex = source.indexOf('<IOSStoryDirectorRecovery client:load />');
+    const storyIndex = source.indexOf('<AnimeScrollStory locale={locale} />');
+    const recoveryIndex = source.indexOf('<IOSStoryDirectorRecovery />');
 
     expect(source).toContain(
-      "import IOSStoryDirectorRecovery from '@/components/effects/IOSStoryDirectorRecovery'",
+      "import IOSStoryDirectorRecovery from '@/components/effects/IOSStoryDirectorRecovery.astro'",
     );
-    expect(directorIndex).toBeGreaterThan(-1);
-    expect(recoveryIndex).toBeGreaterThan(directorIndex);
+    expect(storyIndex).toBeGreaterThan(-1);
+    expect(recoveryIndex).toBeGreaterThan(storyIndex);
+    expect(source).not.toContain('<IOSStoryDirectorRecovery client:load />');
   });
 
-  it('RecoveryはiOSだけで停止したDirectorを引き継ぎ章とARIAを同期する', () => {
-    const source = readSource('src/components/effects/IOSStoryDirectorRecovery.tsx');
+  it('RecoveryはHydrationに依存せず章・ARIA・画面回転を同期する', () => {
+    const source = readSource('src/components/effects/IOSStoryDirectorRecovery.astro');
 
-    expect(source).toContain('const RECOVERY_DELAY_MS = 1_800');
-    expect(source).toContain("root.dataset.storyDirector = 'ready'");
-    expect(source).toContain("root.dataset.storyRuntime = 'ready'");
-    expect(source).toContain("root.dataset.storyMobileStability = 'ready'");
-    expect(source).toContain("root.dataset.storyTransitionEngine = 'ios-recovery'");
-    expect(source).toContain('root.dataset.storyScrollStart');
-    expect(source).toContain('root.dataset.storyScrollEnd');
-    expect(source).toContain("scene.setAttribute('aria-hidden', active ? 'false' : 'true')");
+    expect(source).toContain('<script is:inline>');
+    expect(source).toContain('const recoveryDelay = 1_200');
+    expect(source).toContain("setData('storyDirector', 'ready')");
+    expect(source).toContain("setData('storyRuntime', 'ready')");
+    expect(source).toContain("setData('storyMobileStability', 'ready')");
+    expect(source).toContain("setData('storyTransitionEngine', 'ios-inline-recovery')");
+    expect(source).toContain("setData('storyScrollStart'");
+    expect(source).toContain("setData('storyScrollEnd'");
+    expect(source).toContain("scene.setAttribute('aria-hidden', ariaHidden)");
     expect(source).toContain("scene.toggleAttribute('inert', !active)");
-    expect(source).toContain("source: 'ios-director-recovery'");
-    expect(source).toContain('realDirectorIsReady()');
+    expect(source).toContain("source: 'ios-inline-recovery'");
+    expect(source).toContain("window.addEventListener('orientationchange'");
+    expect(source).toContain('new MutationObserver');
   });
 });
