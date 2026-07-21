@@ -27,9 +27,19 @@ jobs:
       - run: npm ci
       - name: 本番依存関係の脆弱性を監査
         run: npm audit --omit=dev --audit-level=high
-      - run: npm run check
+      - name: Astro Checkを実行
+        id: astro-check
+        run: npm run check 2>&1 | tee astro-check.log
         env:
           ASTRO_TELEMETRY_DISABLED: '1'
+      - name: Astro Check診断Artifactを保存
+        if: failure() && steps.astro-check.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: astro-check-diagnostics-${{ github.run_attempt }}
+          path: astro-check.log
+          if-no-files-found: ignore
+          retention-days: 14
       - run: npm run lint
         id: lint
       - name: ESLint診断レポートを生成
