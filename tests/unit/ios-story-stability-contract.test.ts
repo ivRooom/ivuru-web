@@ -5,18 +5,19 @@ const readSource = (relativePath: string) =>
   readFileSync(new URL(`../../${relativePath}`, import.meta.url), 'utf8');
 
 describe('iOS story stability contract', () => {
-  it('HomeはDirectorより前にiOS安定化Bridgeを一度だけ起動する', () => {
-    const source = readSource('src/components/pages/HomePageV2.astro');
-    const bridgeIndex = source.indexOf('<IOSStoryStabilityBridge client:load />');
-    const directorIndex = source.indexOf('<AnimeScrollDirector client:load />');
+  it('Homeはローダー完了後に単一RuntimeからiOS BridgeとDirectorを起動する', () => {
+    const home = readSource('src/components/pages/HomePageV2.astro');
+    const runtime = readSource('src/components/effects/StoryEffectsRuntime.tsx');
 
-    expect(source).toContain(
-      "import IOSStoryStabilityBridge from '@/components/effects/IOSStoryStabilityBridge'",
+    expect(home).toContain(
+      "import StoryEffectsRuntime from '@/components/effects/StoryEffectsRuntime'",
     );
-    expect(source.match(/<IOSStoryStabilityBridge client:load \/>/g)).toHaveLength(1);
-    expect(bridgeIndex).toBeGreaterThan(-1);
-    expect(bridgeIndex).toBeLessThan(directorIndex);
-    expect(source).toContain("import '@/styles/story-ios-webkit-stability.css'");
+    expect(home.match(/<StoryEffectsRuntime client:load \/>/g)).toHaveLength(1);
+    expect(runtime.indexOf('<IOSStoryStabilityBridge />')).toBeLessThan(
+      runtime.indexOf('<AnimeScrollDirector />'),
+    );
+    expect(runtime).toContain("document.addEventListener('ivuru:loader-released', release)");
+    expect(home).toContain("import '@/styles/story-ios-webkit-stability.css'");
   });
 
   it('Bridgeは早期fallbackを30秒間回復し失敗時は静的3章を維持する', () => {
@@ -56,10 +57,12 @@ describe('iOS story stability contract', () => {
     expect(source.match(/requestAnimationFrame/g)?.length ?? 0).toBeGreaterThanOrEqual(2);
   });
 
-  it('iOSでは実GSAP Directorを先行起動し4.5秒で静的化しない', () => {
+  it('iOSではローダー解放後に実GSAP Directorを先行起動し4.5秒で静的化しない', () => {
+    const bootstrap = readSource('src/components/effects/StoryEffectsRuntime.tsx');
     const director = readSource('src/components/effects/AnimeScrollDirector.tsx');
     const runtime = readSource('src/components/effects/StoryProductionRuntime.tsx');
 
+    expect(bootstrap).toContain('if (!ready) return null');
     expect(director).toContain('const isIOSWebKit = () =>');
     expect(director).toContain('if (isIOSWebKit()) {');
     expect(director).toContain("elements.root.dataset.storyInView = 'true'");
@@ -70,15 +73,17 @@ describe('iOS story stability contract', () => {
     expect(runtime).toContain("applyStaticStory(elements, 'motion-boot-timeout')");
   });
 
-  it('ローダー安全装置はwindow.load後まで実アニメーションを維持する', () => {
+  it('ローダー安全装置は自然な演出時間を確保しDOMContentLoaded後に必ず解放する', () => {
     const layout = readSource('src/layouts/BaseLayout.astro');
     const guard = readSource('src/components/common/LoaderReleaseGuard.astro');
 
-    expect(layout).toContain("window.addEventListener('load', armFailsafe, { once: true })");
-    expect(layout).toContain('reduced ? 500 : 5_000');
-    expect(guard).toContain('const armAfterLoad = () =>');
-    expect(guard).toContain("window.addEventListener('load', armAfterLoad, { once: true })");
-    expect(guard).toContain("releaseLoader('hard-timeout-after-load')");
+    expect(layout).toContain('const releaseFailsafe = () =>');
+    expect(guard).toContain('const readyDelay = reduced ? 120 : seen ? 2_400 : 3_500');
+    expect(guard).toContain('const hardLimit = reduced ? 600 : seen ? 4_500 : 6_500');
+    expect(guard).toContain('armTimers()');
+    expect(guard).toContain("releaseLoader('animation-safety-release')");
+    expect(guard).toContain("releaseLoader('hard-timeout')");
+    expect(guard).not.toContain("window.addEventListener('load', armAfterLoad");
   });
 
   it('iOS WebKitでは横画面とiPadも奥行き合成を軽量化する', () => {
