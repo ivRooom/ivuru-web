@@ -1,0 +1,102 @@
+<script is:inline>
+  (() => {
+    const blockedComponents = [
+      'CinematicPointerEffects',
+      'IOSStoryStabilityBridge',
+      'AnimeScrollDirector',
+      'StoryProductionRuntime',
+      'SpatialCameraEnhancer',
+      'CinematicEntertainmentDirector',
+      'SingularityOverdriveDirector',
+      'AdaptiveRealityDirector',
+    ];
+
+    const isIOSWebKit = () =>
+      /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+    if (!isIOSWebKit()) return;
+
+    const html = document.documentElement;
+    const body = document.body;
+    html.dataset.storyRuntimeOwner = 'ios-inline';
+    html.dataset.storyNativeScrollOwner = 'true';
+    body?.setAttribute('data-story-native-scroll-owner', 'true');
+    html.style.setProperty('scroll-behavior', 'auto', 'important');
+    html.style.setProperty('overflow-y', 'auto', 'important');
+    html.style.setProperty('height', 'auto', 'important');
+    body?.style.setProperty('scroll-behavior', 'auto', 'important');
+    body?.style.setProperty('overflow-y', 'auto', 'important');
+    body?.style.setProperty('height', 'auto', 'important');
+
+    const releaseReturningLoader = () => {
+      let introSeen = false;
+      try {
+        introSeen = sessionStorage.getItem('ivuru-intro-seen') === '1';
+      } catch {
+        introSeen = false;
+      }
+      if (!introSeen) return;
+
+      document.documentElement.dataset.loaderReleased = 'true';
+      document.body?.classList.remove('site-loading');
+      document.querySelectorAll('.world-loader').forEach((loader) => {
+        if (!(loader instanceof HTMLElement)) return;
+        loader.hidden = true;
+        loader.setAttribute('aria-hidden', 'true');
+        loader.dataset.state = 'released';
+        loader.style.setProperty('display', 'none', 'important');
+        loader.style.setProperty('visibility', 'hidden', 'important');
+        loader.style.setProperty('opacity', '0', 'important');
+        loader.style.setProperty('pointer-events', 'none', 'important');
+      });
+    };
+
+    const shouldDisableIsland = (island) => {
+      if (!(island instanceof HTMLElement) || island.localName !== 'astro-island') return false;
+      const componentUrl = island.getAttribute('component-url') ?? '';
+      return blockedComponents.some((component) => componentUrl.includes(component));
+    };
+
+    const disableIsland = (island) => {
+      if (!shouldDisableIsland(island)) return;
+      island.dataset.iosRuntimeDisabled = 'true';
+      island.remove();
+    };
+
+    const sweep = (node) => {
+      if (node instanceof HTMLElement && node.localName === 'astro-island') disableIsland(node);
+      if (!(node instanceof Document || node instanceof DocumentFragment || node instanceof Element)) {
+        return;
+      }
+      node.querySelectorAll('astro-island').forEach(disableIsland);
+    };
+
+    const observer = new MutationObserver((records) => {
+      records.forEach((record) => record.addedNodes.forEach(sweep));
+    });
+    observer.observe(document.documentElement, { childList: true, subtree: true });
+
+    const stabilize = () => {
+      releaseReturningLoader();
+      sweep(document);
+      const scrollingElement = document.scrollingElement ?? document.documentElement;
+      scrollingElement.style.setProperty('scroll-behavior', 'auto', 'important');
+      scrollingElement.style.setProperty('overflow-y', 'auto', 'important');
+    };
+
+    stabilize();
+    document.addEventListener('DOMContentLoaded', stabilize, { once: true });
+    document.addEventListener('astro:page-load', stabilize);
+    window.addEventListener('pageshow', stabilize);
+    window.addEventListener(
+      'pagehide',
+      () => {
+        observer.disconnect();
+        document.removeEventListener('astro:page-load', stabilize);
+        window.removeEventListener('pageshow', stabilize);
+      },
+      { once: true },
+    );
+  })();
+</script>
