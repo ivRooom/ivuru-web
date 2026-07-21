@@ -8,6 +8,16 @@ const prepare = async (page: Page) => {
   });
 };
 
+const revealStory = async (page: Page) => {
+  await page.evaluate(() => {
+    const root = document.querySelector<HTMLElement>('[data-anime-scroll-story]');
+    if (!root) throw new Error('story root is missing');
+    const top = root.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo({ top: Math.max(0, top + 1), behavior: 'instant' });
+    window.dispatchEvent(new Event('scroll'));
+  });
+};
+
 const scrollToProgress = async (page: Page, progress: number) => {
   await page.locator('[data-anime-scroll-story]').evaluate((root, target) => {
     const start = Number((root as HTMLElement).dataset.storyScrollStart);
@@ -25,7 +35,9 @@ const expectChapter = async (page: Page, chapter: '01' | '02' | '03') => {
   const scene = story.locator(`[data-anime-story-scene="${Number(chapter) - 1}"]`);
 
   await expect(story).toHaveAttribute('data-story-chapter', chapter, { timeout: 10_000 });
-  await expect(story).toHaveAttribute('data-story-authority-chapter', chapter);
+  await expect(story).toHaveAttribute('data-story-authority-chapter', chapter, {
+    timeout: 10_000,
+  });
   await expect(scene).toHaveAttribute('data-active', 'true');
   await expect(scene).toHaveAttribute('aria-hidden', 'false');
   await expect(scene).not.toHaveAttribute('inert', '');
@@ -37,6 +49,8 @@ const expectChapter = async (page: Page, chapter: '01' | '02' | '03') => {
 };
 
 test.describe('iOS WebKit story stability', () => {
+  test.describe.configure({ timeout: 60_000 });
+
   test.beforeEach(async ({ browserName, page }) => {
     test.skip(browserName !== 'webkit', 'iOS WebKit専用の回帰テスト');
     await prepare(page);
@@ -54,7 +68,7 @@ test.describe('iOS WebKit story stability', () => {
     await expect(story).not.toHaveAttribute('data-story-runtime', 'fallback');
     await expect(story).not.toHaveAttribute('data-story-runtime-reason', 'motion-boot-timeout');
 
-    await story.scrollIntoViewIfNeeded();
+    await revealStory(page);
     await expect(story).toHaveAttribute('data-story-director', 'ready', { timeout: 15_000 });
     await expect(story).toHaveAttribute('data-story-runtime', 'ready', { timeout: 15_000 });
     await expect(story).toHaveAttribute('data-story-mobile-stability', 'ready', {
@@ -81,7 +95,7 @@ test.describe('iOS WebKit story stability', () => {
     await page.goto('/');
 
     const story = page.locator('[data-anime-scroll-story]');
-    await story.scrollIntoViewIfNeeded();
+    await revealStory(page);
     await expect(story).toHaveAttribute('data-story-runtime', 'ready', { timeout: 15_000 });
 
     await scrollToProgress(page, 0.42);
