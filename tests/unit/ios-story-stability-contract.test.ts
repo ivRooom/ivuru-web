@@ -19,34 +19,36 @@ describe('iOS story stability contract', () => {
     expect(source).toContain("import '@/styles/story-ios-webkit-stability.css'");
   });
 
-  it('Bridgeは早期fallbackを期限付きで回復し失敗時は静的表示を維持する', () => {
+  it('Bridgeは早期fallbackを30秒間回復し失敗時は静的3章を維持する', () => {
     const source = readSource('src/components/effects/IOSStoryStabilityBridge.tsx');
 
-    expect(source).toContain('const RECOVERY_GRACE_MS = 12_000');
+    expect(source).toContain('const RECOVERY_GRACE_MS = 30_000');
     expect(source).toContain("root.dataset.storyRuntimeReason !== 'motion-boot-timeout'");
     expect(source).toContain("root.dataset.storyMobileRecovery = 'waiting-for-director'");
-    expect(source).toContain("applyTerminalFallback('mobile-director-timeout')");
+    expect(source).toContain("applyStaticFallback('mobile-director-timeout')");
     expect(source).toContain("root.dataset.storyMobileTerminalFallback = 'true'");
-    expect(source).toContain('candidate.kill?.(true)');
-    expect(source).toContain('descendantsAreStatic');
-    expect(source).toContain('scheduleTerminalRepair');
+    expect(source).toContain('trigger.kill?.(true)');
+    expect(source).toContain('repairStaticScenes');
+    expect(source).toContain('installTerminalRepair');
     expect(source).toContain("readout.textContent = '01–03 / STATIC STORY'");
   });
 
-  it('Bridgeは章Authorityを補完しlast refresh基準でviewportとtouchを同期する', () => {
+  it('BridgeはGSAPを先読みして実TriggerからRuntime・章Authorityを同期する', () => {
     const source = readSource('src/components/effects/IOSStoryStabilityBridge.tsx');
 
     expect(source).toContain('let generation = 0');
     expect(source).toContain('const token = generation');
     expect(source).toContain('token === generation');
     expect(source.indexOf('disposeCurrent = () => {')).toBeLessThan(
-      source.indexOf("await import('gsap/ScrollTrigger')"),
+      source.indexOf("import('gsap')"),
     );
-    expect(source).toContain('syncAuthorityFromDirector');
+    expect(source).toContain('const findStoryTrigger');
+    expect(source).toContain('syncMotionState');
+    expect(source).toContain("root.dataset.storyRuntime = 'ready'");
+    expect(source).toContain("root.dataset.storyProgressAuthority = 'ready'");
     expect(source).toContain("source: 'ios-stability-bridge'");
-    expect(source).toContain("'data-story-chapter'");
-    expect(source).toContain('refreshedViewportHeight');
-    expect(source).toContain('nextHeight - refreshedViewportHeight');
+    expect(source).toContain('refreshedHeight');
+    expect(source).toContain('height - refreshedHeight');
     expect(source).toContain('ignoreMobileResize: true');
     expect(source).toContain("window.addEventListener('touchend'");
     expect(source).toContain("window.visualViewport?.addEventListener('resize'");
