@@ -95,9 +95,7 @@ export default function IOSStoryStabilityBridge() {
           if (progressLine) progressLine.style.transform = `scaleX(${progress})`;
         }
 
-        const scenes = Array.from(
-          root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'),
-        );
+        const scenes = Array.from(root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'));
         scenes.forEach((scene, sceneIndex) => {
           const active = sceneIndex === index;
           scene.dataset.active = active ? 'true' : 'false';
@@ -127,9 +125,7 @@ export default function IOSStoryStabilityBridge() {
         recoveryProbe = 0;
         stopStoryTrigger();
 
-        const scenes = Array.from(
-          root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'),
-        );
+        const scenes = Array.from(root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'));
         const descendantsAreStatic =
           scenes.length === STORY_CHAPTERS.length &&
           scenes.every(
@@ -213,9 +209,7 @@ export default function IOSStoryStabilityBridge() {
         root.dataset.storyPerformance = iosWebKit ? 'ios-stable' : 'mobile-stable';
         root.dataset.storyMobileRecovery = 'waiting-for-director';
 
-        const scenes = Array.from(
-          root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'),
-        );
+        const scenes = Array.from(root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'));
         scenes.forEach((scene, index) => {
           const active = index === 0;
           scene.dataset.active = active ? 'true' : 'false';
