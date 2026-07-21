@@ -9,13 +9,20 @@ import AdaptiveRealityDirector from '@/components/effects/AdaptiveRealityDirecto
 import StoryProductionRuntime from '@/components/effects/StoryProductionRuntime';
 
 const loaderHasFinished = () => {
+  const root = document.documentElement;
   const loader = document.querySelector<HTMLElement>('[data-spatial-loader]');
+
+  if (root.dataset.loaderReleased === 'true') return true;
   if (!loader) return true;
 
   return (
     loader.hidden ||
     loader.getAttribute('aria-hidden') === 'true' ||
-    loader.style.display === 'none'
+    loader.style.display === 'none' ||
+    loader.dataset.state === 'ready' ||
+    loader.dataset.guardReleased === 'true' ||
+    loader.dataset.completionBridged === 'true' ||
+    loader.classList.contains('loaded')
   );
 };
 
@@ -23,6 +30,9 @@ export default function StoryEffectsRuntime() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    let observer: MutationObserver | undefined;
+    let probeTimer = 0;
+
     const release = () => setReady(true);
     const sync = () => {
       if (loaderHasFinished()) release();
@@ -33,7 +43,30 @@ export default function StoryEffectsRuntime() {
     document.addEventListener('astro:page-load', sync);
     window.addEventListener('pageshow', sync);
 
+    if ('MutationObserver' in window) {
+      observer = new MutationObserver(sync);
+      observer.observe(document.documentElement, {
+        attributes: true,
+        childList: true,
+        subtree: true,
+        attributeFilter: [
+          'aria-hidden',
+          'class',
+          'data-loader-released',
+          'data-state',
+          'data-guard-released',
+          'data-completion-bridged',
+          'hidden',
+          'style',
+        ],
+      });
+    }
+
+    probeTimer = window.setInterval(sync, 250);
+
     return () => {
+      observer?.disconnect();
+      window.clearInterval(probeTimer);
       document.removeEventListener('ivuru:loader-released', release);
       document.removeEventListener('astro:page-load', sync);
       window.removeEventListener('pageshow', sync);
