@@ -24,8 +24,11 @@ describe('iOS story director recovery contract', () => {
 
     expect(source).toContain('<script is:inline>');
     expect(source).toContain('const recoveryDelay = 0');
-    expect(source).toContain('const recoveryHeartbeatMs = 50');
+    expect(source).toContain('const recoveryHeartbeatMs = 120');
     expect(source).toContain("root.dataset.storyNativeRecovery = 'true'");
+    expect(source).toContain(
+      "document.documentElement.dataset.storyNativeScrollOwner = 'true'",
+    );
     expect(source).toContain('const repairRootState = () =>');
     expect(source).toContain("setData('storyDirector', 'ready')");
     expect(source).toContain("setData('storyRuntime', 'ready')");
@@ -40,11 +43,14 @@ describe('iOS story director recovery contract', () => {
     expect(source).toContain("scene.setAttribute('inert', '')");
     expect(source).toContain("source: 'ios-inline-recovery'");
     expect(source).toContain("window.addEventListener('orientationchange'");
+    expect(source).toContain('window.scrollTo(0, start + (end - start) * progress)');
     expect(source).toContain('new MutationObserver');
-    expect(source).toContain('subtree: true');
+    expect(source).not.toContain('subtree: true');
     expect(source).toContain('if (frame) return');
     expect(source).toContain('window.setInterval(scheduleSync, recoveryHeartbeatMs)');
     expect(styles).toContain("[data-story-native-recovery='true']");
+    expect(styles).toContain("html[data-story-native-scroll-owner='true']");
+    expect(styles).toContain('contain: none !important');
     expect(styles).toContain('position: sticky !important');
     expect(styles).toContain('min-height: var(--story-native-runtime-height, 670svh) !important');
   });
