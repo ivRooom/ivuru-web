@@ -68,7 +68,11 @@
 
     const sweep = (node) => {
       if (node instanceof HTMLElement && node.localName === 'astro-island') disableIsland(node);
-      if (!(node instanceof Document || node instanceof DocumentFragment || node instanceof Element)) {
+      if (!(
+        node instanceof Document ||
+        node instanceof DocumentFragment ||
+        node instanceof Element
+      )) {
         return;
       }
       node.querySelectorAll('astro-island').forEach(disableIsland);
