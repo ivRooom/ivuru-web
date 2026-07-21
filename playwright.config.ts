@@ -21,9 +21,12 @@ export default defineConfig({
     locale: 'ja-JP',
   },
   webServer: {
-    command: 'npm run dev -- --host 127.0.0.1',
+    command: process.env.CI
+      ? 'npm run build && npm run preview -- --host 127.0.0.1'
+      : 'npm run dev -- --host 127.0.0.1',
     url: 'http://127.0.0.1:4321',
     reuseExistingServer: !process.env.CI,
+    timeout: 180_000,
   },
   projects: [
     {
