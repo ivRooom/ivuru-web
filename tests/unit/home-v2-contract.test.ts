@@ -38,14 +38,17 @@ describe('home page v2 contract', () => {
     expect(styles).toContain('.anime-chapter-gate__iris');
   });
 
-  it('重要なスクロール演出を初回表示で確実に起動する', () => {
+  it('重要なスクロール演出をロード完了後に確実に起動する', () => {
     const home = readSource('src/components/pages/HomePageV2.astro');
+    const runtime = readSource('src/components/effects/StoryEffectsRuntime.tsx');
 
-    expect(home).toContain('<AnimeScrollDirector client:load />');
-    expect(home).toContain('<SpatialCameraEnhancer client:load />');
-    expect(home).toContain('<CinematicEntertainmentDirector client:load />');
-    expect(home).toContain('<SingularityOverdriveDirector client:load />');
-    expect(home).toContain('<CinematicPointerEffects client:idle />');
+    expect(home).toContain('<StoryEffectsRuntime client:load />');
+    expect(runtime).toContain('<AnimeScrollDirector />');
+    expect(runtime).toContain('<SpatialCameraEnhancer />');
+    expect(runtime).toContain('<CinematicEntertainmentDirector />');
+    expect(runtime).toContain('<SingularityOverdriveDirector />');
+    expect(runtime).toContain('<CinematicPointerEffects />');
+    expect(runtime).toContain("document.addEventListener('ivuru:loader-released', release)");
     expect(home).toContain("import '@/styles/chapter-gate-transitions.css'");
   });
 
