@@ -8,26 +8,35 @@ const prepare = async (page: Page) => {
   });
 };
 
+const scrollTo = async (page: Page, top: number) => {
+  await page.evaluate((targetTop) => {
+    window.scrollTo(0, Number(targetTop));
+    window.dispatchEvent(new Event('scroll'));
+  }, top);
+  await expect
+    .poll(() => page.evaluate(() => window.scrollY), { timeout: 5_000 })
+    .toBeCloseTo(top, 0);
+};
+
 const revealStory = async (page: Page) => {
-  await page.evaluate(() => {
+  const top = await page.evaluate(() => {
     const root = document.querySelector<HTMLElement>('[data-anime-scroll-story]');
     if (!root) throw new Error('story root is missing');
-    const top = root.getBoundingClientRect().top + window.scrollY;
-    window.scrollTo({ top: Math.max(0, top + 1), behavior: 'instant' });
-    window.dispatchEvent(new Event('scroll'));
+    return Math.max(0, root.getBoundingClientRect().top + window.scrollY + 1);
   });
+  await scrollTo(page, top);
 };
 
 const scrollToProgress = async (page: Page, progress: number) => {
-  await page.locator('[data-anime-scroll-story]').evaluate((root, target) => {
+  const top = await page.locator('[data-anime-scroll-story]').evaluate((root, target) => {
     const start = Number((root as HTMLElement).dataset.storyScrollStart);
     const end = Number((root as HTMLElement).dataset.storyScrollEnd);
     if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) {
       throw new Error(`invalid story range: ${start} - ${end}`);
     }
-    window.scrollTo({ top: start + (end - start) * Number(target), behavior: 'instant' });
-    window.dispatchEvent(new Event('scroll'));
+    return start + (end - start) * Number(target);
   }, progress);
+  await scrollTo(page, top);
 };
 
 const expectChapter = async (page: Page, chapter: '01' | '02' | '03') => {
