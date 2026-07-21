@@ -9,13 +9,12 @@ const prepare = async (page: Page) => {
 };
 
 const scrollTo = async (page: Page, top: number) => {
-  await page.evaluate((targetTop) => {
-    window.scrollTo(0, Number(targetTop));
-    window.dispatchEvent(new Event('scroll'));
-  }, top);
+  const expectedTop = Math.round(top);
+  await page.evaluate((targetTop) => window.scrollTo(0, Number(targetTop)), expectedTop);
   await expect
-    .poll(() => page.evaluate(() => window.scrollY), { timeout: 5_000 })
-    .toBeCloseTo(top, 0);
+    .poll(() => page.evaluate(() => Math.round(window.scrollY)), { timeout: 5_000 })
+    .toBe(expectedTop);
+  await page.evaluate(() => window.dispatchEvent(new Event('scroll')));
 };
 
 const revealStory = async (page: Page) => {
