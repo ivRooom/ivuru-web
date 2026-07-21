@@ -6,68 +6,13 @@ on:
   pull_request:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  patch-ios-story-owner:
-    if: ${{ github.event_name == 'pull_request' && github.head_ref == 'fix/ios-webkit-story-scroll' && github.actor != 'github-actions[bot]' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-      - run: npm ci
-      - name: 競合RuntimeへiOS Recovery所有権ガードを追加
-        shell: bash
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-
-          targets = [
-              ('src/components/effects/AnimeScrollDirector.tsx', '    const setup = () => {\n'),
-              ('src/components/effects/StoryProductionRuntime.tsx', '    const setup = async () => {\n'),
-              ('src/components/effects/IOSStoryStabilityBridge.tsx', '    const setup = async () => {\n'),
-          ]
-          addition = (
-              "      const recoveryRoot = document.querySelector<HTMLElement>('[data-anime-scroll-story]');\n"
-              "      if (recoveryRoot?.dataset.storyNativeRecovery === 'true') return;\n"
-          )
-
-          for path, anchor in targets:
-              file = Path(path)
-              text = file.read_text()
-              if "storyNativeRecovery === 'true'" in text:
-                  continue
-              if anchor not in text:
-                  raise SystemExit(f'Guard anchor not found: {path}')
-              file.write_text(text.replace(anchor, anchor + addition, 1))
-          PY
-          npx prettier --write \
-            src/components/effects/AnimeScrollDirector.tsx \
-            src/components/effects/StoryProductionRuntime.tsx \
-            src/components/effects/IOSStoryStabilityBridge.tsx
-      - name: ガード修正をコミット
-        shell: bash
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "4189822+github-actions[bot]@users.noreply.github.com"
-          git add \
-            src/components/effects/AnimeScrollDirector.tsx \
-            src/components/effects/StoryProductionRuntime.tsx \
-            src/components/effects/IOSStoryStabilityBridge.tsx
-          git diff --cached --quiet && exit 0
-          git commit -m "iOS Story制御をInline Recoveryへ一本化"
-          git push origin HEAD:${{ github.head_ref }}
-
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 20
