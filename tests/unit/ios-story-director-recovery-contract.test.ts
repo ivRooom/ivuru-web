@@ -36,7 +36,7 @@ describe('iOS story animation priority contract', () => {
     expect(source).toContain("root.dataset.storyTransitionEngine === 'world-forge'");
     expect(source).toContain('const scheduleActivation = () =>');
     expect(source).toContain('new IntersectionObserver');
-    expect(source).toContain('root.dataset.storyNativeRecovery = \'true\'');
+    expect(source).toContain("root.dataset.storyNativeRecovery = 'true'");
     expect(source).toContain("source: 'ios-inline-recovery'");
     expect(source).toContain('window.setInterval(scheduleSync, recoveryHeartbeatMs)');
     expect(source.indexOf("root.dataset.storyNativeRecovery = 'true'")).toBeGreaterThan(
