@@ -505,6 +505,8 @@ export default function AnimeScrollDirector() {
     };
 
     const setup = () => {
+      const recoveryRoot = document.querySelector<HTMLElement>('[data-anime-scroll-story]');
+      if (recoveryRoot?.dataset.storyNativeRecovery === 'true') return;
       cleanup();
       const elements = readStoryElements();
       if (!elements) return;

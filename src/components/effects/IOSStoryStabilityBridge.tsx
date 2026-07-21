@@ -54,6 +54,8 @@ export default function IOSStoryStabilityBridge() {
     let disposeCurrent = () => {};
 
     const setup = async () => {
+      const recoveryRoot = document.querySelector<HTMLElement>('[data-anime-scroll-story]');
+      if (recoveryRoot?.dataset.storyNativeRecovery === 'true') return;
       disposeCurrent();
       generation += 1;
       const token = generation;
