@@ -6,14 +6,18 @@ const readSource = (relativePath: string) =>
 
 describe('story production runtime contract', () => {
   it('Homeは旧Progress Authorityではなく本番Runtimeを一度だけ起動する', () => {
-    const source = readSource('src/components/pages/HomePageV2.astro');
+    const home = readSource('src/components/pages/HomePageV2.astro');
+    const bootstrap = readSource('src/components/effects/StoryEffectsRuntime.tsx');
 
-    expect(source).toContain(
+    expect(home).toContain(
+      "import StoryEffectsRuntime from '@/components/effects/StoryEffectsRuntime'",
+    );
+    expect(home).toContain('<StoryEffectsRuntime client:load />');
+    expect(bootstrap).toContain(
       "import StoryProductionRuntime from '@/components/effects/StoryProductionRuntime'",
     );
-    expect(source).toContain('<StoryProductionRuntime client:load />');
-    expect(source).not.toContain('StoryProgressAuthority');
-    expect(source.match(/<StoryProductionRuntime client:load \/>/g)).toHaveLength(1);
+    expect(bootstrap.match(/<StoryProductionRuntime \/>/g)).toHaveLength(1);
+    expect(home).not.toContain('StoryProgressAuthority');
   });
 
   it('RuntimeはScrollTriggerの実progressを参照しGSAPタイムラインを強制更新しない', () => {
