@@ -26,9 +26,7 @@ describe('iOS story director recovery contract', () => {
     expect(source).toContain('const recoveryDelay = 0');
     expect(source).toContain('const recoveryHeartbeatMs = 120');
     expect(source).toContain("root.dataset.storyNativeRecovery = 'true'");
-    expect(source).toContain(
-      "document.documentElement.dataset.storyNativeScrollOwner = 'true'",
-    );
+    expect(source).toContain("document.documentElement.dataset.storyNativeScrollOwner = 'true'");
     expect(source).toContain('const repairRootState = () =>');
     expect(source).toContain("setData('storyDirector', 'ready')");
     expect(source).toContain("setData('storyRuntime', 'ready')");
