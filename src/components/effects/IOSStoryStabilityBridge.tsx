@@ -61,9 +61,7 @@ export default function IOSStoryStabilityBridge() {
       if (!elements) return;
 
       const { root, scenes, dots, readout, progressLine } = elements;
-      const compact = matchMedia('(max-width: 767px)').matches;
-      const iosWebKit = isIOSWebKit();
-      if (!compact && !iosWebKit) return;
+      if (!isIOSWebKit()) return;
 
       let disposed = false;
       let refreshTimer = 0;
@@ -82,7 +80,7 @@ export default function IOSStoryStabilityBridge() {
       const recoveryDeadline = performance.now() + RECOVERY_GRACE_MS;
       const isCurrent = () => !disposed && token === generation && root.isConnected;
 
-      root.dataset.storyPlatform = iosWebKit ? 'ios-webkit' : 'compact-webkit';
+      root.dataset.storyPlatform = 'ios-webkit';
       root.dataset.storyMobileStability = 'booting';
 
       const syncViewportHeight = () => {
@@ -177,7 +175,7 @@ export default function IOSStoryStabilityBridge() {
         root.dataset.storyProgressAuthority = 'booting';
         root.dataset.storyMode = 'booting';
         root.dataset.storyMask = 'active';
-        root.dataset.storyPerformance = iosWebKit ? 'ios-stable' : 'mobile-stable';
+        root.dataset.storyPerformance = 'ios-stable';
         root.dataset.storyMobileRecovery = 'waiting-for-director';
         setSceneState(0);
         syncViewportHeight();
