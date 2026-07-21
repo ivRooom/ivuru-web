@@ -5,6 +5,22 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+  .anime-scroll-story[data-story-platform='ios-webkit'][data-story-native-recovery='true'] {
+    height: auto !important;
+    min-height: var(--story-native-runtime-height, 670svh) !important;
+    overflow: visible !important;
+    overflow-x: clip !important;
+  }
+
+  .anime-scroll-story[data-story-platform='ios-webkit'][data-story-native-recovery='true']
+    .anime-scroll-stage {
+    position: sticky !important;
+    top: 0;
+    height: var(--story-runtime-height, 100svh) !important;
+    min-height: 0 !important;
+    overflow: clip !important;
+  }
+
   .anime-scroll-story[data-story-platform='ios-webkit'] .anime-scroll-stage,
   .anime-scroll-story[data-story-platform='ios-webkit'] .anime-story-camera,
   .anime-scroll-story[data-story-platform='ios-webkit'] .anime-story-scene,
