@@ -36,7 +36,10 @@
       let observer;
 
       const realDirectorIsReady = () =>
+        root.dataset.storyNativeRecovery !== 'true' &&
         root.dataset.storyDirector === 'ready' &&
+        root.dataset.storyRuntime === 'ready' &&
+        root.dataset.storyMobileStability === 'ready' &&
         root.dataset.storyTransitionEngine === 'world-forge' &&
         root.dataset.storySnapState === 'ready';
 
@@ -192,7 +195,6 @@
       });
       observer.observe(root, {
         attributes: true,
-        subtree: true,
         attributeFilter: [
           'data-story-runtime',
           'data-story-runtime-reason',
@@ -200,9 +202,7 @@
           'data-story-mode',
           'data-story-chapter',
           'data-story-transition-engine',
-          'aria-hidden',
-          'inert',
-          'data-active',
+          'data-story-mobile-stability',
         ],
       });
 
