@@ -8,6 +8,7 @@ import HomePortalGrid from '@/components/home/HomePortalGrid.astro';
 import LatestPosts from '@/components/blog/LatestPosts.astro';
 import ContactCTA from '@/components/home/ContactCTA.astro';
 import CinematicPointerEffects from '@/components/effects/CinematicPointerEffects';
+import IOSStoryStabilityBridge from '@/components/effects/IOSStoryStabilityBridge';
 import AnimeScrollDirector from '@/components/effects/AnimeScrollDirector';
 import SpatialCameraEnhancer from '@/components/effects/SpatialCameraEnhancer';
 import CinematicEntertainmentDirector from '@/components/effects/CinematicEntertainmentDirector';
@@ -30,6 +31,7 @@ import '@/styles/adaptive-reality-overdrive.css';
 import '@/styles/home-loader-insets.css';
 import '@/styles/story-static-fallback.css';
 import '@/styles/story-production-runtime.css';
+import '@/styles/story-ios-webkit-stability.css';
 
 const { locale } = Astro.props as { locale: Locale };
 const descriptions = {
@@ -48,6 +50,7 @@ const descriptions = {
   <LoaderReleaseGuard />
   <QuantumLoaderEvolution />
   <CinematicPointerEffects client:idle />
+  <IOSStoryStabilityBridge client:load />
   <AnimeScrollDirector client:load />
   <StoryProductionRuntime client:load />
   <SpatialCameraEnhancer client:load />
