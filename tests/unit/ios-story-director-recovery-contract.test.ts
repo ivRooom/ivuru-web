@@ -22,7 +22,9 @@ describe('iOS story director recovery contract', () => {
     const source = readSource('src/components/effects/IOSStoryDirectorRecovery.astro');
 
     expect(source).toContain('<script is:inline>');
-    expect(source).toContain('const recoveryDelay = 1_200');
+    expect(source).toContain('const recoveryDelay = 0');
+    expect(source).toContain('const recoveryHeartbeatMs = 120');
+    expect(source).toContain("root.dataset.storyNativeRecovery = 'true'");
     expect(source).toContain("setData('storyDirector', 'ready')");
     expect(source).toContain("setData('storyRuntime', 'ready')");
     expect(source).toContain("setData('storyMobileStability', 'ready')");
@@ -34,5 +36,6 @@ describe('iOS story director recovery contract', () => {
     expect(source).toContain("source: 'ios-inline-recovery'");
     expect(source).toContain("window.addEventListener('orientationchange'");
     expect(source).toContain('new MutationObserver');
+    expect(source).toContain('window.setInterval(sync, recoveryHeartbeatMs)');
   });
 });
