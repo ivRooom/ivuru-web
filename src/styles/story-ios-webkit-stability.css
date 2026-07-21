@@ -47,8 +47,20 @@
   .anime-scroll-story[data-story-platform='ios-webkit'][data-story-mobile-stability='booting']
     .anime-story-scene[data-active='true'],
   .anime-scroll-story[data-story-platform='ios-webkit'][data-story-mobile-stability='syncing']
+    .anime-story-scene[data-active='true'],
+  .anime-scroll-story[data-story-platform='ios-webkit'][data-story-native-recovery='true']
     .anime-story-scene[data-active='true'] {
     visibility: visible !important;
     opacity: 1 !important;
+    pointer-events: auto !important;
+    transform: translate3d(0, 0, 0) !important;
+  }
+
+  .anime-scroll-story[data-story-platform='ios-webkit'][data-story-native-recovery='true']
+    .anime-story-scene[data-active='false'] {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: translate3d(0, 20px, 0) !important;
   }
 }
