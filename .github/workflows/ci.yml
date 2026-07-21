@@ -6,153 +6,118 @@ on:
   pull_request:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  patch-ios-real-animation:
-    if: ${{ github.event_name == 'pull_request' && github.head_ref == 'fix/ios-webkit-story-scroll' && github.actor != 'github-actions[bot]' }}
+  validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - name: ローダーとGSAP Directorの競合を修正
+      - name: 本番依存関係の脆弱性を監査
+        run: npm audit --omit=dev --audit-level=high
+      - name: Astro Checkを実行
+        id: astro-check
         shell: bash
         run: |
-          python - <<'PY'
-          from pathlib import Path
-
-          base = Path('src/layouts/BaseLayout.astro')
-          text = base.read_text()
-          marker = "const delay = matchMedia('(prefers-reduced-motion: reduce)').matches ? 350 : 2400;"
-          marker_index = text.find(marker)
-          if marker_index < 0:
-              raise SystemExit('BaseLayout loader failsafe marker not found')
-          block_start = text.rfind('    <script is:inline>', 0, marker_index)
-          block_end = text.find('    </script>', marker_index)
-          if block_start < 0 or block_end < 0:
-              raise SystemExit('BaseLayout loader script range not found')
-          block_end += len('    </script>')
-          replacement = '''    <script is:inline>
-                (() => {
-                  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-                  const releaseFailsafe = () => {
-                    const loader = document.querySelector('.world-loader');
-                    if (!(loader instanceof HTMLElement)) return;
-                    if (
-                      loader.classList.contains('loaded') ||
-                      document.documentElement.dataset.loaderReleased === 'true'
-                    ) {
-                      return;
-                    }
-                    document.documentElement.dataset.loaderReleased = 'true';
-                    loader.classList.add('loaded');
-                    loader.dataset.failsafeHidden = 'true';
-                    document.body.classList.remove('site-loading');
-                  };
-                  const armFailsafe = () =>
-                    window.setTimeout(releaseFailsafe, reduced ? 500 : 5_000);
-
-                  if (document.readyState === 'complete') armFailsafe();
-                  else window.addEventListener('load', armFailsafe, { once: true });
-                })();
-              </script>'''
-          base.write_text(text[:block_start] + replacement + text[block_end:])
-
-          director = Path('src/components/effects/AnimeScrollDirector.tsx')
-          text = director.read_text()
-          if 'const isIOSWebKit = () =>' not in text:
-              anchor = 'const GATE_SHARD_COUNT = 10;\n'
-              if anchor not in text:
-                  raise SystemExit('AnimeScrollDirector constant anchor not found')
-              text = text.replace(
-                  anchor,
-                  '''const GATE_SHARD_COUNT = 10;
-
-          const isIOSWebKit = () =>
-            /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-            (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-          ''',
-                  1,
-              )
-          observer_anchor = "      if (!('IntersectionObserver' in window)) {\n"
-          if observer_anchor not in text:
-              raise SystemExit('AnimeScrollDirector observer anchor not found')
-          text = text.replace(
-              observer_anchor,
-              '''      if (isIOSWebKit()) {
-                elements.root.dataset.storyInView = 'true';
-                void initializeMotion(elements, token);
-                return;
-              }
-
-              if (!('IntersectionObserver' in window)) {
-          ''',
-              1,
-          )
-          director.write_text(text)
-
-          runtime = Path('src/components/effects/StoryProductionRuntime.tsx')
-          text = runtime.read_text()
-          if 'const isIOSWebKit = () =>' not in text:
-              anchor = 'const clamp01 = (value: number) => Math.max(0, Math.min(1, value));\n'
-              if anchor not in text:
-                  raise SystemExit('StoryProductionRuntime helper anchor not found')
-              text = text.replace(
-                  anchor,
-                  '''const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
-
-          const isIOSWebKit = () =>
-            /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-            (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-          ''',
-                  1,
-              )
-          timeout_anchor = "          applyStaticStory(elements, 'motion-boot-timeout');\n"
-          if timeout_anchor not in text:
-              raise SystemExit('StoryProductionRuntime timeout anchor not found')
-          text = text.replace(
-              timeout_anchor,
-              '''          if (isIOSWebKit()) {
-                    root.dataset.storyRuntime = 'booting';
-                    root.dataset.storyProgressAuthority = 'booting';
-                    root.dataset.storyRuntimeReason = 'waiting-for-ios-director';
-                    ScrollTrigger?.refresh();
-                    requestRender();
-                    return;
-                  }
-                  applyStaticStory(elements, 'motion-boot-timeout');
-          ''',
-              1,
-          )
-          runtime.write_text(text)
-          PY
-
-          npx prettier --write \
-            src/layouts/BaseLayout.astro \
-            src/components/common/LoaderReleaseGuard.astro \
-            src/components/effects/AnimeScrollDirector.tsx \
-            src/components/effects/StoryProductionRuntime.tsx
-      - name: 修正をコミット
+          set -o pipefail
+          npm run check 2>&1 | tee astro-check.log
+        env:
+          ASTRO_TELEMETRY_DISABLED: '1'
+      - name: Astro Check診断Artifactを保存
+        if: failure() && steps.astro-check.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: astro-check-diagnostics-${{ github.run_attempt }}
+          path: astro-check.log
+          if-no-files-found: ignore
+          retention-days: 14
+      - run: npm run lint
+        id: lint
+      - name: ESLint診断レポートを生成
+        if: failure() && steps.lint.outcome == 'failure'
+        run: npm run lint -- --format json > eslint-report.json || true
+      - name: ESLint診断Artifactを保存
+        if: failure() && steps.lint.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: eslint-diagnostics-${{ github.run_attempt }}
+          path: eslint-report.json
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: 変更ファイルのFormatを確認
         shell: bash
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "4189822+github-actions[bot]@users.noreply.github.com"
-          git add \
-            src/layouts/BaseLayout.astro \
-            src/components/common/LoaderReleaseGuard.astro \
-            src/components/effects/AnimeScrollDirector.tsx \
-            src/components/effects/StoryProductionRuntime.tsx
-          git diff --cached --quiet && exit 0
-          git commit -m "iOSでロードとGSAPスクロール演出を復活"
-          git push origin HEAD:${{ github.head_ref }}
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            base="${{ github.event.pull_request.base.sha }}"
+          else
+            base="${{ github.event.before }}"
+          fi
+          mapfile -d '' files < <(git diff --diff-filter=ACMR --name-only -z "$base" HEAD -- '*.astro' '*.css' '*.js' '*.json' '*.jsonc' '*.md' '*.mjs' '*.ts' '*.tsx' '*.yml' '*.yaml')
+          if (( ${#files[@]} == 0 )); then
+            echo "整形対象の変更ファイルはありません。"
+          else
+            printf 'Format check: %s\n' "${files[@]}"
+            npx prettier --check "${files[@]}"
+          fi
+      - run: npm test
+      - run: npm run build
+        env:
+          ASTRO_TELEMETRY_DISABLED: '1'
+          SITE_URL: https://ivuru.ivrm.jp
+      - name: 静的成果物を確認
+        run: |
+          test -f dist/index.html
+          test -f dist/404.html
+          test -f dist/_headers
+          test -f dist/_redirects
+          test -f dist/sitemap-index.xml -o -f dist/sitemap.xml
+          test -f dist/rss.xml
+          test -f dist/robots.txt
+          test -f dist/en/index.html
+          test -f dist/ko/index.html
+      - name: Performance Budgetを確認
+        run: npm run performance:check
+      - name: Durable ModeのBinding設定を確認
+        run: npm run cloudflare:durable:check
+      - name: NetlifyとCloudflareのAPI経路を確認
+        run: npm run deployment:routing:check
+      - name: Wrangler設定をdry-runで検証
+        run: npx wrangler deploy --dry-run --outdir .wrangler/dry-run
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium webkit
+      - name: Playwright Chromiumを実行
+        run: npm run test:e2e -- --project=chromium
+      - name: Playwright iPhone WebKitを実行
+        run: npx playwright test tests/e2e/story-ios-webkit.spec.ts --project=webkit-iphone
+      - name: E2E診断Artifactを保存
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-diagnostics-${{ github.run_attempt }}
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 14
