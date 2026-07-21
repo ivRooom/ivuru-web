@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 
 type ScrollTriggerLike = {
+  start?: number;
+  end?: number;
   progress?: number;
   vars: { trigger?: Element | string };
   kill?: (revert?: boolean) => void;
@@ -13,20 +15,38 @@ type ScrollTriggerStaticLike = {
   update: () => void;
 };
 
-const RECOVERY_GRACE_MS = 12_000;
-const STORY_CHAPTERS = ['01', '02', '03'] as const;
+type StoryElements = {
+  root: HTMLElement;
+  scenes: HTMLElement[];
+  dots: HTMLElement[];
+  readout: HTMLElement | null;
+  progressLine: HTMLElement | null;
+};
+
+const RECOVERY_GRACE_MS = 30_000;
+const CHAPTERS = ['01', '02', '03'] as const;
 const STORY_CONTENT_SELECTOR =
   '[data-story-copy], [data-story-visual], [data-story-pop], [data-story-depth]';
 
-const isIOSWebKit = () => {
-  const userAgent = navigator.userAgent;
-  return (
-    /iPad|iPhone|iPod/.test(userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-  );
-};
+const isIOSWebKit = () =>
+  /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-const readStoryRoot = () => document.querySelector<HTMLElement>('[data-anime-scroll-story]');
+const readStoryElements = (): StoryElements | null => {
+  const root = document.querySelector<HTMLElement>('[data-anime-scroll-story]');
+  if (!root) return null;
+
+  const scenes = Array.from(root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'));
+  if (scenes.length !== CHAPTERS.length) return null;
+
+  return {
+    root,
+    scenes,
+    dots: Array.from(root.querySelectorAll<HTMLElement>('[data-story-progress-dot]')),
+    readout: root.querySelector<HTMLElement>('[data-story-chapter-readout]'),
+    progressLine: root.querySelector<HTMLElement>('[data-story-progress-line]'),
+  };
+};
 
 export default function IOSStoryStabilityBridge() {
   useEffect(() => {
@@ -37,115 +57,88 @@ export default function IOSStoryStabilityBridge() {
       disposeCurrent();
       generation += 1;
       const token = generation;
+      const elements = readStoryElements();
+      if (!elements) return;
 
-      const root = readStoryRoot();
-      if (!root) return;
-
+      const { root, scenes, dots, readout, progressLine } = elements;
       const compact = matchMedia('(max-width: 767px)').matches;
       const iosWebKit = isIOSWebKit();
       if (!compact && !iosWebKit) return;
 
       let disposed = false;
-      let resizeTimer = 0;
+      let refreshTimer = 0;
       let firstFrame = 0;
       let secondFrame = 0;
-      let recoveryProbe = 0;
-      let observer: MutationObserver | undefined;
+      let probeTimer = 0;
+      let repairFrame = 0;
+      let rootObserver: MutationObserver | undefined;
+      let terminalObserver: MutationObserver | undefined;
       let ScrollTrigger: ScrollTriggerStaticLike | undefined;
       let terminalFallback = false;
-      let refreshedViewportWidth = window.visualViewport?.width ?? window.innerWidth;
-      let refreshedViewportHeight = window.visualViewport?.height ?? window.innerHeight;
+      let lastChapter = '';
+      let repairingStatic = false;
+      let refreshedWidth = window.visualViewport?.width ?? window.innerWidth;
+      let refreshedHeight = window.visualViewport?.height ?? window.innerHeight;
       const recoveryDeadline = performance.now() + RECOVERY_GRACE_MS;
       const isCurrent = () => !disposed && token === generation && root.isConnected;
 
       root.dataset.storyPlatform = iosWebKit ? 'ios-webkit' : 'compact-webkit';
       root.dataset.storyMobileStability = 'booting';
 
-      const syncViewport = () => {
-        const nextHeight = window.visualViewport?.height ?? window.innerHeight;
-        if (!Number.isFinite(nextHeight) || nextHeight <= 0) return;
-        root.style.setProperty('--story-runtime-height', `${Math.round(nextHeight)}px`);
+      const syncViewportHeight = () => {
+        const height = window.visualViewport?.height ?? window.innerHeight;
+        if (Number.isFinite(height) && height > 0) {
+          root.style.setProperty('--story-runtime-height', `${Math.round(height)}px`);
+        }
       };
 
       const findStoryTrigger = () =>
         ScrollTrigger?.getAll().find((candidate) => candidate.vars.trigger === root);
 
-      const stopStoryTrigger = () => {
-        ScrollTrigger?.getAll().forEach((candidate) => {
-          if (candidate.vars.trigger === root) candidate.kill?.(true);
-        });
-      };
-
-      const syncAuthorityFromDirector = () => {
-        if (!isCurrent() || terminalFallback || root.dataset.storyMode !== 'motion') return;
-
-        const code = root.dataset.storyChapter;
-        if (!code || !STORY_CHAPTERS.includes(code as (typeof STORY_CHAPTERS)[number])) return;
-
-        const index = STORY_CHAPTERS.indexOf(code as (typeof STORY_CHAPTERS)[number]);
-        const authorityChanged = root.dataset.storyAuthorityChapter !== code;
-        root.dataset.storyAuthorityChapter = code;
-
-        const triggerProgress = findStoryTrigger()?.progress;
-        if (Number.isFinite(triggerProgress)) {
-          const progress = Math.max(0, Math.min(1, Number(triggerProgress)));
-          root.dataset.storyAuthorityProgress = progress.toFixed(4);
-          root.style.setProperty('--story-authority-progress', progress.toFixed(4));
-          const progressLine = root.querySelector<HTMLElement>('[data-story-progress-line]');
-          if (progressLine) progressLine.style.transform = `scaleX(${progress})`;
-        }
-
-        const scenes = Array.from(root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'));
-        scenes.forEach((scene, sceneIndex) => {
-          const active = sceneIndex === index;
+      const setSceneState = (activeIndex: number) => {
+        scenes.forEach((scene, index) => {
+          const active = index === activeIndex;
           scene.dataset.active = active ? 'true' : 'false';
           scene.setAttribute('aria-hidden', active ? 'false' : 'true');
           scene.toggleAttribute('inert', !active);
         });
-        root.querySelectorAll<HTMLElement>('[data-story-progress-dot]').forEach((dot, dotIndex) => {
-          dot.dataset.active = dotIndex === index ? 'true' : 'false';
-        });
-
-        const readout = root.querySelector<HTMLElement>('[data-story-chapter-readout]');
-        if (readout) readout.textContent = `${code} / 03`;
-        document.body.dataset.animeScene = scenes[index]?.dataset.storyScene ?? 'ice';
-
-        if (authorityChanged) {
-          window.dispatchEvent(
-            new CustomEvent('ivuru:story-chapter-change', {
-              detail: { chapter: code, index, source: 'ios-stability-bridge' },
-            }),
-          );
-        }
       };
 
-      const applyTerminalFallback = (reason: string) => {
-        terminalFallback = true;
-        window.clearInterval(recoveryProbe);
-        recoveryProbe = 0;
-        stopStoryTrigger();
+      const repairStaticScenes = () => {
+        if (!terminalFallback || repairingStatic || !isCurrent()) return;
+        repairingStatic = true;
+        scenes.forEach((scene) => {
+          if (scene.dataset.active !== 'true') scene.dataset.active = 'true';
+          if (scene.hasAttribute('aria-hidden')) scene.removeAttribute('aria-hidden');
+          if (scene.hasAttribute('inert')) scene.removeAttribute('inert');
+          if (scene.hasAttribute('style')) scene.removeAttribute('style');
+          scene.querySelectorAll<HTMLElement>(STORY_CONTENT_SELECTOR).forEach((node) => {
+            if (node.hasAttribute('style')) node.removeAttribute('style');
+          });
+        });
+        repairingStatic = false;
+      };
 
-        const scenes = Array.from(root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'));
-        const descendantsAreStatic =
-          scenes.length === STORY_CHAPTERS.length &&
-          scenes.every(
-            (scene) =>
-              scene.dataset.active === 'true' &&
-              !scene.hasAttribute('aria-hidden') &&
-              !scene.hasAttribute('inert') &&
-              !scene.hasAttribute('style') &&
-              Array.from(scene.querySelectorAll<HTMLElement>(STORY_CONTENT_SELECTOR)).every(
-                (element) => !element.hasAttribute('style'),
-              ),
-          );
-        const staticStateIsCurrent =
-          root.dataset.storyMobileTerminalFallback === 'true' &&
-          root.dataset.storyMobileStability === 'fallback' &&
-          root.dataset.storyRuntime === 'fallback' &&
-          root.dataset.storyRuntimeReason === reason &&
-          root.dataset.storyMode === 'static' &&
-          descendantsAreStatic;
-        if (staticStateIsCurrent) return;
+      const installTerminalRepair = () => {
+        if (!('MutationObserver' in window) || terminalObserver) return;
+        terminalObserver = new MutationObserver(() => {
+          cancelAnimationFrame(repairFrame);
+          repairFrame = requestAnimationFrame(repairStaticScenes);
+        });
+        terminalObserver.observe(root, {
+          subtree: true,
+          attributes: true,
+          attributeFilter: ['aria-hidden', 'inert', 'style', 'data-active'],
+        });
+      };
+
+      const applyStaticFallback = (reason: string) => {
+        terminalFallback = true;
+        window.clearInterval(probeTimer);
+        probeTimer = 0;
+        ScrollTrigger?.getAll().forEach((trigger) => {
+          if (trigger.vars.trigger === root) trigger.kill?.(true);
+        });
 
         root.dataset.storyMobileTerminalFallback = 'true';
         root.dataset.storyMobileStability = 'fallback';
@@ -162,41 +155,19 @@ export default function IOSStoryStabilityBridge() {
         root.style.setProperty('--story-authority-progress', '1');
         root.style.setProperty('--story-runtime-height', 'auto');
 
-        scenes.forEach((scene) => {
-          scene.dataset.active = 'true';
-          scene.removeAttribute('aria-hidden');
-          scene.removeAttribute('inert');
-          scene.removeAttribute('style');
-          scene
-            .querySelectorAll<HTMLElement>(STORY_CONTENT_SELECTOR)
-            .forEach((element) => element.removeAttribute('style'));
-        });
-
-        root.querySelectorAll<HTMLElement>('[data-story-progress-dot]').forEach((dot, index) => {
+        repairStaticScenes();
+        dots.forEach((dot, index) => {
           dot.dataset.active = index === 0 ? 'true' : 'false';
         });
-        const readout = root.querySelector<HTMLElement>('[data-story-chapter-readout]');
-        const progressLine = root.querySelector<HTMLElement>('[data-story-progress-line]');
         if (readout) readout.textContent = '01–03 / STATIC STORY';
         if (progressLine) progressLine.style.transform = 'scaleX(1)';
-      };
-
-      const scheduleTerminalRepair = (reason: string) => {
-        applyTerminalFallback(reason);
-        cancelAnimationFrame(firstFrame);
-        firstFrame = requestAnimationFrame(() => {
-          if (isCurrent() && terminalFallback) applyTerminalFallback(reason);
-        });
+        installTerminalRepair();
       };
 
       const recoverPrematureFallback = () => {
-        if (terminalFallback) {
-          applyTerminalFallback(root.dataset.storyRuntimeReason ?? 'mobile-director-timeout');
-          return;
-        }
         if (root.dataset.storyRuntimeReason !== 'motion-boot-timeout') return;
         if (performance.now() >= recoveryDeadline) {
-          applyTerminalFallback('mobile-director-timeout');
+          applyStaticFallback('mobile-director-timeout');
           return;
         }
         if (root.dataset.storyDirector === 'static') return;
@@ -208,47 +179,71 @@ export default function IOSStoryStabilityBridge() {
         root.dataset.storyMask = 'active';
         root.dataset.storyPerformance = iosWebKit ? 'ios-stable' : 'mobile-stable';
         root.dataset.storyMobileRecovery = 'waiting-for-director';
-
-        const scenes = Array.from(root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'));
-        scenes.forEach((scene, index) => {
-          const active = index === 0;
-          scene.dataset.active = active ? 'true' : 'false';
-          scene.setAttribute('aria-hidden', active ? 'false' : 'true');
-          scene.toggleAttribute('inert', !active);
-        });
-        syncViewport();
+        setSceneState(0);
+        syncViewportHeight();
       };
 
-      const updateReadyState = () => {
-        if (!isCurrent()) return;
-        if (terminalFallback) {
-          applyTerminalFallback(root.dataset.storyRuntimeReason ?? 'mobile-director-timeout');
-          return;
-        }
+      const syncMotionState = (trigger: ScrollTriggerLike) => {
+        if (terminalFallback || !isCurrent()) return;
 
+        const chapter = root.dataset.storyChapter;
+        const index = chapter ? CHAPTERS.indexOf(chapter as (typeof CHAPTERS)[number]) : -1;
+        const activeIndex = index >= 0 ? index : 0;
+        const code = CHAPTERS[activeIndex];
+        const progress = Math.max(0, Math.min(1, Number(trigger.progress ?? 0)));
+
+        root.dataset.storyRuntime = 'ready';
+        root.dataset.storyProgressAuthority = 'ready';
+        root.dataset.storyMobileStability = 'ready';
+        root.dataset.storyMode = 'motion';
+        root.dataset.storyMask = 'active';
+        root.dataset.storyChapter = code;
+        root.dataset.storyAuthorityChapter = code;
+        root.dataset.storyAuthorityProgress = progress.toFixed(4);
+        root.style.setProperty('--story-authority-progress', progress.toFixed(4));
+        delete root.dataset.storyRuntimeReason;
+        delete root.dataset.storyMobileRecovery;
+        delete root.dataset.storyMobileTerminalFallback;
+
+        setSceneState(activeIndex);
+        dots.forEach((dot, dotIndex) => {
+          dot.dataset.active = dotIndex === activeIndex ? 'true' : 'false';
+        });
+        if (readout) readout.textContent = `${code} / 03`;
+        if (progressLine) progressLine.style.transform = `scaleX(${progress})`;
+        document.body.dataset.animeScene = scenes[activeIndex]?.dataset.storyScene ?? 'ice';
+
+        if (lastChapter !== code) {
+          lastChapter = code;
+          window.dispatchEvent(
+            new CustomEvent('ivuru:story-chapter-change', {
+              detail: { chapter: code, index: activeIndex, source: 'ios-stability-bridge' },
+            }),
+          );
+        }
+      };
+
+      const evaluate = () => {
+        if (!isCurrent() || terminalFallback) return;
         recoverPrematureFallback();
-        if (
-          root.dataset.storyDirector === 'ready' &&
-          root.dataset.storyRuntime === 'ready' &&
-          root.dataset.storyMode === 'motion'
-        ) {
-          root.dataset.storyMobileStability = 'ready';
-          delete root.dataset.storyMobileRecovery;
-          delete root.dataset.storyMobileTerminalFallback;
-          window.clearInterval(recoveryProbe);
-          recoveryProbe = 0;
-          syncAuthorityFromDirector();
+        if (terminalFallback) return;
+
+        const trigger = findStoryTrigger();
+        if (root.dataset.storyDirector === 'ready' && trigger) {
+          syncMotionState(trigger);
+          window.clearInterval(probeTimer);
+          probeTimer = 0;
           return;
         }
 
         if (performance.now() >= recoveryDeadline) {
-          applyTerminalFallback('mobile-director-timeout');
+          applyStaticFallback('mobile-director-timeout');
         }
       };
 
-      const refreshAfterLayoutSettles = () => {
+      const refreshAfterLayout = () => {
         if (!isCurrent() || terminalFallback) return;
-        syncViewport();
+        syncViewportHeight();
         ScrollTrigger?.update();
         cancelAnimationFrame(firstFrame);
         cancelAnimationFrame(secondFrame);
@@ -257,38 +252,37 @@ export default function IOSStoryStabilityBridge() {
             if (!isCurrent() || terminalFallback) return;
             ScrollTrigger?.refresh();
             ScrollTrigger?.update();
-            refreshedViewportWidth = window.visualViewport?.width ?? window.innerWidth;
-            refreshedViewportHeight = window.visualViewport?.height ?? window.innerHeight;
-            syncAuthorityFromDirector();
-            updateReadyState();
+            refreshedWidth = window.visualViewport?.width ?? window.innerWidth;
+            refreshedHeight = window.visualViewport?.height ?? window.innerHeight;
+            evaluate();
           });
         });
       };
 
       const scheduleRefresh = (delay = 180) => {
-        window.clearTimeout(resizeTimer);
-        resizeTimer = window.setTimeout(refreshAfterLayoutSettles, delay);
+        window.clearTimeout(refreshTimer);
+        refreshTimer = window.setTimeout(refreshAfterLayout, delay);
       };
 
       const onScroll = () => {
         if (terminalFallback) {
-          scheduleTerminalRepair(root.dataset.storyRuntimeReason ?? 'mobile-director-timeout');
+          repairStaticScenes();
           return;
         }
         ScrollTrigger?.update();
-        syncAuthorityFromDirector();
-        updateReadyState();
+        const trigger = findStoryTrigger();
+        if (trigger && root.dataset.storyDirector === 'ready') syncMotionState(trigger);
+        else evaluate();
       };
 
       const onViewportChange = () => {
-        const nextWidth = window.visualViewport?.width ?? window.innerWidth;
-        const nextHeight = window.visualViewport?.height ?? window.innerHeight;
-        const widthChanged = Math.abs(nextWidth - refreshedViewportWidth) >= 1;
-        const heightChanged = Math.abs(nextHeight - refreshedViewportHeight) >= 24;
-        syncViewport();
+        const width = window.visualViewport?.width ?? window.innerWidth;
+        const height = window.visualViewport?.height ?? window.innerHeight;
+        syncViewportHeight();
         ScrollTrigger?.update();
-        syncAuthorityFromDirector();
-        if (widthChanged || heightChanged) scheduleRefresh(260);
+        if (Math.abs(width - refreshedWidth) >= 1 || Math.abs(height - refreshedHeight) >= 24) {
+          scheduleRefresh(260);
+        }
       };
 
       const onTouchEnd = () => scheduleRefresh(90);
@@ -297,14 +291,10 @@ export default function IOSStoryStabilityBridge() {
       const onVisibilityChange = () => {
         if (!document.hidden) scheduleRefresh(120);
       };
-      const onStoryMutation = () => {
-        updateReadyState();
-        syncAuthorityFromDirector();
-      };
 
       if ('MutationObserver' in window) {
-        observer = new MutationObserver(onStoryMutation);
-        observer.observe(root, {
+        rootObserver = new MutationObserver(evaluate);
+        rootObserver.observe(root, {
           attributes: true,
           attributeFilter: [
             'data-story-runtime-reason',
@@ -316,7 +306,6 @@ export default function IOSStoryStabilityBridge() {
         });
       }
 
-      recoveryProbe = window.setInterval(updateReadyState, 250);
       window.addEventListener('scroll', onScroll, { passive: true });
       window.addEventListener('touchend', onTouchEnd, { passive: true });
       window.addEventListener('resize', onViewportChange, { passive: true });
@@ -328,11 +317,13 @@ export default function IOSStoryStabilityBridge() {
 
       disposeCurrent = () => {
         disposed = true;
-        observer?.disconnect();
-        window.clearTimeout(resizeTimer);
-        window.clearInterval(recoveryProbe);
+        rootObserver?.disconnect();
+        terminalObserver?.disconnect();
+        window.clearTimeout(refreshTimer);
+        window.clearInterval(probeTimer);
         cancelAnimationFrame(firstFrame);
         cancelAnimationFrame(secondFrame);
+        cancelAnimationFrame(repairFrame);
         window.removeEventListener('scroll', onScroll);
         window.removeEventListener('touchend', onTouchEnd);
         window.removeEventListener('resize', onViewportChange);
@@ -347,20 +338,24 @@ export default function IOSStoryStabilityBridge() {
         delete root.dataset.storyMobileTerminalFallback;
       };
 
-      syncViewport();
-      updateReadyState();
+      syncViewportHeight();
+      probeTimer = window.setInterval(evaluate, 250);
+      evaluate();
 
       try {
-        const triggerModule = await import('gsap/ScrollTrigger');
+        const [gsapModule, triggerModule] = await Promise.all([
+          import('gsap'),
+          import('gsap/ScrollTrigger'),
+        ]);
         if (!isCurrent()) return;
         ScrollTrigger = triggerModule.ScrollTrigger as unknown as ScrollTriggerStaticLike;
+        gsapModule.gsap.registerPlugin(triggerModule.ScrollTrigger);
         ScrollTrigger.config?.({ ignoreMobileResize: true });
-        root.dataset.storyMobileStability = terminalFallback ? 'fallback' : 'syncing';
-        if (terminalFallback) applyTerminalFallback('mobile-director-timeout');
-        else scheduleRefresh(0);
+        root.dataset.storyMobileStability = 'syncing';
+        scheduleRefresh(0);
       } catch (error) {
-        console.error('[IOSStoryStabilityBridge] ScrollTriggerの読込に失敗しました。', error);
-        if (isCurrent()) applyTerminalFallback('mobile-scrolltrigger-import-failed');
+        console.error('[IOSStoryStabilityBridge] GSAPの読込に失敗しました。', error);
+        if (isCurrent()) applyStaticFallback('mobile-gsap-import-failed');
       }
     };
 
