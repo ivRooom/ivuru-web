@@ -2,7 +2,7 @@
   (() => {
     const cleanupKey = '__ivuruIOSStoryDirectorRecoveryDispose';
     const recoveryDelay = 0;
-    const recoveryHeartbeatMs = 50;
+    const recoveryHeartbeatMs = 120;
     const chapters = ['01', '02', '03'];
     const contentSelector =
       '[data-story-copy], [data-story-visual], [data-story-pop], [data-story-depth]';
@@ -39,6 +39,8 @@
 
       root.dataset.storyNativeRecovery = 'true';
       root.dataset.storyPlatform = 'ios-webkit';
+      document.documentElement.dataset.storyNativeScrollOwner = 'true';
+      document.body.dataset.storyNativeScrollOwner = 'true';
 
       const realDirectorIsReady = () =>
         root.dataset.storyNativeRecovery !== 'true' &&
@@ -78,6 +80,8 @@
 
       const releaseRecoveryStyles = () => {
         delete root.dataset.storyNativeRecovery;
+        delete document.documentElement.dataset.storyNativeScrollOwner;
+        delete document.body.dataset.storyNativeScrollOwner;
         root.style.removeProperty('overflow-x');
         root.style.removeProperty('min-height');
         root.style.removeProperty('--story-native-runtime-height');
@@ -216,10 +220,7 @@
         if (!recoveryActive || realDirectorIsReady()) return;
         const progress = currentProgress();
         updateRange();
-        window.scrollTo({
-          top: start + (end - start) * progress,
-          behavior: 'instant',
-        });
+        window.scrollTo(0, start + (end - start) * progress);
         repairRootState();
         scheduleSync();
       };
@@ -227,26 +228,12 @@
         if (!document.hidden) onViewportChange();
       };
 
-      observer = new MutationObserver((records) => {
+      observer = new MutationObserver(() => {
         if (!recoveryActive) return;
-        if (
-          records.some(
-            (record) =>
-              record.target === root &&
-              [
-                'data-story-director',
-                'data-story-runtime',
-                'data-story-mobile-stability',
-                'data-story-mode',
-              ].includes(record.attributeName ?? ''),
-          )
-        ) {
-          repairRootState();
-        }
+        repairRootState();
         scheduleSync();
       });
       observer.observe(root, {
-        subtree: true,
         attributes: true,
         attributeFilter: [
           'data-story-runtime',
@@ -256,10 +243,6 @@
           'data-story-chapter',
           'data-story-transition-engine',
           'data-story-mobile-stability',
-          'data-active',
-          'aria-hidden',
-          'inert',
-          'style',
         ],
       });
 
