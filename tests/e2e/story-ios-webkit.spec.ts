@@ -64,7 +64,28 @@ test.describe('iOS WebKit story stability', () => {
     await prepare(page);
   });
 
-  test('Heroで待機後もfallbackへ落ちず01→02→03→02→01を維持する', async ({ page }) => {
+  test('ロードアニメーションが進行してからページを解放する', async ({ page }) => {
+    await page.addInitScript(() => sessionStorage.removeItem('ivuru-intro-seen'));
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await page.goto('/');
+
+    const loader = page.locator('[data-spatial-loader]');
+    const progress = loader.locator('[role="progressbar"]');
+    await expect(loader).toBeVisible();
+    await expect(loader).toHaveAttribute('data-loader-evolution', 'reality-reactor');
+
+    const initialProgress = Number((await progress.getAttribute('aria-valuenow')) ?? 0);
+    await expect
+      .poll(async () => Number((await progress.getAttribute('aria-valuenow')) ?? 0), {
+        timeout: 2_000,
+      })
+      .toBeGreaterThan(initialProgress);
+
+    await expect(page.locator('body')).not.toHaveClass(/site-loading/, { timeout: 5_000 });
+    await expect(loader).toHaveAttribute('aria-hidden', 'true', { timeout: 5_000 });
+  });
+
+  test('Heroで待機後も実GSAP演出で01→02→03→02→01を維持する', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await page.goto('/');
 
@@ -82,6 +103,10 @@ test.describe('iOS WebKit story stability', () => {
     await expect(story).toHaveAttribute('data-story-mobile-stability', 'ready', {
       timeout: 15_000,
     });
+    await expect(story).toHaveAttribute('data-story-transition-engine', 'world-forge');
+    await expect(story).toHaveAttribute('data-story-snap-state', 'ready');
+    await expect(story).not.toHaveAttribute('data-story-native-recovery', 'true');
+    await expect(story.locator('[data-chapter-gate]')).toHaveCount(1);
 
     await scrollToProgress(page, 0.05);
     await expectChapter(page, '01');
@@ -105,6 +130,7 @@ test.describe('iOS WebKit story stability', () => {
     const story = page.locator('[data-anime-scroll-story]');
     await revealStory(page);
     await expect(story).toHaveAttribute('data-story-runtime', 'ready', { timeout: 15_000 });
+    await expect(story).toHaveAttribute('data-story-transition-engine', 'world-forge');
 
     await scrollToProgress(page, 0.42);
     await expectChapter(page, '02');
@@ -124,6 +150,7 @@ test.describe('iOS WebKit story stability', () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.waitForTimeout(900);
     await expect(story).toHaveAttribute('data-story-runtime', 'ready', { timeout: 12_000 });
+    await expect(story).not.toHaveAttribute('data-story-native-recovery', 'true');
 
     expect(
       await page.evaluate(
