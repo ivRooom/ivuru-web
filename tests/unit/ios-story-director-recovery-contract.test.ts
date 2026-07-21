@@ -5,15 +5,36 @@ const readSource = (relativePath: string) =>
   readFileSync(new URL(`../../${relativePath}`, import.meta.url), 'utf8');
 
 describe('iOS story animation priority contract', () => {
-  it('Homeはローダーを先に表示し、演出群を単一Runtimeから起動する', () => {
+  it('Homeはローダーを先に表示し、完了Bridge後に単一Runtimeから演出を起動する', () => {
     const source = readSource('src/components/pages/HomePageV2.astro');
 
     expect(source).toContain('<IOSStoryRuntimeIsolation />');
     expect(source).toContain('<QuantumLoaderEvolution />');
+    expect(source).toContain('<LoaderCompletionBridge />');
     expect(source).toContain('<StoryEffectsRuntime client:load />');
     expect(source).toContain('<IOSStoryDirectorRecovery />');
+    expect(source.indexOf('<QuantumLoaderEvolution />')).toBeLessThan(
+      source.indexOf('<LoaderCompletionBridge />'),
+    );
+    expect(source.indexOf('<LoaderCompletionBridge />')).toBeLessThan(
+      source.indexOf('<StoryEffectsRuntime client:load />'),
+    );
     expect(source).not.toContain('<AnimeScrollDirector client:load />');
     expect(source).not.toContain('<StoryProductionRuntime client:load />');
+  });
+
+  it('LoaderCompletionBridgeは途中進捗を記録し100%到達時に即時解放する', () => {
+    const source = readSource('src/components/common/LoaderCompletionBridge.astro');
+
+    expect(source).toContain("loader.dataset.loaderAnimationRan = 'true'");
+    expect(source).toContain('value >= 100');
+    expect(source).toContain("loader.dataset.completionBridged = 'true'");
+    expect(source).toContain("loader.setAttribute('aria-hidden', 'true')");
+    expect(source).toContain("document.body?.classList.remove('site-loading')");
+    expect(source).toContain("new CustomEvent('ivuru:loader-released'");
+    expect(source.indexOf("loader.setAttribute('aria-hidden', 'true')")).toBeLessThan(
+      source.indexOf('hideTimer = window.setTimeout'),
+    );
   });
 
   it('StoryEffectsRuntimeはローダー解放後に実GSAP演出群をまとめて起動する', () => {
