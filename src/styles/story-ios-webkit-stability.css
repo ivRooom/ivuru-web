@@ -1,4 +1,11 @@
 @supports (-webkit-touch-callout: none) {
+  html[data-story-native-scroll-owner='true'],
+  body[data-story-native-scroll-owner='true'] {
+    height: auto !important;
+    overflow-y: auto !important;
+    overscroll-behavior-y: auto !important;
+  }
+
   .anime-scroll-story[data-story-platform='ios-webkit'] {
     overflow-x: hidden;
     overscroll-behavior-y: auto;
@@ -10,6 +17,7 @@
     min-height: var(--story-native-runtime-height, 670svh) !important;
     overflow: visible !important;
     overflow-x: clip !important;
+    contain: none !important;
   }
 
   .anime-scroll-story[data-story-platform='ios-webkit'][data-story-native-recovery='true']
