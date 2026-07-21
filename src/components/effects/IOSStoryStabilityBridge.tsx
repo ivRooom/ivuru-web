@@ -15,6 +15,8 @@ type ScrollTriggerStaticLike = {
 
 const RECOVERY_GRACE_MS = 12_000;
 const STORY_CHAPTERS = ['01', '02', '03'] as const;
+const STORY_CONTENT_SELECTOR =
+  '[data-story-copy], [data-story-visual], [data-story-pop], [data-story-depth]';
 
 const isIOSWebKit = () => {
   const userAgent = navigator.userAgent;
@@ -93,7 +95,9 @@ export default function IOSStoryStabilityBridge() {
           if (progressLine) progressLine.style.transform = `scaleX(${progress})`;
         }
 
-        const scenes = Array.from(root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'));
+        const scenes = Array.from(
+          root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'),
+        );
         scenes.forEach((scene, sceneIndex) => {
           const active = sceneIndex === index;
           scene.dataset.active = active ? 'true' : 'false';
@@ -123,12 +127,28 @@ export default function IOSStoryStabilityBridge() {
         recoveryProbe = 0;
         stopStoryTrigger();
 
+        const scenes = Array.from(
+          root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'),
+        );
+        const descendantsAreStatic =
+          scenes.length === STORY_CHAPTERS.length &&
+          scenes.every(
+            (scene) =>
+              scene.dataset.active === 'true' &&
+              !scene.hasAttribute('aria-hidden') &&
+              !scene.hasAttribute('inert') &&
+              !scene.hasAttribute('style') &&
+              Array.from(scene.querySelectorAll<HTMLElement>(STORY_CONTENT_SELECTOR)).every(
+                (element) => !element.hasAttribute('style'),
+              ),
+          );
         const staticStateIsCurrent =
           root.dataset.storyMobileTerminalFallback === 'true' &&
           root.dataset.storyMobileStability === 'fallback' &&
           root.dataset.storyRuntime === 'fallback' &&
           root.dataset.storyRuntimeReason === reason &&
-          root.dataset.storyMode === 'static';
+          root.dataset.storyMode === 'static' &&
+          descendantsAreStatic;
         if (staticStateIsCurrent) return;
 
         root.dataset.storyMobileTerminalFallback = 'true';
@@ -146,16 +166,13 @@ export default function IOSStoryStabilityBridge() {
         root.style.setProperty('--story-authority-progress', '1');
         root.style.setProperty('--story-runtime-height', 'auto');
 
-        const scenes = Array.from(root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'));
         scenes.forEach((scene) => {
           scene.dataset.active = 'true';
           scene.removeAttribute('aria-hidden');
           scene.removeAttribute('inert');
           scene.removeAttribute('style');
           scene
-            .querySelectorAll<HTMLElement>(
-              '[data-story-copy], [data-story-visual], [data-story-pop], [data-story-depth]',
-            )
+            .querySelectorAll<HTMLElement>(STORY_CONTENT_SELECTOR)
             .forEach((element) => element.removeAttribute('style'));
         });
 
@@ -166,6 +183,14 @@ export default function IOSStoryStabilityBridge() {
         const progressLine = root.querySelector<HTMLElement>('[data-story-progress-line]');
         if (readout) readout.textContent = '01–03 / STATIC STORY';
         if (progressLine) progressLine.style.transform = 'scaleX(1)';
+      };
+
+      const scheduleTerminalRepair = (reason: string) => {
+        applyTerminalFallback(reason);
+        cancelAnimationFrame(firstFrame);
+        firstFrame = requestAnimationFrame(() => {
+          if (isCurrent() && terminalFallback) applyTerminalFallback(reason);
+        });
       };
 
       const recoverPrematureFallback = () => {
@@ -188,7 +213,9 @@ export default function IOSStoryStabilityBridge() {
         root.dataset.storyPerformance = iosWebKit ? 'ios-stable' : 'mobile-stable';
         root.dataset.storyMobileRecovery = 'waiting-for-director';
 
-        const scenes = Array.from(root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'));
+        const scenes = Array.from(
+          root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'),
+        );
         scenes.forEach((scene, index) => {
           const active = index === 0;
           scene.dataset.active = active ? 'true' : 'false';
@@ -251,7 +278,7 @@ export default function IOSStoryStabilityBridge() {
 
       const onScroll = () => {
         if (terminalFallback) {
-          applyTerminalFallback(root.dataset.storyRuntimeReason ?? 'mobile-director-timeout');
+          scheduleTerminalRepair(root.dataset.storyRuntimeReason ?? 'mobile-director-timeout');
           return;
         }
         ScrollTrigger?.update();
