@@ -24,12 +24,18 @@
         if (document.body?.classList.contains('site-loading')) return;
 
         const scrollingElement = document.scrollingElement ?? document.documentElement;
+        const secondaryElement = scrollingElement === html ? body : html;
+
+        html.style.removeProperty('overflow-y');
+        body?.style.removeProperty('overflow-y');
         html.style.setProperty('scroll-behavior', 'auto', 'important');
-        html.style.setProperty('overflow-y', 'auto', 'important');
         body?.style.setProperty('scroll-behavior', 'auto', 'important');
-        body?.style.setProperty('overflow-y', 'auto', 'important');
-        scrollingElement.style.setProperty('scroll-behavior', 'auto', 'important');
+
         scrollingElement.style.setProperty('overflow-y', 'auto', 'important');
+        scrollingElement.style.setProperty('scroll-behavior', 'auto', 'important');
+        secondaryElement?.style.setProperty('overflow-y', 'visible', 'important');
+
+        html.dataset.storyScrollOwner = scrollingElement === html ? 'document-element' : 'body';
       });
     };
 
@@ -45,6 +51,7 @@
       document.removeEventListener('ivuru:loader-released', onLoaderReleased);
       document.removeEventListener('astro:page-load', restoreNativeScroll);
       window.removeEventListener('pageshow', restoreNativeScroll);
+      delete html.dataset.storyScrollOwner;
       delete window[cleanupKey];
     };
   })();
