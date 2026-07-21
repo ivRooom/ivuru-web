@@ -5,18 +5,28 @@
     const install = () => {
       window[cleanupKey]?.();
 
-      const loader = document.querySelector('[data-spatial-loader]');
-      if (!(loader instanceof HTMLElement)) return;
-
-      const progress = loader.querySelector('[role="progressbar"]');
+      let loader = null;
+      let progress = null;
       let disposed = false;
       let hideTimer = 0;
+      let probeTimer = 0;
       let observer;
+      let mountObserver;
 
       const readProgress = () => Number(progress?.getAttribute('aria-valuenow') ?? 0);
 
       const finalize = (reason) => {
-        if (disposed || loader.dataset.completionBridged === 'true') return;
+        if (
+          disposed ||
+          !(loader instanceof HTMLElement) ||
+          loader.dataset.completionBridged === 'true'
+        ) {
+          return;
+        }
+
+        const value = readProgress();
+        if (value > 0 && value < 100) loader.dataset.loaderAnimationRan = 'true';
+
         loader.dataset.completionBridged = 'true';
         loader.dataset.completionReason = reason;
         loader.dataset.state = 'ready';
@@ -33,36 +43,79 @@
         );
 
         hideTimer = window.setTimeout(() => {
+          if (!(loader instanceof HTMLElement)) return;
           loader.hidden = true;
           loader.style.display = 'none';
         }, 720);
       };
 
       const sync = () => {
+        if (!(loader instanceof HTMLElement)) return;
+
         const value = readProgress();
         if (value > 0 && value < 100) loader.dataset.loaderAnimationRan = 'true';
 
-        if (
-          value >= 100 ||
+        const released =
+          document.documentElement.dataset.loaderReleased === 'true' ||
           loader.dataset.state === 'ready' ||
-          loader.classList.contains('loaded')
-        ) {
+          loader.dataset.guardReleased === 'true' ||
+          loader.classList.contains('loaded');
+
+        if (value >= 100 || released) {
           finalize(loader.dataset.releaseReason ?? 'loader-progress-complete');
         }
       };
 
-      observer = new MutationObserver(sync);
-      observer.observe(loader, {
-        attributes: true,
-        subtree: true,
-        attributeFilter: ['aria-valuenow', 'class', 'data-state', 'data-loader-phase'],
-      });
-      sync();
+      const bindLoader = () => {
+        const candidate = document.querySelector('[data-spatial-loader]');
+        if (!(candidate instanceof HTMLElement)) return false;
+
+        loader = candidate;
+        progress = loader.querySelector('[role="progressbar"]');
+        observer?.disconnect();
+        observer = new MutationObserver(sync);
+        observer.observe(loader, {
+          attributes: true,
+          subtree: true,
+          attributeFilter: [
+            'aria-valuenow',
+            'aria-hidden',
+            'class',
+            'data-state',
+            'data-loader-phase',
+            'data-guard-released',
+          ],
+        });
+
+        window.clearInterval(probeTimer);
+        probeTimer = window.setInterval(sync, 250);
+        sync();
+        return true;
+      };
+
+      const onReleased = (event) => {
+        const reason = event?.detail?.reason ?? 'loader-release-event';
+        finalize(reason);
+      };
+
+      if (!bindLoader()) {
+        mountObserver = new MutationObserver(() => {
+          if (!bindLoader()) return;
+          mountObserver?.disconnect();
+          mountObserver = undefined;
+        });
+        mountObserver.observe(document.documentElement, { childList: true, subtree: true });
+      }
+
+      document.addEventListener('ivuru:loader-released', onReleased);
 
       window[cleanupKey] = () => {
         disposed = true;
         observer?.disconnect();
+        mountObserver?.disconnect();
+        window.clearInterval(probeTimer);
         window.clearTimeout(hideTimer);
+        document.removeEventListener('ivuru:loader-released', onReleased);
         delete window[cleanupKey];
       };
     };
