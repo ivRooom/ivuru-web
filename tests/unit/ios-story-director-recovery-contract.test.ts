@@ -23,7 +23,7 @@ describe('iOS story director recovery contract', () => {
 
     expect(source).toContain('<script is:inline>');
     expect(source).toContain('const recoveryDelay = 0');
-    expect(source).toContain('const recoveryHeartbeatMs = 120');
+    expect(source).toContain('const recoveryHeartbeatMs = 50');
     expect(source).toContain("root.dataset.storyNativeRecovery = 'true'");
     expect(source).toContain("setData('storyDirector', 'ready')");
     expect(source).toContain("setData('storyRuntime', 'ready')");
@@ -32,10 +32,13 @@ describe('iOS story director recovery contract', () => {
     expect(source).toContain("setData('storyScrollStart'");
     expect(source).toContain("setData('storyScrollEnd'");
     expect(source).toContain("scene.setAttribute('aria-hidden', ariaHidden)");
-    expect(source).toContain("scene.toggleAttribute('inert', !active)");
+    expect(source).toContain("scene.removeAttribute('inert')");
+    expect(source).toContain("scene.setAttribute('inert', '')");
     expect(source).toContain("source: 'ios-inline-recovery'");
     expect(source).toContain("window.addEventListener('orientationchange'");
     expect(source).toContain('new MutationObserver');
-    expect(source).toContain('window.setInterval(sync, recoveryHeartbeatMs)');
+    expect(source).toContain('subtree: true');
+    expect(source).toContain('if (frame) return');
+    expect(source).toContain('window.setInterval(scheduleSync, recoveryHeartbeatMs)');
   });
 });
