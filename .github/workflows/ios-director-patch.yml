@@ -1,0 +1,95 @@
+name: iOS Story Director Patch
+
+on:
+  push:
+    branches:
+      - fix/ios-webkit-story-scroll
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/ios-webkit-story-scroll
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: iOS Directorの先行起動と回復猶予を修正
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          director = Path('src/components/effects/AnimeScrollDirector.tsx')
+          text = director.read_text()
+          old = """      if (!('IntersectionObserver' in window)) {
+            void initializeMotion(elements, token);
+            return;
+          }
+"""
+          new = """      const iosWebKit =
+            /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+            (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+          if (compactViewport.matches || iosWebKit || !('IntersectionObserver' in window)) {
+            elements.root.dataset.storyInView = 'true';
+            void initializeMotion(elements, token);
+            return;
+          }
+"""
+          if old not in text:
+              raise SystemExit('AnimeScrollDirector patch target not found')
+          director.write_text(text.replace(old, new, 1))
+
+          bridge = Path('src/components/effects/IOSStoryStabilityBridge.tsx')
+          text = bridge.read_text()
+          old = 'const RECOVERY_GRACE_MS = 12_000;'
+          new = 'const RECOVERY_GRACE_MS = 30_000;'
+          if old not in text:
+              raise SystemExit('Bridge recovery constant not found')
+          bridge.write_text(text.replace(old, new, 1))
+
+          contract = Path('tests/unit/ios-story-stability-contract.test.ts')
+          text = contract.read_text()
+          old = "expect(source).toContain('const RECOVERY_GRACE_MS = 12_000');"
+          new = "expect(source).toContain('const RECOVERY_GRACE_MS = 30_000');"
+          if old not in text:
+              raise SystemExit('Contract recovery expectation not found')
+          text = text.replace(old, new, 1)
+          anchor = """    expect(source).toContain(\"import '@/styles/story-ios-webkit-stability.css'\");
+"""
+          addition = """    expect(source).toContain(\"import '@/styles/story-ios-webkit-stability.css'\");
+
+    const directorSource = readSource('src/components/effects/AnimeScrollDirector.tsx');
+    expect(directorSource).toContain('compactViewport.matches || iosWebKit');
+    expect(directorSource).toContain(\"elements.root.dataset.storyInView = 'true'\");
+"""
+          if anchor not in text:
+              raise SystemExit('Contract director anchor not found')
+          contract.write_text(text.replace(anchor, addition, 1))
+          PY
+          npx prettier --write \
+            src/components/effects/AnimeScrollDirector.tsx \
+            src/components/effects/IOSStoryStabilityBridge.tsx \
+            tests/unit/ios-story-stability-contract.test.ts
+      - name: 修正結果をコミット
+        run: |
+          if git diff --quiet; then
+            echo "修正差分はありません。"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "4189822+github-actions[bot]@users.noreply.github.com"
+          git add \
+            src/components/effects/AnimeScrollDirector.tsx \
+            src/components/effects/IOSStoryStabilityBridge.tsx \
+            tests/unit/ios-story-stability-contract.test.ts
+          git commit -m "iOSではStory Directorを先行起動"
+          git push origin HEAD:fix/ios-webkit-story-scroll
