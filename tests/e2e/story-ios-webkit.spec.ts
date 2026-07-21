@@ -13,6 +13,9 @@ const waitForLoaderRelease = async (page: Page) => {
   await expect(page.locator('body')).not.toHaveClass(/site-loading/, { timeout: 8_000 });
   if ((await loader.count()) > 0) {
     await expect(loader).toHaveAttribute('aria-hidden', 'true', { timeout: 8_000 });
+    await expect(loader).toHaveAttribute('data-completion-bridged', 'true', {
+      timeout: 8_000,
+    });
   }
 };
 
@@ -81,13 +84,10 @@ test.describe('iOS WebKit story stability', () => {
     const progress = loader.locator('[role="progressbar"]');
     await expect(loader).toBeVisible();
     await expect(loader).toHaveAttribute('data-loader-evolution', 'reality-reactor');
-
-    const initialProgress = Number((await progress.getAttribute('aria-valuenow')) ?? 0);
-    await expect
-      .poll(async () => Number((await progress.getAttribute('aria-valuenow')) ?? 0), {
-        timeout: 2_500,
-      })
-      .toBeGreaterThan(initialProgress);
+    await expect(loader).toHaveAttribute('data-loader-animation-ran', 'true', {
+      timeout: 8_000,
+    });
+    await expect(progress).toHaveAttribute('aria-valuenow', '100', { timeout: 8_000 });
 
     await waitForLoaderRelease(page);
   });
