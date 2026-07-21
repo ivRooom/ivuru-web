@@ -19,11 +19,29 @@ describe('iOS story stability contract', () => {
     expect(source).toContain("import '@/styles/story-ios-webkit-stability.css'");
   });
 
-  it('Bridgeは早期fallbackを回復しiOS viewportとtouchを再同期する', () => {
+  it('Bridgeは早期fallbackを期限付きで回復し失敗時は静的表示を維持する', () => {
     const source = readSource('src/components/effects/IOSStoryStabilityBridge.tsx');
 
+    expect(source).toContain('const RECOVERY_GRACE_MS = 12_000');
     expect(source).toContain("root.dataset.storyRuntimeReason !== 'motion-boot-timeout'");
     expect(source).toContain("root.dataset.storyMobileRecovery = 'waiting-for-director'");
+    expect(source).toContain("applyTerminalFallback('mobile-director-timeout')");
+    expect(source).toContain("root.dataset.storyMobileTerminalFallback = 'true'");
+    expect(source).toContain('candidate.kill?.(true)');
+    expect(source).toContain("readout.textContent = '01–03 / STATIC STORY'");
+  });
+
+  it('Bridgeは再入を無効化しlast refresh基準でviewportとtouchを同期する', () => {
+    const source = readSource('src/components/effects/IOSStoryStabilityBridge.tsx');
+
+    expect(source).toContain('let generation = 0');
+    expect(source).toContain('const token = generation');
+    expect(source).toContain('token === generation');
+    expect(source.indexOf('disposeCurrent = () => {')).toBeLessThan(
+      source.indexOf("await import('gsap/ScrollTrigger')"),
+    );
+    expect(source).toContain('refreshedViewportHeight');
+    expect(source).toContain('nextHeight - refreshedViewportHeight');
     expect(source).toContain('ignoreMobileResize: true');
     expect(source).toContain("window.addEventListener('touchend'");
     expect(source).toContain("window.visualViewport?.addEventListener('resize'");
@@ -31,13 +49,14 @@ describe('iOS story stability contract', () => {
     expect(source.match(/requestAnimationFrame/g).length).toBeGreaterThanOrEqual(2);
   });
 
-  it('iOS WebKitでは奥行き合成を軽量化し表示中sceneを可視化する', () => {
+  it('iOS WebKitでは横画面とiPadも奥行き合成を軽量化する', () => {
     const css = readSource('src/styles/story-ios-webkit-stability.css');
 
     expect(css).toContain("data-story-platform='ios-webkit'");
     expect(css).toContain('transform: translate3d(0, 0, 0) !important');
     expect(css).toContain('filter: none !important');
     expect(css).toContain("data-story-mobile-stability='syncing'");
+    expect(css).not.toContain('@media (max-width: 767px)');
   });
 
   it('PlaywrightとCIはiPhone WebKit回帰テストを実行する', () => {
