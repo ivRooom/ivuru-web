@@ -46,24 +46,20 @@
         }
       })();
 
-      const readyDelay = reduced ? 80 : seen ? 900 : 1_850;
-      const hardLimitAfterLoad = reduced ? 500 : seen ? 3_200 : 5_000;
+      const readyDelay = reduced ? 120 : seen ? 2_400 : 3_500;
+      const hardLimit = reduced ? 600 : seen ? 4_500 : 6_500;
       let readyTimer = 0;
       let hardTimer = 0;
 
-      const armAfterLoad = () => {
+      const armTimers = () => {
         if (loader.dataset.guardReleased === 'true') return;
         window.clearTimeout(readyTimer);
         window.clearTimeout(hardTimer);
-        readyTimer = window.setTimeout(() => releaseLoader('document-ready'), readyDelay);
-        hardTimer = window.setTimeout(
-          () => releaseLoader('hard-timeout-after-load'),
-          hardLimitAfterLoad,
-        );
+        readyTimer = window.setTimeout(() => releaseLoader('animation-safety-release'), readyDelay);
+        hardTimer = window.setTimeout(() => releaseLoader('hard-timeout'), hardLimit);
       };
 
-      if (document.readyState === 'complete') armAfterLoad();
-      else window.addEventListener('load', armAfterLoad, { once: true });
+      armTimers();
 
       window.addEventListener('wheel', () => releaseLoader('wheel-input'), {
         once: true,
