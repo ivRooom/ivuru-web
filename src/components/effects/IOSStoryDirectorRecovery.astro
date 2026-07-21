@@ -1,32 +1,32 @@
 <script is:inline>
   (() => {
-    const cleanupKey = "__ivuruIOSStoryDirectorRecoveryDispose";
+    const cleanupKey = '__ivuruIOSStoryDirectorRecoveryDispose';
     const recoveryDelay = 0;
     const recoveryHeartbeatMs = 50;
-    const chapters = ["01", "02", "03"];
+    const chapters = ['01', '02', '03'];
     const contentSelector =
-      "[data-story-copy], [data-story-visual], [data-story-pop], [data-story-depth]";
+      '[data-story-copy], [data-story-visual], [data-story-pop], [data-story-depth]';
 
     const isIOSWebKit = () =>
       /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
     const setup = () => {
       window[cleanupKey]?.();
 
-      const root = document.querySelector("[data-anime-scroll-story]");
+      const root = document.querySelector('[data-anime-scroll-story]');
       if (!(root instanceof HTMLElement) || !isIOSWebKit()) return;
 
-      const scenes = Array.from(
-        root.querySelectorAll("[data-anime-story-scene]"),
-      ).filter((scene) => scene instanceof HTMLElement);
+      const scenes = Array.from(root.querySelectorAll('[data-anime-story-scene]')).filter(
+        (scene) => scene instanceof HTMLElement,
+      );
       if (scenes.length !== chapters.length) return;
 
-      const dots = Array.from(
-        root.querySelectorAll("[data-story-progress-dot]"),
-      ).filter((dot) => dot instanceof HTMLElement);
-      const readout = root.querySelector("[data-story-chapter-readout]");
-      const progressLine = root.querySelector("[data-story-progress-line]");
+      const dots = Array.from(root.querySelectorAll('[data-story-progress-dot]')).filter(
+        (dot) => dot instanceof HTMLElement,
+      );
+      const readout = root.querySelector('[data-story-chapter-readout]');
+      const progressLine = root.querySelector('[data-story-progress-line]');
       let disposed = false;
       let recoveryActive = false;
       let start = 0;
@@ -37,16 +37,16 @@
       let frame = 0;
       let observer;
 
-      root.dataset.storyNativeRecovery = "true";
-      root.dataset.storyPlatform = "ios-webkit";
+      root.dataset.storyNativeRecovery = 'true';
+      root.dataset.storyPlatform = 'ios-webkit';
 
       const realDirectorIsReady = () =>
-        root.dataset.storyNativeRecovery !== "true" &&
-        root.dataset.storyDirector === "ready" &&
-        root.dataset.storyRuntime === "ready" &&
-        root.dataset.storyMobileStability === "ready" &&
-        root.dataset.storyTransitionEngine === "world-forge" &&
-        root.dataset.storySnapState === "ready";
+        root.dataset.storyNativeRecovery !== 'true' &&
+        root.dataset.storyDirector === 'ready' &&
+        root.dataset.storyRuntime === 'ready' &&
+        root.dataset.storyMobileStability === 'ready' &&
+        root.dataset.storyTransitionEngine === 'world-forge' &&
+        root.dataset.storySnapState === 'ready';
 
       const setData = (key, value) => {
         if (root.dataset[key] !== value) root.dataset[key] = value;
@@ -60,17 +60,17 @@
 
       const repairRootState = () => {
         if (disposed || !recoveryActive || !root.isConnected) return;
-        setData("storyDirector", "ready");
-        setData("storyRuntime", "ready");
-        setData("storyProgressAuthority", "ready");
-        setData("storyMobileStability", "ready");
-        setData("storyMode", "motion");
-        setData("storyMask", "active");
-        setData("storyPerformance", "ios-inline-recovery");
-        setData("storyTransitionEngine", "ios-inline-recovery");
-        setData("storySnap", "disabled-mobile");
-        setData("storySnapState", "ready");
-        setData("storyNativeRecovery", "true");
+        setData('storyDirector', 'ready');
+        setData('storyRuntime', 'ready');
+        setData('storyProgressAuthority', 'ready');
+        setData('storyMobileStability', 'ready');
+        setData('storyMode', 'motion');
+        setData('storyMask', 'active');
+        setData('storyPerformance', 'ios-inline-recovery');
+        setData('storyTransitionEngine', 'ios-inline-recovery');
+        setData('storySnap', 'disabled-mobile');
+        setData('storySnapState', 'ready');
+        setData('storyNativeRecovery', 'true');
         delete root.dataset.storyRuntimeReason;
         delete root.dataset.storyMobileRecovery;
         delete root.dataset.storyMobileTerminalFallback;
@@ -78,41 +78,35 @@
 
       const releaseRecoveryStyles = () => {
         delete root.dataset.storyNativeRecovery;
-        root.style.removeProperty("overflow-x");
-        root.style.removeProperty("min-height");
-        root.style.removeProperty("--story-native-runtime-height");
-        root.style.removeProperty("--story-native-scroll-distance");
+        root.style.removeProperty('overflow-x');
+        root.style.removeProperty('min-height');
+        root.style.removeProperty('--story-native-runtime-height');
+        root.style.removeProperty('--story-native-scroll-distance');
         scenes.forEach((scene) => {
-          scene.style.removeProperty("opacity");
-          scene.style.removeProperty("visibility");
-          scene.style.removeProperty("pointer-events");
-          scene.style.removeProperty("transform");
-          scene.style.removeProperty("transition");
+          scene.style.removeProperty('opacity');
+          scene.style.removeProperty('visibility');
+          scene.style.removeProperty('pointer-events');
+          scene.style.removeProperty('transform');
+          scene.style.removeProperty('transition');
         });
       };
 
       const currentProgress = () =>
-        Math.max(
-          0,
-          Math.min(1, (window.scrollY - start) / Math.max(1, end - start)),
-        );
+        Math.max(0, Math.min(1, (window.scrollY - start) / Math.max(1, end - start)));
 
       const updateRange = () => {
-        const viewportHeight = Math.max(
-          1,
-          window.visualViewport?.height ?? window.innerHeight,
-        );
+        const viewportHeight = Math.max(1, window.visualViewport?.height ?? window.innerHeight);
         const scrollDistance = Math.max(1, Math.round(viewportHeight * 5.7));
         const runtimeHeight = viewportHeight + scrollDistance;
-        setStyle(root, "--story-native-runtime-height", `${runtimeHeight}px`);
-        setStyle(root, "--story-native-scroll-distance", `${scrollDistance}px`);
-        setStyle(root, "min-height", `${runtimeHeight}px`);
+        setStyle(root, '--story-native-runtime-height', `${runtimeHeight}px`);
+        setStyle(root, '--story-native-scroll-distance', `${scrollDistance}px`);
+        setStyle(root, 'min-height', `${runtimeHeight}px`);
 
         const rootTop = root.getBoundingClientRect().top + window.scrollY;
         start = Math.max(0, rootTop);
         end = start + scrollDistance;
-        setData("storyScrollStart", String(Math.round(start)));
-        setData("storyScrollEnd", String(Math.round(end)));
+        setData('storyScrollStart', String(Math.round(start)));
+        setData('storyScrollEnd', String(Math.round(end)));
       };
 
       const sync = () => {
@@ -134,82 +128,67 @@
         const chapterChanged = nextIndex !== activeIndex;
         activeIndex = nextIndex;
 
-        setData("storyChapter", chapter);
-        setData("storyAuthorityChapter", chapter);
-        setData("storyAuthorityProgress", progress.toFixed(4));
-        setStyle(root, "--story-authority-progress", progress.toFixed(4));
-        setStyle(root, "overflow-x", "clip");
+        setData('storyChapter', chapter);
+        setData('storyAuthorityChapter', chapter);
+        setData('storyAuthorityProgress', progress.toFixed(4));
+        setStyle(root, '--story-authority-progress', progress.toFixed(4));
+        setStyle(root, 'overflow-x', 'clip');
 
         const rect = root.getBoundingClientRect();
         setData(
-          "storyInView",
-          rect.bottom >= 0 &&
-            rect.top <= (window.visualViewport?.height ?? window.innerHeight)
-            ? "true"
-            : "false",
+          'storyInView',
+          rect.bottom >= 0 && rect.top <= (window.visualViewport?.height ?? window.innerHeight)
+            ? 'true'
+            : 'false',
         );
 
         scenes.forEach((scene, index) => {
           const active = index === nextIndex;
-          const activeValue = active ? "true" : "false";
-          const ariaHidden = active ? "false" : "true";
-          if (scene.dataset.active !== activeValue)
-            scene.dataset.active = activeValue;
-          if (scene.getAttribute("aria-hidden") !== ariaHidden) {
-            scene.setAttribute("aria-hidden", ariaHidden);
+          const activeValue = active ? 'true' : 'false';
+          const ariaHidden = active ? 'false' : 'true';
+          if (scene.dataset.active !== activeValue) scene.dataset.active = activeValue;
+          if (scene.getAttribute('aria-hidden') !== ariaHidden) {
+            scene.setAttribute('aria-hidden', ariaHidden);
           }
           if (active) {
-            if (scene.hasAttribute("inert")) scene.removeAttribute("inert");
-          } else if (!scene.hasAttribute("inert")) {
-            scene.setAttribute("inert", "");
+            if (scene.hasAttribute('inert')) scene.removeAttribute('inert');
+          } else if (!scene.hasAttribute('inert')) {
+            scene.setAttribute('inert', '');
           }
-          setStyle(scene, "opacity", active ? "1" : "0");
-          setStyle(scene, "visibility", active ? "visible" : "hidden");
-          setStyle(scene, "pointer-events", active ? "auto" : "none");
-          setStyle(
-            scene,
-            "transform",
-            active ? "translate3d(0, 0, 0)" : "translate3d(0, 20px, 0)",
-          );
-          setStyle(
-            scene,
-            "transition",
-            "opacity 220ms ease, transform 260ms ease",
-          );
+          setStyle(scene, 'opacity', active ? '1' : '0');
+          setStyle(scene, 'visibility', active ? 'visible' : 'hidden');
+          setStyle(scene, 'pointer-events', active ? 'auto' : 'none');
+          setStyle(scene, 'transform', active ? 'translate3d(0, 0, 0)' : 'translate3d(0, 20px, 0)');
+          setStyle(scene, 'transition', 'opacity 220ms ease, transform 260ms ease');
 
           if (active) {
             scene.querySelectorAll(contentSelector).forEach((node) => {
               if (!(node instanceof HTMLElement)) return;
-              node.style.removeProperty("opacity");
-              node.style.removeProperty("visibility");
+              node.style.removeProperty('opacity');
+              node.style.removeProperty('visibility');
             });
           }
         });
 
         dots.forEach((dot, index) => {
-          const activeValue = index === nextIndex ? "true" : "false";
-          if (dot.dataset.active !== activeValue)
-            dot.dataset.active = activeValue;
+          const activeValue = index === nextIndex ? 'true' : 'false';
+          if (dot.dataset.active !== activeValue) dot.dataset.active = activeValue;
         });
-        if (
-          readout instanceof HTMLElement &&
-          readout.textContent !== `${chapter} / 03`
-        ) {
+        if (readout instanceof HTMLElement && readout.textContent !== `${chapter} / 03`) {
           readout.textContent = `${chapter} / 03`;
         }
         if (progressLine instanceof HTMLElement) {
-          setStyle(progressLine, "transform", `scaleX(${progress})`);
+          setStyle(progressLine, 'transform', `scaleX(${progress})`);
         }
-        document.body.dataset.animeScene =
-          scenes[nextIndex]?.dataset.storyScene ?? "ice";
+        document.body.dataset.animeScene = scenes[nextIndex]?.dataset.storyScene ?? 'ice';
 
         if (chapterChanged) {
           window.dispatchEvent(
-            new CustomEvent("ivuru:story-chapter-change", {
+            new CustomEvent('ivuru:story-chapter-change', {
               detail: {
                 chapter,
                 index: nextIndex,
-                source: "ios-inline-recovery",
+                source: 'ios-inline-recovery',
               },
             }),
           );
@@ -239,7 +218,7 @@
         updateRange();
         window.scrollTo({
           top: start + (end - start) * progress,
-          behavior: "instant",
+          behavior: 'instant',
         });
         repairRootState();
         scheduleSync();
@@ -255,11 +234,11 @@
             (record) =>
               record.target === root &&
               [
-                "data-story-director",
-                "data-story-runtime",
-                "data-story-mobile-stability",
-                "data-story-mode",
-              ].includes(record.attributeName ?? ""),
+                'data-story-director',
+                'data-story-runtime',
+                'data-story-mobile-stability',
+                'data-story-mode',
+              ].includes(record.attributeName ?? ''),
           )
         ) {
           repairRootState();
@@ -270,32 +249,32 @@
         subtree: true,
         attributes: true,
         attributeFilter: [
-          "data-story-runtime",
-          "data-story-runtime-reason",
-          "data-story-director",
-          "data-story-mode",
-          "data-story-chapter",
-          "data-story-transition-engine",
-          "data-story-mobile-stability",
-          "data-active",
-          "aria-hidden",
-          "inert",
-          "style",
+          'data-story-runtime',
+          'data-story-runtime-reason',
+          'data-story-director',
+          'data-story-mode',
+          'data-story-chapter',
+          'data-story-transition-engine',
+          'data-story-mobile-stability',
+          'data-active',
+          'aria-hidden',
+          'inert',
+          'style',
         ],
       });
 
       timer = window.setTimeout(activate, recoveryDelay);
       heartbeat = window.setInterval(scheduleSync, recoveryHeartbeatMs);
-      window.addEventListener("scroll", onScroll, { passive: true });
-      window.addEventListener("resize", onViewportChange, { passive: true });
-      window.addEventListener("orientationchange", onViewportChange, {
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onViewportChange, { passive: true });
+      window.addEventListener('orientationchange', onViewportChange, {
         passive: true,
       });
-      window.addEventListener("pageshow", onViewportChange);
-      window.visualViewport?.addEventListener("resize", onViewportChange, {
+      window.addEventListener('pageshow', onViewportChange);
+      window.visualViewport?.addEventListener('resize', onViewportChange, {
         passive: true,
       });
-      document.addEventListener("visibilitychange", onVisibilityChange);
+      document.addEventListener('visibilitychange', onVisibilityChange);
 
       window[cleanupKey] = () => {
         disposed = true;
@@ -303,22 +282,22 @@
         window.clearInterval(heartbeat);
         cancelAnimationFrame(frame);
         observer?.disconnect();
-        window.removeEventListener("scroll", onScroll);
-        window.removeEventListener("resize", onViewportChange);
-        window.removeEventListener("orientationchange", onViewportChange);
-        window.removeEventListener("pageshow", onViewportChange);
-        window.visualViewport?.removeEventListener("resize", onViewportChange);
-        document.removeEventListener("visibilitychange", onVisibilityChange);
+        window.removeEventListener('scroll', onScroll);
+        window.removeEventListener('resize', onViewportChange);
+        window.removeEventListener('orientationchange', onViewportChange);
+        window.removeEventListener('pageshow', onViewportChange);
+        window.visualViewport?.removeEventListener('resize', onViewportChange);
+        document.removeEventListener('visibilitychange', onVisibilityChange);
         if (recoveryActive) releaseRecoveryStyles();
         delete window[cleanupKey];
       };
     };
 
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", setup, { once: true });
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setup, { once: true });
     } else {
       queueMicrotask(setup);
     }
-    document.addEventListener("astro:page-load", setup);
+    document.addEventListener('astro:page-load', setup);
   })();
 </script>
