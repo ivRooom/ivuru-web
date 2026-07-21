@@ -5,14 +5,30 @@ const readSource = (relativePath: string) =>
   readFileSync(new URL(`../../${relativePath}`, import.meta.url), 'utf8');
 
 describe('iOS story animation priority contract', () => {
-  it('HomeはローダーとGSAP Directorを残したままiOS補助処理を起動する', () => {
+  it('Homeはローダーを先に表示し、演出群を単一Runtimeから起動する', () => {
     const source = readSource('src/components/pages/HomePageV2.astro');
 
     expect(source).toContain('<IOSStoryRuntimeIsolation />');
     expect(source).toContain('<QuantumLoaderEvolution />');
-    expect(source).toContain('<AnimeScrollDirector client:load />');
-    expect(source).toContain('<StoryProductionRuntime client:load />');
+    expect(source).toContain('<StoryEffectsRuntime client:load />');
     expect(source).toContain('<IOSStoryDirectorRecovery />');
+    expect(source).not.toContain('<AnimeScrollDirector client:load />');
+    expect(source).not.toContain('<StoryProductionRuntime client:load />');
+  });
+
+  it('StoryEffectsRuntimeはローダー解放後に実GSAP演出群をまとめて起動する', () => {
+    const source = readSource('src/components/effects/StoryEffectsRuntime.tsx');
+
+    expect(source).toContain("document.addEventListener('ivuru:loader-released', release)");
+    expect(source).toContain("loader.getAttribute('aria-hidden') === 'true'");
+    expect(source).toContain('if (!ready) return null');
+    expect(source).toContain('<IOSStoryStabilityBridge />');
+    expect(source).toContain('<AnimeScrollDirector />');
+    expect(source).toContain('<StoryProductionRuntime />');
+    expect(source).toContain('<SpatialCameraEnhancer />');
+    expect(source).toContain('<CinematicEntertainmentDirector />');
+    expect(source).toContain('<SingularityOverdriveDirector />');
+    expect(source).toContain('<AdaptiveRealityDirector />');
   });
 
   it('Runtime preflightはIslandやロード演出を削除しない', () => {
