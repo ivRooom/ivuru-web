@@ -8,6 +8,7 @@ import HomePortalGrid from '@/components/home/HomePortalGrid.astro';
 import LatestPosts from '@/components/blog/LatestPosts.astro';
 import ContactCTA from '@/components/home/ContactCTA.astro';
 import CinematicPointerEffects from '@/components/effects/CinematicPointerEffects';
+import IOSStoryRuntimeIsolation from '@/components/effects/IOSStoryRuntimeIsolation.astro';
 import IOSStoryStabilityBridge from '@/components/effects/IOSStoryStabilityBridge';
 import IOSStoryDirectorRecovery from '@/components/effects/IOSStoryDirectorRecovery.astro';
 import AnimeScrollDirector from '@/components/effects/AnimeScrollDirector';
@@ -48,6 +49,7 @@ const descriptions = {
   locale={locale}
   chapter={{ code: '00', title: 'HOME', world: 'BLUE STORY' }}
 >
+  <IOSStoryRuntimeIsolation />
   <LoaderReleaseGuard />
   <QuantumLoaderEvolution />
   <CinematicPointerEffects client:idle />
