@@ -1,10 +1,18 @@
 import { useEffect } from 'react';
 
+type ScrollTriggerLike = {
+  vars: { trigger?: Element | string };
+  kill?: (revert?: boolean) => void;
+};
+
 type ScrollTriggerStaticLike = {
   config?: (options: { ignoreMobileResize?: boolean }) => void;
+  getAll: () => ScrollTriggerLike[];
   refresh: () => void;
   update: () => void;
 };
+
+const RECOVERY_GRACE_MS = 12_000;
 
 const isIOSWebKit = () => {
   const userAgent = navigator.userAgent;
@@ -18,10 +26,13 @@ const readStoryRoot = () => document.querySelector<HTMLElement>('[data-anime-scr
 
 export default function IOSStoryStabilityBridge() {
   useEffect(() => {
+    let generation = 0;
     let disposeCurrent = () => {};
 
     const setup = async () => {
       disposeCurrent();
+      generation += 1;
+      const token = generation;
 
       const root = readStoryRoot();
       if (!root) return;
@@ -37,8 +48,11 @@ export default function IOSStoryStabilityBridge() {
       let recoveryProbe = 0;
       let observer: MutationObserver | undefined;
       let ScrollTrigger: ScrollTriggerStaticLike | undefined;
-      let viewportWidth = window.visualViewport?.width ?? window.innerWidth;
-      let viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+      let terminalFallback = false;
+      let refreshedViewportWidth = window.visualViewport?.width ?? window.innerWidth;
+      let refreshedViewportHeight = window.visualViewport?.height ?? window.innerHeight;
+      const recoveryDeadline = performance.now() + RECOVERY_GRACE_MS;
+      const isCurrent = () => !disposed && token === generation && root.isConnected;
 
       root.dataset.storyPlatform = iosWebKit ? 'ios-webkit' : 'compact-webkit';
       root.dataset.storyMobileStability = 'booting';
@@ -49,9 +63,68 @@ export default function IOSStoryStabilityBridge() {
         root.style.setProperty('--story-runtime-height', `${Math.round(nextHeight)}px`);
       };
 
+      const stopStoryTrigger = () => {
+        ScrollTrigger?.getAll().forEach((candidate) => {
+          if (candidate.vars.trigger === root) candidate.kill?.(true);
+        });
+      };
+
+      const applyTerminalFallback = (reason: string) => {
+        terminalFallback = true;
+        window.clearInterval(recoveryProbe);
+        recoveryProbe = 0;
+        stopStoryTrigger();
+
+        root.dataset.storyMobileTerminalFallback = 'true';
+        root.dataset.storyMobileStability = 'fallback';
+        root.dataset.storyProgressAuthority = 'fallback';
+        root.dataset.storyRuntime = 'fallback';
+        root.dataset.storyRuntimeReason = reason;
+        root.dataset.storyMode = 'static';
+        root.dataset.storyMask = 'static';
+        root.dataset.storyPerformance = 'static';
+        root.dataset.storyInView = 'true';
+        root.dataset.storyChapter = '01';
+        root.dataset.storyAuthorityChapter = '01';
+        root.dataset.storyAuthorityProgress = '1.0000';
+        root.style.setProperty('--story-authority-progress', '1');
+        root.style.setProperty('--story-runtime-height', 'auto');
+
+        const scenes = Array.from(
+          root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'),
+        );
+        scenes.forEach((scene) => {
+          scene.dataset.active = 'true';
+          scene.removeAttribute('aria-hidden');
+          scene.removeAttribute('inert');
+          scene.removeAttribute('style');
+          scene
+            .querySelectorAll<HTMLElement>(
+              '[data-story-copy], [data-story-visual], [data-story-pop], [data-story-depth]',
+            )
+            .forEach((element) => element.removeAttribute('style'));
+        });
+
+        root.querySelectorAll<HTMLElement>('[data-story-progress-dot]').forEach((dot, index) => {
+          dot.dataset.active = index === 0 ? 'true' : 'false';
+        });
+        const readout = root.querySelector<HTMLElement>('[data-story-chapter-readout]');
+        const progressLine = root.querySelector<HTMLElement>('[data-story-progress-line]');
+        if (readout) readout.textContent = '01–03 / STATIC STORY';
+        if (progressLine) progressLine.style.transform = 'scaleX(1)';
+      };
+
       const recoverPrematureFallback = () => {
+        if (terminalFallback) {
+          applyTerminalFallback(root.dataset.storyRuntimeReason ?? 'mobile-director-timeout');
+          return;
+        }
         if (root.dataset.storyRuntimeReason !== 'motion-boot-timeout') return;
-        if (root.dataset.storyDirector !== 'booting') return;
+        if (performance.now() >= recoveryDeadline) {
+          applyTerminalFallback('mobile-director-timeout');
+          return;
+        }
+        if (root.dataset.storyDirector === 'static') return;
 
         delete root.dataset.storyRuntimeReason;
         root.dataset.storyRuntime = 'booting';
@@ -61,7 +134,9 @@ export default function IOSStoryStabilityBridge() {
         root.dataset.storyPerformance = iosWebKit ? 'ios-stable' : 'mobile-stable';
         root.dataset.storyMobileRecovery = 'waiting-for-director';
 
-        const scenes = Array.from(root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'));
+        const scenes = Array.from(
+          root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'),
+        );
         scenes.forEach((scene, index) => {
           const active = index === 0;
           scene.dataset.active = active ? 'true' : 'false';
@@ -72,6 +147,12 @@ export default function IOSStoryStabilityBridge() {
       };
 
       const updateReadyState = () => {
+        if (!isCurrent()) return;
+        if (terminalFallback) {
+          applyTerminalFallback(root.dataset.storyRuntimeReason ?? 'mobile-director-timeout');
+          return;
+        }
+
         recoverPrematureFallback();
         if (
           root.dataset.storyDirector === 'ready' &&
@@ -80,22 +161,30 @@ export default function IOSStoryStabilityBridge() {
         ) {
           root.dataset.storyMobileStability = 'ready';
           delete root.dataset.storyMobileRecovery;
+          delete root.dataset.storyMobileTerminalFallback;
           window.clearInterval(recoveryProbe);
           recoveryProbe = 0;
+          return;
+        }
+
+        if (performance.now() >= recoveryDeadline) {
+          applyTerminalFallback('mobile-director-timeout');
         }
       };
 
       const refreshAfterLayoutSettles = () => {
-        if (disposed || !root.isConnected) return;
+        if (!isCurrent() || terminalFallback) return;
         syncViewport();
         ScrollTrigger?.update();
         cancelAnimationFrame(firstFrame);
         cancelAnimationFrame(secondFrame);
         firstFrame = requestAnimationFrame(() => {
           secondFrame = requestAnimationFrame(() => {
-            if (disposed || !root.isConnected) return;
+            if (!isCurrent() || terminalFallback) return;
             ScrollTrigger?.refresh();
             ScrollTrigger?.update();
+            refreshedViewportWidth = window.visualViewport?.width ?? window.innerWidth;
+            refreshedViewportHeight = window.visualViewport?.height ?? window.innerHeight;
             updateReadyState();
           });
         });
@@ -107,6 +196,10 @@ export default function IOSStoryStabilityBridge() {
       };
 
       const onScroll = () => {
+        if (terminalFallback) {
+          applyTerminalFallback(root.dataset.storyRuntimeReason ?? 'mobile-director-timeout');
+          return;
+        }
         ScrollTrigger?.update();
         updateReadyState();
       };
@@ -114,10 +207,8 @@ export default function IOSStoryStabilityBridge() {
       const onViewportChange = () => {
         const nextWidth = window.visualViewport?.width ?? window.innerWidth;
         const nextHeight = window.visualViewport?.height ?? window.innerHeight;
-        const widthChanged = Math.abs(nextWidth - viewportWidth) >= 1;
-        const heightChanged = Math.abs(nextHeight - viewportHeight) >= 24;
-        viewportWidth = nextWidth;
-        viewportHeight = nextHeight;
+        const widthChanged = Math.abs(nextWidth - refreshedViewportWidth) >= 1;
+        const heightChanged = Math.abs(nextHeight - refreshedViewportHeight) >= 24;
         syncViewport();
         ScrollTrigger?.update();
         if (widthChanged || heightChanged) scheduleRefresh(260);
@@ -144,21 +235,6 @@ export default function IOSStoryStabilityBridge() {
       }
 
       recoveryProbe = window.setInterval(updateReadyState, 250);
-      syncViewport();
-      updateReadyState();
-
-      try {
-        const triggerModule = await import('gsap/ScrollTrigger');
-        if (disposed || !root.isConnected) return;
-        ScrollTrigger = triggerModule.ScrollTrigger as unknown as ScrollTriggerStaticLike;
-        ScrollTrigger.config?.({ ignoreMobileResize: true });
-        root.dataset.storyMobileStability = 'syncing';
-        scheduleRefresh(0);
-      } catch (error) {
-        console.error('[IOSStoryStabilityBridge] ScrollTriggerの読込に失敗しました。', error);
-        root.dataset.storyMobileStability = 'native-only';
-      }
-
       window.addEventListener('scroll', onScroll, { passive: true });
       window.addEventListener('touchend', onTouchEnd, { passive: true });
       window.addEventListener('resize', onViewportChange, { passive: true });
@@ -186,7 +262,24 @@ export default function IOSStoryStabilityBridge() {
         delete root.dataset.storyPlatform;
         delete root.dataset.storyMobileStability;
         delete root.dataset.storyMobileRecovery;
+        delete root.dataset.storyMobileTerminalFallback;
       };
+
+      syncViewport();
+      updateReadyState();
+
+      try {
+        const triggerModule = await import('gsap/ScrollTrigger');
+        if (!isCurrent()) return;
+        ScrollTrigger = triggerModule.ScrollTrigger as unknown as ScrollTriggerStaticLike;
+        ScrollTrigger.config?.({ ignoreMobileResize: true });
+        root.dataset.storyMobileStability = terminalFallback ? 'fallback' : 'syncing';
+        if (terminalFallback) applyTerminalFallback('mobile-director-timeout');
+        else scheduleRefresh(0);
+      } catch (error) {
+        console.error('[IOSStoryStabilityBridge] ScrollTriggerの読込に失敗しました。', error);
+        if (isCurrent()) applyTerminalFallback('mobile-scrolltrigger-import-failed');
+      }
     };
 
     const onEnvironmentChange = () => void setup();
@@ -194,6 +287,7 @@ export default function IOSStoryStabilityBridge() {
     document.addEventListener('astro:page-load', onEnvironmentChange);
 
     return () => {
+      generation += 1;
       disposeCurrent();
       document.removeEventListener('astro:page-load', onEnvironmentChange);
     };
