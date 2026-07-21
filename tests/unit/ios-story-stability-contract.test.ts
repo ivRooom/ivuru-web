@@ -28,10 +28,12 @@ describe('iOS story stability contract', () => {
     expect(source).toContain("applyTerminalFallback('mobile-director-timeout')");
     expect(source).toContain("root.dataset.storyMobileTerminalFallback = 'true'");
     expect(source).toContain('candidate.kill?.(true)');
+    expect(source).toContain('descendantsAreStatic');
+    expect(source).toContain('scheduleTerminalRepair');
     expect(source).toContain("readout.textContent = '01–03 / STATIC STORY'");
   });
 
-  it('Bridgeは再入を無効化しlast refresh基準でviewportとtouchを同期する', () => {
+  it('Bridgeは章Authorityを補完しlast refresh基準でviewportとtouchを同期する', () => {
     const source = readSource('src/components/effects/IOSStoryStabilityBridge.tsx');
 
     expect(source).toContain('let generation = 0');
@@ -40,13 +42,16 @@ describe('iOS story stability contract', () => {
     expect(source.indexOf('disposeCurrent = () => {')).toBeLessThan(
       source.indexOf("await import('gsap/ScrollTrigger')"),
     );
+    expect(source).toContain('syncAuthorityFromDirector');
+    expect(source).toContain("source: 'ios-stability-bridge'");
+    expect(source).toContain("'data-story-chapter'");
     expect(source).toContain('refreshedViewportHeight');
     expect(source).toContain('nextHeight - refreshedViewportHeight');
     expect(source).toContain('ignoreMobileResize: true');
     expect(source).toContain("window.addEventListener('touchend'");
     expect(source).toContain("window.visualViewport?.addEventListener('resize'");
     expect(source).toContain("window.visualViewport?.addEventListener('scroll'");
-    expect(source.match(/requestAnimationFrame/g).length).toBeGreaterThanOrEqual(2);
+    expect(source.match(/requestAnimationFrame/g)?.length ?? 0).toBeGreaterThanOrEqual(2);
   });
 
   it('iOS WebKitでは横画面とiPadも奥行き合成を軽量化する', () => {
@@ -59,13 +64,15 @@ describe('iOS story stability contract', () => {
     expect(css).not.toContain('@media (max-width: 767px)');
   });
 
-  it('PlaywrightとCIはiPhone WebKit回帰テストを実行する', () => {
+  it('PlaywrightとCIはiPhone WebKitを独立実行し型エラーを隠さない', () => {
     const config = readSource('playwright.config.ts');
     const workflow = readSource('.github/workflows/ci.yml');
     const e2e = readSource('tests/e2e/story-ios-webkit.spec.ts');
 
     expect(config).toContain("name: 'webkit-iphone'");
     expect(config).toContain("browserName: 'webkit'");
+    expect(config).toContain('const chromiumLaunchOptions');
+    expect(workflow).toContain('set -o pipefail');
     expect(workflow).toContain('playwright install --with-deps chromium webkit');
     expect(workflow).toContain('--project=webkit-iphone');
     expect(e2e).toContain('await page.waitForTimeout(5_200)');
