@@ -85,7 +85,7 @@ jobs:
 
   e2e:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -93,9 +93,11 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install --with-deps chromium webkit
       - name: Playwright Chromiumを実行
         run: npm run test:e2e -- --project=chromium
+      - name: Playwright iPhone WebKitを実行
+        run: npx playwright test tests/e2e/story-ios-webkit.spec.ts --project=webkit-iphone
       - name: E2E診断Artifactを保存
         if: always()
         uses: actions/upload-artifact@v4
