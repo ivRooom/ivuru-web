@@ -43,7 +43,9 @@ describe('iOS static story stability contract', () => {
     expect(source).toContain('const shouldUseStaticStory = () =>');
     expect(source).toContain("html.dataset.storyRuntimeOwner = 'static-stack'");
     expect(source).toContain("body?.setAttribute('data-story-render-mode', 'static-stack')");
-    expect(source).toContain("scrollingElement.style.setProperty('overflow-y', 'auto', 'important')");
+    expect(source).toContain(
+      "scrollingElement.style.setProperty('overflow-y', 'auto', 'important')",
+    );
     expect(source).toContain("root.dataset.storyChapter = 'all'");
     expect(source).toContain("root.querySelectorAll('[data-chapter-gate]').forEach");
   });
