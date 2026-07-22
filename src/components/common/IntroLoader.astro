@@ -54,6 +54,7 @@ const copy = {
   data-spatial-loader
   data-loader-theme="quantum-world-gate"
   data-loader-phase="sync"
+  data-loader-runtime-safe="false"
   style="--loader-progress: 0%; --loader-progress-ratio: 0;"
 >
   <span class="sr-only" role="status" aria-live="polite" aria-atomic="true">
@@ -178,10 +179,23 @@ const copy = {
     const phaseText = loader.querySelector('[data-loader-phase-text]');
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    const markRuntimeSafe = (reason) => {
+      loader.hidden = true;
+      loader.style.display = 'none';
+      loader.dataset.loaderRuntimeSafe = 'true';
+      root.dataset.loaderRuntimeSafe = 'true';
+      document.dispatchEvent(
+        new CustomEvent('ivuru:loader-runtime-safe', {
+          detail: { reason },
+        }),
+      );
+    };
+
     if (root.dataset.loaderReleased === 'true') {
       loader.classList.add('loaded');
       loader.setAttribute('aria-hidden', 'true');
       document.body.classList.remove('site-loading');
+      markRuntimeSafe('persisted-loader-release');
       return;
     }
 
@@ -228,6 +242,8 @@ const copy = {
     const release = () => {
       if (released) return;
       released = true;
+      loader.dataset.loaderRuntimeSafe = 'false';
+      root.dataset.loaderRuntimeSafe = 'false';
       renderProgress(100);
       loader.dataset.loaderPhase = 'open';
       loader.dataset.state = 'ready';
@@ -238,6 +254,7 @@ const copy = {
       window.setTimeout(() => {
         document.body.classList.remove('site-loading');
         loader.setAttribute('aria-hidden', 'true');
+        markRuntimeSafe('quantum-gate-open');
         document.dispatchEvent(
           new CustomEvent('ivuru:loader-released', {
             detail: { reason: 'quantum-gate-open' },
@@ -267,6 +284,8 @@ const copy = {
 
     document.body.classList.add('site-loading');
     loader.dataset.state = 'loading';
+    loader.dataset.loaderRuntimeSafe = 'false';
+    root.dataset.loaderRuntimeSafe = 'false';
     renderProgress(0);
     if (readyAt === null) window.addEventListener('load', markReady, { once: true });
     frame = requestAnimationFrame(tick);
