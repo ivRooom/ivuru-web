@@ -20,7 +20,11 @@ html[data-story-render-mode='static-stack'] [data-omega-world-rift],
 html[data-story-render-mode='static-stack'] .anime-reality-overdrive,
 html[data-story-render-mode='static-stack'] .signal-key-visual,
 html[data-story-render-mode='static-stack'] .anime-build-device,
-html[data-story-render-mode='static-stack'] .anime-community-emblem {
+html[data-story-render-mode='static-stack'] .anime-community-emblem,
+html[data-story-render-mode='static-stack'] .anime-opening-rings,
+html[data-story-render-mode='static-stack'] .anime-flight-path,
+html[data-story-render-mode='static-stack'] .anime-orbit-proxy,
+html[data-story-render-mode='static-stack'] .anime-depth-plane {
   display: none !important;
 }
 
@@ -91,8 +95,7 @@ html[data-story-render-mode='static-stack'] .anime-story-scene[aria-hidden='true
 }
 
 html[data-story-render-mode='static-stack'] .anime-story-copy,
-html[data-story-render-mode='static-stack'] [data-story-pop],
-html[data-story-render-mode='static-stack'] [data-story-depth] {
+html[data-story-render-mode='static-stack'] [data-story-pop] {
   visibility: visible !important;
   opacity: 1 !important;
   filter: none !important;
@@ -152,10 +155,6 @@ html[data-story-render-mode='static-stack'] .anime-community-world,
 html[data-story-render-mode='static-stack'] .anime-scene-sky {
   transform: none !important;
   filter: none !important;
-}
-
-html[data-story-render-mode='static-stack'] .anime-flight-path {
-  opacity: 0.35 !important;
 }
 
 @media (max-width: 767px) {
