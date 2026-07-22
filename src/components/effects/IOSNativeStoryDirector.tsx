@@ -196,7 +196,10 @@ export default function IOSNativeStoryDirector() {
       elements.root.dataset.storyScrollStart = String(scrollStart);
       elements.root.dataset.storyScrollEnd = String(scrollEnd);
       elements.root.style.setProperty('--story-native-viewport-height', `${height}px`);
-      elements.root.style.setProperty('--story-native-scroll-distance', `${Math.round(distance)}px`);
+      elements.root.style.setProperty(
+        '--story-native-scroll-distance',
+        `${Math.round(distance)}px`,
+      );
       elements.root.style.minHeight = `${Math.round(height + distance)}px`;
       elements.root.style.height = 'auto';
       elements.root.style.overflow = 'visible';
@@ -232,12 +235,7 @@ export default function IOSNativeStoryDirector() {
       motion
         .to(gate.root, { autoAlpha: 1, duration: 0.08 }, 0.2)
         .to(elements.scenes[0], { autoAlpha: 0, duration: 0.16 }, 0.27)
-        .fromTo(
-          elements.scenes[1],
-          { autoAlpha: 0 },
-          { autoAlpha: 1, duration: 0.18 },
-          0.32,
-        )
+        .fromTo(elements.scenes[1], { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.18 }, 0.32)
         .fromTo(copies[1], { y: 34, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.18 }, 0.32)
         .fromTo(
           visuals[1],
@@ -248,12 +246,7 @@ export default function IOSNativeStoryDirector() {
         .to(gate.root, { autoAlpha: 0, duration: 0.1 }, 0.42)
         .to(gate.root, { autoAlpha: 1, duration: 0.08 }, 0.54)
         .to(elements.scenes[1], { autoAlpha: 0, duration: 0.16 }, 0.61)
-        .fromTo(
-          elements.scenes[2],
-          { autoAlpha: 0 },
-          { autoAlpha: 1, duration: 0.18 },
-          0.66,
-        )
+        .fromTo(elements.scenes[2], { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.18 }, 0.66)
         .fromTo(copies[2], { y: 34, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.18 }, 0.66)
         .fromTo(
           visuals[2],
