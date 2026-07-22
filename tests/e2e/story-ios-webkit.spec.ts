@@ -19,6 +19,34 @@ const waitForLoaderRelease = async (page: Page) => {
   }
 };
 
+const waitForNativeStoryLayout = async (page: Page) => {
+  const story = page.locator('[data-anime-scroll-story]');
+  await expect(story).toHaveAttribute('data-story-scroll-mode', 'native-sticky', {
+    timeout: 15_000,
+  });
+  await expect
+    .poll(
+      () =>
+        story.evaluate((root) => {
+          const element = root as HTMLElement;
+          const start = Number(element.dataset.storyScrollStart);
+          const end = Number(element.dataset.storyScrollEnd);
+          const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+          const scrollingElement = document.scrollingElement ?? document.documentElement;
+          const maxScroll = Math.max(0, scrollingElement.scrollHeight - window.innerHeight);
+          return (
+            Number.isFinite(start) &&
+            Number.isFinite(end) &&
+            end - start > viewportHeight * 3 &&
+            element.getBoundingClientRect().height > viewportHeight * 3 &&
+            maxScroll >= end - 1
+          );
+        }),
+      { timeout: 15_000 },
+    )
+    .toBe(true);
+};
+
 const scrollTo = async (page: Page, top: number) => {
   const expectedTop = Math.max(0, Math.round(top));
   await expect
@@ -108,6 +136,7 @@ test.describe('iOS WebKit story stability', () => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await page.goto('/');
     await waitForLoaderRelease(page);
+    await waitForNativeStoryLayout(page);
 
     const story = page.locator('[data-anime-scroll-story]');
     await expect(story).toHaveAttribute('data-story-platform', 'ios-webkit');
@@ -133,11 +162,9 @@ test.describe('iOS WebKit story stability', () => {
     await expect(story).not.toHaveAttribute('data-story-native-recovery', 'true');
 
     const gate = story.locator('[data-chapter-gate]');
-    const shutters = gate.locator('.anime-chapter-gate__shutter');
     await expect(gate).toHaveCount(1);
-    await expect(shutters).toHaveCount(2);
-    await expect(shutters.first()).toHaveCSS('display', 'none');
-    await expect(shutters.last()).toHaveCSS('display', 'none');
+    await expect(gate).toHaveAttribute('data-gate-variant', 'ios-no-shutter');
+    await expect(gate.locator('.anime-chapter-gate__shutter')).toHaveCount(0);
 
     await scrollToProgress(page, 0.05);
     await expectChapter(page, '01');
@@ -171,6 +198,7 @@ test.describe('iOS WebKit story stability', () => {
   test('アドレスバー相当の高さ変化と画面回転後もready状態を維持する', async ({ page }) => {
     await page.goto('/');
     await waitForLoaderRelease(page);
+    await waitForNativeStoryLayout(page);
 
     const story = page.locator('[data-anime-scroll-story]');
     await revealStory(page);
