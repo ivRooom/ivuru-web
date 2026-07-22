@@ -33,31 +33,16 @@ jobs:
         run: npm ci
       - name: High以上の脆弱性が解消したことを確認
         run: npm audit --omit=dev --audit-level=high
-      - name: 一時ジョブをワークフローから削除
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-
-          path = Path('.github/workflows/ci.yml')
-          text = path.read_text()
-          start_marker = '  # TEMP_AUDIT_FIX_START\n'
-          end_marker = '  # TEMP_AUDIT_FIX_END\n'
-          start = text.index(start_marker)
-          end = text.index(end_marker, start) + len(end_marker)
-          text = text[:start] + text[end:]
-          text = text.replace('  contents: write\n', '  contents: read\n', 1)
-          path.write_text(text)
-          PY
-          npx prettier --write package-lock.json .github/workflows/ci.yml
       - name: lockfile更新をコミット
         run: |
-          if git diff --quiet; then
+          npx prettier --write package-lock.json
+          if git diff --quiet -- package-lock.json; then
             echo "依存関係の更新差分はありません。"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add package-lock.json .github/workflows/ci.yml
+          git add package-lock.json
           git commit -m "依存パッケージの脆弱性を解消"
           git push origin HEAD:${{ github.head_ref }}
   # TEMP_AUDIT_FIX_END
