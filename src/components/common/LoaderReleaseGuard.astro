@@ -10,8 +10,17 @@
     let hideTimer = 0;
     let loader = null;
 
+    const clearReleaseTimers = () => {
+      window.clearTimeout(readyTimer);
+      window.clearTimeout(hardTimer);
+      readyTimer = 0;
+      hardTimer = 0;
+    };
+
     const markRuntimeSafe = (reason) => {
       if (!(loader instanceof HTMLElement)) return;
+      if (loader.dataset.loaderRuntimeSafe === 'true') return;
+
       loader.hidden = true;
       loader.style.display = 'none';
       loader.dataset.loaderRuntimeSafe = 'true';
@@ -22,6 +31,14 @@
     const releaseLoader = (reason) => {
       loader = document.querySelector('[data-spatial-loader]');
       if (!(loader instanceof HTMLElement)) return;
+      if (
+        loader.dataset.loaderRuntimeSafe === 'true' ||
+        loader.hidden ||
+        loader.style.display === 'none'
+      ) {
+        clearReleaseTimers();
+        return;
+      }
       if (loader.dataset.guardReleased === 'true') return;
 
       loader.dataset.guardReleased = 'true';
@@ -34,6 +51,7 @@
       root.dataset.loaderReleased = 'true';
       root.dataset.loaderRuntimeSafe = 'false';
       document.body?.classList.remove('site-loading');
+      clearReleaseTimers();
 
       const state = loader.querySelector('[data-loader-state]');
       const progress = loader.querySelector('[role="progressbar"]');
@@ -52,6 +70,14 @@
     const armGuard = () => {
       loader = document.querySelector('[data-spatial-loader]');
       if (!(loader instanceof HTMLElement)) return;
+      if (
+        loader.dataset.loaderRuntimeSafe === 'true' ||
+        loader.hidden ||
+        loader.style.display === 'none'
+      ) {
+        clearReleaseTimers();
+        return;
+      }
       if (loader.dataset.releaseGuardBound === 'true') return;
       loader.dataset.releaseGuardBound = 'true';
 
@@ -69,8 +95,7 @@
 
       const armTimers = () => {
         if (!(loader instanceof HTMLElement) || loader.dataset.guardReleased === 'true') return;
-        window.clearTimeout(readyTimer);
-        window.clearTimeout(hardTimer);
+        clearReleaseTimers();
         readyTimer = window.setTimeout(() => releaseLoader('animation-safety-release'), readyDelay);
         hardTimer = window.setTimeout(() => releaseLoader('hard-timeout'), hardLimit);
       };
@@ -89,23 +114,25 @@
     const onPageShow = (event) => {
       if (event.persisted) releaseLoader('bfcache-restore');
     };
+    const onRuntimeSafe = () => clearReleaseTimers();
     const onPageLoad = () => armGuard();
     const onBeforeSwap = () => window[cleanupKey]?.();
 
     window[cleanupKey] = () => {
-      window.clearTimeout(readyTimer);
-      window.clearTimeout(hardTimer);
+      clearReleaseTimers();
       window.clearTimeout(hideTimer);
       window.removeEventListener('wheel', onWheel);
       window.removeEventListener('touchmove', onTouchMove);
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('pageshow', onPageShow);
+      document.removeEventListener('ivuru:loader-runtime-safe', onRuntimeSafe);
       document.removeEventListener('astro:page-load', onPageLoad);
       document.removeEventListener('astro:before-swap', onBeforeSwap);
       delete window[cleanupKey];
     };
 
     armGuard();
+    document.addEventListener('ivuru:loader-runtime-safe', onRuntimeSafe);
     document.addEventListener('astro:page-load', onPageLoad);
     document.addEventListener('astro:before-swap', onBeforeSwap, { once: true });
   })();
