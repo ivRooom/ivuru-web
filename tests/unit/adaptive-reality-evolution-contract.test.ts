@@ -9,16 +9,15 @@ describe('Adaptive Reality evolution contract', () => {
     const home = readSource('src/components/pages/HomePageV2.astro');
     const runtime = readSource('src/components/effects/StoryEffectsRuntime.tsx');
 
-    expect(runtime).toContain(
-      "import AdaptiveRealityDirector from '@/components/effects/AdaptiveRealityDirector'",
-    );
+    expect(runtime).toContain('const AdaptiveRealityDirector = lazy(');
+    expect(runtime).toContain("import('@/components/effects/AdaptiveRealityDirector')");
     expect(home).toContain(
       "import QuantumLoaderEvolution from '@/components/effects/QuantumLoaderEvolution.astro'",
     );
     expect(home).toContain("import '@/styles/adaptive-reality-overdrive.css'");
     expect(runtime).toContain('<AdaptiveRealityDirector />');
     expect(home).toContain('<QuantumLoaderEvolution />');
-    expect(runtime).toContain("document.addEventListener('ivuru:loader-released', release)");
+    expect(runtime).toContain("document.addEventListener('ivuru:loader-runtime-safe', sync)");
   });
 
   it('スクロールリスナーを使わず入力速度と遷移属性から演出強度を更新する', () => {
