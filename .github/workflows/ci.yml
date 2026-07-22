@@ -28,8 +28,8 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - name: 修正版依存関係をlockfileへ反映
-        run: npm audit fix --package-lock-only
+      - name: overrideをlockfileへ反映
+        run: npm install --package-lock-only
       - name: High以上の脆弱性が解消したことを確認
         run: npm audit --omit=dev --audit-level=high
       - name: 一時ジョブをワークフローから削除
