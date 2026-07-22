@@ -6,7 +6,6 @@ body[data-story-render-mode='static-stack'] {
   overscroll-behavior-y: auto;
 }
 
-html[data-story-render-mode='static-stack'] .anime-story-skip,
 html[data-story-render-mode='static-stack'] [data-story-progress-dot],
 html[data-story-render-mode='static-stack'] [data-story-progress-line],
 html[data-story-render-mode='static-stack'] .anime-story-chrome,
