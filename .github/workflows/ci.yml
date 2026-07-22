@@ -6,56 +6,13 @@ on:
   pull_request:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  format-ios-story:
-    if: github.event_name == 'pull_request' && github.actor != 'github-actions[bot]'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-          fetch-depth: 0
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-      - run: npm ci
-      - name: iOSストーリー変更ファイルを整形
-        run: |
-          npx prettier --write \
-            .github/workflows/ci.yml \
-            src/components/common/LoaderCompletionBridge.astro \
-            src/components/common/LoaderReleaseGuard.astro \
-            src/components/effects/IOSNativeStoryDirector.tsx \
-            src/components/effects/IOSStoryRuntimeIsolation.astro \
-            src/components/effects/StoryEffectsRuntime.tsx \
-            src/styles/story-ios-webkit-stability.css
-      - name: 整形差分をコミット
-        run: |
-          if git diff --quiet; then
-            echo "整形差分はありません。"
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add \
-            .github/workflows/ci.yml \
-            src/components/common/LoaderCompletionBridge.astro \
-            src/components/common/LoaderReleaseGuard.astro \
-            src/components/effects/IOSNativeStoryDirector.tsx \
-            src/components/effects/IOSStoryRuntimeIsolation.astro \
-            src/components/effects/StoryEffectsRuntime.tsx \
-            src/styles/story-ios-webkit-stability.css
-          git commit -m "iOSネイティブスクロール実装を整形"
-          git push origin HEAD:${{ github.head_ref }}
-
   security-audit:
     runs-on: ubuntu-latest
     timeout-minutes: 10
