@@ -15,6 +15,11 @@ type GateElements = {
   title: HTMLElement;
 };
 
+type StoryTimeline = {
+  progress: (value: number) => unknown;
+  kill: () => void;
+};
+
 const CHAPTERS = ['01', '02', '03'] as const;
 const MOBILE_SCROLL_SCREENS = 5.7;
 
@@ -89,12 +94,14 @@ export default function IOSNativeStoryDirector() {
     if (!isIOSWebKit()) return;
 
     let disposed = false;
-    let frame = 0;
-    let timeline: { progress: (value: number) => unknown; kill: () => void } | undefined;
+    let syncFrame = 0;
+    let monitorFrame = 0;
+    let timeline: StoryTimeline | undefined;
     let gate: GateElements | undefined;
     let activeIndex = -1;
     let scrollStart = 0;
     let scrollEnd = 1;
+    let lastObservedScrollY = Number.NaN;
     let elements: StoryElements | null = null;
 
     const viewportHeight = () =>
@@ -110,6 +117,9 @@ export default function IOSNativeStoryDirector() {
         scene.dataset.active = active ? 'true' : 'false';
         scene.setAttribute('aria-hidden', active ? 'false' : 'true');
         scene.toggleAttribute('inert', !active);
+        scene.style.opacity = active ? '1' : '0';
+        scene.style.visibility = active ? 'visible' : 'hidden';
+        scene.style.pointerEvents = active ? 'auto' : 'none';
       });
       elements.dots.forEach((dot, dotIndex) => {
         dot.dataset.active = dotIndex === nextIndex ? 'true' : 'false';
@@ -160,7 +170,7 @@ export default function IOSNativeStoryDirector() {
     };
 
     const syncProgress = () => {
-      frame = 0;
+      syncFrame = 0;
       if (disposed || !elements) return;
 
       const progress = clamp((window.scrollY - scrollStart) / Math.max(1, scrollEnd - scrollStart));
@@ -179,8 +189,20 @@ export default function IOSNativeStoryDirector() {
     };
 
     const scheduleSync = () => {
-      if (frame || disposed) return;
-      frame = requestAnimationFrame(syncProgress);
+      if (syncFrame || disposed) return;
+      syncFrame = requestAnimationFrame(syncProgress);
+    };
+
+    const monitorNativeScroll = () => {
+      if (disposed) return;
+
+      const currentScrollY = Math.round(window.scrollY);
+      if (currentScrollY !== lastObservedScrollY) {
+        lastObservedScrollY = currentScrollY;
+        syncProgress();
+      }
+
+      monitorFrame = requestAnimationFrame(monitorNativeScroll);
     };
 
     const syncLayout = () => {
@@ -209,6 +231,7 @@ export default function IOSNativeStoryDirector() {
       elements.stage.style.height = `${height}px`;
       elements.stage.style.minHeight = '0';
       elements.stage.style.overflow = 'clip';
+      lastObservedScrollY = Number.NaN;
       scheduleSync();
     };
 
@@ -227,33 +250,19 @@ export default function IOSNativeStoryDirector() {
         scene.querySelectorAll<HTMLElement>('[data-story-visual], [data-story-depth]'),
       );
 
-      gsap.set(elements.scenes, { autoAlpha: 0 });
-      gsap.set(elements.scenes[0], { autoAlpha: 1 });
       gsap.set(gate.root, { autoAlpha: 0 });
+      gsap.set([copies[1], copies[2]], { y: 34, autoAlpha: 0 });
+      gsap.set([visuals[1], visuals[2]], { scale: 0.9, autoAlpha: 0 });
 
       const motion = gsap.timeline({ paused: true, defaults: { ease: 'power3.inOut' } });
       motion
         .to(gate.root, { autoAlpha: 1, duration: 0.08 }, 0.2)
-        .to(elements.scenes[0], { autoAlpha: 0, duration: 0.16 }, 0.27)
-        .fromTo(elements.scenes[1], { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.18 }, 0.32)
-        .fromTo(copies[1], { y: 34, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.18 }, 0.32)
-        .fromTo(
-          visuals[1],
-          { scale: 0.9, autoAlpha: 0 },
-          { scale: 1, autoAlpha: 1, duration: 0.2 },
-          0.31,
-        )
+        .to(copies[1], { y: 0, autoAlpha: 1, duration: 0.18 }, 0.32)
+        .to(visuals[1], { scale: 1, autoAlpha: 1, duration: 0.2 }, 0.31)
         .to(gate.root, { autoAlpha: 0, duration: 0.1 }, 0.42)
         .to(gate.root, { autoAlpha: 1, duration: 0.08 }, 0.54)
-        .to(elements.scenes[1], { autoAlpha: 0, duration: 0.16 }, 0.61)
-        .fromTo(elements.scenes[2], { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.18 }, 0.66)
-        .fromTo(copies[2], { y: 34, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.18 }, 0.66)
-        .fromTo(
-          visuals[2],
-          { scale: 0.9, autoAlpha: 0 },
-          { scale: 1, autoAlpha: 1, duration: 0.2 },
-          0.65,
-        )
+        .to(copies[2], { y: 0, autoAlpha: 1, duration: 0.18 }, 0.66)
+        .to(visuals[2], { scale: 1, autoAlpha: 1, duration: 0.2 }, 0.65)
         .to(gate.root, { autoAlpha: 0, duration: 0.1 }, 0.76);
 
       timeline = motion;
@@ -277,6 +286,7 @@ export default function IOSNativeStoryDirector() {
 
       applySceneState(0);
       syncLayout();
+      monitorFrame = requestAnimationFrame(monitorNativeScroll);
     };
 
     const onViewportChange = () => syncLayout();
@@ -294,7 +304,8 @@ export default function IOSNativeStoryDirector() {
 
     return () => {
       disposed = true;
-      cancelAnimationFrame(frame);
+      cancelAnimationFrame(syncFrame);
+      cancelAnimationFrame(monitorFrame);
       timeline?.kill();
       gate?.root.remove();
       window.removeEventListener('scroll', scheduleSync);
@@ -314,6 +325,11 @@ export default function IOSNativeStoryDirector() {
         elements.stage.style.removeProperty('height');
         elements.stage.style.removeProperty('min-height');
         elements.stage.style.removeProperty('overflow');
+        elements.scenes.forEach((scene) => {
+          scene.style.removeProperty('opacity');
+          scene.style.removeProperty('visibility');
+          scene.style.removeProperty('pointer-events');
+        });
       }
     };
   }, []);
