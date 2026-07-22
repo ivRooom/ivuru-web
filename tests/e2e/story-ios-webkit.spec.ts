@@ -19,95 +19,29 @@ const waitForLoaderRelease = async (page: Page) => {
   }
 };
 
-const waitForNativeStoryLayout = async (page: Page) => {
-  const story = page.locator('[data-anime-scroll-story]');
-  await expect(story).toHaveAttribute('data-story-scroll-mode', 'native-sticky', {
-    timeout: 15_000,
-  });
-  await expect
-    .poll(
-      () =>
-        story.evaluate((root) => {
-          const element = root as HTMLElement;
-          const start = Number(element.dataset.storyScrollStart);
-          const end = Number(element.dataset.storyScrollEnd);
-          const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
-          const scrollingElement = document.scrollingElement ?? document.documentElement;
-          const maxScroll = Math.max(0, scrollingElement.scrollHeight - window.innerHeight);
-          return (
-            Number.isFinite(start) &&
-            Number.isFinite(end) &&
-            end - start > viewportHeight * 3 &&
-            element.getBoundingClientRect().height > viewportHeight * 3 &&
-            maxScroll >= end - 1
-          );
-        }),
-      { timeout: 15_000 },
-    )
-    .toBe(true);
-};
+const expectSceneRendered = async (page: Page, index: number) => {
+  const scene = page.locator(`[data-anime-story-scene="${index}"]`);
 
-const scrollTo = async (page: Page, top: number) => {
-  const expectedTop = Math.max(0, Math.round(top));
-  await expect
-    .poll(
-      () =>
-        page.evaluate((targetTop) => {
-          window.scrollTo(0, Number(targetTop));
-          return Math.round(window.scrollY);
-        }, expectedTop),
-      { timeout: 5_000 },
-    )
-    .toBe(expectedTop);
-  await page.evaluate(() => window.dispatchEvent(new Event('scroll')));
-};
-
-const revealStory = async (page: Page) => {
-  const top = await page.evaluate(() => {
-    const root = document.querySelector<HTMLElement>('[data-anime-scroll-story]');
-    if (!root) throw new Error('story root is missing');
-    return Math.max(0, root.getBoundingClientRect().top + window.scrollY);
-  });
-  await scrollTo(page, top);
-};
-
-const scrollToProgress = async (page: Page, progress: number) => {
-  const story = page.locator('[data-anime-scroll-story]');
-  const top = await story.evaluate((root, target) => {
-    const start = Number((root as HTMLElement).dataset.storyScrollStart);
-    const end = Number((root as HTMLElement).dataset.storyScrollEnd);
-    if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) {
-      throw new Error(`invalid story range: ${start} - ${end}`);
-    }
-    return start + (end - start) * Number(target);
-  }, progress);
-  await scrollTo(page, top);
-  await expect
-    .poll(async () => Number((await story.getAttribute('data-story-authority-progress')) ?? -1), {
-      timeout: 5_000,
-    })
-    .toBeCloseTo(progress, 2);
-};
-
-const expectChapter = async (page: Page, chapter: '01' | '02' | '03') => {
-  const story = page.locator('[data-anime-scroll-story]');
-  const scene = story.locator(`[data-anime-story-scene="${Number(chapter) - 1}"]`);
-
-  await expect(story).toHaveAttribute('data-story-chapter', chapter, { timeout: 10_000 });
-  await expect(story).toHaveAttribute('data-story-authority-chapter', chapter, {
-    timeout: 10_000,
-  });
   await expect(scene).toHaveAttribute('data-active', 'true');
   await expect(scene).toHaveAttribute('aria-hidden', 'false');
   await expect(scene).not.toHaveAttribute('inert', '');
-  await expect(story.locator('[data-anime-story-scene][aria-hidden="false"]')).toHaveCount(1);
-
   await expect
-    .poll(async () => scene.evaluate((element) => Number(getComputedStyle(element).opacity)))
-    .toBeGreaterThan(0.05);
+    .poll(() => scene.evaluate((element) => Number(getComputedStyle(element).opacity)))
+    .toBeGreaterThan(0.9);
+  await expect
+    .poll(() => scene.evaluate((element) => getComputedStyle(element).visibility))
+    .toBe('visible');
+
+  const box = await scene.boundingBox();
+  expect(box).not.toBeNull();
+  expect(box?.height ?? 0).toBeGreaterThan(500);
+  expect(box?.width ?? 0).toBeGreaterThan(300);
+
+  await scene.scrollIntoViewIfNeeded();
+  await expect(scene).toBeInViewport({ ratio: 0.15 });
 };
 
-test.describe('iOS WebKit story stability', () => {
+test.describe('iOS WebKit static story', () => {
   test.describe.configure({ timeout: 60_000 });
 
   test.beforeEach(async ({ browserName, page }) => {
@@ -132,98 +66,74 @@ test.describe('iOS WebKit story stability', () => {
     await waitForLoaderRelease(page);
   });
 
-  test('Heroで待機後も実GSAP演出で01→02→03→02→01を維持する', async ({ page }) => {
-    await page.emulateMedia({ reducedMotion: 'no-preference' });
+  test('スクロール連動を使わず01・02・03を通常の縦積みで描画する', async ({ page }) => {
     await page.goto('/');
     await waitForLoaderRelease(page);
-    await waitForNativeStoryLayout(page);
 
+    const html = page.locator('html');
     const story = page.locator('[data-anime-scroll-story]');
-    await expect(story).toHaveAttribute('data-story-platform', 'ios-webkit');
 
-    await page.waitForTimeout(5_200);
-    const preReveal = await story.evaluate((root) => ({
-      mode: (root as HTMLElement).dataset.storyMode ?? '',
-      runtime: (root as HTMLElement).dataset.storyRuntime ?? '',
-      reason: (root as HTMLElement).dataset.storyRuntimeReason ?? '',
-    }));
-    expect(preReveal.mode).not.toBe('static');
-    expect(preReveal.runtime).not.toBe('fallback');
-    expect(preReveal.reason).not.toBe('motion-boot-timeout');
+    await expect(html).toHaveAttribute('data-story-render-mode', 'static-stack');
+    await expect(story).toHaveAttribute('data-story-render-mode', 'static-stack');
+    await expect(story).toHaveAttribute('data-story-scroll-mode', 'static-stack');
+    await expect(story).toHaveAttribute('data-story-mode', 'static');
+    await expect(story).toHaveAttribute('data-story-director', 'static');
+    await expect(story).toHaveAttribute('data-story-runtime', 'ready');
+    await expect(story.locator('[data-chapter-gate]')).toHaveCount(0);
+    await expect(story.locator('[data-anime-story-scene]')).toHaveCount(3);
 
-    await revealStory(page);
-    await expect(story).toHaveAttribute('data-story-director', 'ready', { timeout: 15_000 });
-    await expect(story).toHaveAttribute('data-story-runtime', 'ready', { timeout: 15_000 });
-    await expect(story).toHaveAttribute('data-story-mobile-stability', 'ready', {
-      timeout: 15_000,
+    await expectSceneRendered(page, 0);
+    await expectSceneRendered(page, 1);
+    await expectSceneRendered(page, 2);
+
+    const geometry = await story.evaluate((root) => {
+      const scenes = Array.from(root.querySelectorAll<HTMLElement>('[data-anime-story-scene]'));
+      const rootRect = root.getBoundingClientRect();
+      const after = document.querySelector<HTMLElement>('#anime-story-after');
+      const afterRect = after?.getBoundingClientRect();
+      const sceneRects = scenes.map((scene) => scene.getBoundingClientRect());
+      const sumSceneHeights = sceneRects.reduce((total, rect) => total + rect.height, 0);
+
+      return {
+        rootHeight: rootRect.height,
+        sumSceneHeights,
+        sceneTops: sceneRects.map((rect) => rect.top + window.scrollY),
+        afterGap: afterRect ? afterRect.top - rootRect.bottom : Number.POSITIVE_INFINITY,
+      };
     });
-    await expect(story).toHaveAttribute('data-story-transition-engine', 'world-forge');
-    await expect(story).toHaveAttribute('data-story-snap-state', 'ready');
-    await expect(story).not.toHaveAttribute('data-story-native-recovery', 'true');
 
-    const gate = story.locator('[data-chapter-gate]');
-    await expect(gate).toHaveCount(1);
-    await expect(gate).toHaveAttribute('data-gate-variant', 'ios-no-shutter');
-    await expect(gate.locator('.anime-chapter-gate__shutter')).toHaveCount(0);
-
-    await scrollToProgress(page, 0.05);
-    await expectChapter(page, '01');
-    await expect(gate).toHaveAttribute('hidden', '');
-
-    await scrollToProgress(page, 0.4);
-    await expectChapter(page, '02');
-    await expect(gate).not.toHaveAttribute('hidden', '');
-
-    await scrollToProgress(page, 0.8);
-    await expectChapter(page, '03');
-    await expect(gate).not.toHaveAttribute('hidden', '');
-    await expect(page.locator('[data-omega-world-rift]')).toHaveAttribute(
-      'data-omega-chapter',
-      '03',
-    );
-
-    await scrollToProgress(page, 0.95);
-    await expectChapter(page, '03');
-    await expect(gate).toHaveAttribute('hidden', '');
-
-    await scrollToProgress(page, 0.42);
-    await expectChapter(page, '02');
-    await expect(gate).not.toHaveAttribute('hidden', '');
-
-    await scrollToProgress(page, 0.08);
-    await expectChapter(page, '01');
-    await expect(gate).toHaveAttribute('hidden', '');
+    expect(geometry.sceneTops[1]).toBeGreaterThan(geometry.sceneTops[0]);
+    expect(geometry.sceneTops[2]).toBeGreaterThan(geometry.sceneTops[1]);
+    expect(Math.abs(geometry.rootHeight - geometry.sumSceneHeights)).toBeLessThan(180);
+    expect(Math.abs(geometry.afterGap)).toBeLessThan(80);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+      ),
+    ).toBe(false);
   });
 
-  test('アドレスバー相当の高さ変化と画面回転後もready状態を維持する', async ({ page }) => {
+  test('アドレスバー相当の高さ変化と画面回転後も静的3章を維持する', async ({ page }) => {
     await page.goto('/');
     await waitForLoaderRelease(page);
-    await waitForNativeStoryLayout(page);
 
     const story = page.locator('[data-anime-scroll-story]');
-    await revealStory(page);
-    await expect(story).toHaveAttribute('data-story-runtime', 'ready', { timeout: 15_000 });
-    await expect(story).toHaveAttribute('data-story-transition-engine', 'world-forge');
-
-    await scrollToProgress(page, 0.42);
-    await expectChapter(page, '02');
+    await expect(story).toHaveAttribute('data-story-render-mode', 'static-stack');
 
     await page.setViewportSize({ width: 390, height: 720 });
-    await page.waitForTimeout(700);
-    await expect(story).toHaveAttribute('data-story-runtime', 'ready');
-    await expect(story).toHaveAttribute('data-story-mode', 'motion');
+    await page.waitForTimeout(500);
+    await expect(story).toHaveAttribute('data-story-scroll-mode', 'static-stack');
+    await expect(story.locator('[data-anime-story-scene][aria-hidden="false"]')).toHaveCount(3);
 
     await page.setViewportSize({ width: 844, height: 390 });
-    await page.waitForTimeout(900);
-    await expect(story).toHaveAttribute('data-story-runtime', 'ready', { timeout: 12_000 });
-    await expect(story).toHaveAttribute('data-story-mobile-stability', 'ready', {
-      timeout: 12_000,
-    });
+    await page.waitForTimeout(700);
+    await expect(story).toHaveAttribute('data-story-render-mode', 'static-stack');
+    await expect(story.locator('[data-anime-story-scene][data-active="true"]')).toHaveCount(3);
 
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.waitForTimeout(900);
-    await expect(story).toHaveAttribute('data-story-runtime', 'ready', { timeout: 12_000 });
-    await expect(story).not.toHaveAttribute('data-story-native-recovery', 'true');
+    await page.waitForTimeout(700);
+    await expect(story).toHaveAttribute('data-story-mode', 'static');
+    await expect(story.locator('[data-anime-story-scene][aria-hidden="false"]')).toHaveCount(3);
 
     expect(
       await page.evaluate(
