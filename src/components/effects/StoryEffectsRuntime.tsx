@@ -8,6 +8,11 @@ import SingularityOverdriveDirector from '@/components/effects/SingularityOverdr
 import AdaptiveRealityDirector from '@/components/effects/AdaptiveRealityDirector';
 import StoryProductionRuntime from '@/components/effects/StoryProductionRuntime';
 
+const isIOSWebKit = () =>
+  typeof navigator !== 'undefined' &&
+  (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
+
 const loaderHasFinished = () => {
   const root = document.documentElement;
   const loader = document.querySelector<HTMLElement>('[data-spatial-loader]');
@@ -28,10 +33,15 @@ const loaderHasFinished = () => {
 
 export default function StoryEffectsRuntime() {
   const [ready, setReady] = useState(false);
+  const [iosCore, setIOSCore] = useState(false);
 
   useEffect(() => {
     let observer: MutationObserver | undefined;
     let probeTimer = 0;
+    const ios = isIOSWebKit();
+
+    setIOSCore(ios);
+    document.documentElement.dataset.storyEffectsProfile = ios ? 'ios-core' : 'full';
 
     const release = () => setReady(true);
     const sync = () => {
@@ -70,10 +80,20 @@ export default function StoryEffectsRuntime() {
       document.removeEventListener('ivuru:loader-released', release);
       document.removeEventListener('astro:page-load', sync);
       window.removeEventListener('pageshow', sync);
+      delete document.documentElement.dataset.storyEffectsProfile;
     };
   }, []);
 
   if (!ready) return null;
+
+  if (iosCore) {
+    return (
+      <Fragment>
+        <IOSStoryStabilityBridge />
+        <AnimeScrollDirector />
+      </Fragment>
+    );
+  }
 
   return (
     <Fragment>
