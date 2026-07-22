@@ -41,6 +41,9 @@
     "tailwindcss": "4.3.2",
     "three": "0.185.1"
   },
+  "overrides": {
+    "fast-xml-parser": "5.10.1"
+  },
   "devDependencies": {
     "@astrojs/check": "0.9.9",
     "@eslint/js": "10.0.1",
