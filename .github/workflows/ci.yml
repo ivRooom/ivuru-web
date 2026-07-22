@@ -13,6 +13,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  security-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: 本番依存関係の脆弱性を監査
+        run: npm audit --omit=dev --audit-level=high
+
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -25,8 +38,6 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - name: 本番依存関係の脆弱性を監査
-        run: npm audit --omit=dev --audit-level=high
       - name: Astro Checkを実行
         id: astro-check
         shell: bash
