@@ -1,27 +1,17 @@
 import { Fragment, Suspense, lazy, useEffect, useState } from 'react';
 
-const CinematicPointerEffects = lazy(
-  () => import('@/components/effects/CinematicPointerEffects'),
-);
-const IOSStoryStabilityBridge = lazy(
-  () => import('@/components/effects/IOSStoryStabilityBridge'),
-);
+const CinematicPointerEffects = lazy(() => import('@/components/effects/CinematicPointerEffects'));
+const IOSStoryStabilityBridge = lazy(() => import('@/components/effects/IOSStoryStabilityBridge'));
 const AnimeScrollDirector = lazy(() => import('@/components/effects/AnimeScrollDirector'));
-const SpatialCameraEnhancer = lazy(
-  () => import('@/components/effects/SpatialCameraEnhancer'),
-);
+const SpatialCameraEnhancer = lazy(() => import('@/components/effects/SpatialCameraEnhancer'));
 const CinematicEntertainmentDirector = lazy(
   () => import('@/components/effects/CinematicEntertainmentDirector'),
 );
 const SingularityOverdriveDirector = lazy(
   () => import('@/components/effects/SingularityOverdriveDirector'),
 );
-const AdaptiveRealityDirector = lazy(
-  () => import('@/components/effects/AdaptiveRealityDirector'),
-);
-const StoryProductionRuntime = lazy(
-  () => import('@/components/effects/StoryProductionRuntime'),
-);
+const AdaptiveRealityDirector = lazy(() => import('@/components/effects/AdaptiveRealityDirector'));
+const StoryProductionRuntime = lazy(() => import('@/components/effects/StoryProductionRuntime'));
 
 const isIOSWebKit = () =>
   typeof navigator !== 'undefined' &&
