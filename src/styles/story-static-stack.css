@@ -24,7 +24,8 @@ html[data-story-render-mode='static-stack'] .anime-community-emblem,
 html[data-story-render-mode='static-stack'] .anime-opening-rings,
 html[data-story-render-mode='static-stack'] .anime-flight-path,
 html[data-story-render-mode='static-stack'] .anime-orbit-proxy,
-html[data-story-render-mode='static-stack'] .anime-depth-plane {
+html[data-story-render-mode='static-stack'] .anime-depth-plane,
+html[data-story-render-mode='static-stack'] .anime-light-road {
   display: none !important;
 }
 
