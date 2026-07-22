@@ -26,6 +26,7 @@
 
       const markRuntimeSafe = (reason) => {
         if (disposed || !(loader instanceof HTMLElement)) return;
+        if (loader.dataset.loaderRuntimeSafe === 'true') return;
 
         loader.hidden = true;
         loader.style.display = 'none';
