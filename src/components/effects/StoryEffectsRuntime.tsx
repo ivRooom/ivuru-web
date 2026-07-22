@@ -1,12 +1,27 @@
-import { Fragment, useEffect, useState } from 'react';
-import CinematicPointerEffects from '@/components/effects/CinematicPointerEffects';
-import IOSStoryStabilityBridge from '@/components/effects/IOSStoryStabilityBridge';
-import AnimeScrollDirector from '@/components/effects/AnimeScrollDirector';
-import SpatialCameraEnhancer from '@/components/effects/SpatialCameraEnhancer';
-import CinematicEntertainmentDirector from '@/components/effects/CinematicEntertainmentDirector';
-import SingularityOverdriveDirector from '@/components/effects/SingularityOverdriveDirector';
-import AdaptiveRealityDirector from '@/components/effects/AdaptiveRealityDirector';
-import StoryProductionRuntime from '@/components/effects/StoryProductionRuntime';
+import { Fragment, Suspense, lazy, useEffect, useState } from 'react';
+
+const CinematicPointerEffects = lazy(
+  () => import('@/components/effects/CinematicPointerEffects'),
+);
+const IOSStoryStabilityBridge = lazy(
+  () => import('@/components/effects/IOSStoryStabilityBridge'),
+);
+const AnimeScrollDirector = lazy(() => import('@/components/effects/AnimeScrollDirector'));
+const SpatialCameraEnhancer = lazy(
+  () => import('@/components/effects/SpatialCameraEnhancer'),
+);
+const CinematicEntertainmentDirector = lazy(
+  () => import('@/components/effects/CinematicEntertainmentDirector'),
+);
+const SingularityOverdriveDirector = lazy(
+  () => import('@/components/effects/SingularityOverdriveDirector'),
+);
+const AdaptiveRealityDirector = lazy(
+  () => import('@/components/effects/AdaptiveRealityDirector'),
+);
+const StoryProductionRuntime = lazy(
+  () => import('@/components/effects/StoryProductionRuntime'),
+);
 
 const isIOSWebKit = () =>
   typeof navigator !== 'undefined' &&
@@ -17,17 +32,13 @@ const loaderHasFinished = () => {
   const root = document.documentElement;
   const loader = document.querySelector<HTMLElement>('[data-spatial-loader]');
 
-  if (root.dataset.loaderReleased === 'true') return true;
   if (!loader) return true;
 
   return (
+    root.dataset.loaderRuntimeSafe === 'true' ||
+    loader.dataset.loaderRuntimeSafe === 'true' ||
     loader.hidden ||
-    loader.getAttribute('aria-hidden') === 'true' ||
-    loader.style.display === 'none' ||
-    loader.dataset.state === 'ready' ||
-    loader.dataset.guardReleased === 'true' ||
-    loader.dataset.completionBridged === 'true' ||
-    loader.classList.contains('loaded')
+    loader.style.display === 'none'
   );
 };
 
@@ -70,12 +81,43 @@ export default function StoryEffectsRuntime() {
 
   useEffect(() => {
     const compactViewport = matchMedia('(max-width: 767px)');
+    let activeProfile: EffectsProfile = 'pending';
     let probeTimer = 0;
+    let firstFrame = 0;
+    let secondFrame = 0;
 
     const shouldUseStaticStory = () => isIOSWebKit() || compactViewport.matches;
 
+    const clearDeferredStart = () => {
+      window.clearInterval(probeTimer);
+      probeTimer = 0;
+      cancelAnimationFrame(firstFrame);
+      cancelAnimationFrame(secondFrame);
+      firstFrame = 0;
+      secondFrame = 0;
+    };
+
+    const markFullRuntimeReady = () => {
+      if (activeProfile !== 'full' || !loaderHasFinished()) return;
+
+      clearDeferredStart();
+      firstFrame = requestAnimationFrame(() => {
+        secondFrame = requestAnimationFrame(() => {
+          if (activeProfile !== 'full' || !loaderHasFinished()) return;
+          setReady(true);
+        });
+      });
+    };
+
+    const ensureCompletionProbe = () => {
+      if (probeTimer !== 0) return;
+      probeTimer = window.setInterval(markFullRuntimeReady, 250);
+    };
+
     const sync = () => {
       if (shouldUseStaticStory()) {
+        clearDeferredStart();
+        activeProfile = 'static-stack';
         setProfile('static-stack');
         setReady(false);
         applyStaticStoryState();
@@ -85,22 +127,28 @@ export default function StoryEffectsRuntime() {
       document.documentElement.dataset.storyEffectsProfile = 'full';
       delete document.documentElement.dataset.storyRenderMode;
       delete document.body.dataset.storyRenderMode;
-      setProfile('full');
-      if (loaderHasFinished()) setReady(true);
+
+      if (activeProfile !== 'full') {
+        activeProfile = 'full';
+        setProfile('full');
+        setReady(false);
+      }
+
+      if (loaderHasFinished()) markFullRuntimeReady();
+      else ensureCompletionProbe();
     };
 
-    const release = () => sync();
-
     sync();
-    document.addEventListener('ivuru:loader-released', release);
+    document.addEventListener('ivuru:loader-released', sync);
+    document.addEventListener('ivuru:loader-runtime-safe', sync);
     document.addEventListener('astro:page-load', sync);
     window.addEventListener('pageshow', sync);
     compactViewport.addEventListener('change', sync);
-    probeTimer = window.setInterval(sync, 250);
 
     return () => {
-      window.clearInterval(probeTimer);
-      document.removeEventListener('ivuru:loader-released', release);
+      clearDeferredStart();
+      document.removeEventListener('ivuru:loader-released', sync);
+      document.removeEventListener('ivuru:loader-runtime-safe', sync);
       document.removeEventListener('astro:page-load', sync);
       window.removeEventListener('pageshow', sync);
       compactViewport.removeEventListener('change', sync);
@@ -111,15 +159,17 @@ export default function StoryEffectsRuntime() {
   if (profile !== 'full' || !ready) return null;
 
   return (
-    <Fragment>
-      <CinematicPointerEffects />
-      <IOSStoryStabilityBridge />
-      <AnimeScrollDirector />
-      <StoryProductionRuntime />
-      <SpatialCameraEnhancer />
-      <CinematicEntertainmentDirector />
-      <SingularityOverdriveDirector />
-      <AdaptiveRealityDirector />
-    </Fragment>
+    <Suspense fallback={null}>
+      <Fragment>
+        <CinematicPointerEffects />
+        <IOSStoryStabilityBridge />
+        <AnimeScrollDirector />
+        <StoryProductionRuntime />
+        <SpatialCameraEnhancer />
+        <CinematicEntertainmentDirector />
+        <SingularityOverdriveDirector />
+        <AdaptiveRealityDirector />
+      </Fragment>
+    </Suspense>
   );
 }
