@@ -22,6 +22,7 @@ type StoryTimeline = {
 
 const CHAPTERS = ['01', '02', '03'] as const;
 const MOBILE_SCROLL_SCREENS = 5.7;
+const SCROLL_HEARTBEAT_MS = 80;
 
 const isIOSWebKit = () =>
   /iPad|iPhone|iPod/.test(navigator.userAgent) ||
@@ -96,6 +97,7 @@ export default function IOSNativeStoryDirector() {
     let disposed = false;
     let syncFrame = 0;
     let monitorFrame = 0;
+    let heartbeatTimer = 0;
     let timeline: StoryTimeline | undefined;
     let gate: GateElements | undefined;
     let activeIndex = -1;
@@ -193,15 +195,19 @@ export default function IOSNativeStoryDirector() {
       syncFrame = requestAnimationFrame(syncProgress);
     };
 
-    const monitorNativeScroll = () => {
-      if (disposed) return;
+    const syncFromNativeScroll = () => {
+      if (disposed || !elements) return;
 
       const currentScrollY = Math.round(window.scrollY);
-      if (currentScrollY !== lastObservedScrollY) {
-        lastObservedScrollY = currentScrollY;
-        syncProgress();
-      }
+      if (currentScrollY === lastObservedScrollY) return;
 
+      lastObservedScrollY = currentScrollY;
+      syncProgress();
+    };
+
+    const monitorNativeScroll = () => {
+      if (disposed) return;
+      syncFromNativeScroll();
       monitorFrame = requestAnimationFrame(monitorNativeScroll);
     };
 
@@ -287,6 +293,7 @@ export default function IOSNativeStoryDirector() {
       applySceneState(0);
       syncLayout();
       monitorFrame = requestAnimationFrame(monitorNativeScroll);
+      heartbeatTimer = window.setInterval(syncFromNativeScroll, SCROLL_HEARTBEAT_MS);
     };
 
     const onViewportChange = () => syncLayout();
@@ -297,22 +304,27 @@ export default function IOSNativeStoryDirector() {
 
     void setup();
     window.addEventListener('scroll', scheduleSync, { passive: true });
+    document.addEventListener('scroll', scheduleSync, { capture: true, passive: true });
     window.addEventListener('resize', onViewportChange, { passive: true });
     window.addEventListener('orientationchange', onViewportChange, { passive: true });
     window.addEventListener('pageshow', onPageShow);
     window.visualViewport?.addEventListener('resize', onViewportChange, { passive: true });
+    window.visualViewport?.addEventListener('scroll', scheduleSync, { passive: true });
 
     return () => {
       disposed = true;
       cancelAnimationFrame(syncFrame);
       cancelAnimationFrame(monitorFrame);
+      window.clearInterval(heartbeatTimer);
       timeline?.kill();
       gate?.root.remove();
       window.removeEventListener('scroll', scheduleSync);
+      document.removeEventListener('scroll', scheduleSync, true);
       window.removeEventListener('resize', onViewportChange);
       window.removeEventListener('orientationchange', onViewportChange);
       window.removeEventListener('pageshow', onPageShow);
       window.visualViewport?.removeEventListener('resize', onViewportChange);
+      window.visualViewport?.removeEventListener('scroll', scheduleSync);
 
       if (elements) {
         elements.root.style.removeProperty('height');
