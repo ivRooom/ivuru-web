@@ -5,7 +5,7 @@ const readSource = (relativePath: string) =>
   readFileSync(new URL(`../../${relativePath}`, import.meta.url), 'utf8');
 
 describe('story production runtime contract', () => {
-  it('Homeは旧Progress Authorityではなく本番Runtimeを一度だけ起動する', () => {
+  it('Homeは旧Progress Authorityではなく本番Runtimeを一度だけ遅延起動する', () => {
     const home = readSource('src/components/pages/HomePageV2.astro');
     const bootstrap = readSource('src/components/effects/StoryEffectsRuntime.tsx');
 
@@ -13,9 +13,8 @@ describe('story production runtime contract', () => {
       "import StoryEffectsRuntime from '@/components/effects/StoryEffectsRuntime'",
     );
     expect(home).toContain('<StoryEffectsRuntime client:load />');
-    expect(bootstrap).toContain(
-      "import StoryProductionRuntime from '@/components/effects/StoryProductionRuntime'",
-    );
+    expect(bootstrap).toContain('const StoryProductionRuntime = lazy(');
+    expect(bootstrap).toContain("() => import('@/components/effects/StoryProductionRuntime')");
     expect(bootstrap.match(/<StoryProductionRuntime \/>/g)).toHaveLength(1);
     expect(home).not.toContain('StoryProgressAuthority');
   });
