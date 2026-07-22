@@ -80,6 +80,7 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
       - name: 変更ファイルのFormatを確認
+        id: format-check
         shell: bash
         run: |
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
@@ -92,8 +93,23 @@ jobs:
             echo "整形対象の変更ファイルはありません。"
           else
             printf 'Format check: %s\n' "${files[@]}"
+            set +e
             npx prettier --check "${files[@]}"
+            status=$?
+            if (( status != 0 )); then
+              npx prettier --write "${files[@]}"
+              git diff -- "${files[@]}" > prettier-format.patch
+            fi
+            exit "$status"
           fi
+      - name: Prettier整形差分を保存
+        if: failure() && steps.format-check.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: prettier-format-diagnostics-${{ github.run_attempt }}
+          path: prettier-format.patch
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Unit Testを実行
         id: unit-test
         shell: bash
