@@ -55,6 +55,7 @@ const createGate = (stage: HTMLElement): GateElements => {
   gate.className = 'anime-chapter-gate';
   gate.setAttribute('data-chapter-gate', 'true');
   gate.setAttribute('aria-hidden', 'true');
+  gate.hidden = true;
   gate.innerHTML = `
     <span class="anime-chapter-gate__backdrop" data-gate-backdrop></span>
     <span class="anime-chapter-gate__grid"></span>
@@ -148,7 +149,10 @@ export default function IOSNativeStoryDirector() {
 
       const first = progress >= 0.2 && progress <= 0.46;
       const second = progress >= 0.54 && progress <= 0.8;
-      if (!first && !second) {
+      const transitionActive = first || second;
+      gate.root.hidden = !transitionActive;
+
+      if (!transitionActive) {
         delete elements.root.dataset.storyTransition;
         delete elements.root.dataset.storyTransitionPhase;
         elements.root.style.setProperty('--chapter-gate-progress', '0');
@@ -260,8 +264,10 @@ export default function IOSNativeStoryDirector() {
       gsap.set([copies[1], copies[2]], { y: 34, autoAlpha: 0 });
       gsap.set([visuals[1], visuals[2]], { scale: 0.9, autoAlpha: 0 });
 
+      const timelineClock = { progress: 0 };
       const motion = gsap.timeline({ paused: true, defaults: { ease: 'power3.inOut' } });
       motion
+        .to(timelineClock, { progress: 1, duration: 1, ease: 'none' }, 0)
         .to(gate.root, { autoAlpha: 1, duration: 0.08 }, 0.2)
         .to(copies[1], { y: 0, autoAlpha: 1, duration: 0.18 }, 0.32)
         .to(visuals[1], { scale: 1, autoAlpha: 1, duration: 0.2 }, 0.31)
