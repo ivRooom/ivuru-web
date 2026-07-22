@@ -9,9 +9,8 @@ describe('singularity overdrive contract', () => {
     const home = readSource('src/components/pages/HomePageV2.astro');
     const runtime = readSource('src/components/effects/StoryEffectsRuntime.tsx');
 
-    expect(runtime).toContain(
-      "import SingularityOverdriveDirector from '@/components/effects/SingularityOverdriveDirector'",
-    );
+    expect(runtime).toContain('const SingularityOverdriveDirector = lazy(');
+    expect(runtime).toContain("import('@/components/effects/SingularityOverdriveDirector')");
     expect(home).toContain("import '@/styles/singularity-overdrive.css'");
     expect(home).toContain('<StoryEffectsRuntime client:load />');
     expect(runtime).toContain('<SingularityOverdriveDirector />');
