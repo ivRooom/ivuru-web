@@ -50,10 +50,12 @@ describe('iOS static story stability contract', () => {
     expect(source).toContain("root.querySelectorAll('[data-chapter-gate]').forEach");
   });
 
-  it('ローダーは途中描画を記録し100%到達時にページを解放する', () => {
+  it('ローダー完全退場後だけ演出Runtimeを起動し監視を破棄する', () => {
     const layout = readSource('src/layouts/BaseLayout.astro');
+    const intro = readSource('src/components/common/IntroLoader.astro');
     const guard = readSource('src/components/common/LoaderReleaseGuard.astro');
     const bridge = readSource('src/components/common/LoaderCompletionBridge.astro');
+    const runtime = readSource('src/components/effects/StoryEffectsRuntime.tsx');
 
     expect(layout).toContain('const releaseFailsafe = () =>');
     expect(guard).toContain('armTimers()');
@@ -61,9 +63,18 @@ describe('iOS static story stability contract', () => {
     expect(bridge).toContain("loader.dataset.completionBridged = 'true'");
     expect(bridge).toContain("loader.setAttribute('aria-hidden', 'true')");
     expect(bridge).toContain("new CustomEvent('ivuru:loader-released'");
+    expect(intro).toContain("loader.dataset.loaderRuntimeSafe = 'true'");
+    expect(intro).toContain("new CustomEvent('ivuru:loader-runtime-safe'");
+    expect(guard).toContain("new CustomEvent('ivuru:loader-runtime-safe'");
+    expect(bridge).toContain("new CustomEvent('ivuru:loader-runtime-safe'");
+    expect(bridge).toContain("document.addEventListener('astro:before-swap'");
+    expect(runtime).toContain("root.dataset.loaderRuntimeSafe === 'true'");
+    expect(runtime).toContain("lazy(() => import('@/components/effects/AnimeScrollDirector'))");
+    expect(runtime).toContain('const StoryProductionRuntime = lazy(');
+    expect(runtime).not.toContain("loader.classList.contains('loaded')");
   });
 
-  it('静的CSSは3章を通常フローで描画して演出オーバーレイを非表示にする', () => {
+  it('静的CSSは3章を通常フローで描画しスキップ導線を残す', () => {
     const css = readSource('src/styles/story-static-stack.css');
 
     expect(css).toContain("html[data-story-render-mode='static-stack'] .anime-scroll-stage");
@@ -75,6 +86,7 @@ describe('iOS static story stability contract', () => {
     expect(css).toContain('pointer-events: auto !important');
     expect(css).toContain('.anime-entertainment-layer');
     expect(css).toContain('[data-omega-world-rift]');
+    expect(css).not.toContain('.anime-story-skip,');
   });
 
   it('PlaywrightとCIはiPhone WebKitで静的3章と空白不在を検証する', () => {
