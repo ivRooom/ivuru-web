@@ -10,7 +10,6 @@ import LatestPosts from '@/components/blog/LatestPosts.astro';
 import ContactCTA from '@/components/home/ContactCTA.astro';
 import StoryEffectsRuntime from '@/components/effects/StoryEffectsRuntime';
 import IOSStoryRuntimeIsolation from '@/components/effects/IOSStoryRuntimeIsolation.astro';
-import IOSStoryDirectorRecovery from '@/components/effects/IOSStoryDirectorRecovery.astro';
 import QuantumLoaderEvolution from '@/components/effects/QuantumLoaderEvolution.astro';
 import OmegaWorldRift from '@/components/effects/OmegaWorldRift.astro';
 import { siteConfig, type Locale } from '@/data/site-config';
@@ -28,6 +27,7 @@ import '@/styles/home-loader-insets.css';
 import '@/styles/story-static-fallback.css';
 import '@/styles/story-production-runtime.css';
 import '@/styles/story-ios-webkit-stability.css';
+import '@/styles/story-static-stack.css';
 
 const { locale } = Astro.props as { locale: Locale };
 const descriptions = {
@@ -51,7 +51,6 @@ const descriptions = {
 
   <StorySkipLink locale={locale} />
   <AnimeScrollStory locale={locale} />
-  <IOSStoryDirectorRecovery />
   <OmegaWorldRift />
 
   <div id="anime-story-after" class="anime-story-after" tabindex="-1">
