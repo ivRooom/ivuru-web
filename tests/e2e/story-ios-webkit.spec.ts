@@ -38,7 +38,7 @@ const revealStory = async (page: Page) => {
   const top = await page.evaluate(() => {
     const root = document.querySelector<HTMLElement>('[data-anime-scroll-story]');
     if (!root) throw new Error('story root is missing');
-    return Math.max(8, root.getBoundingClientRect().top + window.scrollY + 8);
+    return Math.max(0, root.getBoundingClientRect().top + window.scrollY);
   });
   await scrollTo(page, top);
 };
