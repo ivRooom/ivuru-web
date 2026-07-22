@@ -54,6 +54,7 @@ const createGate = (stage: HTMLElement): GateElements => {
   const gate = document.createElement('div');
   gate.className = 'anime-chapter-gate';
   gate.setAttribute('data-chapter-gate', 'true');
+  gate.setAttribute('data-gate-variant', 'ios-no-shutter');
   gate.setAttribute('aria-hidden', 'true');
   gate.hidden = true;
   gate.innerHTML = `
@@ -74,8 +75,6 @@ const createGate = (stage: HTMLElement): GateElements => {
         ${Array.from({ length: 8 }, (_, index) => `<i style="--gate-index:${index}"></i>`).join('')}
       </div>
     </div>
-    <span class="anime-chapter-gate__shutter anime-chapter-gate__shutter--left" data-gate-shutter-left></span>
-    <span class="anime-chapter-gate__shutter anime-chapter-gate__shutter--right" data-gate-shutter-right></span>
     <span class="anime-chapter-gate__flash" data-gate-flash></span>
     <div class="anime-chapter-gate__copy">
       <small data-gate-title>WORLD FORGE / BUILD</small>
