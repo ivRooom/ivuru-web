@@ -6,47 +6,13 @@ on:
   pull_request:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  # TEMP_AUDIT_FIX_START
-  dependency-audit-fix:
-    if: github.event_name == 'pull_request' && github.actor != 'github-actions[bot]'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-          fetch-depth: 0
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-      - name: overrideをlockfileへ反映
-        run: npm install --package-lock-only
-      - name: 更新済みlockfileから依存関係をインストール
-        run: npm ci
-      - name: High以上の脆弱性が解消したことを確認
-        run: npm audit --omit=dev --audit-level=high
-      - name: lockfile更新をコミット
-        run: |
-          npx prettier --write package-lock.json
-          if git diff --quiet -- package-lock.json; then
-            echo "依存関係の更新差分はありません。"
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add package-lock.json
-          git commit -m "依存パッケージの脆弱性を解消"
-          git push origin HEAD:${{ github.head_ref }}
-  # TEMP_AUDIT_FIX_END
-
   security-audit:
     runs-on: ubuntu-latest
     timeout-minutes: 10
