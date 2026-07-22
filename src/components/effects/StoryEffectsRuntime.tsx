@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useState } from 'react';
 import CinematicPointerEffects from '@/components/effects/CinematicPointerEffects';
 import IOSStoryStabilityBridge from '@/components/effects/IOSStoryStabilityBridge';
+import IOSNativeStoryDirector from '@/components/effects/IOSNativeStoryDirector';
 import AnimeScrollDirector from '@/components/effects/AnimeScrollDirector';
 import SpatialCameraEnhancer from '@/components/effects/SpatialCameraEnhancer';
 import CinematicEntertainmentDirector from '@/components/effects/CinematicEntertainmentDirector';
@@ -41,7 +42,7 @@ export default function StoryEffectsRuntime() {
     const ios = isIOSWebKit();
 
     setIOSCore(ios);
-    document.documentElement.dataset.storyEffectsProfile = ios ? 'ios-core' : 'full';
+    document.documentElement.dataset.storyEffectsProfile = ios ? 'ios-native-core' : 'full';
 
     const release = () => setReady(true);
     const sync = () => {
@@ -86,14 +87,7 @@ export default function StoryEffectsRuntime() {
 
   if (!ready) return null;
 
-  if (iosCore) {
-    return (
-      <Fragment>
-        <IOSStoryStabilityBridge />
-        <AnimeScrollDirector />
-      </Fragment>
-    );
-  }
+  if (iosCore) return <IOSNativeStoryDirector />;
 
   return (
     <Fragment>
