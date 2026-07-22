@@ -83,6 +83,14 @@
     mix-blend-mode: normal !important;
   }
 
+  .anime-scroll-story[data-story-platform='ios-webkit'] .anime-chapter-gate[hidden] {
+    display: none !important;
+  }
+
+  .anime-scroll-story[data-story-platform='ios-webkit'] .anime-chapter-gate__shutter {
+    display: none !important;
+  }
+
   .anime-scroll-story[data-story-platform='ios-webkit'] .anime-reality-overdrive__chromatic,
   .anime-scroll-story[data-story-platform='ios-webkit'] .anime-reality-overdrive__telemetry,
   .anime-scroll-story[data-story-platform='ios-webkit']
