@@ -1,0 +1,182 @@
+html[data-story-render-mode='static-stack'],
+body[data-story-render-mode='static-stack'] {
+  height: auto !important;
+  overflow-y: auto !important;
+  scroll-behavior: auto !important;
+  overscroll-behavior-y: auto;
+}
+
+html[data-story-render-mode='static-stack'] .anime-story-skip,
+html[data-story-render-mode='static-stack'] [data-story-progress-dot],
+html[data-story-render-mode='static-stack'] [data-story-progress-line],
+html[data-story-render-mode='static-stack'] .anime-story-chrome,
+html[data-story-render-mode='static-stack'] .anime-story-progress,
+html[data-story-render-mode='static-stack'] .anime-scroll-cue,
+html[data-story-render-mode='static-stack'] .anime-cinematic-curtain,
+html[data-story-render-mode='static-stack'] .anime-entertainment-layer,
+html[data-story-render-mode='static-stack'] .anime-depth-flybys,
+html[data-story-render-mode='static-stack'] [data-chapter-gate],
+html[data-story-render-mode='static-stack'] [data-omega-world-rift],
+html[data-story-render-mode='static-stack'] .anime-reality-overdrive {
+  display: none !important;
+}
+
+html[data-story-render-mode='static-stack'] .anime-scroll-story {
+  width: 100%;
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  contain: none !important;
+  background: #031127;
+}
+
+html[data-story-render-mode='static-stack'] .anime-scroll-stage {
+  position: relative !important;
+  inset: auto !important;
+  width: 100%;
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  perspective: none !important;
+  transform: none !important;
+  transform-style: flat !important;
+}
+
+html[data-story-render-mode='static-stack'] .anime-story-camera {
+  position: relative !important;
+  inset: auto !important;
+  display: block !important;
+  width: 100%;
+  height: auto !important;
+  min-height: 0 !important;
+  transform: none !important;
+  transform-style: flat !important;
+}
+
+html[data-story-render-mode='static-stack'] .anime-story-scene {
+  position: relative !important;
+  inset: auto !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  align-content: center;
+  align-items: center;
+  gap: clamp(28px, 7vw, 52px) !important;
+  width: 100%;
+  min-height: max(680px, 92svh) !important;
+  padding: max(112px, calc(env(safe-area-inset-top) + 88px)) clamp(22px, 6vw, 40px)
+    max(72px, calc(env(safe-area-inset-bottom) + 52px)) !important;
+  overflow: hidden !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  filter: none !important;
+  pointer-events: auto !important;
+  transform: none !important;
+  transform-style: flat !important;
+  will-change: auto !important;
+}
+
+html[data-story-render-mode='static-stack'] .anime-story-scene + .anime-story-scene {
+  border-top: 1px solid rgb(151 220 255 / 16%);
+  box-shadow: inset 0 1px rgb(255 255 255 / 3%);
+}
+
+html[data-story-render-mode='static-stack'] .anime-story-scene[data-active='false'],
+html[data-story-render-mode='static-stack'] .anime-story-scene[aria-hidden='true'] {
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+html[data-story-render-mode='static-stack'] .anime-story-copy,
+html[data-story-render-mode='static-stack'] [data-story-visual],
+html[data-story-render-mode='static-stack'] [data-story-pop],
+html[data-story-render-mode='static-stack'] [data-story-depth] {
+  visibility: visible !important;
+  opacity: 1 !important;
+  filter: none !important;
+  transform: none !important;
+  will-change: auto !important;
+}
+
+html[data-story-render-mode='static-stack'] .anime-story-copy {
+  z-index: 30;
+  width: 100%;
+  max-width: 680px;
+  margin-inline: auto;
+}
+
+html[data-story-render-mode='static-stack'] .anime-story-copy h1,
+html[data-story-render-mode='static-stack'] .anime-story-copy h2 {
+  max-width: 12ch;
+  font-size: clamp(2.45rem, 11vw, 4.3rem) !important;
+  line-height: 1.02 !important;
+  letter-spacing: -0.065em !important;
+  text-wrap: balance;
+}
+
+html[data-story-render-mode='static-stack'] .anime-story-copy .blue-media-title > span {
+  width: auto;
+  font-size: clamp(4.7rem, 22vw, 7.2rem) !important;
+  line-height: 0.82 !important;
+}
+
+html[data-story-render-mode='static-stack'] .anime-story-copy .blue-media-title > small {
+  max-width: 12ch;
+  font-size: clamp(2rem, 9vw, 3.6rem) !important;
+  line-height: 1.06 !important;
+}
+
+html[data-story-render-mode='static-stack'] .anime-story-lede {
+  max-width: 42ch;
+  font-size: clamp(0.98rem, 4vw, 1.1rem);
+  line-height: 1.8;
+}
+
+html[data-story-render-mode='static-stack'] .anime-story-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  width: 100%;
+  max-width: 520px;
+}
+
+html[data-story-render-mode='static-stack'] .anime-story-actions a {
+  width: 100%;
+  min-height: 54px;
+}
+
+html[data-story-render-mode='static-stack'] .signal-key-visual,
+html[data-story-render-mode='static-stack'] .anime-build-device,
+html[data-story-render-mode='static-stack'] .anime-community-emblem {
+  position: relative !important;
+  inset: auto !important;
+  z-index: 20;
+  width: min(100%, 520px) !important;
+  max-width: 100%;
+  margin: 0 auto;
+  transform: none !important;
+}
+
+html[data-story-render-mode='static-stack'] .signal-key-visual {
+  order: 2;
+}
+
+html[data-story-render-mode='static-stack'] .anime-story-copy {
+  order: 1;
+}
+
+html[data-story-render-mode='static-stack'] .anime-build-world,
+html[data-story-render-mode='static-stack'] .anime-community-world,
+html[data-story-render-mode='static-stack'] .anime-scene-sky {
+  transform: none !important;
+  filter: none !important;
+}
+
+html[data-story-render-mode='static-stack'] .anime-flight-path {
+  opacity: 0.5 !important;
+}
+
+@media (max-width: 767px) {
+  html:not([data-story-render-mode]) .anime-scroll-story {
+    min-height: 0 !important;
+  }
+}
