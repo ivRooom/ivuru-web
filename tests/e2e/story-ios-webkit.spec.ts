@@ -131,22 +131,41 @@ test.describe('iOS WebKit story stability', () => {
     await expect(story).toHaveAttribute('data-story-transition-engine', 'world-forge');
     await expect(story).toHaveAttribute('data-story-snap-state', 'ready');
     await expect(story).not.toHaveAttribute('data-story-native-recovery', 'true');
-    await expect(story.locator('[data-chapter-gate]')).toHaveCount(1);
+
+    const gate = story.locator('[data-chapter-gate]');
+    const shutters = gate.locator('.anime-chapter-gate__shutter');
+    await expect(gate).toHaveCount(1);
+    await expect(shutters).toHaveCount(2);
+    await expect(shutters.first()).toHaveCSS('display', 'none');
+    await expect(shutters.last()).toHaveCSS('display', 'none');
 
     await scrollToProgress(page, 0.05);
     await expectChapter(page, '01');
+    await expect(gate).toHaveAttribute('hidden', '');
+
     await scrollToProgress(page, 0.4);
     await expectChapter(page, '02');
+    await expect(gate).not.toHaveAttribute('hidden', '');
+
     await scrollToProgress(page, 0.8);
     await expectChapter(page, '03');
+    await expect(gate).not.toHaveAttribute('hidden', '');
     await expect(page.locator('[data-omega-world-rift]')).toHaveAttribute(
       'data-omega-chapter',
       '03',
     );
+
+    await scrollToProgress(page, 0.95);
+    await expectChapter(page, '03');
+    await expect(gate).toHaveAttribute('hidden', '');
+
     await scrollToProgress(page, 0.42);
     await expectChapter(page, '02');
+    await expect(gate).not.toHaveAttribute('hidden', '');
+
     await scrollToProgress(page, 0.08);
     await expectChapter(page, '01');
+    await expect(gate).toHaveAttribute('hidden', '');
   });
 
   test('アドレスバー相当の高さ変化と画面回転後もready状態を維持する', async ({ page }) => {
