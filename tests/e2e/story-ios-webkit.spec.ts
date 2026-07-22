@@ -20,10 +20,16 @@ const waitForLoaderRelease = async (page: Page) => {
 };
 
 const scrollTo = async (page: Page, top: number) => {
-  const expectedTop = Math.round(top);
-  await page.evaluate((targetTop) => window.scrollTo(0, Number(targetTop)), expectedTop);
+  const expectedTop = Math.max(0, Math.round(top));
   await expect
-    .poll(() => page.evaluate(() => Math.round(window.scrollY)), { timeout: 5_000 })
+    .poll(
+      () =>
+        page.evaluate((targetTop) => {
+          window.scrollTo(0, Number(targetTop));
+          return Math.round(window.scrollY);
+        }, expectedTop),
+      { timeout: 5_000 },
+    )
     .toBe(expectedTop);
   await page.evaluate(() => window.dispatchEvent(new Event('scroll')));
 };
@@ -32,13 +38,14 @@ const revealStory = async (page: Page) => {
   const top = await page.evaluate(() => {
     const root = document.querySelector<HTMLElement>('[data-anime-scroll-story]');
     if (!root) throw new Error('story root is missing');
-    return Math.max(0, root.getBoundingClientRect().top + window.scrollY + 1);
+    return Math.max(8, root.getBoundingClientRect().top + window.scrollY + 8);
   });
   await scrollTo(page, top);
 };
 
 const scrollToProgress = async (page: Page, progress: number) => {
-  const top = await page.locator('[data-anime-scroll-story]').evaluate((root, target) => {
+  const story = page.locator('[data-anime-scroll-story]');
+  const top = await story.evaluate((root, target) => {
     const start = Number((root as HTMLElement).dataset.storyScrollStart);
     const end = Number((root as HTMLElement).dataset.storyScrollEnd);
     if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) {
@@ -47,6 +54,11 @@ const scrollToProgress = async (page: Page, progress: number) => {
     return start + (end - start) * Number(target);
   }, progress);
   await scrollTo(page, top);
+  await expect
+    .poll(async () => Number((await story.getAttribute('data-story-authority-progress')) ?? -1), {
+      timeout: 5_000,
+    })
+    .toBeCloseTo(progress, 2);
 };
 
 const expectChapter = async (page: Page, chapter: '01' | '02' | '03') => {
