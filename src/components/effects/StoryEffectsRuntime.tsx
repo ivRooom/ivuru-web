@@ -1,7 +1,6 @@
 import { Fragment, useEffect, useState } from 'react';
 import CinematicPointerEffects from '@/components/effects/CinematicPointerEffects';
 import IOSStoryStabilityBridge from '@/components/effects/IOSStoryStabilityBridge';
-import IOSNativeStoryDirector from '@/components/effects/IOSNativeStoryDirector';
 import AnimeScrollDirector from '@/components/effects/AnimeScrollDirector';
 import SpatialCameraEnhancer from '@/components/effects/SpatialCameraEnhancer';
 import CinematicEntertainmentDirector from '@/components/effects/CinematicEntertainmentDirector';
@@ -32,62 +31,84 @@ const loaderHasFinished = () => {
   );
 };
 
+const applyStaticStoryState = () => {
+  const root = document.querySelector<HTMLElement>('[data-anime-scroll-story]');
+  if (!root) return;
+
+  document.documentElement.dataset.storyEffectsProfile = 'static-stack';
+  document.documentElement.dataset.storyRenderMode = 'static-stack';
+  document.body.dataset.storyRenderMode = 'static-stack';
+
+  root.dataset.storyRenderMode = 'static-stack';
+  root.dataset.storyScrollMode = 'static-stack';
+  root.dataset.storyMode = 'static';
+  root.dataset.storyRuntime = 'ready';
+  root.dataset.storyDirector = 'static';
+  root.dataset.storyMobileStability = 'ready';
+  root.dataset.storyProgressAuthority = 'disabled';
+  root.dataset.storyChapter = 'all';
+  root.querySelectorAll('[data-chapter-gate]').forEach((gate) => gate.remove());
+
+  root.querySelectorAll<HTMLElement>('[data-anime-story-scene]').forEach((scene) => {
+    scene.dataset.active = 'true';
+    scene.setAttribute('aria-hidden', 'false');
+    scene.removeAttribute('inert');
+    scene.removeAttribute('style');
+    scene
+      .querySelectorAll<HTMLElement>(
+        '[data-story-copy], [data-story-visual], [data-story-pop], [data-story-depth]',
+      )
+      .forEach((element) => element.removeAttribute('style'));
+  });
+};
+
+type EffectsProfile = 'pending' | 'static-stack' | 'full';
+
 export default function StoryEffectsRuntime() {
   const [ready, setReady] = useState(false);
-  const [iosCore, setIOSCore] = useState(false);
+  const [profile, setProfile] = useState<EffectsProfile>('pending');
 
   useEffect(() => {
-    let observer: MutationObserver | undefined;
+    const compactViewport = matchMedia('(max-width: 767px)');
     let probeTimer = 0;
-    const ios = isIOSWebKit();
 
-    setIOSCore(ios);
-    document.documentElement.dataset.storyEffectsProfile = ios ? 'ios-native-core' : 'full';
+    const shouldUseStaticStory = () => isIOSWebKit() || compactViewport.matches;
 
-    const release = () => setReady(true);
     const sync = () => {
-      if (loaderHasFinished()) release();
+      if (shouldUseStaticStory()) {
+        setProfile('static-stack');
+        setReady(false);
+        applyStaticStoryState();
+        return;
+      }
+
+      document.documentElement.dataset.storyEffectsProfile = 'full';
+      delete document.documentElement.dataset.storyRenderMode;
+      delete document.body.dataset.storyRenderMode;
+      setProfile('full');
+      if (loaderHasFinished()) setReady(true);
     };
+
+    const release = () => sync();
 
     sync();
     document.addEventListener('ivuru:loader-released', release);
     document.addEventListener('astro:page-load', sync);
     window.addEventListener('pageshow', sync);
-
-    if ('MutationObserver' in window) {
-      observer = new MutationObserver(sync);
-      observer.observe(document.documentElement, {
-        attributes: true,
-        childList: true,
-        subtree: true,
-        attributeFilter: [
-          'aria-hidden',
-          'class',
-          'data-loader-released',
-          'data-state',
-          'data-guard-released',
-          'data-completion-bridged',
-          'hidden',
-          'style',
-        ],
-      });
-    }
-
+    compactViewport.addEventListener('change', sync);
     probeTimer = window.setInterval(sync, 250);
 
     return () => {
-      observer?.disconnect();
       window.clearInterval(probeTimer);
       document.removeEventListener('ivuru:loader-released', release);
       document.removeEventListener('astro:page-load', sync);
       window.removeEventListener('pageshow', sync);
+      compactViewport.removeEventListener('change', sync);
       delete document.documentElement.dataset.storyEffectsProfile;
     };
   }, []);
 
-  if (!ready) return null;
-
-  if (iosCore) return <IOSNativeStoryDirector />;
+  if (profile !== 'full' || !ready) return null;
 
   return (
     <Fragment>
