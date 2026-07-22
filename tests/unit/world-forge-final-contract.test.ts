@@ -20,7 +20,8 @@ describe('World Forge final integration contract', () => {
     expect(home).toContain('<StoryEffectsRuntime client:load />');
     expect(bootstrap).toContain('<AdaptiveRealityDirector />');
     expect(home).toContain('<QuantumLoaderEvolution />');
-    expect(bootstrap).toContain("document.addEventListener('ivuru:loader-released', release)");
+    expect(bootstrap).toContain("document.addEventListener('ivuru:loader-runtime-safe', sync)");
+    expect(bootstrap).toContain('const AdaptiveRealityDirector = lazy(');
     expect(director).toContain("'[data-anime-scroll-stage]'");
     expect(director).toContain("root.dataset.storyDirector = 'ready'");
     expect(director).toContain("root.dataset.storyAxis = 'portal-forward'");
