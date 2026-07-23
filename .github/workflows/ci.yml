@@ -13,6 +13,31 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  security-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: 本番依存関係の脆弱性を監査
+        id: security-audit
+        shell: bash
+        run: |
+          set -o pipefail
+          npm audit --omit=dev --audit-level=high --json | tee npm-audit.json
+      - name: 依存監査レポートを保存
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-audit-report-${{ github.run_attempt }}
+          path: npm-audit.json
+          if-no-files-found: ignore
+          retention-days: 14
+
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -25,11 +50,22 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - name: 本番依存関係の脆弱性を監査
-        run: npm audit --omit=dev --audit-level=high
-      - run: npm run check
+      - name: Astro Checkを実行
+        id: astro-check
+        shell: bash
+        run: |
+          set -o pipefail
+          npm run check 2>&1 | tee astro-check.log
         env:
           ASTRO_TELEMETRY_DISABLED: '1'
+      - name: Astro Check診断Artifactを保存
+        if: failure() && steps.astro-check.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: astro-check-diagnostics-${{ github.run_attempt }}
+          path: astro-check.log
+          if-no-files-found: ignore
+          retention-days: 14
       - run: npm run lint
         id: lint
       - name: ESLint診断レポートを生成
@@ -44,6 +80,7 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
       - name: 変更ファイルのFormatを確認
+        id: format-check
         shell: bash
         run: |
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
@@ -56,9 +93,37 @@ jobs:
             echo "整形対象の変更ファイルはありません。"
           else
             printf 'Format check: %s\n' "${files[@]}"
+            set +e
             npx prettier --check "${files[@]}"
+            status=$?
+            if (( status != 0 )); then
+              npx prettier --write "${files[@]}"
+              git diff -- "${files[@]}" > prettier-format.patch
+            fi
+            exit "$status"
           fi
-      - run: npm test
+      - name: Prettier整形差分を保存
+        if: failure() && steps.format-check.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: prettier-format-diagnostics-${{ github.run_attempt }}
+          path: prettier-format.patch
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Unit Testを実行
+        id: unit-test
+        shell: bash
+        run: |
+          set -o pipefail
+          npm test 2>&1 | tee unit-test.log
+      - name: Unit Test診断Artifactを保存
+        if: failure() && steps.unit-test.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-diagnostics-${{ github.run_attempt }}
+          path: unit-test.log
+          if-no-files-found: ignore
+          retention-days: 14
       - run: npm run build
         env:
           ASTRO_TELEMETRY_DISABLED: '1'
@@ -85,7 +150,7 @@ jobs:
 
   e2e:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -93,7 +158,9 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install --with-deps chromium webkit
+      - name: Playwright iPhone WebKitを実行
+        run: npx playwright test tests/e2e/story-ios-webkit.spec.ts --project=webkit-iphone
       - name: Playwright Chromiumを実行
         run: npm run test:e2e -- --project=chromium
       - name: E2E診断Artifactを保存

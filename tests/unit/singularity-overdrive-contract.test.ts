@@ -7,12 +7,13 @@ const readSource = (relativePath: string) =>
 describe('singularity overdrive contract', () => {
   it('トップページへ必殺技級のSingularity Overdriveを接続する', () => {
     const home = readSource('src/components/pages/HomePageV2.astro');
+    const runtime = readSource('src/components/effects/StoryEffectsRuntime.tsx');
 
-    expect(home).toContain(
-      "import SingularityOverdriveDirector from '@/components/effects/SingularityOverdriveDirector'",
-    );
+    expect(runtime).toContain('const SingularityOverdriveDirector = lazy(');
+    expect(runtime).toContain("import('@/components/effects/SingularityOverdriveDirector')");
     expect(home).toContain("import '@/styles/singularity-overdrive.css'");
-    expect(home).toContain('<SingularityOverdriveDirector client:load />');
+    expect(home).toContain('<StoryEffectsRuntime client:load />');
+    expect(runtime).toContain('<SingularityOverdriveDirector />');
   });
 
   it('収束・爆発・光速トンネルを決定的な要素数で構成する', () => {

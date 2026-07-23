@@ -1,0 +1,164 @@
+<script is:inline data-astro-rerun>
+  (() => {
+    const cleanupKey = '__ivuruLoaderCompletionBridgeDispose';
+
+    const install = () => {
+      window[cleanupKey]?.();
+
+      let loader = null;
+      let progress = null;
+      let disposed = false;
+      let hideTimer = 0;
+      let probeTimer = 0;
+      let observer;
+      let mountObserver;
+
+      const readProgress = () => Number(progress?.getAttribute('aria-valuenow') ?? 0);
+
+      const stopMonitoring = () => {
+        observer?.disconnect();
+        observer = undefined;
+        mountObserver?.disconnect();
+        mountObserver = undefined;
+        window.clearInterval(probeTimer);
+        probeTimer = 0;
+      };
+
+      const markRuntimeSafe = (reason) => {
+        if (disposed || !(loader instanceof HTMLElement)) return;
+        if (loader.dataset.loaderRuntimeSafe === 'true') return;
+
+        loader.hidden = true;
+        loader.style.display = 'none';
+        loader.dataset.loaderRuntimeSafe = 'true';
+        document.documentElement.dataset.loaderRuntimeSafe = 'true';
+        document.body?.classList.remove('site-loading');
+
+        document.dispatchEvent(
+          new CustomEvent('ivuru:loader-runtime-safe', {
+            detail: { reason },
+          }),
+        );
+      };
+
+      const finalize = (reason) => {
+        if (disposed || !(loader instanceof HTMLElement)) return;
+
+        if (
+          loader.dataset.loaderRuntimeSafe === 'true' ||
+          loader.hidden ||
+          loader.style.display === 'none'
+        ) {
+          stopMonitoring();
+          document.documentElement.dataset.loaderRuntimeSafe = 'true';
+          document.body?.classList.remove('site-loading');
+          return;
+        }
+
+        if (loader.dataset.completionBridged === 'true') return;
+
+        const value = readProgress();
+        if (value > 0 && value < 100) loader.dataset.loaderAnimationRan = 'true';
+
+        loader.dataset.completionBridged = 'true';
+        loader.dataset.completionReason = reason;
+        loader.dataset.loaderRuntimeSafe = 'false';
+        loader.dataset.state = 'ready';
+        loader.classList.add('loaded');
+        loader.setAttribute('aria-hidden', 'true');
+        loader.style.pointerEvents = 'none';
+        document.documentElement.dataset.loaderReleased = 'true';
+        document.documentElement.dataset.loaderRuntimeSafe = 'false';
+        document.body?.classList.remove('site-loading');
+
+        stopMonitoring();
+
+        document.dispatchEvent(
+          new CustomEvent('ivuru:loader-released', {
+            detail: { reason },
+          }),
+        );
+
+        window.clearTimeout(hideTimer);
+        hideTimer = window.setTimeout(() => markRuntimeSafe(reason), 720);
+      };
+
+      const sync = () => {
+        if (!(loader instanceof HTMLElement)) return;
+
+        const value = readProgress();
+        if (value > 0 && value < 100) loader.dataset.loaderAnimationRan = 'true';
+
+        const released =
+          document.documentElement.dataset.loaderReleased === 'true' ||
+          loader.dataset.state === 'ready' ||
+          loader.dataset.guardReleased === 'true' ||
+          loader.classList.contains('loaded');
+
+        if (value >= 100 || released) {
+          finalize(loader.dataset.releaseReason ?? 'loader-progress-complete');
+        }
+      };
+
+      const bindLoader = () => {
+        const candidate = document.querySelector('[data-spatial-loader]');
+        if (!(candidate instanceof HTMLElement)) return false;
+
+        loader = candidate;
+        progress = loader.querySelector('[role="progressbar"]');
+        observer?.disconnect();
+        observer = new MutationObserver(sync);
+        observer.observe(loader, {
+          attributes: true,
+          subtree: true,
+          attributeFilter: [
+            'aria-valuenow',
+            'aria-hidden',
+            'class',
+            'data-state',
+            'data-loader-phase',
+            'data-guard-released',
+            'data-loader-runtime-safe',
+          ],
+        });
+
+        window.clearInterval(probeTimer);
+        probeTimer = window.setInterval(sync, 250);
+        sync();
+        return true;
+      };
+
+      const onReleased = (event) => {
+        const reason = event?.detail?.reason ?? 'loader-release-event';
+        finalize(reason);
+      };
+
+      if (!bindLoader()) {
+        mountObserver = new MutationObserver(() => {
+          if (!bindLoader()) return;
+          mountObserver?.disconnect();
+          mountObserver = undefined;
+        });
+        mountObserver.observe(document.documentElement, { childList: true, subtree: true });
+      }
+
+      document.addEventListener('ivuru:loader-released', onReleased);
+
+      window[cleanupKey] = () => {
+        disposed = true;
+        stopMonitoring();
+        window.clearTimeout(hideTimer);
+        document.removeEventListener('ivuru:loader-released', onReleased);
+        delete window[cleanupKey];
+      };
+    };
+
+    const onBeforeSwap = () => {
+      window[cleanupKey]?.();
+      document.removeEventListener('astro:before-swap', onBeforeSwap);
+    };
+
+    install();
+    document.addEventListener('astro:before-swap', onBeforeSwap, { once: true });
+  })();
+</script>

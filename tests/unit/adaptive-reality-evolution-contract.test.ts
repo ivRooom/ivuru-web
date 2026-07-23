@@ -7,16 +7,17 @@ const readSource = (relativePath: string) =>
 describe('Adaptive Reality evolution contract', () => {
   it('Home V2へ操作反応型Reality Directorとローダー進化層を統合する', () => {
     const home = readSource('src/components/pages/HomePageV2.astro');
+    const runtime = readSource('src/components/effects/StoryEffectsRuntime.tsx');
 
-    expect(home).toContain(
-      "import AdaptiveRealityDirector from '@/components/effects/AdaptiveRealityDirector'",
-    );
+    expect(runtime).toContain('const AdaptiveRealityDirector = lazy(');
+    expect(runtime).toContain("import('@/components/effects/AdaptiveRealityDirector')");
     expect(home).toContain(
       "import QuantumLoaderEvolution from '@/components/effects/QuantumLoaderEvolution.astro'",
     );
     expect(home).toContain("import '@/styles/adaptive-reality-overdrive.css'");
-    expect(home).toContain('<AdaptiveRealityDirector client:load />');
+    expect(runtime).toContain('<AdaptiveRealityDirector />');
     expect(home).toContain('<QuantumLoaderEvolution />');
+    expect(runtime).toContain("document.addEventListener('ivuru:loader-runtime-safe', sync)");
   });
 
   it('スクロールリスナーを使わず入力速度と遷移属性から演出強度を更新する', () => {

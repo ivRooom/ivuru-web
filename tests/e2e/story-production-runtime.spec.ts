@@ -7,51 +7,41 @@ const prepare = async (page: Page) => {
   });
 };
 
-const scrollTo = async (page: Page, progress: number) => {
-  await page.locator('[data-anime-scroll-story]').evaluate((root, target) => {
-    const start = Number((root as HTMLElement).dataset.storyScrollStart);
-    const end = Number((root as HTMLElement).dataset.storyScrollEnd);
-    if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) {
-      throw new Error(`invalid story range: ${start} - ${end}`);
-    }
-    window.scrollTo({ top: start + (end - start) * Number(target), behavior: 'instant' });
-    window.dispatchEvent(new Event('scroll'));
-  }, progress);
-};
-
-const expectChapter = async (page: Page, chapter: '01' | '02' | '03') => {
+const expectStaticStack = async (page: Page) => {
   const story = page.locator('[data-anime-scroll-story]');
-  const scene = story.locator(`[data-anime-story-scene="${Number(chapter) - 1}"]`);
-  await expect(story).toHaveAttribute('data-story-chapter', chapter);
-  await expect(story).toHaveAttribute('data-story-authority-chapter', chapter);
-  await expect(scene).toHaveAttribute('data-active', 'true');
-  await expect(scene).toHaveAttribute('aria-hidden', 'false');
-  await expect(scene).not.toHaveAttribute('inert', '');
-  await expect(story.locator('[data-anime-story-scene][aria-hidden="false"]')).toHaveCount(1);
+
+  await expect(page.locator('html')).toHaveAttribute('data-story-render-mode', 'static-stack');
+  await expect(story).toHaveAttribute('data-story-render-mode', 'static-stack');
+  await expect(story).toHaveAttribute('data-story-scroll-mode', 'static-stack');
+  await expect(story).toHaveAttribute('data-story-progress-authority', 'disabled');
+  await expect(story).toHaveAttribute('data-story-mode', 'static');
+  await expect(story).toHaveAttribute('data-story-chapter', 'all');
+  await expect(story.locator('[data-anime-story-scene][data-active="true"]')).toHaveCount(3);
+  await expect(story.locator('[data-anime-story-scene][aria-hidden="false"]')).toHaveCount(3);
+  await expect(story.locator('[data-anime-story-scene][inert]')).toHaveCount(0);
 };
 
-test('実ピン範囲で01→02→03→02→01を同期しモバイルでも横溢れしない', async ({ page }) => {
+test('モバイルはスクロール演出を使わず3章を通常フローで描画する', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.setViewportSize({ width: 390, height: 844 });
   await prepare(page);
   await page.goto('/');
 
-  const story = page.locator('[data-anime-scroll-story]');
-  await expect(story).toHaveAttribute('data-story-progress-authority', 'ready', {
-    timeout: 12_000,
-  });
+  await expectStaticStack(page);
 
-  await scrollTo(page, 0.05);
-  await expectChapter(page, '01');
-  await scrollTo(page, 0.36);
-  await expectChapter(page, '02');
-  await scrollTo(page, 0.78);
-  await expectChapter(page, '03');
-  await expect(page.locator('[data-omega-world-rift]')).toHaveAttribute('data-omega-chapter', '03');
-  await scrollTo(page, 0.4);
-  await expectChapter(page, '02');
-  await scrollTo(page, 0.08);
-  await expectChapter(page, '01');
+  const story = page.locator('[data-anime-scroll-story]');
+  for (const scene of await story.locator('[data-anime-story-scene]').all()) {
+    await expect(scene).toBeVisible();
+    await expect
+      .poll(() => scene.evaluate((element) => Number(getComputedStyle(element).opacity)))
+      .toBeGreaterThan(0.9);
+  }
+
+  await expect(story.locator('.signal-key-visual')).toBeHidden();
+  await expect(story.locator('.anime-build-device')).toBeHidden();
+  await expect(story.locator('.anime-community-emblem')).toBeHidden();
+  await expect(story.locator('.anime-light-road')).toBeHidden();
+  await expect(story.locator('[data-chapter-gate]')).toHaveCount(0);
 
   expect(
     await page.evaluate(
@@ -60,27 +50,27 @@ test('実ピン範囲で01→02→03→02→01を同期しモバイルでも横�
   ).toBe(false);
 });
 
-test('途中reloadとキーボードスキップ後も利用可能な状態を維持する', async ({ page }) => {
+test('デスクトップは従来のフル演出を維持しreload後も操作できる', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.setViewportSize({ width: 1440, height: 900 });
   await prepare(page);
   await page.goto('/');
-  await expect(page.locator('[data-anime-scroll-story]')).toHaveAttribute(
-    'data-story-progress-authority',
-    'ready',
-    { timeout: 12_000 },
-  );
 
-  await scrollTo(page, 0.44);
-  await expectChapter(page, '02');
+  const html = page.locator('html');
+  const story = page.locator('[data-anime-scroll-story]');
+  await expect(html).toHaveAttribute('data-story-effects-profile', 'full', { timeout: 12_000 });
+  await expect(html).not.toHaveAttribute('data-story-render-mode', 'static-stack');
+  await expect(story).not.toHaveAttribute('data-story-scroll-mode', 'static-stack');
+  await expect(story).toHaveAttribute('data-story-progress-authority', 'ready', {
+    timeout: 12_000,
+  });
+
   await page.reload({ waitUntil: 'domcontentloaded' });
-  await expect(page.locator('[data-anime-scroll-story]')).toHaveAttribute(
-    'data-story-progress-authority',
-    'ready',
-    { timeout: 12_000 },
-  );
-  await expectChapter(page, '02');
+  await expect(html).toHaveAttribute('data-story-effects-profile', 'full', { timeout: 12_000 });
+  await expect(story).not.toHaveAttribute('data-story-render-mode', 'static-stack');
 
   const skip = page.locator('[data-story-skip]');
+  await expect(skip).toBeVisible();
   await skip.focus();
   await page.keyboard.press('Enter');
   await expect(page.locator('#anime-story-after')).toBeFocused({ timeout: 3_000 });
@@ -88,6 +78,7 @@ test('途中reloadとキーボードスキップ後も利用可能な状態を�
 
 test('Reduced Motionは3章を順番に読める静的ストーリーへ切り替える', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.setViewportSize({ width: 1440, height: 900 });
   await prepare(page);
   await page.goto('/');
 

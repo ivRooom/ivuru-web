@@ -1,19 +1,15 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import LoaderReleaseGuard from '@/components/common/LoaderReleaseGuard.astro';
+import LoaderCompletionBridge from '@/components/common/LoaderCompletionBridge.astro';
 import AnimeScrollStory from '@/components/home/AnimeScrollStory.astro';
 import StorySkipLink from '@/components/home/StorySkipLink.astro';
 import FeaturedWorks from '@/components/home/FeaturedWorks.astro';
 import HomePortalGrid from '@/components/home/HomePortalGrid.astro';
 import LatestPosts from '@/components/blog/LatestPosts.astro';
 import ContactCTA from '@/components/home/ContactCTA.astro';
-import CinematicPointerEffects from '@/components/effects/CinematicPointerEffects';
-import AnimeScrollDirector from '@/components/effects/AnimeScrollDirector';
-import SpatialCameraEnhancer from '@/components/effects/SpatialCameraEnhancer';
-import CinematicEntertainmentDirector from '@/components/effects/CinematicEntertainmentDirector';
-import SingularityOverdriveDirector from '@/components/effects/SingularityOverdriveDirector';
-import AdaptiveRealityDirector from '@/components/effects/AdaptiveRealityDirector';
-import StoryProductionRuntime from '@/components/effects/StoryProductionRuntime';
+import StoryEffectsRuntime from '@/components/effects/StoryEffectsRuntime';
+import IOSStoryRuntimeIsolation from '@/components/effects/IOSStoryRuntimeIsolation.astro';
 import QuantumLoaderEvolution from '@/components/effects/QuantumLoaderEvolution.astro';
 import OmegaWorldRift from '@/components/effects/OmegaWorldRift.astro';
 import { siteConfig, type Locale } from '@/data/site-config';
@@ -30,6 +26,8 @@ import '@/styles/adaptive-reality-overdrive.css';
 import '@/styles/home-loader-insets.css';
 import '@/styles/story-static-fallback.css';
 import '@/styles/story-production-runtime.css';
+import '@/styles/story-ios-webkit-stability.css';
+import '@/styles/story-static-stack.css';
 
 const { locale } = Astro.props as { locale: Locale };
 const descriptions = {
@@ -45,15 +43,11 @@ const descriptions = {
   locale={locale}
   chapter={{ code: '00', title: 'HOME', world: 'BLUE STORY' }}
 >
+  <IOSStoryRuntimeIsolation />
   <LoaderReleaseGuard />
   <QuantumLoaderEvolution />
-  <CinematicPointerEffects client:idle />
-  <AnimeScrollDirector client:load />
-  <StoryProductionRuntime client:load />
-  <SpatialCameraEnhancer client:load />
-  <CinematicEntertainmentDirector client:load />
-  <SingularityOverdriveDirector client:load />
-  <AdaptiveRealityDirector client:load />
+  <LoaderCompletionBridge />
+  <StoryEffectsRuntime client:load />
 
   <StorySkipLink locale={locale} />
   <AnimeScrollStory locale={locale} />

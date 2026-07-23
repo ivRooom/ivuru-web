@@ -8,6 +8,7 @@ const readSource = (relativePath: string) =>
 describe('World Forge final integration contract', () => {
   it('章間ゲート・Adaptive Reality・Quantum Gateをportal-forward世界観で統合する', () => {
     const home = readSource('src/components/pages/HomePageV2.astro');
+    const bootstrap = readSource('src/components/effects/StoryEffectsRuntime.tsx');
     const director = readSource('src/components/effects/AnimeScrollDirector.tsx');
     const reality = readSource('src/components/effects/AdaptiveRealityDirector.tsx');
     const camera = readSource('src/components/effects/SpatialCameraEnhancer.tsx');
@@ -16,8 +17,11 @@ describe('World Forge final integration contract', () => {
 
     expect(home).toContain("import '@/styles/chapter-gate-transitions.css'");
     expect(home).toContain("import '@/styles/adaptive-reality-overdrive.css'");
-    expect(home).toContain('<AdaptiveRealityDirector client:load />');
+    expect(home).toContain('<StoryEffectsRuntime client:load />');
+    expect(bootstrap).toContain('<AdaptiveRealityDirector />');
     expect(home).toContain('<QuantumLoaderEvolution />');
+    expect(bootstrap).toContain("document.addEventListener('ivuru:loader-runtime-safe', sync)");
+    expect(bootstrap).toContain('const AdaptiveRealityDirector = lazy(');
     expect(director).toContain("'[data-anime-scroll-stage]'");
     expect(director).toContain("root.dataset.storyDirector = 'ready'");
     expect(director).toContain("root.dataset.storyAxis = 'portal-forward'");

@@ -1,19 +1,57 @@
-<script is:inline>
+<script is:inline data-astro-rerun>
   (() => {
+    const cleanupKey = '__ivuruLoaderReleaseGuardDispose';
     const root = document.documentElement;
 
-    const releaseLoader = (reason) => {
-      const loader = document.querySelector('[data-spatial-loader]');
+    window[cleanupKey]?.();
+
+    let readyTimer = 0;
+    let hardTimer = 0;
+    let hideTimer = 0;
+    let loader = null;
+
+    const clearReleaseTimers = () => {
+      window.clearTimeout(readyTimer);
+      window.clearTimeout(hardTimer);
+      readyTimer = 0;
+      hardTimer = 0;
+    };
+
+    const markRuntimeSafe = (reason) => {
       if (!(loader instanceof HTMLElement)) return;
+      if (loader.dataset.loaderRuntimeSafe === 'true') return;
+
+      loader.hidden = true;
+      loader.style.display = 'none';
+      loader.dataset.loaderRuntimeSafe = 'true';
+      root.dataset.loaderRuntimeSafe = 'true';
+      document.dispatchEvent(new CustomEvent('ivuru:loader-runtime-safe', { detail: { reason } }));
+    };
+
+    const releaseLoader = (reason) => {
+      loader = document.querySelector('[data-spatial-loader]');
+      if (!(loader instanceof HTMLElement)) return;
+      if (
+        loader.dataset.loaderRuntimeSafe === 'true' ||
+        loader.hidden ||
+        loader.style.display === 'none'
+      ) {
+        clearReleaseTimers();
+        return;
+      }
       if (loader.dataset.guardReleased === 'true') return;
 
       loader.dataset.guardReleased = 'true';
       loader.dataset.releaseReason = reason;
+      loader.dataset.loaderRuntimeSafe = 'false';
       loader.dataset.state = 'ready';
       loader.classList.add('loaded');
+      loader.setAttribute('aria-hidden', 'true');
       loader.style.pointerEvents = 'none';
       root.dataset.loaderReleased = 'true';
+      root.dataset.loaderRuntimeSafe = 'false';
       document.body?.classList.remove('site-loading');
+      clearReleaseTimers();
 
       const state = loader.querySelector('[data-loader-state]');
       const progress = loader.querySelector('[role="progressbar"]');
@@ -23,17 +61,23 @@
       if (progressText) progressText.textContent = '100';
       loader.style.setProperty('--loader-progress', '100%');
 
-      window.setTimeout(() => {
-        loader.setAttribute('aria-hidden', 'true');
-        loader.hidden = true;
-        loader.style.display = 'none';
-        document.dispatchEvent(new CustomEvent('ivuru:loader-released', { detail: { reason } }));
-      }, 580);
+      document.dispatchEvent(new CustomEvent('ivuru:loader-released', { detail: { reason } }));
+
+      window.clearTimeout(hideTimer);
+      hideTimer = window.setTimeout(() => markRuntimeSafe(reason), 580);
     };
 
     const armGuard = () => {
-      const loader = document.querySelector('[data-spatial-loader]');
+      loader = document.querySelector('[data-spatial-loader]');
       if (!(loader instanceof HTMLElement)) return;
+      if (
+        loader.dataset.loaderRuntimeSafe === 'true' ||
+        loader.hidden ||
+        loader.style.display === 'none'
+      ) {
+        clearReleaseTimers();
+        return;
+      }
       if (loader.dataset.releaseGuardBound === 'true') return;
       loader.dataset.releaseGuardBound = 'true';
 
@@ -46,35 +90,50 @@
         }
       })();
 
-      const readyDelay = reduced ? 80 : seen ? 900 : 1850;
-      const hardLimit = reduced ? 350 : 2800;
-      const releaseAfterReady = () =>
-        window.setTimeout(() => releaseLoader('document-ready'), readyDelay);
+      const readyDelay = reduced ? 120 : seen ? 2_400 : 3_500;
+      const hardLimit = reduced ? 600 : seen ? 4_500 : 6_500;
 
-      if (document.readyState === 'complete') releaseAfterReady();
-      else window.addEventListener('load', releaseAfterReady, { once: true });
+      const armTimers = () => {
+        if (!(loader instanceof HTMLElement) || loader.dataset.guardReleased === 'true') return;
+        clearReleaseTimers();
+        readyTimer = window.setTimeout(() => releaseLoader('animation-safety-release'), readyDelay);
+        hardTimer = window.setTimeout(() => releaseLoader('hard-timeout'), hardLimit);
+      };
 
-      window.setTimeout(() => releaseLoader('hard-timeout'), hardLimit);
-      window.addEventListener('wheel', () => releaseLoader('wheel-input'), {
-        once: true,
-        passive: true,
-      });
-      window.addEventListener('touchmove', () => releaseLoader('touch-input'), {
-        once: true,
-        passive: true,
-      });
-      window.addEventListener('keydown', () => releaseLoader('keyboard-input'), { once: true });
-      window.addEventListener(
-        'pageshow',
-        (event) => {
-          if (event.persisted) releaseLoader('bfcache-restore');
-        },
-        { once: true },
-      );
+      armTimers();
+
+      window.addEventListener('wheel', onWheel, { once: true, passive: true });
+      window.addEventListener('touchmove', onTouchMove, { once: true, passive: true });
+      window.addEventListener('keydown', onKeyDown, { once: true });
+      window.addEventListener('pageshow', onPageShow);
+    };
+
+    const onWheel = () => releaseLoader('wheel-input');
+    const onTouchMove = () => releaseLoader('touch-input');
+    const onKeyDown = () => releaseLoader('keyboard-input');
+    const onPageShow = (event) => {
+      if (event.persisted) releaseLoader('bfcache-restore');
+    };
+    const onRuntimeSafe = () => clearReleaseTimers();
+    const onPageLoad = () => armGuard();
+    const onBeforeSwap = () => window[cleanupKey]?.();
+
+    window[cleanupKey] = () => {
+      clearReleaseTimers();
+      window.clearTimeout(hideTimer);
+      window.removeEventListener('wheel', onWheel);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('pageshow', onPageShow);
+      document.removeEventListener('ivuru:loader-runtime-safe', onRuntimeSafe);
+      document.removeEventListener('astro:page-load', onPageLoad);
+      document.removeEventListener('astro:before-swap', onBeforeSwap);
+      delete window[cleanupKey];
     };
 
     armGuard();
-    document.addEventListener('astro:page-load', armGuard);
-    document.addEventListener('astro:after-swap', armGuard);
+    document.addEventListener('ivuru:loader-runtime-safe', onRuntimeSafe);
+    document.addEventListener('astro:page-load', onPageLoad);
+    document.addEventListener('astro:before-swap', onBeforeSwap, { once: true });
   })();
 </script>

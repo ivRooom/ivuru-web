@@ -1,0 +1,122 @@
+<script is:inline>
+  (() => {
+    const cleanupKey = '__ivuruStaticStoryPreflightDispose';
+    const compactViewport = window.matchMedia('(max-width: 767px)');
+
+    const isIOSWebKit = () =>
+      /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+    const shouldUseStaticStory = () => isIOSWebKit() || compactViewport.matches;
+
+    window[cleanupKey]?.();
+
+    let frame = 0;
+    let disposed = false;
+
+    const clearInlineStyles = (element) => {
+      if (!(element instanceof HTMLElement)) return;
+      element.removeAttribute('style');
+      element
+        .querySelectorAll(
+          '[data-story-copy], [data-story-visual], [data-story-pop], [data-story-depth]',
+        )
+        .forEach((node) => {
+          if (node instanceof HTMLElement) node.removeAttribute('style');
+        });
+    };
+
+    const restoreNativeScroll = () => {
+      const html = document.documentElement;
+      const body = document.body;
+      const scrollingElement = document.scrollingElement ?? html;
+      const secondaryElement = scrollingElement === html ? body : html;
+
+      html.style.removeProperty('overflow-y');
+      body?.style.removeProperty('overflow-y');
+      html.style.setProperty('scroll-behavior', 'auto', 'important');
+      body?.style.setProperty('scroll-behavior', 'auto', 'important');
+      scrollingElement.style.setProperty('overflow-y', 'auto', 'important');
+      scrollingElement.style.setProperty('scroll-behavior', 'auto', 'important');
+      secondaryElement?.style.setProperty('overflow-y', 'visible', 'important');
+
+      html.dataset.storyScrollOwner = scrollingElement === html ? 'document-element' : 'body';
+    };
+
+    const applyStaticStory = () => {
+      if (disposed || !shouldUseStaticStory()) return;
+
+      const html = document.documentElement;
+      const body = document.body;
+      html.dataset.storyRuntimeOwner = 'static-stack';
+      html.dataset.storyRenderMode = 'static-stack';
+      html.dataset.storyEffectsProfile = 'static-stack';
+      body?.setAttribute('data-story-render-mode', 'static-stack');
+
+      restoreNativeScroll();
+
+      const root = document.querySelector('[data-anime-scroll-story]');
+      if (!(root instanceof HTMLElement)) return;
+
+      root.dataset.storyRenderMode = 'static-stack';
+      root.dataset.storyScrollMode = 'static-stack';
+      root.dataset.storyMode = 'static';
+      root.dataset.storyRuntime = 'ready';
+      root.dataset.storyDirector = 'static';
+      root.dataset.storyMobileStability = 'ready';
+      root.dataset.storyProgressAuthority = 'disabled';
+      root.dataset.storyChapter = 'all';
+      root.dataset.storyPlatform = isIOSWebKit() ? 'ios-webkit' : 'compact';
+      delete root.dataset.storyNativeRecovery;
+      delete root.dataset.storyRuntimeReason;
+      delete root.dataset.storyTransition;
+      delete root.dataset.storyTransitionPhase;
+
+      root.removeAttribute('style');
+      root.querySelectorAll('[data-chapter-gate]').forEach((gate) => gate.remove());
+
+      const stage = root.querySelector('[data-anime-scroll-stage]');
+      const camera = root.querySelector('[data-story-camera-rig]');
+      clearInlineStyles(stage);
+      clearInlineStyles(camera);
+
+      root.querySelectorAll('[data-anime-story-scene]').forEach((scene) => {
+        if (!(scene instanceof HTMLElement)) return;
+        scene.dataset.active = 'true';
+        scene.setAttribute('aria-hidden', 'false');
+        scene.removeAttribute('inert');
+        clearInlineStyles(scene);
+      });
+
+      root.querySelectorAll('[data-story-progress-dot]').forEach((dot) => {
+        if (dot instanceof HTMLElement) dot.dataset.active = 'true';
+      });
+    };
+
+    const scheduleApply = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(applyStaticStory);
+    };
+
+    scheduleApply();
+    document.addEventListener('DOMContentLoaded', scheduleApply, { once: true });
+    document.addEventListener('ivuru:loader-released', scheduleApply);
+    document.addEventListener('astro:page-load', scheduleApply);
+    window.addEventListener('pageshow', scheduleApply);
+    window.addEventListener('resize', scheduleApply, { passive: true });
+    window.addEventListener('orientationchange', scheduleApply, { passive: true });
+    compactViewport.addEventListener('change', scheduleApply);
+
+    window[cleanupKey] = () => {
+      disposed = true;
+      cancelAnimationFrame(frame);
+      document.removeEventListener('ivuru:loader-released', scheduleApply);
+      document.removeEventListener('astro:page-load', scheduleApply);
+      window.removeEventListener('pageshow', scheduleApply);
+      window.removeEventListener('resize', scheduleApply);
+      window.removeEventListener('orientationchange', scheduleApply);
+      compactViewport.removeEventListener('change', scheduleApply);
+      delete window[cleanupKey];
+    };
+  })();
+</script>
