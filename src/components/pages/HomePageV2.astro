@@ -30,7 +30,8 @@ const copy = {
     primary: 'View works',
     secondary: 'Profile',
     profile: 'Developer / Gamer / Community',
-    profileText: 'I move between technology and play to create experiences that feel genuinely interesting.',
+    profileText:
+      'I move between technology and play to create experiences that feel genuinely interesting.',
     worksTitle: 'Selected works',
     worksText: 'Personal projects, web services, community tools, and work currently in progress.',
     focusTitle: 'What I do',
@@ -102,7 +103,9 @@ const focusItems = [
   <section class="official-shell official-hero" aria-labelledby="official-hero-title">
     <div class="official-hero__copy">
       <h1 id="official-hero-title">
-        {copy[locale].title.split('、')[0]}<span>{copy[locale].title.includes('、') ? '、' : ' '}</span><br />
+        {copy[locale].title.split('、')[0]}<span
+          >{copy[locale].title.includes('、') ? '、' : ' '}</span
+        ><br />
         {copy[locale].title.split('、')[1] ?? ''}
       </h1>
       <p class="official-hero__lead">{copy[locale].lead}</p>
@@ -153,7 +156,9 @@ const focusItems = [
                 <h3>{project.title}</h3>
                 <p>{project.description}</p>
               </span>
-              <span class="official-project__arrow" aria-hidden="true">↗</span>
+              <span class="official-project__arrow" aria-hidden="true">
+                ↗
+              </span>
             </a>
           ))
         }
