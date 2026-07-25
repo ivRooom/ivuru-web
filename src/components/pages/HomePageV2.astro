@@ -1,82 +1,197 @@
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import LoaderReleaseGuard from '@/components/common/LoaderReleaseGuard.astro';
-import LoaderCompletionBridge from '@/components/common/LoaderCompletionBridge.astro';
-import AnimeScrollStory from '@/components/home/AnimeScrollStory.astro';
-import StorySkipLink from '@/components/home/StorySkipLink.astro';
-import FeaturedWorks from '@/components/home/FeaturedWorks.astro';
-import HomePortalGrid from '@/components/home/HomePortalGrid.astro';
-import LatestPosts from '@/components/blog/LatestPosts.astro';
-import ContactCTA from '@/components/home/ContactCTA.astro';
-import StoryEffectsRuntime from '@/components/effects/StoryEffectsRuntime';
-import IOSStoryRuntimeIsolation from '@/components/effects/IOSStoryRuntimeIsolation.astro';
-import QuantumLoaderEvolution from '@/components/effects/QuantumLoaderEvolution.astro';
-import OmegaWorldRift from '@/components/effects/OmegaWorldRift.astro';
-import { siteConfig, type Locale } from '@/data/site-config';
-import '@/styles/anime-scroll-story.css';
-import '@/styles/anime-scroll-story-overrides.css';
-import '@/styles/anime-scroll-performance.css';
-import '@/styles/spatial-home-v2.css';
-import '@/styles/cinematic-entertainment.css';
-import '@/styles/cinematic-entertainment-polish.css';
-import '@/styles/cinematic-entertainment-compat.css';
-import '@/styles/singularity-overdrive.css';
-import '@/styles/chapter-gate-transitions.css';
-import '@/styles/adaptive-reality-overdrive.css';
-import '@/styles/home-loader-insets.css';
-import '@/styles/story-static-fallback.css';
-import '@/styles/story-production-runtime.css';
-import '@/styles/story-ios-webkit-stability.css';
-import '@/styles/story-static-stack.css';
+import OfficialLayout from '@/layouts/OfficialLayout.astro';
+import { localePath, siteConfig, type Locale } from '@/data/site-config';
 
 const { locale } = Astro.props as { locale: Locale };
-const descriptions = {
-  ja: 'Developer、Gamer、Communityをつなぐ「いゔる。」の公式サイト。制作物、プロフィール、活動記録、ivRmコミュニティへの入口をまとめています。',
-  en: 'The official ivuru site connecting development, gaming, and community through selected projects and focused destinations.',
-  ko: '개발, 게임, 커뮤니티를 연결하는 ivuru 공식 사이트입니다. 프로젝트와 주요 페이지로 간결하게 안내합니다.',
+
+const copy = {
+  ja: {
+    description:
+      '開発、ゲーム、コミュニティを横断して活動する「いゔる。 / ivuru」の個人公式サイト。プロフィール、制作物、活動記録をまとめています。',
+    title: 'つくることを、もっと自由に。',
+    lead: 'Web開発、クラウド、ゲーム、コミュニティ。興味の境界を越えながら、日々つくったものと考えたことを記録しています。',
+    primary: '制作物を見る',
+    secondary: 'プロフィール',
+    profile: 'Developer / Gamer / Community',
+    profileText: '技術と遊びの間を行き来しながら、自分が面白いと思える体験をつくっています。',
+    worksTitle: 'Selected works',
+    worksText: '個人開発、Webサービス、コミュニティ向けツールから、現在進行中のプロジェクトまで。',
+    focusTitle: 'What I do',
+    focusText: 'ひとつの肩書きに限定せず、技術と体験の両方を大切にしています。',
+    statusTitle: '一緒につくる、話す。',
+    statusText: '制作、技術、コミュニティに関するご相談やご連絡はこちらから。',
+    contact: 'お問い合わせ',
+  },
+  en: {
+    description:
+      'The personal official site of ivuru, working across development, games, and community. Explore profile, projects, and activity notes.',
+    title: 'Create beyond boundaries.',
+    lead: 'Web development, cloud, games, and community. I build and document ideas across the spaces where technology and play meet.',
+    primary: 'View works',
+    secondary: 'Profile',
+    profile: 'Developer / Gamer / Community',
+    profileText: 'I move between technology and play to create experiences that feel genuinely interesting.',
+    worksTitle: 'Selected works',
+    worksText: 'Personal projects, web services, community tools, and work currently in progress.',
+    focusTitle: 'What I do',
+    focusText: 'Rather than staying inside one title, I care about both technology and experience.',
+    statusTitle: 'Let’s create and talk.',
+    statusText: 'For projects, technology, community, or any other inquiry, contact me here.',
+    contact: 'Contact',
+  },
+  ko: {
+    description:
+      '개발, 게임, 커뮤니티를 넘나들며 활동하는 ivuru의 개인 공식 사이트입니다. 프로필, 프로젝트, 활동 기록을 소개합니다.',
+    title: '경계를 넘어, 자유롭게 만들다.',
+    lead: '웹 개발, 클라우드, 게임, 커뮤니티. 기술과 놀이가 만나는 곳에서 만든 것과 생각을 기록합니다.',
+    primary: '프로젝트 보기',
+    secondary: '프로필',
+    profile: 'Developer / Gamer / Community',
+    profileText: '기술과 놀이 사이를 오가며 진심으로 재미있다고 느끼는 경험을 만듭니다.',
+    worksTitle: 'Selected works',
+    worksText: '개인 개발, 웹 서비스, 커뮤니티 도구, 그리고 현재 진행 중인 프로젝트를 소개합니다.',
+    focusTitle: 'What I do',
+    focusText: '하나의 직함에 머물지 않고 기술과 경험 모두를 중요하게 생각합니다.',
+    statusTitle: '함께 만들고 이야기해요.',
+    statusText: '제작, 기술, 커뮤니티 관련 문의는 여기에서 연락해 주세요.',
+    contact: '문의하기',
+  },
 };
+
+const projects = [
+  {
+    title: 'ivRm',
+    description: '開発・クリエイティブ・コミュニティをつなぐ活動基盤。',
+    href: siteConfig.ivrmUrl,
+    external: true,
+  },
+  {
+    title: 'Quizverse',
+    description: 'クイズを作る・遊ぶ・共有するためのWebプラットフォーム。',
+    href: '/works',
+    external: false,
+  },
+  {
+    title: 'Home Panel',
+    description: '日常の情報とツールをひとつにまとめる個人向けダッシュボード。',
+    href: '/works',
+    external: false,
+  },
+];
+
+const focusItems = [
+  {
+    code: '01',
+    title: 'Web Development',
+    description: 'フロントエンドからバックエンド、運用まで。使いやすさと実装品質を両立します。',
+  },
+  {
+    code: '02',
+    title: 'Cloud & Infrastructure',
+    description: 'AWS、Cloudflare、Netlifyなどを活用し、学びながら安定した構成を組み立てます。',
+  },
+  {
+    code: '03',
+    title: 'Games & Community',
+    description: 'ゲーム体験とコミュニティ活動を、サービスやコンテンツづくりへつなげます。',
+  },
+];
 ---
 
-<BaseLayout
-  title={siteConfig.title}
-  description={descriptions[locale]}
-  locale={locale}
-  chapter={{ code: '00', title: 'HOME', world: 'BLUE STORY' }}
->
-  <IOSStoryRuntimeIsolation />
-  <LoaderReleaseGuard />
-  <QuantumLoaderEvolution />
-  <LoaderCompletionBridge />
-  <StoryEffectsRuntime client:load />
-
-  <StorySkipLink locale={locale} />
-  <AnimeScrollStory locale={locale} />
-  <OmegaWorldRift />
-
-  <div id="anime-story-after" class="anime-story-after" tabindex="-1">
-    <div class="anime-scene-anchor" data-anime-scene="ice" data-cinematic-section>
-      <FeaturedWorks locale={locale} />
+<OfficialLayout title={siteConfig.title} description={copy[locale].description} locale={locale}>
+  <section class="official-shell official-hero" aria-labelledby="official-hero-title">
+    <div class="official-hero__copy">
+      <h1 id="official-hero-title">
+        {copy[locale].title.split('、')[0]}<span>{copy[locale].title.includes('、') ? '、' : ' '}</span><br />
+        {copy[locale].title.split('、')[1] ?? ''}
+      </h1>
+      <p class="official-hero__lead">{copy[locale].lead}</p>
+      <div class="official-hero__actions">
+        <a class="official-button" href={localePath(locale, '/works')}>{copy[locale].primary}</a>
+        <a class="official-button official-button--secondary" href={localePath(locale, '/profile')}>
+          {copy[locale].secondary}
+        </a>
+      </div>
     </div>
 
-    <div class="anime-scene-anchor" data-anime-scene="sky" data-cinematic-section>
-      <HomePortalGrid locale={locale} />
+    <div class="official-hero__visual" aria-label="ivuru profile summary">
+      <article class="official-profile-panel">
+        <div class="official-profile-panel__avatar" aria-hidden="true">iv</div>
+        <div class="official-profile-panel__meta">
+          <strong>{siteConfig.name} / {siteConfig.idName}</strong>
+          <p>{copy[locale].profile}</p>
+          <p>{copy[locale].profileText}</p>
+          <div class="official-profile-panel__tags" aria-label="Areas of activity">
+            <span>Development</span>
+            <span>Cloud</span>
+            <span>Games</span>
+            <span>Community</span>
+          </div>
+        </div>
+      </article>
     </div>
+  </section>
 
-    <div class="anime-scene-anchor" data-anime-scene="deep" data-cinematic-section>
-      <LatestPosts locale={locale} />
-      <ContactCTA locale={locale} />
+  <section class="official-section" aria-labelledby="selected-works-title">
+    <div class="official-shell">
+      <div class="official-section__heading">
+        <h2 id="selected-works-title">{copy[locale].worksTitle}</h2>
+        <p>{copy[locale].worksText}</p>
+      </div>
+
+      <div class="official-project-list">
+        {
+          projects.map((project, index) => (
+            <a
+              class="official-project"
+              href={project.external ? project.href : localePath(locale, project.href)}
+              target={project.external ? '_blank' : undefined}
+              rel={project.external ? 'noreferrer' : undefined}
+            >
+              <span class="official-project__index">0{index + 1}</span>
+              <span>
+                <h3>{project.title}</h3>
+                <p>{project.description}</p>
+              </span>
+              <span class="official-project__arrow" aria-hidden="true">↗</span>
+            </a>
+          ))
+        }
+      </div>
     </div>
-  </div>
-</BaseLayout>
+  </section>
 
-<style>
-  .anime-scene-anchor {
-    position: relative;
-  }
+  <section class="official-section official-section--soft" aria-labelledby="focus-title">
+    <div class="official-shell">
+      <div class="official-section__heading">
+        <h2 id="focus-title">{copy[locale].focusTitle}</h2>
+        <p>{copy[locale].focusText}</p>
+      </div>
+      <div class="official-focus-grid">
+        {
+          focusItems.map((item) => (
+            <article class="official-focus-item">
+              <span>{item.code}</span>
+              <h3>{item.title}</h3>
+              <p>{item.description}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
 
-  @media (prefers-reduced-motion: reduce) {
-    :global(.world-loader) {
-      pointer-events: none !important;
-    }
-  }
-</style>
+  <section class="official-section">
+    <div class="official-shell">
+      <div class="official-status">
+        <div>
+          <h2>{copy[locale].statusTitle}</h2>
+          <p>{copy[locale].statusText}</p>
+        </div>
+        <a class="official-button official-button--secondary" href={localePath(locale, '/contact')}>
+          {copy[locale].contact}
+        </a>
+      </div>
+    </div>
+  </section>
+</OfficialLayout>
