@@ -1,141 +1,19 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import ImmersiveWorldHero from '@/components/common/ImmersiveWorldHero.astro';
-import AdaptiveLoopVideo from '@/components/common/AdaptiveLoopVideo';
 import { newsCategoryLabels, newsItems } from '@/data/news';
 import { localePath, siteConfig, type Locale } from '@/data/site-config';
-import '@/styles/immersive-worlds.css';
 
 const { locale } = Astro.props as { locale: Locale };
 const copy = {
-  ja: {
-    label: 'NEWS WORLD',
-    title: 'News / 更新記録',
-    description: '開発、コミュニティ、メディアの変化を、ひとつの物語として記録します。',
-    latest: '最新のシグナル',
-    latestIntro: 'サイトと関連プロジェクトで起きた主な更新です。',
-    open: '詳細を開く',
-    local: 'このワールド内の記録',
-    reel: 'WORLD DISPATCH',
-    reelTitle: '更新が、次のシーンを動かす。',
-    reelBody: '短い開発サイクルを積み重ねながら、DeveloperとGamerの世界を少しずつ拡張しています。',
-    back: 'ホームへ戻る',
-  },
-  en: {
-    label: 'NEWS WORLD',
-    title: 'News / Update Log',
-    description: 'Development, community, and media changes are recorded as one continuing story.',
-    latest: 'Latest signals',
-    latestIntro: 'Major updates from this site and related projects.',
-    open: 'Open details',
-    local: 'Record in this world',
-    reel: 'WORLD DISPATCH',
-    reelTitle: 'Every update moves the next scene.',
-    reelBody: 'Short development cycles steadily expand the connected Developer and Gamer worlds.',
-    back: 'Back home',
-  },
-  ko: {
-    label: 'NEWS WORLD',
-    title: 'News / 업데이트 기록',
-    description: '개발, 커뮤니티, 미디어의 변화를 하나의 이어지는 이야기로 기록합니다.',
-    latest: '최신 신호',
-    latestIntro: '사이트와 관련 프로젝트에서 발생한 주요 업데이트입니다.',
-    open: '상세 보기',
-    local: '이 월드의 기록',
-    reel: 'WORLD DISPATCH',
-    reelTitle: '업데이트가 다음 장면을 움직입니다.',
-    reelBody: '짧은 개발 사이클을 쌓아 Developer와 Gamer의 세계를 조금씩 확장합니다.',
-    back: '홈으로 돌아가기',
-  },
+  ja: { title: 'News', lead: 'サイト、制作、コミュニティに関する更新を、読みやすい時系列でまとめています。', latest: 'Latest updates', latestIntro: '新しい順に、変更点と活動記録を確認できます。', open: '詳細を見る', local: 'サイト内のお知らせ', back: 'ホームへ戻る' },
+  en: { title: 'News', lead: 'A clear chronological record of updates across the site, projects, and community.', latest: 'Latest updates', latestIntro: 'Browse changes and activity notes from newest to oldest.', open: 'View details', local: 'Site update', back: 'Back home' },
+  ko: { title: 'News', lead: '사이트, 프로젝트, 커뮤니티의 업데이트를 읽기 쉬운 시간순으로 정리합니다.', latest: 'Latest updates', latestIntro: '최신 변경 사항과 활동 기록을 확인할 수 있습니다.', open: '자세히 보기', local: '사이트 공지', back: '홈으로' },
 }[locale];
 const categories = newsCategoryLabels[locale];
-const formatter = new Intl.DateTimeFormat(
-  locale === 'ja' ? 'ja-JP' : locale === 'ko' ? 'ko-KR' : 'en-US',
-  {
-    year: 'numeric',
-    month: 'short',
-    day: '2-digit',
-  },
-);
+const formatter = new Intl.DateTimeFormat(locale === 'ja' ? 'ja-JP' : locale === 'ko' ? 'ko-KR' : 'en-US', { year: 'numeric', month: 'short', day: '2-digit' });
 ---
 
-<BaseLayout
-  title={`${copy.title} — ${siteConfig.name} / ${siteConfig.idName}`}
-  description={copy.description}
-  locale={locale}
-  image="/assets/video/games/sky-raid-poster.webp"
-  chapter={{ code: '03', title: 'NEWS ARCHIVE', world: 'SIGNAL WORLD' }}
->
-  <ImmersiveWorldHero
-    code="CHAPTER 03"
-    label={copy.label}
-    title={copy.title}
-    description={copy.description}
-    tone="news"
-  >
-    <a class="immersive-hero-action" href={localePath(locale, '/')}>{copy.back}</a>
-  </ImmersiveWorldHero>
-
-  <section class="news-signal-section section" data-world-zone="signal">
-    <div class="section-inner">
-      <div class="section-heading" data-reveal>
-        <div><p class="section-kicker">LIVE UPDATE FEED</p><h2>{copy.latest}</h2></div>
-        <p class="section-intro">{copy.latestIntro}</p>
-      </div>
-      <div class="news-timeline" role="list">
-        {
-          newsItems.map((item, index) => (
-            <article
-              class={`news-signal-card news-accent-${item.accent}`}
-              role="listitem"
-              data-reveal
-              data-enter-side={index % 2 === 0 ? 'left' : 'right'}
-            >
-              <div class="news-signal-index" aria-hidden="true">
-                {String(index + 1).padStart(2, '0')}
-              </div>
-              <div class="news-signal-meta">
-                <time datetime={item.publishedAt}>
-                  {formatter.format(new Date(`${item.publishedAt}T00:00:00Z`))}
-                </time>
-                <span>{categories[item.category]}</span>
-              </div>
-              <h3>{item.title[locale]}</h3>
-              <p>{item.summary[locale]}</p>
-              {item.href ? (
-                <a href={item.href} target="_blank" rel="noopener noreferrer">
-                  {copy.open} ↗
-                </a>
-              ) : (
-                <span class="news-local-label">{copy.local}</span>
-              )}
-            </article>
-          ))
-        }
-      </div>
-    </div>
-  </section>
-
-  <section class="news-dispatch section" data-world-zone="creative">
-    <div class="section-inner news-dispatch-grid">
-      <AdaptiveLoopVideo
-        client:visible
-        webm="/assets/video/games/sky-raid.webm"
-        mp4="/assets/video/games/sky-raid.mp4"
-        poster="/assets/video/games/sky-raid-poster.webp"
-        title={copy.reelTitle}
-        className="dispatch-video"
-      />
-      <div data-reveal>
-        <p class="section-kicker">{copy.reel}</p>
-        <h2>{copy.reelTitle}</h2>
-        <p>{copy.reelBody}</p>
-        <div class="dispatch-stats" aria-label="Project update summary">
-          <span><strong>03</strong> NEW WORLDS</span>
-          <span><strong>JA / EN / KO</strong> LOCALES</span>
-          <span><strong>100%</strong> LOCAL MEDIA</span>
-        </div>
-      </div>
-    </div>
-  </section>
+<BaseLayout title={`${copy.title} — ${siteConfig.name} / ${siteConfig.idName}`} description={copy.lead} locale={locale}>
+  <header class="official-page-hero"><div class="official-shell"><p class="official-page-label">Updates / Activity</p><h1>{copy.title}</h1><p>{copy.lead}</p><a class="official-text-link" href={localePath(locale, '/')}>{copy.back} →</a></div></header>
+  <section class="official-section"><div class="official-shell"><div class="official-section__heading"><h2>{copy.latest}</h2><p>{copy.latestIntro}</p></div><div class="official-news-list" role="list">{newsItems.map((item, index) => <article class="official-news-item" role="listitem"><div class="official-news-item__meta"><span>{String(index + 1).padStart(2, '0')}</span><time datetime={item.publishedAt}>{formatter.format(new Date(`${item.publishedAt}T00:00:00Z`))}</time><span>{categories[item.category]}</span></div><div><h2>{item.title[locale]}</h2><p>{item.summary[locale]}</p></div>{item.href ? <a class="official-project__arrow" href={item.href} target="_blank" rel="noopener noreferrer" aria-label={copy.open}>↗</a> : <span class="official-news-local">{copy.local}</span>}</article>)}</div></div></section>
 </BaseLayout>
