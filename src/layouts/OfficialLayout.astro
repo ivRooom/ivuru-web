@@ -96,7 +96,11 @@ const footerCopy = {
     <a class="official-skip-link" href="#main-content">Skip to content</a>
     <header class="official-header" data-official-header>
       <div class="official-shell official-header__inner">
-        <a class="official-brand" href={localePath(locale, '/')} aria-label={`${siteConfig.name} home`}>
+        <a
+          class="official-brand"
+          href={localePath(locale, '/')}
+          aria-label={`${siteConfig.name} home`}
+        >
           <span class="official-brand__mark" aria-hidden="true">i</span>
           <span>
             <strong>{siteConfig.name}</strong>
@@ -121,7 +125,9 @@ const footerCopy = {
               <option value="dark">Dark</option>
             </select>
           </label>
-          <a class="official-button official-button--small" href={localePath(locale, '/contact')}>Contact</a>
+          <a class="official-button official-button--small" href={localePath(locale, '/contact')}
+            >Contact</a
+          >
         </div>
       </div>
     </header>
