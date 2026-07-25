@@ -1,37 +1,9 @@
 ---
-import Header from '@/components/common/Header.astro';
-import Footer from '@/components/common/Footer.astro';
-import IntroLoader from '@/components/common/IntroLoader.astro';
-import ChapterCut from '@/components/common/ChapterCut';
-import WorldState from '@/components/common/WorldState';
-import ScrollProgress from '@/components/common/ScrollProgress';
-import NavigationLifecycle from '@/components/common/NavigationLifecycle.astro';
-import ScrollEffects from '@/components/effects/ScrollEffects';
-import AnalyticsBridge from '@/components/common/AnalyticsBridge.astro';
-import { siteConfig, localePath, type Locale } from '@/data/site-config';
 import { ClientRouter } from 'astro:transitions';
-import '@/styles/global.css';
-import '@/styles/experience.css';
-import '@/styles/navigation-fix.css';
-import '@/styles/world-system.css';
-import '@/styles/profile-hub.css';
-import '@/styles/contact-terminal.css';
-import '@/styles/layout-fixes.css';
-import '@/styles/activity-command-center.css';
-import '@/styles/anime-experience.css';
-import '@/styles/blue-media-renewal.css';
-import '@/styles/blue-media-motion.css';
-import '@/styles/cinematic-motion.css';
-import '@/styles/anime-cyber-renewal.css';
-import '@/styles/signal-art-direction.css';
-import '@/styles/motion-system.css';
+import { localePath, siteConfig, type Locale } from '@/data/site-config';
+import '@/styles/official-site.css';
 
-type Chapter = {
-  code: string;
-  title: string;
-  world: string;
-};
-
+type Chapter = { code: string; title: string; world: string };
 type Props = {
   title: string;
   description: string;
@@ -41,6 +13,7 @@ type Props = {
   noindex?: boolean;
   chapter?: Chapter;
 };
+
 const {
   title,
   description,
@@ -48,202 +21,108 @@ const {
   image = siteConfig.defaultOgImage,
   type = 'website',
   noindex = false,
-  chapter = { code: '00', title: 'WORLD GATE', world: 'NEXUS' },
 } = Astro.props;
 const resolvedTitle = title.replaceAll('ivuruGG', `${siteConfig.name} / ${siteConfig.idName}`);
 const canonical = new URL(Astro.url.pathname, siteConfig.siteUrl);
 const normalized = Astro.url.pathname.replace(/^\/(en|ko)(?=\/|$)/, '') || '/';
-const isHome = normalized === '/';
 const ogImage = new URL(image, siteConfig.siteUrl);
-const fallbackOgImage = new URL(siteConfig.fallbackOgImage, siteConfig.siteUrl);
-const ogImageType = image.endsWith('.svg')
-  ? 'image/svg+xml'
-  : image.endsWith('.webp')
-    ? 'image/webp'
-    : 'image/png';
-const twitterImage = image.endsWith('.svg') ? fallbackOgImage : ogImage;
-const sameAs = [
-  siteConfig.xUrl,
-  siteConfig.instagramUrl,
-  siteConfig.tiktokUrl,
-  siteConfig.twitchUrl,
-  siteConfig.youtubeUrl,
-].filter(Boolean);
-const pageWorld = chapter.world
-  .toLowerCase()
-  .replaceAll(/[^a-z0-9]+/g, '-')
-  .replace(/^-|-$/g, '');
+const navigation = {
+  ja: [
+    ['ホーム', '/'], ['プロフィール', '/profile'], ['制作物', '/works'], ['ニュース', '/news'], ['ブログ', '/blog'],
+  ],
+  en: [
+    ['Home', '/'], ['Profile', '/profile'], ['Works', '/works'], ['News', '/news'], ['Blog', '/blog'],
+  ],
+  ko: [
+    ['홈', '/'], ['프로필', '/profile'], ['프로젝트', '/works'], ['뉴스', '/news'], ['블로그', '/blog'],
+  ],
+} as const;
+const footerCopy = {
+  ja: '開発、ゲーム、コミュニティをつなぐ、いゔる。の個人公式サイト。',
+  en: 'The personal official site of ivuru, connecting development, games, and community.',
+  ko: '개발, 게임, 커뮤니티를 연결하는 ivuru의 개인 공식 사이트.',
+};
 ---
 
 <!doctype html>
-<html
-  lang={locale}
-  data-theme="dark"
-  data-theme-mode="system"
-  data-chapter={chapter.code}
-  data-world={pageWorld}
-  data-world-time="dawn"
-  data-document-active="true"
->
+<html lang={locale} data-theme="light" data-theme-mode="system" data-official-site>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="theme-color" content="#061a39" />
+    <meta name="theme-color" content="#f7f8fb" />
     <title>{resolvedTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    {
-      siteConfig.locales.map((lang) => (
-        <link
-          rel="alternate"
-          hreflang={lang === 'ja' ? 'ja-JP' : lang === 'en' ? 'en-US' : 'ko-KR'}
-          href={new URL(localePath(lang, normalized), siteConfig.siteUrl)}
-        />
-      ))
-    }
-    <link
-      rel="alternate"
-      hreflang="x-default"
-      href={new URL(localePath('ja', normalized), siteConfig.siteUrl)}
-    />
+    {siteConfig.locales.map((lang) => <link rel="alternate" hreflang={lang === 'ja' ? 'ja-JP' : lang === 'en' ? 'en-US' : 'ko-KR'} href={new URL(localePath(lang, normalized), siteConfig.siteUrl)} />)}
+    <link rel="alternate" hreflang="x-default" href={new URL(localePath('ja', normalized), siteConfig.siteUrl)} />
     <meta property="og:type" content={type} />
     <meta property="og:title" content={resolvedTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
-    <meta property="og:image:secure_url" content={ogImage} />
-    <meta property="og:image:type" content={ogImageType} />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta
-      property="og:image:alt"
-      content={`${siteConfig.name} / ${siteConfig.idName} — Developer World × Gamer World`}
-    />
-    {
-      ogImage.href !== fallbackOgImage.href && (
-        <>
-          <meta property="og:image" content={fallbackOgImage} />
-          <meta property="og:image:secure_url" content={fallbackOgImage} />
-          <meta property="og:image:type" content="image/png" />
-          <meta property="og:image:width" content="1200" />
-          <meta property="og:image:height" content="630" />
-          <meta
-            property="og:image:alt"
-            content={`${siteConfig.name} / ${siteConfig.idName} official site`}
-          />
-        </>
-      )
-    }
-    <meta property="og:site_name" content={`${siteConfig.name} / ${siteConfig.idName}`} />
-    <meta
-      property="og:locale"
-      content={locale === 'ja' ? 'ja_JP' : locale === 'en' ? 'en_US' : 'ko_KR'}
-    />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content={siteConfig.xHandle} />
     <meta name="twitter:title" content={resolvedTitle} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={twitterImage} />
-    <meta
-      name="twitter:image:alt"
-      content={`${siteConfig.name} / ${siteConfig.idName} official world portal`}
-    />
+    <meta name="twitter:image" content={ogImage} />
     {noindex && <meta name="robots" content="noindex,follow" />}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="manifest" href="/site.webmanifest" />
-    <link
-      rel="alternate"
-      type="application/rss+xml"
-      title={`${siteConfig.name} Blog`}
-      href="/rss.xml"
-    />
+    <link rel="alternate" type="application/rss+xml" title={`${siteConfig.name} Blog`} href="/rss.xml" />
+    <ClientRouter fallback="animate" />
     <script is:inline>
       (() => {
         const stored = localStorage.getItem('ivuru-theme') || 'system';
-        const resolved =
-          stored === 'system'
-            ? matchMedia('(prefers-color-scheme: dark)').matches
-              ? 'dark'
-              : 'light'
-            : stored;
+        const resolved = stored === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : stored;
         document.documentElement.dataset.theme = resolved;
         document.documentElement.dataset.themeMode = stored;
       })();
     </script>
-    <script is:inline define:vars={{ currentLocale: locale }}>
-      (() => {
-        if (localStorage.getItem('ivuru-locale')) return;
-        if (currentLocale !== 'ja') {
-          localStorage.setItem('ivuru-locale', currentLocale);
-          return;
-        }
-        const detected = navigator.language.toLowerCase().startsWith('ko')
-          ? 'ko'
-          : navigator.language.toLowerCase().startsWith('en')
-            ? 'en'
-            : 'ja';
-        localStorage.setItem('ivuru-locale', detected);
-        if (detected !== 'ja')
-          location.replace(`/${detected}${location.pathname === '/' ? '' : location.pathname}`);
-      })();
-    </script>
-    <script
-      is:inline
-      type="application/ld+json"
-      set:html={JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'Person',
-        name: siteConfig.name,
-        alternateName: siteConfig.idName,
-        url: siteConfig.siteUrl,
-        sameAs,
-        image: new URL(siteConfig.profileImageUrl, siteConfig.siteUrl).href,
-        email: `mailto:${siteConfig.email}`,
-        jobTitle: 'Developer / Gamer',
-        description,
-      })}
-    />
-    <ClientRouter fallback="animate" />
   </head>
-  <body data-page-world={pageWorld} data-anime-scene="ice" data-route-state="idle">
-    <a class="skip-link" href="#main-content">Skip to content</a>
-    <div class="route-progress" aria-hidden="true"><span></span></div>
-    <div class="header-scroll-sentinel" data-header-sentinel aria-hidden="true"></div>
-    <NavigationLifecycle />
-    {isHome && <IntroLoader locale={locale} transition:persist="intro-loader" />}
+  <body>
+    <a class="official-skip-link" href="#main-content">Skip to content</a>
+    <header class="official-header">
+      <div class="official-shell official-header__inner">
+        <a class="official-brand" href={localePath(locale, '/')} aria-label={`${siteConfig.name} home`}>
+          <span class="official-brand__mark" aria-hidden="true">i</span>
+          <span><strong>{siteConfig.name}</strong><small>{siteConfig.idName}</small></span>
+        </a>
+        <nav class="official-nav" aria-label="Primary navigation">
+          {navigation[locale].map(([label, href]) => <a class={normalized === href ? 'is-current' : ''} href={localePath(locale, href)}>{label}</a>)}
+        </nav>
+        <div class="official-header__actions">
+          <label class="official-theme-control"><span class="sr-only">Theme</span><select data-theme-select aria-label="Theme"><option value="system">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select></label>
+          <a class="official-button official-button--small" href={localePath(locale, '/contact')}>Contact</a>
+        </div>
+      </div>
+    </header>
+    <main id="main-content" tabindex="-1" transition:name="official-page"><slot /></main>
+    <footer class="official-footer">
+      <div class="official-shell official-footer__inner">
+        <div><a class="official-brand official-brand--footer" href={localePath(locale, '/')}><span class="official-brand__mark" aria-hidden="true">i</span><span><strong>{siteConfig.name}</strong><small>{siteConfig.idName}</small></span></a><p>{footerCopy[locale]}</p></div>
+        <div class="official-footer__links"><a href={siteConfig.githubUrl} target="_blank" rel="noreferrer">GitHub</a><a href={siteConfig.xUrl} target="_blank" rel="noreferrer">X</a><a href={siteConfig.ivrmUrl} target="_blank" rel="noreferrer">ivRm</a></div>
+        <p class="official-footer__copyright">© {new Date().getFullYear()} ivuru.</p>
+      </div>
+    </footer>
     <script is:inline>
       (() => {
-        const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const releaseFailsafe = () => {
-          const loader = document.querySelector('.world-loader');
-          if (!(loader instanceof HTMLElement)) return;
-          if (
-            loader.classList.contains('loaded') ||
-            document.documentElement.dataset.loaderReleased === 'true'
-          ) {
-            return;
-          }
-          document.documentElement.dataset.loaderReleased = 'true';
-          loader.classList.add('loaded');
-          loader.dataset.failsafeHidden = 'true';
-          document.body.classList.remove('site-loading');
+        const bindTheme = () => {
+          const select = document.querySelector('[data-theme-select]');
+          if (!(select instanceof HTMLSelectElement) || select.dataset.bound === 'true') return;
+          select.dataset.bound = 'true';
+          select.value = document.documentElement.dataset.themeMode || 'system';
+          select.addEventListener('change', () => {
+            const mode = select.value;
+            const resolved = mode === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : mode;
+            localStorage.setItem('ivuru-theme', mode);
+            document.documentElement.dataset.themeMode = mode;
+            document.documentElement.dataset.theme = resolved;
+          });
         };
-        const armFailsafe = () => window.setTimeout(releaseFailsafe, reduced ? 500 : 5_000);
-
-        if (document.readyState === 'complete') armFailsafe();
-        else window.addEventListener('load', armFailsafe, { once: true });
+        bindTheme();
+        document.addEventListener('astro:page-load', bindTheme);
       })();
     </script>
-    <ChapterCut client:load transition:persist="chapter-cut" />
-    <WorldState client:load transition:persist="world-state" />
-    <AnalyticsBridge />
-    <div class="world-atmosphere" aria-hidden="true"><i></i><i></i><i></i></div>
-    <ScrollProgress client:load />
-    <ScrollEffects client:idle />
-    <Header locale={locale} chapter={chapter} />
-    <main id="main-content" tabindex="-1" transition:name="page-content"><slot /></main>
-    <Footer locale={locale} />
-    <div class="noise" aria-hidden="true"></div>
   </body>
 </html>
